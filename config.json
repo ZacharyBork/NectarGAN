@@ -5,22 +5,20 @@
         "OUTPUT_DIRECTORY": "E:/ML/test_data/pix2pix/test_output_01",
         "EXPERIMENT_NAME": "test01",
         "DIRECTION": "BtoA",
+        "NUM_EPOCHS": 1,
         "LEARNING_RATE": 2e-4,
         "BATCH_SIZE": 1,
         "NUM_WORKERS": 4,
-        "IMAGE_SIZE": 256,
         "INPUT_NC": 3,
         "LOAD_SIZE": 512,
         "CROP_SIZE": 256,
         "LAMBDA_L1": 100.0,
-        "LAMDA_SOBEL": 10.0,
+        "LAMBDA_SOBEL": 10.0,
         "BETA1": 0.5,
-        "NUM_EPOCHS": 1,
         "CONTINUE_TRAIN": false,
         "LOAD_EPOCH": 3,
         "SAVE_MODEL": true,
-        "MODEL_SAVE_RATE": 1, 
-        "CHECKPOINT_DISC": "netD.pth.tar",
-        "CHECKPOINT_GEN": "netG.pth.tar"
+        "MODEL_SAVE_RATE": 1,
+        "UPDATE_FREQUENCY": 10
     }
 }
