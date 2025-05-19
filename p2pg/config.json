@@ -16,7 +16,7 @@
         "LAMDA_SOBEL": 10.0,
         "BETA1": 0.5,
         "NUM_EPOCHS": 3,
-        "LOAD_MODEL": true,
+        "CONTINUE_TRAIN": true,
         "LOAD_EPOCH": 3,
         "SAVE_MODEL": true,
         "MODEL_SAVE_RATE": 1, 

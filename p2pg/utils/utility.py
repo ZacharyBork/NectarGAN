@@ -15,20 +15,21 @@ def get_config_data():
 
 def export_training_config(config: dict, output_directory: pathlib.Path):
     data = { 'config': config }
-    config_export_path = pathlib.Path(output_directory, f'train{str(1)}_config.json')
+    existing_configs = [i for i in output_directory.iterdir() if i.suffix == '.json']
+    config_export_path = pathlib.Path(output_directory, f'train{str(1 + len(existing_configs))}_config.json')
     with open(config_export_path.as_posix(), 'w') as file:
         json.dump(data, file, indent=4)
     file.close()
 
-def build_experiment_directory(output_directory: str, experiment_name: str):
+def build_experiment_directory(output_directory: str, experiment_name: str, exist_ok: bool):
     output_root = pathlib.Path(output_directory)
     experiment_dir = pathlib.Path(output_root, experiment_name)
-    try: experiment_dir.mkdir(parents=False, exist_ok=False)
+    try: experiment_dir.mkdir(parents=False, exist_ok=exist_ok)
     except Exception:
         raise
 
     examples_dir = pathlib.Path(experiment_dir, 'examples')
-    examples_dir.mkdir()
+    examples_dir.mkdir(exist_ok=exist_ok)
 
     return experiment_dir, examples_dir
 
@@ -58,20 +59,27 @@ def save_checkpoint(model, optimizer, output_path: pathlib.Path):
     }
     torch.save(checkpoint, output_path.as_posix())
 
-def load_checkpoint(config: dict, checkpoint_file, model, optimizer, lr):
-    print('=> Loading Checkpoint')
-    checkpoint = torch.load(checkpoint_file, map_location=config['DEVICE'])
-    model.load_state_dict(checkpoint['state_dict'])
-    optimizer.load_state_dict(checkpoint['optimizer'])
+def load_checkpoint(config, gen, opt_gen, disc, opt_disc):
+    load_epoch = config['LOAD_EPOCH']
+    output_directory = pathlib.Path(config['OUTPUT_DIRECTORY'])
+    experiment_directory = pathlib.Path(output_directory, config['EXPERIMENT_NAME'])
+    
+    # Load generator checkpoint
+    checkpoint_gen_path = pathlib.Path(experiment_directory, f'epoch{load_epoch}_netG.pth.tar')
+    if not checkpoint_gen_path.exists():
+        raise Exception(f'Unable to locate discriminator checkpoint at: {checkpoint_gen_path.as_posix()}')
+    
+    # Load discriminator checkpoint
+    checkpoint_disc_path = pathlib.Path(experiment_directory, f'epoch{load_epoch}_netD.pth.tar')
+    if not checkpoint_disc_path.exists():
+        raise Exception(f'Unable to locate discriminator checkpoint at: {checkpoint_disc_path.as_posix()}')
+    
+    models = [(checkpoint_gen_path, gen, opt_gen), (checkpoint_disc_path, disc, opt_disc)]
+    for path, model, optimizer in models:
+        checkpoint = torch.load(path.as_posix(), map_location=config['DEVICE'])
+        model.load_state_dict(checkpoint['state_dict'])
+        optimizer.load_state_dict(checkpoint['optimizer'])
 
-    for param_group in optimizer.param_groups:
-        param_group['lr'] = lr
+        for param_group in optimizer.param_groups:
+            param_group['lr'] = config['LEARNING_RATE']
 
-# def load_checkpoint(checkpoint_file, model, optimizer, lr):
-#     print('=> Loading Checkpoint')
-#     checkpoint = torch.load(checkpoint_file, map_location=config.DEVICE)
-#     model.load_state_dict(checkpoint['state_dict'])
-#     optimizer.load_state_dict(checkpoint['optimizer'])
-
-#     for param_group in optimizer.param_groups:
-#         param_group['lr'] = lr

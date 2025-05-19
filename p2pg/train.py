@@ -51,6 +51,11 @@ def main():
     # Get config data
     config = utility.get_config_data()
 
+    # Build experiment output directory and export config JSON
+    experiment_dir, examples_dir = utility.build_experiment_directory(
+        config['OUTPUT_DIRECTORY'], config['EXPERIMENT_NAME'], config['CONTINUE_TRAIN'])
+    utility.export_training_config(config, experiment_dir)
+
     # Init generator and gen optimizer
     gen = Generator(in_channels=config['INPUT_NC']).to(config['DEVICE'])
     opt_gen = optim.Adam(gen.parameters(), lr=config['LEARNING_RATE'], betas=(config['BETA1'], 0.999))
@@ -64,9 +69,8 @@ def main():
     L1_LOSS = nn.L1Loss()
 
     # Load checkpoint if applicable
-    if config.LOAD_MODEL:
-        utility.load_checkpoint(config['CHECKPOINT_GEN'], gen, opt_gen, config['LEARNING_RATE'])
-        utility.load_checkpoint(config['CHECKPOINT_DISC'], disc, opt_disc, config['LEARNING_RATE'])
+    if config['CONTINUE_TRAIN']:
+        utility.load_checkpoint(config, gen, opt_gen, disc, opt_disc)
 
     # Get datasets and create data loaders
     train_loader = utility.build_dataloader(config, 'train')
@@ -76,22 +80,19 @@ def main():
     g_scaler = torch.amp.GradScaler('cuda')
     d_scaler = torch.amp.GradScaler('cuda')
 
-    # Build experiment output directory and export config JSON
-    experiment_dir, examples_dir = utility.build_experiment_directory(config['OUTPUT_DIRECTORY'], config['EXPERIMENT_NAME'])
-    utility.export_training_config(config, experiment_dir)
-
     # Training loop
     for epoch in range(config['NUM_EPOCHS']):
+        index = epoch + 1 + config['LOAD_EPOCH'] if config['CONTINUE_TRAIN'] else epoch + 1
         train(config, disc, gen, train_loader, opt_disc, opt_gen, L1_LOSS, BCE, g_scaler, d_scaler)
-
+        
         if config['SAVE_MODEL'] and epoch % config['MODEL_SAVE_RATE'] == 0:
             checkpoint_name = 'epoch{}_net{}.pth.tar'
             utility.save_checkpoint(
-                gen, opt_gen, output_path=pathlib.Path(experiment_dir, checkpoint_name.format(str(epoch+1), 'G')))
+                gen, opt_gen, output_path=pathlib.Path(experiment_dir, checkpoint_name.format(str(index), 'G')))
             utility.save_checkpoint(
-                disc, opt_disc, output_path=pathlib.Path(experiment_dir, checkpoint_name.format(str(epoch+1), 'D')))
+                disc, opt_disc, output_path=pathlib.Path(experiment_dir, checkpoint_name.format(str(index), 'D')))
 
-        utility.save_examples(config, gen, val_loader, epoch, output_directory=examples_dir)
+        utility.save_examples(config, gen, val_loader, index, output_directory=examples_dir)
 
 if __name__ == "__main__":
     main()
