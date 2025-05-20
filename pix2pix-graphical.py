@@ -7,20 +7,20 @@ import PySide6.QtWidgets as QtWidgets
 from PySide6.QtUiTools import QUiLoader
 from PySide6.QtCore import QFile
 
-from .worker import TrainerWorker
+# from .worker import TrainerWorker
 
-def update_loss():
-    print('update_loss')
+# def update_loss():
+#     print('update_loss')
 
-def update_images():
-    print('update_images')
+# def update_images():
+#     print('update_images')
 
-def start_training():
-    config = json.load(open('./config.json'))
-    worker = TrainerWorker(config)
-    worker.loss_updated.connect(update_loss)
-    worker.image_updated.connect(update_images)
-    worker.start()
+# def start_training():
+#     config = json.load(open('./config.json'))
+#     worker = TrainerWorker(config)
+#     worker.loss_updated.connect(update_loss)
+#     worker.image_updated.connect(update_images)
+#     worker.start()
 
 # Callback functions
 
@@ -53,7 +53,7 @@ def link_sliders_to_spinboxes(widget: QtWidgets.QWidget):
 def init_ui(widget: QtWidgets.QWidget):
 
     test_button = widget.findChild(QtWidgets.QPushButton, 'test_button')
-    test_button.clicked.connect(start_training)
+    # test_button.clicked.connect(start_training)
 
     link_sliders_to_spinboxes(widget)
 

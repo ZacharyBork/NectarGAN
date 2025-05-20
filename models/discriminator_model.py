@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 
 from .networks import CNNBlock
 
@@ -29,6 +30,8 @@ class Discriminator(nn.Module):
         self.model = nn.Sequential(*layers)
 
     def forward(self, x, y):
+        if x.shape[2:] != y.shape[2:]:
+            y = F.interpolate(y, size=x.shape[2:], mode='bilinear', align_corners=False)
         x = torch.cat([x, y], dim=1)
         return self.model(x)
 
