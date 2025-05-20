@@ -10,9 +10,12 @@ def print_losses(epoch: int, iter: int, losses: dict):
         infostring += f' {loss_type}: {losses[loss_type]}'
     print(infostring)
 
-def get_config_data():
-    util_dir = pathlib.Path(__file__).parent
-    config_file = pathlib.Path(util_dir, '../config.json').resolve()
+def get_config_data(config_filepath: str):
+    config_file = pathlib.Path
+    if config_filepath == None:
+        util_dir = pathlib.Path(__file__).parent
+        config_file = pathlib.Path(util_dir, '../config.json').resolve()
+    else: config_file = pathlib.Path(config_filepath)
     
     with open(config_file.as_posix(), 'r') as file:
         config_data = json.loads(file.read())['config']

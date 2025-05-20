@@ -3,15 +3,37 @@ import pathlib
 import PySide6.QtWidgets as QtWidgets
 from PySide6.QtUiTools import QUiLoader
 from PySide6.QtCore import QFile
+from typing import Union
 
-def update_spinbox_from_slider(spinbox: QtWidgets.QSpinBox, slider: QtWidgets.QSlider, multiplier: float=1.0):
+def update_spinbox_from_slider(spinbox: Union[QtWidgets.QSpinBox, QtWidgets.QDoubleSpinBox], slider: QtWidgets.QSlider, multiplier: float=1.0):
     spinbox.setValue(float(slider.value()) * multiplier)
 
-def connect_ui_elements(widget: QtWidgets.QWidget):
-    # Connect learning rate slide to spinbox
-    lr_slider = widget.findChild(QtWidgets.QSlider, 'lr_slider')
-    learning_rate = widget.findChild(QtWidgets.QDoubleSpinBox, 'learning_rate')
-    lr_slider.valueChanged.connect(lambda: update_spinbox_from_slider(learning_rate, lr_slider, multiplier=0.0001))
+def link_sliders_to_spinboxes(widget: QtWidgets.QWidget):
+    sliders_to_link = [
+        # (slider, spinbox, multiplier)
+        ('lr_slider', 'learning_rate', 0.0001),
+        ('num_epochs_slider', 'num_epochs', 1.0),
+        ('batch_size_slider', 'batch_size', 1.0),
+        ('worker_count_slider', 'worker_count', 1.0),
+        ('beta1_slider', 'beta1', 0.01),
+        ('l1_slider', 'l1', 1.0),
+        ('sobel_slider', 'sobel', 1.0)
+    ]
+
+    for x, y, z in sliders_to_link:
+        slider = widget.findChild(QtWidgets.QSlider, x)
+        spinbox = widget.findChild(QtWidgets.QSpinBox, y)
+        if spinbox == None: spinbox = widget.findChild(QtWidgets.QDoubleSpinBox, y)
+        slider.valueChanged.connect(
+            lambda value, s=spinbox, sl=slider, m=z: update_spinbox_from_slider(s, sl, multiplier=m))
+
+def init_ui(widget: QtWidgets.QWidget):
+    link_sliders_to_spinboxes(widget)
+
+    coninue_train = widget.findChild(QtWidgets.QCheckBox, 'continue_train')
+    load_epoch = widget.findChild(QtWidgets.QSpinBox, 'load_epoch')
+
+    
 
 def main():
     app = QtWidgets.QApplication(sys.argv)
@@ -25,7 +47,7 @@ def main():
     
     widget = loader.load(file)
     file.close()
-    connect_ui_elements(widget)
+    init_ui(widget)
 
     widget.show()
     sys.exit(app.exec())

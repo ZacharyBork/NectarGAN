@@ -536,7 +536,7 @@
          <item>
           <widget class="QSlider" name="beta1_slider">
            <property name="maximum">
-            <number>100</number>
+            <number>250</number>
            </property>
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
