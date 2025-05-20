@@ -817,6 +817,13 @@
       </property>
       <layout class="QHBoxLayout" name="horizontalLayout_18">
        <item>
+        <widget class="QPushButton" name="test_button">
+         <property name="text">
+          <string>Test</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QPushButton" name="begin_training">
          <property name="text">
           <string>Begin Training</string>

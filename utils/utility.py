@@ -1,8 +1,10 @@
-import torch
 import json
 import pathlib
-from .dataset import Pix2pixDataset
+import numpy as np
+import torch
 from torchvision.utils import save_image
+
+from .dataset import Pix2pixDataset
 
 def print_losses(epoch: int, iter: int, losses: dict):
     infostring = f'(epoch: {epoch}, iters: {iter})'
@@ -49,15 +51,24 @@ def build_dataloader(config: dict, loader_type: str):
     dataset = Pix2pixDataset(config=config, root_dir=dataset_path)
     return torch.utils.data.DataLoader(dataset, batch_size=config['BATCH_SIZE'], shuffle=True, num_workers=config['NUM_WORKERS'])
 
+def tensor_to_image(tensor):
+    '''Converts normalized tensor to uint8 numpy image.'''
+    if tensor.dim() == 4:
+        tensor = tensor[0]
+    img = tensor.detach().cpu().numpy()
+    img = np.clip((img + 1) / 2.0 * 255.0, 0, 255).astype(np.uint8)
+    img = np.transpose(img, (1, 2, 0))
+    return img
+
 def save_examples(config: dict, gen, val_loader: torch.utils.data.DataLoader, epoch: int, output_directory: pathlib.Path):
     x, y = next(iter(val_loader))
     x, y = x.to(config['DEVICE']), y.to(config['DEVICE'])
     gen.eval()
     with torch.no_grad():
         y_fake = gen(x)
-        save_image(y_fake * 0.5 + 0.5, pathlib.Path(output_directory, f'epoch{epoch}_fake_B.png').as_posix())
-        save_image(x * 0.5 + 0.5, pathlib.Path(output_directory, f'epoch{epoch}_real_A.png').as_posix())
-        save_image(y * 0.5 + 0.5, pathlib.Path(output_directory, f'epoch{epoch}_real_B.png').as_posix())
+        save_image(y_fake * 0.5 + 0.5, pathlib.Path(output_directory, f'epoch{epoch}_B_fake.png').as_posix())
+        save_image(x * 0.5 + 0.5, pathlib.Path(output_directory, f'epoch{epoch}_A_real.png').as_posix())
+        save_image(y * 0.5 + 0.5, pathlib.Path(output_directory, f'epoch{epoch}_B_real.png').as_posix())
     gen.train()
 
 def save_checkpoint(model, optimizer, output_path: pathlib.Path):
