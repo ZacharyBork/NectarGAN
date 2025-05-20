@@ -4,32 +4,33 @@ import torch.nn as nn
 from .networks import CNNBlock
 
 class Discriminator(nn.Module):
-    def __init__(self, in_channels=3, features=[64, 128, 256, 512]):
+    def __init__(self, in_channels=3, base_channels=64, n_layers=3, max_channels=512):
         super().__init__()
-        self.initial = nn.Sequential(
-            nn.Conv2d(in_channels*2, features[0], kernel_size=4, stride=2, padding=1, padding_mode='reflect'),
-            nn.LeakyReLU(0.2),
-        )
 
         layers = []
-        in_channels = features[0]
-        for feature in features[1:]:
-            layers.append(
-                CNNBlock(in_channels, feature, stride=1 if feature == features[-1] else 2),
-            )
-            in_channels = feature
 
-        layers.append(
-            nn.Conv2d(in_channels, 1, kernel_size=4, stride=1, padding=1, padding_mode='reflect')
-        )
+        # Initial conv layer
+        layers.append(nn.Conv2d(in_channels * 2, base_channels, kernel_size=4, stride=2, padding=1, padding_mode='reflect'))
+        layers.append(nn.LeakyReLU(0.2, inplace=True))
+
+        # n_layers loop
+        in_ch = base_channels
+        for i in range(1, n_layers):
+            out_ch = min(in_ch * 2, max_channels)
+            stride = 1 if i == n_layers - 1 else 2
+            layers.append(nn.Conv2d(in_ch, out_ch, kernel_size=4, stride=stride, padding=1, bias=False, padding_mode='reflect'))
+            layers.append(nn.InstanceNorm2d(out_ch))
+            layers.append(nn.LeakyReLU(0.2, inplace=True))
+            in_ch = out_ch
+
+        # Final output layer
+        layers.append(nn.Conv2d(in_ch, 1, kernel_size=4, stride=1, padding=1, padding_mode='reflect'))
 
         self.model = nn.Sequential(*layers)
 
     def forward(self, x, y):
         x = torch.cat([x, y], dim=1)
-        x = self.initial(x)
         return self.model(x)
-    
 
 def test():
     x = torch.randn((1, 3, 256, 256))

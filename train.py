@@ -23,7 +23,11 @@ class Trainer():
         self.opt_gen = optim.Adam(self.gen.parameters(), lr=self.config['LEARNING_RATE'], betas=(self.config['BETA1'], 0.999))
 
         # Init discriminator and disc optimizer
-        self.disc = Discriminator(in_channels=self.config['INPUT_NC']).to(self.config['DEVICE'])
+        self.disc = Discriminator(
+            in_channels=self.config['INPUT_NC'],
+            base_channels=self.config['BASE_CHANNELS_D'],
+            n_layers=self.config['N_LAYERS_D'],
+            max_channels=self.config['MAX_CHANNELS_D']).to(self.config['DEVICE'])
         self.opt_disc = optim.Adam(self.disc.parameters(), lr=self.config['LEARNING_RATE'], betas=(self.config['BETA1'], 0.999))
 
         # Get datasets and create data loaders
