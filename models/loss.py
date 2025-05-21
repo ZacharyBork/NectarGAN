@@ -1,5 +1,4 @@
 import torch
-import torch.nn as nn
 import torch.nn.functional as F
 
 class SobelLoss(torch.nn.Module):
@@ -24,3 +23,23 @@ class SobelLoss(torch.nn.Module):
         grad_fake = torch.sqrt(grad_fx ** 2 + grad_fy ** 2 + 1e-6)
         grad_real = torch.sqrt(grad_rx ** 2 + grad_ry ** 2 + 1e-6)
         return F.l1_loss(grad_fake, grad_real)
+    
+class LaplacianLoss(torch.nn.Module):
+    def __init__(self):
+        super().__init__()
+        kernel = torch.tensor([
+            [0,  1, 0],
+            [1, -4, 1],
+            [0,  1, 0]
+        ], dtype=torch.float32)
+        kernel = kernel.view(1, 1, 3, 3)
+        self.register_buffer('kernel', kernel)
+
+    def forward(self, pred, target):
+        pred_gray = pred.mean(dim=1, keepdim=True)
+        target_gray = target.mean(dim=1, keepdim=True)
+
+        pred_lap = F.conv2d(pred_gray, self.kernel, padding=1)
+        target_lap = F.conv2d(target_gray, self.kernel, padding=1)
+
+        return F.l1_loss(pred_lap, target_lap)
