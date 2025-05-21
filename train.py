@@ -19,7 +19,7 @@ class Trainer():
         self.config = utility.get_config_data(config_filepath)
 
         # Init generator and gen optimizer
-        self.gen = Generator(in_channels=self.config['INPUT_NC']).to(self.config['DEVICE'])
+        self.gen = Generator(input_size=self.config['CROP_SIZE'], in_channels=self.config['INPUT_NC']).to(self.config['DEVICE'])
         self.opt_gen = optim.Adam(self.gen.parameters(), lr=self.config['LEARNING_RATE'], betas=(self.config['BETA1'], 0.999))
 
         # Init discriminator and disc optimizer

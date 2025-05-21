@@ -35,13 +35,9 @@ class Discriminator(nn.Module):
         x = torch.cat([x, y], dim=1)
         return self.model(x)
 
-def test():
+if __name__ == "__main__":
     x = torch.randn((1, 3, 256, 256))
     y = torch.randn((1, 3, 256, 256))
     model = Discriminator()
-    predictions = model(x, y)
-    print(predictions.shape)
-
-
-if __name__ == "__main__":
-    test()
+    output = model(x, y)
+    print(output.shape)
