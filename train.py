@@ -12,7 +12,7 @@ from utils.dataset import Pix2pixDataset
 
 from models.generator_model import Generator
 from models.discriminator_model import Discriminator
-from models.networks import SobelLoss
+from models.loss import SobelLoss
 
 class Trainer():
     def __init__(self, config_filepath: str=None):
@@ -152,8 +152,9 @@ class Trainer():
                     self.gen, self.opt_gen, output_path=pathlib.Path(self.experiment_dir, checkpoint_name.format(str(index), 'G')))
                 utility.save_checkpoint(
                     self.disc, self.opt_disc, output_path=pathlib.Path(self.experiment_dir, checkpoint_name.format(str(index), 'D')))
-
-            utility.save_examples(self.config, self.gen, self.val_loader, index, output_directory=self.examples_dir)
+            
+            if self.config['SAVE_EXAMPLES'] and epoch % self.config['EXAMPLE_SAVE_RATE'] == 0:
+                utility.save_examples(self.config, self.gen, self.val_loader, index, output_directory=self.examples_dir)
 
 if __name__ == "__main__":
     trainer = Trainer()

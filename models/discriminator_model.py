@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from .networks import CNNBlock
+from .discriminator_blocks import CNNBlock
 
 class Discriminator(nn.Module):
     def __init__(self, in_channels=3, base_channels=64, n_layers=3, max_channels=512):

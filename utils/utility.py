@@ -1,5 +1,6 @@
 import json
 import pathlib
+import random
 import numpy as np
 import torch
 from torchvision.utils import save_image
@@ -61,14 +62,21 @@ def tensor_to_image(tensor):
     return img
 
 def save_examples(config: dict, gen, val_loader: torch.utils.data.DataLoader, epoch: int, output_directory: pathlib.Path):
-    x, y = next(iter(val_loader))
-    x, y = x.to(config['DEVICE']), y.to(config['DEVICE'])
     gen.eval()
-    with torch.no_grad():
-        y_fake = gen(x)
-        save_image(y_fake * 0.5 + 0.5, pathlib.Path(output_directory, f'epoch{epoch}_B_fake.png').as_posix())
-        save_image(x * 0.5 + 0.5, pathlib.Path(output_directory, f'epoch{epoch}_A_real.png').as_posix())
-        save_image(y * 0.5 + 0.5, pathlib.Path(output_directory, f'epoch{epoch}_B_real.png').as_posix())
+
+    val_data = list(val_loader.dataset)
+    indices = random.sample(range(len(val_data)), config['NUM_EXAMPLES'])
+    for i, idx in enumerate(indices):
+        x, y = val_data[idx]
+        x = x.unsqueeze(0).to(config['DEVICE'])
+        y = y.unsqueeze(0).to(config['DEVICE'])
+
+        with torch.no_grad():
+            y_fake = gen(x)
+        
+        save_image(y_fake * 0.5 + 0.5, pathlib.Path(output_directory, f'epoch{epoch}_{str(i+1)}_B_fake.png').as_posix())
+        save_image(x * 0.5 + 0.5, pathlib.Path(output_directory, f'epoch{epoch}_{str(i+1)}_A_real.png').as_posix())
+        save_image(y * 0.5 + 0.5, pathlib.Path(output_directory, f'epoch{epoch}_{str(i+1)}_B_real.png').as_posix())
     gen.train()
 
 def save_checkpoint(model, optimizer, output_path: pathlib.Path):

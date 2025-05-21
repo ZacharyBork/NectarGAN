@@ -22,6 +22,9 @@
         "LOAD_EPOCH": 3,
         "SAVE_MODEL": true,
         "MODEL_SAVE_RATE": 1,
+        "SAVE_EXAMPLES": true,
+        "EXAMPLE_SAVE_RATE": 1,
+        "NUM_EXAMPLES": 1,
         "UPDATE_FREQUENCY": 10
     },
     "notes": {
@@ -47,6 +50,9 @@
         "LOAD_EPOCH": "Epoch to load if CONTINUE_TRAIN is true.",
         "SAVE_MODEL": "Save checkpoint files.",
         "MODEL_SAVE_RATE": "Rate in epochs at which to save checkpoint files if SAVE_MODEL is true.",
+        "SAVE_EXAMPLES": "Load and eval the model and save example images.",
+        "EXAMPLE_SAVE_RATE": "Rate in epochs at which to save example images if SAVE_EXAMPLES is true.",
+        "NUM_EXAMPLES": "Number of examples to save each time when SAVE_EXAMPLES is true",
         "UPDATE_FREQUENCY": "Frequency (in iterations) of updates to loss and visualizer data."
     }
 }
