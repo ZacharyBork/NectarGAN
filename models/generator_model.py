@@ -2,16 +2,19 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from .networks import UnetBlock
+from .generator_blocks import UnetBlock
+from .generator_blocks import ResidualUnetBlock
 
 class Generator(nn.Module):
-    def __init__(self, input_size: int, in_channels: int=3, features: int=64, n_down: int=6):
+    def __init__(self, input_size: int, in_channels: int=3, features: int=64, n_down: int=6, block_type=UnetBlock):
         super().__init__()
         self.input_size = input_size
         self.in_channels = in_channels
         self.features = features
         self.n_down = n_down
         self.n_up = self.n_down+1
+
+        self.block_type = block_type
 
         # Validate layer count for current input shape
         self.validate_layer_count()
@@ -20,23 +23,32 @@ class Generator(nn.Module):
         down_channels, bottleneck_channels, up_channels, final_up_channels = self.build_unet_channels()
 
         # Define initial downsampling layer
-        self.initial_down = UnetBlock(in_channels, features, down=True, act='leaky', use_dropout=False)
+        self.initial_down = nn.Sequential(
+            nn.Conv2d(in_channels, features, kernel_size=4, stride=2, padding=1, padding_mode='reflect'),
+            nn.LeakyReLU(0.2),
+        )
 
         # Define additional downsampling layers
         self.downs = nn.ModuleList()
         for (in_ch, out_ch) in down_channels:
-            self.downs.append(UnetBlock(in_ch, out_ch, down=True, act='leaky', use_dropout=False))
+            self.downs.append(block_type(in_ch, out_ch, down=True, act='leaky', use_dropout=False))
 
         # Define bottleneck
-        self.bottleneck = UnetBlock(bottleneck_channels, bottleneck_channels, down=True, act='relu', use_dropout=False)
+        self.bottleneck = nn.Sequential(
+            nn.Conv2d(bottleneck_channels, bottleneck_channels, kernel_size=4, stride=2, padding=1, padding_mode='reflect'),
+            nn.ReLU(),
+        )
 
         # Define upsampling layers
         self.ups = nn.ModuleList()
         for i, (in_ch, out_ch) in enumerate(up_channels):
-            self.ups.append(UnetBlock(in_ch, out_ch, down=False, act='relu', use_dropout=i<3))
+            self.ups.append(block_type(in_ch, out_ch, down=False, act='relu', use_dropout=i<3))
 
         # Define final upsampling layer
-        self.final_up = nn.Sequential(nn.ConvTranspose2d(final_up_channels, in_channels, 4, 2, 1), nn.Tanh())
+        self.final_up = nn.Sequential(
+            nn.ConvTranspose2d(final_up_channels, in_channels, 4, 2, 1),
+            nn.Tanh()
+        )
 
     def validate_layer_count(self):
         '''Checks number of downsampling layers against input image
@@ -55,20 +67,20 @@ class Generator(nn.Module):
     def build_unet_channels(self):
         '''Assembles Unet channel structure.'''
         in_ch = self.features
-        down_channels = []
+        down_channels = [] # Build downsampling layers features list
         for _ in range(self.n_down):
             out_ch = min(in_ch * 2, self.features * 8)
             down_channels.append((in_ch, out_ch))
             in_ch = out_ch
         bottleneck_channels = in_ch
         
-        # skip_channels = reverse(down_channels - bottlneck_channels)
+        # Skip channels: reverse(down_channels - bottlneck_channels)
         skip_channels = [out_ch for (_, out_ch) in down_channels[:-1]][::-1]
 
         # Get output of last down block
         in_ch = down_channels[-1][1]
 
-        up_channels = []
+        up_channels = [] # Build upsampling layers features list
         for skip_ch in skip_channels:
             up_in_ch = in_ch + skip_ch
             up_out_ch = skip_ch
