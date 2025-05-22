@@ -89,16 +89,19 @@ def save_checkpoint(model, optimizer, output_path: pathlib.Path):
 
 def load_checkpoint(config, gen, opt_gen, disc, opt_disc):
     load_epoch = config['LOAD_EPOCH']
+    if load_epoch == -1: base_name = f'final'
+    else: base_name = f'epoch{load_epoch}'
+
     output_directory = pathlib.Path(config['OUTPUT_DIRECTORY'])
     experiment_directory = pathlib.Path(output_directory, config['EXPERIMENT_NAME'])
     
     # Load generator checkpoint
-    checkpoint_gen_path = pathlib.Path(experiment_directory, f'epoch{load_epoch}_netG.pth.tar')
+    checkpoint_gen_path = pathlib.Path(experiment_directory, f'{base_name}_netG.pth.tar')
     if not checkpoint_gen_path.exists():
         raise Exception(f'Unable to locate generator checkpoint at: {checkpoint_gen_path.as_posix()}')
     
     # Load discriminator checkpoint
-    checkpoint_disc_path = pathlib.Path(experiment_directory, f'epoch{load_epoch}_netD.pth.tar')
+    checkpoint_disc_path = pathlib.Path(experiment_directory, f'{base_name}_netD.pth.tar')
     if not checkpoint_disc_path.exists():
         raise Exception(f'Unable to locate discriminator checkpoint at: {checkpoint_disc_path.as_posix()}')
     

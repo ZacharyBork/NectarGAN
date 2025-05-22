@@ -13,8 +13,8 @@ class UnetBlock(nn.Module):
             )
         else:
             self.conv = nn.Sequential(
-                #nn.Upsample(scale_factor=2, mode='bilinear', align_corners=False),
-                #nn.Conv2d(in_channels, out_channels, kernel_size=3, stride=1, padding=1),
+                # nn.Upsample(scale_factor=2, mode='bilinear', align_corners=False),
+                # nn.Conv2d(in_channels, out_channels, kernel_size=3, stride=1, padding=1),
                 nn.ConvTranspose2d(in_channels, out_channels, kernel_size=4, stride=2, padding=1, bias=False),
                 nn.InstanceNorm2d(out_channels),
                 nn.ReLU(),

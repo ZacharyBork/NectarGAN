@@ -4,19 +4,23 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from torch.utils.data import DataLoader
 import pathlib
 
-from utils import utility
-from utils.dataset import Pix2pixDataset
+import json
 
+from utils import utility
 from models.generator_model import Generator
 from models.discriminator_model import Discriminator
-from models.loss import SobelLoss, LaplacianLoss
+# from models.loss import SobelLoss, LaplacianLoss
+
+# from models.generator_flat import Generator
+# from models.discriminator_flat import Discriminator
 
 class Trainer():
     def __init__(self, config_filepath: str=None):
         self.config = utility.get_config_data(config_filepath)
+        print(f'Train Config: {pathlib.Path(config_filepath).as_posix()}')
+        print(json.dumps(self.config, indent=2))
 
         # Init generator and gen optimizer
         self.gen = Generator(input_size=self.config['CROP_SIZE'], in_channels=self.config['INPUT_NC']).to(self.config['DEVICE'])
@@ -41,10 +45,10 @@ class Trainer():
         # Init losses
         self.BCE = nn.BCEWithLogitsLoss().to(self.config['DEVICE'])
         self.L1_LOSS = nn.L1Loss().to(self.config['DEVICE'])
-        if self.config['DO_SOBEL_LOSS']:
-            self.SOBEL_LOSS = SobelLoss().to(self.config['DEVICE'])
-        if self.config['DO_LAPLACIAN_LOSS']:
-            self.LAP_LOSS = LaplacianLoss().to(self.config['DEVICE'])
+        # if self.config['DO_SOBEL_LOSS']:
+        #     self.SOBEL_LOSS = SobelLoss().to(self.config['DEVICE'])
+        # if self.config['DO_LAPLACIAN_LOSS']:
+        #     self.LAP_LOSS = LaplacianLoss().to(self.config['DEVICE'])
 
         # Load checkpoint if applicable
         if self.config['CONTINUE_TRAIN']:
@@ -66,7 +70,6 @@ class Trainer():
             ax.set_title(name)
             data = ax.imshow(image_data)
             self.ax_data.append(data)
-
 
     def build_output_directory(self):
         '''Builds an output directory structure for the experiment.'''
@@ -100,25 +103,24 @@ class Trainer():
             loss_G_GAN = self.BCE(D_fake, torch.ones_like(D_fake)) # Get GAN loss
             loss_G_L1 = self.L1_LOSS(y_fake, y) * self.config['LAMBDA_L1'] # L1 loss
             
-            self.grad_l1 = torch.abs(y_fake - y)
+            # self.grad_l1 = torch.abs(y_fake - y)
             
-            if self.config['DO_SOBEL_LOSS']:
-                loss_G_SOBEL = self.SOBEL_LOSS(y_fake, y) * self.config['LAMBDA_SOBEL'] # SOBEL loss
-            else: loss_G_SOBEL = torch.zeros_like(loss_G_L1)
-            if self.config['DO_LAPLACIAN_LOSS']:
-                loss_G_LAP = self.LAP_LOSS(y_fake, y) * self.config['LAMBDA_LAPLACIAN'] # LAPLACIAN loss
-            else: loss_G_LAP = torch.zeros_like(loss_G_L1)
+            # if self.config['DO_SOBEL_LOSS']:
+            #     loss_G_SOBEL = self.SOBEL_LOSS(y_fake, y) * self.config['LAMBDA_SOBEL'] # SOBEL loss
+            # else: loss_G_SOBEL = torch.zeros_like(loss_G_L1)
+            # if self.config['DO_LAPLACIAN_LOSS']:
+            #     loss_G_LAP = self.LAP_LOSS(y_fake, y) * self.config['LAMBDA_LAPLACIAN'] # LAPLACIAN loss
+            # else: loss_G_LAP = torch.zeros_like(loss_G_L1)
             loss_G = loss_G_GAN + loss_G_L1# + loss_G_SOBEL + loss_G_LAP # Calculate loss gradient
 
         self.opt_gen.zero_grad() # Clear generator optimizer loss gradients
         self.g_scaler.scale(loss_G).backward() # Scale loss and compute gradient
         self.g_scaler.step(self.opt_gen) # Optimizer step
         self.g_scaler.update() # Update scaling factor
-        return loss_G_GAN, loss_G_L1, loss_G_SOBEL, loss_G_LAP # Return losses
+        return loss_G_GAN, loss_G_L1, 0.0, 0.0 #, loss_G_SOBEL, loss_G_LAP # Return losses
 
     def train(self, current_epoch:int):
         '''Training function for generator and discriminator.'''
-        plt.show() # Show pyplot
         for idx, (x, y) in enumerate(self.train_loader):
             # Get (x, y) of image[idx] from training dataset
             x, y = x.to(self.config['DEVICE']), y.to(self.config['DEVICE'])
@@ -132,22 +134,23 @@ class Trainer():
             
             if idx % self.config['UPDATE_FREQUENCY'] == 0:
                 # Ensure fake output is between -1 and 1
-                y_fake = torch.clamp(y_fake, -1.0, 1.0)
+                # y_fake = torch.clamp(y_fake, -1.0, 1.0)
 
                 vis_x = utility.tensor_to_image(x)
                 vis_y = utility.tensor_to_image(y)
                 vis_y_fake = utility.tensor_to_image(y_fake)
-                vis_l1_grad = self.grad_l1.detach().mean(dim=1)[0].cpu()
+                #vis_l1_grad = self.grad_l1.detach().mean(dim=1)[0].cpu()
                 losses = {
                     'G_GAN': round(loss_G_GAN.item(), 2),
                     'G_L1': round(loss_G_L1.item(), 2),
-                    'G_SOBEL': round(loss_G_SOBEL.item(), 2),
+                    'G_SOBEL': 0.0, #round(loss_G_SOBEL.item(), 2),
+                    'G_LAP': 0.0, #round(loss_G_LAP.item(), 2),
                     'D_real': round(loss_D_real.item(), 2),
                     'D_fake': round(loss_D_fake.item(), 2)
                 }
                 utility.print_losses(current_epoch, idx, losses)
 
-                visualizers = [vis_x, vis_y_fake, vis_y, vis_l1_grad]
+                visualizers = [vis_x, vis_y_fake, vis_y]#, vis_l1_grad]
 
                 # Update numpy plotting
                 for i, vis in enumerate(visualizers):
@@ -159,6 +162,7 @@ class Trainer():
     def start(self):
         '''Start pix2pix training loop.'''
         self.init_plotting() # Init numpy plotting
+        plt.show() # Show pyplot
 
         self.build_output_directory() # Build experiment output directory
         self.export_config() # Export JSON config file to output directory
@@ -166,7 +170,15 @@ class Trainer():
             index = epoch + 1 + self.config['LOAD_EPOCH'] if self.config['CONTINUE_TRAIN'] else epoch + 1
             self.train(index)
             
-            if self.config['SAVE_MODEL'] and epoch % self.config['MODEL_SAVE_RATE'] == 0:
+            if epoch == self.config['NUM_EPOCHS']-1:
+                # Always save model after final epoch
+                checkpoint_name = 'final_net{}.pth.tar'
+                utility.save_checkpoint(
+                    self.gen, self.opt_gen, output_path=pathlib.Path(self.experiment_dir, checkpoint_name.format(str(index), 'G')))
+                utility.save_checkpoint(
+                    self.disc, self.opt_disc, output_path=pathlib.Path(self.experiment_dir, checkpoint_name.format(str(index), 'D')))
+            elif self.config['SAVE_MODEL'] and epoch % self.config['MODEL_SAVE_RATE'] == 0:
+                # Save intermediate checkpoints if applicable
                 checkpoint_name = 'epoch{}_net{}.pth.tar'
                 utility.save_checkpoint(
                     self.gen, self.opt_gen, output_path=pathlib.Path(self.experiment_dir, checkpoint_name.format(str(index), 'G')))

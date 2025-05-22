@@ -32,16 +32,13 @@ from .generator_blocks import UnetBlock
 from .generator_blocks import ResidualUnetBlock
 
 class Generator(nn.Module):
-    def __init__(self, input_size: int, in_channels: int=3, features: int=64, n_layers: int=5, block_type=UnetBlock):
+    def __init__(self, input_size: int, in_channels: int=3, features: int=64, extra_layers: int=0, block_type=UnetBlock):
         super().__init__()
         self.input_size = input_size
         self.in_channels = in_channels
         self.features = features
-
-        self.n_layers = min(0, n_layers-5)
+        self.extra_layers = extra_layers
         self.n_down = 5
-        self.n_up = self.n_down+1
-
         self.block_type = block_type
 
         # Validate layer count for current input shape
@@ -49,7 +46,6 @@ class Generator(nn.Module):
 
         # Build channel map
         self.channel_map = self.build_channel_map()
-        print(self.channel_map)
 
         # Define initial downsampling layer
         self.initial_down = nn.Sequential(
@@ -72,7 +68,7 @@ class Generator(nn.Module):
             nn.ReLU(),
         )
 
-        # Define upsampling layers)
+        # Define upsampling layers
         self.ups = nn.ModuleList()
         for i, (in_ch, out_ch) in enumerate(self.channel_map['ups']):
             self.ups.append(block_type(in_ch, out_ch, down=False, use_dropout=i<3))
@@ -114,7 +110,7 @@ class Generator(nn.Module):
             down_channels.append((in_features, out_features))
 
         # Create extra layer IO shapes and add to down channels list
-        extra_layers = [(self.features*8, self.features*8) for _ in range(self.n_layers)]
+        extra_layers = [(self.features*8, self.features*8) for _ in range(self.extra_layers)]
         down_channels = down_channels[:self.n_down+1] + extra_layers
 
         # Create layer IO shapes for up and skip channels

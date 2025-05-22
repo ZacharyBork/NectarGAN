@@ -13,14 +13,16 @@ class Pix2pixDataset(Dataset):
 
         self.both_transform = A.Compose(
             [
-                A.Resize(width=self.config['LOAD_SIZE'], height=self.config['LOAD_SIZE']),
-                A.RandomCrop(height=self.config['CROP_SIZE'], width=self.config['CROP_SIZE']), 
+                # A.Resize(width=self.config['LOAD_SIZE'], height=self.config['LOAD_SIZE']),
+                # A.RandomCrop(height=self.config['CROP_SIZE'], width=self.config['CROP_SIZE']), 
+                A.Resize(width=self.config['CROP_SIZE'], height=self.config['CROP_SIZE']),
                 A.HorizontalFlip(p=0.5),
             ], additional_targets={"image0": "image"},
         )
 
         self.transform_only_input = A.Compose(
             [
+                A.ColorJitter(p=0.1),
                 A.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5], max_pixel_value=255.0),
                 ToTensorV2(),
             ]

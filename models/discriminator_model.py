@@ -19,9 +19,7 @@ class Discriminator(nn.Module):
         for i in range(1, n_layers):
             out_ch = min(in_ch * 2, max_channels)
             stride = 1 if i == n_layers - 1 else 2
-            layers.append(nn.Conv2d(in_ch, out_ch, kernel_size=4, stride=stride, padding=1, bias=False, padding_mode='reflect'))
-            layers.append(nn.InstanceNorm2d(out_ch))
-            layers.append(nn.LeakyReLU(0.2, inplace=True))
+            layers.append(CNNBlock(in_ch, out_ch, stride=stride))
             in_ch = out_ch
 
         # Final output layer
@@ -30,8 +28,6 @@ class Discriminator(nn.Module):
         self.model = nn.Sequential(*layers)
 
     def forward(self, x, y):
-        if x.shape[2:] != y.shape[2:]:
-            y = F.interpolate(y, size=x.shape[2:], mode='bilinear', align_corners=False)
         x = torch.cat([x, y], dim=1)
         return self.model(x)
 
