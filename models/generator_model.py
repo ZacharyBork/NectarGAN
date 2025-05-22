@@ -1,3 +1,29 @@
+'''
+                UNet-esque generator architecture
+------------------------------------------------------------------------
+Input: [1, 3, 512, 512] (512^2 RGB)                     Output:  [1, 3, 512, 512]
+                        ↓                                 ↑
+  |Input Shape|    |Down Layer|    |Output/Skip Shape| |Up Layer|  |Output Shape|
+                        ↓                                 ↑
+[1, 3, 512, 512] ---> init_down -> [1, 64, 256, 256] --> final_up --> [1, 3, 512, 512]
+                        ↓                                 ↑
+[1, 64, 256, 256] --> down1 -----> [1, 128, 128, 128] -> up7 -------> [1, 64, 256, 256]
+                        ↓                                 ↑
+[1, 128, 128, 128] -> down2 -----> [1, 256, 64, 64] ---> up6 -------> [1, 128, 128, 128]
+                        ↓                                 ↑
+[1, 256, 64, 64] ---> down3 -----> [1, 512, 32, 32] ---> up5 -------> [1, 256, 64, 64]
+                        ↓                                 ↑
+[1, 512, 32, 32] ---> down4 -----> [1, 512, 16, 16] ---> up4 -------> [1, 512, 32, 32]
+                        ↓                                 ↑
+[1, 512, 16, 16] ---> down5 -----> [1, 512, 8, 8] -----> up3 -------> [1, 512, 16, 16]
+                        ↓                                 ↑ 
+[1, 512, 8, 8] -----> down6 -----> [1, 512, 4, 4] -----> up2 -------> [1, 512, 8, 8]
+                        ↓                                 ↑
+                        ↓     ← ← ← extra layers → → →    ↑
+                        ↓                                 ↑
+[1, 512, 4, 4] ---> bottleneck --> [1, 512, 2, 2] → → → → up1 -> [1, 512, 4, 4]
+'''
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -6,12 +32,14 @@ from .generator_blocks import UnetBlock
 from .generator_blocks import ResidualUnetBlock
 
 class Generator(nn.Module):
-    def __init__(self, input_size: int, in_channels: int=3, features: int=64, n_down: int=6, block_type=UnetBlock):
+    def __init__(self, input_size: int, in_channels: int=3, features: int=64, n_layers: int=5, block_type=UnetBlock):
         super().__init__()
         self.input_size = input_size
         self.in_channels = in_channels
         self.features = features
-        self.n_down = n_down
+
+        self.n_layers = min(0, n_layers-5)
+        self.n_down = 5
         self.n_up = self.n_down+1
 
         self.block_type = block_type
@@ -19,36 +47,48 @@ class Generator(nn.Module):
         # Validate layer count for current input shape
         self.validate_layer_count()
 
-        # Generate channel structure
-        down_channels, bottleneck_channels, up_channels, final_up_channels = self.build_unet_channels()
+        # Build channel map
+        self.channel_map = self.build_channel_map()
+        print(self.channel_map)
 
         # Define initial downsampling layer
         self.initial_down = nn.Sequential(
-            nn.Conv2d(in_channels, features, kernel_size=4, stride=2, padding=1, padding_mode='reflect'),
-            nn.LeakyReLU(0.2),
+            nn.Conv2d(
+                self.channel_map['initial_down'][0], self.channel_map['initial_down'][1], 
+                kernel_size=4, stride=2, padding=1, padding_mode='reflect'), 
+            nn.LeakyReLU(0.2),   
         )
 
         # Define additional downsampling layers
         self.downs = nn.ModuleList()
-        for (in_ch, out_ch) in down_channels:
-            self.downs.append(block_type(in_ch, out_ch, down=True, act='leaky', use_dropout=False))
+        for (in_ch, out_ch) in self.channel_map['downs']:
+            self.downs.append(block_type(in_ch, out_ch, down=True, use_dropout=False))
 
         # Define bottleneck
         self.bottleneck = nn.Sequential(
-            nn.Conv2d(bottleneck_channels, bottleneck_channels, kernel_size=4, stride=2, padding=1, padding_mode='reflect'),
+            nn.Conv2d(
+                self.channel_map['bottleneck'][0], self.channel_map['bottleneck'][1], 
+                kernel_size=4, stride=2, padding=1, padding_mode='reflect'),
             nn.ReLU(),
         )
 
-        # Define upsampling layers
+        # Define upsampling layers)
         self.ups = nn.ModuleList()
-        for i, (in_ch, out_ch) in enumerate(up_channels):
-            self.ups.append(block_type(in_ch, out_ch, down=False, act='relu', use_dropout=i<3))
+        for i, (in_ch, out_ch) in enumerate(self.channel_map['ups']):
+            self.ups.append(block_type(in_ch, out_ch, down=False, use_dropout=i<3))
 
         # Define final upsampling layer
         self.final_up = nn.Sequential(
-            nn.ConvTranspose2d(final_up_channels, in_channels, 4, 2, 1),
-            nn.Tanh()
+            nn.ConvTranspose2d(
+                self.channel_map['final_up'][0], self.channel_map['final_up'][1], 
+                kernel_size=4, stride=2, padding=1),
+            # nn.Upsample(scale_factor=2, mode='bilinear', align_corners=False),
+            # nn.Conv2d(
+            #     self.channel_map['final_up'][0], self.channel_map['final_up'][1], 
+            #     kernel_size=3, stride=1, padding=1),
+            nn.Tanh(),
         )
+
 
     def validate_layer_count(self):
         '''Checks number of downsampling layers against input image
@@ -64,63 +104,59 @@ class Generator(nn.Module):
             e = f'Input too small for n_down={self.n_down}. Min size: {min_size}x{min_size}'
             raise ValueError(e) # Raise error if input images are too small
 
-    def build_unet_channels(self):
+    def build_channel_map(self):
         '''Assembles Unet channel structure.'''
-        in_ch = self.features
-        down_channels = [] # Build downsampling layers features list
-        for _ in range(self.n_down):
-            out_ch = min(in_ch * 2, self.features * 8)
-            down_channels.append((in_ch, out_ch))
-            in_ch = out_ch
-        bottleneck_channels = in_ch
-        
-        # Skip channels: reverse(down_channels - bottlneck_channels)
-        skip_channels = [out_ch for (_, out_ch) in down_channels[:-1]][::-1]
+        down_channels = [(self.in_channels, self.features)]
+        in_features = out_features = self.features
+        for i in range(self.n_down): # Create down layer IO shapes
+            in_features = min(out_features, self.features*8)
+            out_features = min(out_features*2, self.features*8)
+            down_channels.append((in_features, out_features))
 
-        # Get output of last down block
-        in_ch = down_channels[-1][1]
+        # Create extra layer IO shapes and add to down channels list
+        extra_layers = [(self.features*8, self.features*8) for _ in range(self.n_layers)]
+        down_channels = down_channels[:self.n_down+1] + extra_layers
 
-        up_channels = [] # Build upsampling layers features list
-        for skip_ch in skip_channels:
-            up_in_ch = in_ch + skip_ch
-            up_out_ch = skip_ch
-            up_channels.append((up_in_ch, up_out_ch))
-            in_ch = up_out_ch
+        # Create layer IO shapes for up and skip channels
+        skip_channels = list(reversed([(out_ch, in_ch) for (in_ch, out_ch) in down_channels]))
+        up_channels = skip_channels.copy()
 
-        final_up_channels = in_ch + down_channels[0][0]
+        skip_channels.insert(0, (0, 0)) # Add dummy shape for skip size addition
+        up_channels.insert(0, (self.features*8, self.features*8)) # Add IO shape for first up layer
 
-        return down_channels, bottleneck_channels, up_channels, final_up_channels
+        for i in range(len(up_channels)):
+            x = up_channels[i][0] + skip_channels[i][0]
+            y = up_channels[i][1]
+            up_channels[i] = (x, y)
+
+        channel_map = {
+            'initial_down': down_channels[0],
+            'downs': down_channels[1:],
+            'bottleneck': (self.features*8, self.features*8),
+            'ups': up_channels[:-1],
+            'final_up': up_channels[-1]
+        }
+        return channel_map
 
     def forward(self, x):
-        # Run downsampling layer
-        x = self.initial_down(x)
+        x = self.initial_down(x) # Run downsampling layer
         skips = [x] # Store outputs for skip connections
         for down in self.downs:
-            x = down(x) 
-            skips.append(x) 
+            x = down(x)
+            skips.append(x)
 
-        # Run bottleneck layer
-        x = self.bottleneck(x)
+        skips.reverse() # Align skips with up conv layer
+        x = self.bottleneck(x) # Run bottleneck layer
 
-        # Align skip connections
-        skips = list(reversed(skips[:-1]))
-        
-        # Upsample with skip connections
         for i, up in enumerate(self.ups):
-            skip = skips[i]
-            if x.shape[2:] != skip.shape[2:]:
-                # Ensure shape match between up layer and skip connection
-                x = F.interpolate(x, size=skip.shape[2:], mode='bilinear', align_corners=False)
-            # Stack previous up layer result and skip, then upsample
-            x = up(torch.cat([x, skip], dim=1))
+            # No skip connection on first upconv layer
+            if i == 0: x = up(x)
+            else: # Stack x and skip then upsample
+                skip = skips[i-1]
+                x = up(torch.cat([x, skip], dim=1))
 
-        # Same process for final up
-        # Get skip, match shape, stack, upsample, return result
-        final_skip = skips[-1]
-        if x.shape[2:] != final_skip.shape[2:]:
-            x = F.interpolate(x, size=final_skip.shape[2:], mode='bilinear', align_corners=False)
-        x = torch.cat([x, final_skip], dim=1)
-        return self.final_up(x)
+        # Return result of final upsampling layer
+        return self.final_up(torch.cat([x, skips[-1]], dim=1))
 
 if __name__ == "__main__":
     x = torch.randn((1, 3, 256, 256))

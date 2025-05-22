@@ -41,8 +41,10 @@ class Trainer():
         # Init losses
         self.BCE = nn.BCEWithLogitsLoss().to(self.config['DEVICE'])
         self.L1_LOSS = nn.L1Loss().to(self.config['DEVICE'])
-        self.SOBEL_LOSS = SobelLoss().to(self.config['DEVICE'])
-        self.LAP_LOSS = LaplacianLoss().to(self.config['DEVICE'])
+        if self.config['DO_SOBEL_LOSS']:
+            self.SOBEL_LOSS = SobelLoss().to(self.config['DEVICE'])
+        if self.config['DO_LAPLACIAN_LOSS']:
+            self.LAP_LOSS = LaplacianLoss().to(self.config['DEVICE'])
 
         # Load checkpoint if applicable
         if self.config['CONTINUE_TRAIN']:
@@ -53,17 +55,18 @@ class Trainer():
 
         plt.ion()
         image_data = np.random.rand(512, 512)
-        self.fig, (ax1, ax2, ax3) = plt.subplots(1, 3)
+        self.fig, self.axes = plt.subplots(1, 3)
 
-        ax1.axis('off')
-        ax1.set_title('real_A')
-        self.ax1_data = ax1.imshow(image_data)
-        ax2.axis('off')
-        ax2.set_title('fake_B')
-        self.ax2_data = ax2.imshow(image_data)
-        ax3.axis('off')
-        ax3.set_title('real_B')
-        self.ax3_data = ax3.imshow(image_data)
+        names = ['real_A', 'fake_B', 'real_B']#, 'L1_response', 'SOBEL_response', 'LAP_response']
+        self.ax_data = []
+        for i, name in enumerate(names):
+            # ax = self.axes[0 if i<3 else 1][i%3]
+            ax = self.axes[i]
+            ax.axis('off')
+            ax.set_title(name)
+            data = ax.imshow(image_data)
+            self.ax_data.append(data)
+
 
     def build_output_directory(self):
         '''Builds an output directory structure for the experiment.'''
@@ -96,9 +99,16 @@ class Trainer():
             D_fake = self.disc(x, y_fake) # Get prediction from discriminator
             loss_G_GAN = self.BCE(D_fake, torch.ones_like(D_fake)) # Get GAN loss
             loss_G_L1 = self.L1_LOSS(y_fake, y) * self.config['LAMBDA_L1'] # L1 loss
-            loss_G_SOBEL = self.SOBEL_LOSS(y_fake, y) * self.config['LAMBDA_SOBEL'] # SOBEL loss
-            loss_G_LAP = self.LAP_LOSS(y_fake, y) * self.config['LAMBDA_LAPLACIAN'] # LAPLACIAN loss
-            loss_G = loss_G_GAN + loss_G_L1 + loss_G_SOBEL + loss_G_LAP # Calculate loss gradient
+            
+            self.grad_l1 = torch.abs(y_fake - y)
+            
+            if self.config['DO_SOBEL_LOSS']:
+                loss_G_SOBEL = self.SOBEL_LOSS(y_fake, y) * self.config['LAMBDA_SOBEL'] # SOBEL loss
+            else: loss_G_SOBEL = torch.zeros_like(loss_G_L1)
+            if self.config['DO_LAPLACIAN_LOSS']:
+                loss_G_LAP = self.LAP_LOSS(y_fake, y) * self.config['LAMBDA_LAPLACIAN'] # LAPLACIAN loss
+            else: loss_G_LAP = torch.zeros_like(loss_G_L1)
+            loss_G = loss_G_GAN + loss_G_L1# + loss_G_SOBEL + loss_G_LAP # Calculate loss gradient
 
         self.opt_gen.zero_grad() # Clear generator optimizer loss gradients
         self.g_scaler.scale(loss_G).backward() # Scale loss and compute gradient
@@ -106,7 +116,7 @@ class Trainer():
         self.g_scaler.update() # Update scaling factor
         return loss_G_GAN, loss_G_L1, loss_G_SOBEL, loss_G_LAP # Return losses
 
-    def train_epoch(self, current_epoch:int):
+    def train(self, current_epoch:int):
         '''Training function for generator and discriminator.'''
         plt.show() # Show pyplot
         for idx, (x, y) in enumerate(self.train_loader):
@@ -119,10 +129,15 @@ class Trainer():
             # Train generator, get losses
             loss_G_GAN, loss_G_L1, loss_G_SOBEL, loss_G_LAP = self.train_G(x, y, y_fake)
 
+            
             if idx % self.config['UPDATE_FREQUENCY'] == 0:
+                # Ensure fake output is between -1 and 1
+                y_fake = torch.clamp(y_fake, -1.0, 1.0)
+
                 vis_x = utility.tensor_to_image(x)
                 vis_y = utility.tensor_to_image(y)
                 vis_y_fake = utility.tensor_to_image(y_fake)
+                vis_l1_grad = self.grad_l1.detach().mean(dim=1)[0].cpu()
                 losses = {
                     'G_GAN': round(loss_G_GAN.item(), 2),
                     'G_L1': round(loss_G_L1.item(), 2),
@@ -132,10 +147,12 @@ class Trainer():
                 }
                 utility.print_losses(current_epoch, idx, losses)
 
+                visualizers = [vis_x, vis_y_fake, vis_y, vis_l1_grad]
+
                 # Update numpy plotting
-                self.ax1_data.set_data(vis_x)
-                self.ax2_data.set_data(vis_y_fake)
-                self.ax3_data.set_data(vis_y)
+                for i, vis in enumerate(visualizers):
+                    try: self.ax_data[i].set_data(vis)
+                    except: continue
                 self.fig.canvas.draw()
                 self.fig.canvas.flush_events()
 
@@ -147,7 +164,7 @@ class Trainer():
         self.export_config() # Export JSON config file to output directory
         for epoch in range(self.config['NUM_EPOCHS']):
             index = epoch + 1 + self.config['LOAD_EPOCH'] if self.config['CONTINUE_TRAIN'] else epoch + 1
-            self.train_epoch(index)
+            self.train(index)
             
             if self.config['SAVE_MODEL'] and epoch % self.config['MODEL_SAVE_RATE'] == 0:
                 checkpoint_name = 'epoch{}_net{}.pth.tar'

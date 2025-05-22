@@ -3,15 +3,22 @@ import torch.nn as nn
 
 class UnetBlock(nn.Module):
     '''This class defines a standard UNet block to be used by the generator model.'''
-    def __init__(self, in_channels, out_channels, down=True, act='relu', use_dropout=False):
+    def __init__(self, in_channels, out_channels, down=True, use_dropout=False):
         super().__init__()
-        self.conv = nn.Sequential(
-            nn.Conv2d(in_channels, out_channels, kernel_size=4, stride=2, padding=1, bias=False, padding_mode='reflect')
-            if down
-            else nn.ConvTranspose2d(in_channels, out_channels, kernel_size=4, stride=2, padding=1, bias=False),
-            nn.InstanceNorm2d(out_channels),
-            nn.ReLU() if act == 'relu' else nn.LeakyReLU(0.2),
-        )
+        if down:
+            self.conv = nn.Sequential(
+                nn.Conv2d(in_channels, out_channels, kernel_size=4, stride=2, padding=1, bias=False, padding_mode='reflect'),
+                nn.InstanceNorm2d(out_channels),
+                nn.LeakyReLU(0.2),
+            )
+        else:
+            self.conv = nn.Sequential(
+                #nn.Upsample(scale_factor=2, mode='bilinear', align_corners=False),
+                #nn.Conv2d(in_channels, out_channels, kernel_size=3, stride=1, padding=1),
+                nn.ConvTranspose2d(in_channels, out_channels, kernel_size=4, stride=2, padding=1, bias=False),
+                nn.InstanceNorm2d(out_channels),
+                nn.ReLU(),
+            )
         self.use_dropout = use_dropout
         self.dropout = nn.Dropout(0.5)
 
