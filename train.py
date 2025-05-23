@@ -8,6 +8,7 @@ import pathlib
 import time
 
 from utils import utility
+from utils import scheduler
 from models.generator_model import Generator
 from models.discriminator_model import Discriminator
 from models.loss import SobelLoss, LaplacianLoss
@@ -26,22 +27,56 @@ class Trainer():
             utility.load_checkpoint(self.config, self.gen, self.opt_gen, self.disc, self.opt_disc)
 
     def init_networks(self):
-        # Init generator and gen optimizer
-        self.gen = Generator(
+        '''Initializes generator and discriminator, and also initializes
+        an optimizer and a learning rate scheduler for each.
+        '''
+        # Init Generator
+        self.gen = Generator( 
             input_size=self.config['COMMON']['CROP_SIZE'], 
             in_channels=self.config['COMMON']['INPUT_NC']).to(self.config['COMMON']['DEVICE'])
-        self.opt_gen = optim.Adam(
+        # Init optimizer for generator
+        self.opt_gen = optim.Adam( 
             self.gen.parameters(), 
             lr=self.config['TRAIN']['LEARNING_RATE'], 
             betas=(self.config['OPTIMIZER']['BETA1'], 0.999))
+        # Init LR scheduler for generator
+        self.gen_lr_scheduler = scheduler.LRScheduler( 
+            self.opt_gen,
+            self.config['TRAIN']['NUM_EPOCHS'],
+            self.config['TRAIN']['NUM_EPOCHS_DECAY'])
 
-        # Init discriminator and disc optimizer
+        # Init discriminator
         self.disc = Discriminator(
             in_channels=self.config['COMMON']['INPUT_NC'],
             base_channels=self.config['DISCRIMINATOR']['BASE_CHANNELS_D'],
             n_layers=self.config['DISCRIMINATOR']['N_LAYERS_D'],
             max_channels=self.config['DISCRIMINATOR']['MAX_CHANNELS_D']).to(self.config['COMMON']['DEVICE'])
-        self.opt_disc = optim.Adam(self.disc.parameters(), lr=self.config['TRAIN']['LEARNING_RATE'], betas=(self.config['OPTIMIZER']['BETA1'], 0.999))
+        # Init optimizer for discriminator
+        self.opt_disc = optim.Adam(
+            self.disc.parameters(), 
+            lr=self.config['TRAIN']['LEARNING_RATE'], 
+            betas=(self.config['OPTIMIZER']['BETA1'], 0.999))
+        # Init LR scheduler for discriminator
+        self.disc_lr_scheduler = scheduler.LRScheduler(
+            self.opt_disc,
+            self.config['TRAIN']['NUM_EPOCHS'],
+            self.config['TRAIN']['NUM_EPOCHS_DECAY'])     
+        
+    def init_plotting(self):
+        # Temporary numpy plotting for model validation
+        plt.ion()
+        image_data = np.random.rand(512, 512)
+        self.fig, self.axes = plt.subplots(1, 3)
+
+        names = ['real_A', 'fake_B', 'real_B']#, 'L1_response', 'SOBEL_response', 'LAP_response']
+        self.ax_data = []
+        for i, name in enumerate(names):
+            # ax = self.axes[0 if i<3 else 1][i%3]
+            ax = self.axes[i]
+            ax.axis('off')
+            ax.set_title(name)
+            data = ax.imshow(image_data)
+            self.ax_data.append(data)
 
     def build_dataloaders(self):
         '''Builds dataloaders for training and validation datasets.'''
@@ -62,22 +97,6 @@ class Trainer():
         self.L1_LOSS = nn.L1Loss().to(self.config['COMMON']['DEVICE'])
         self.SOBEL_LOSS = SobelLoss().to(self.config['COMMON']['DEVICE'])
         self.LAP_LOSS = LaplacianLoss().to(self.config['COMMON']['DEVICE'])
-
-    def init_plotting(self):
-        # Temporary numpy plotting for model validation
-        plt.ion()
-        image_data = np.random.rand(512, 512)
-        self.fig, self.axes = plt.subplots(1, 3)
-
-        names = ['real_A', 'fake_B', 'real_B']#, 'L1_response', 'SOBEL_response', 'LAP_response']
-        self.ax_data = []
-        for i, name in enumerate(names):
-            # ax = self.axes[0 if i<3 else 1][i%3]
-            ax = self.axes[i]
-            ax.axis('off')
-            ax.set_title(name)
-            data = ax.imshow(image_data)
-            self.ax_data.append(data)
 
     def build_output_directory(self):
         '''Builds an output directory structure for the experiment.'''
@@ -116,6 +135,13 @@ class Trainer():
         self.fig.canvas.draw()
         self.fig.canvas.flush_events()
 
+    def print_end_of_epoch(self, index, end_epoch, begin_epoch):
+        print(f'(End of epoch {index}) Time: {end_epoch - begin_epoch:.2f} seconds', flush=True)
+        gen_lr_step = self.gen_lr_scheduler.get_lr()
+        print(f'Learning rate (G): {gen_lr_step[0]} => {gen_lr_step[1]}')
+        disc_lr_step = self.disc_lr_scheduler.get_lr()
+        print(f'Learning rate (D): {disc_lr_step[0]} => {disc_lr_step[1]}')
+
     def compute_loss_D(self, x, y, y_fake):
         '''Forward step for discriminator. Run each iteration to compute
         discriminator loss.
@@ -141,24 +167,22 @@ class Trainer():
         self.d_scaler.step(self.opt_disc) # Optimizer step
         self.d_scaler.update() # Update scaling factor
         
-    def compute_loss_G(self, x, y, y_fake):
+    def compute_loss_G(self, lcon, x, y, y_fake):
         '''Forward step for generator. Run each iteration to compute
         generator loss.
         '''
         with torch.amp.autocast('cuda'):
             D_fake = self.disc(x, y_fake) # Get prediction from discriminator
-            loss_G_GAN = self.BCE(D_fake, torch.ones_like(D_fake)) # Get GAN loss
-            loss_G_L1 = self.L1_LOSS(y_fake, y) * self.config['LOSS']['LAMBDA_L1'] # L1 loss
-                        
-            if self.config['LOSS']['DO_SOBEL_LOSS']:
-                loss_G_SOBEL = self.SOBEL_LOSS(y_fake, y) * self.config['LOSS']['LAMBDA_SOBEL'] # SOBEL loss
-            else: loss_G_SOBEL = torch.zeros_like(loss_G_L1)
-            if self.config['LOSS']['DO_LAPLACIAN_LOSS']:
-                loss_G_LAP = self.LAP_LOSS(y_fake, y) * self.config['LOSS']['LAMBDA_LAPLACIAN'] # LAPLACIAN loss
-            else: loss_G_LAP = torch.zeros_like(loss_G_L1)
-            loss_G = loss_G_GAN + loss_G_L1 + loss_G_SOBEL + loss_G_LAP # Calculate loss gradient
-
-        return { # Return losses
+            loss_G_GAN = self.BCE(D_fake, torch.ones_like(D_fake))
+            loss_G_L1 = self.L1_LOSS(y_fake, y)
+            loss_G_SOBEL = self.SOBEL_LOSS(y_fake, y) if lcon['DO_SOBEL_LOSS'] else torch.zeros_like(loss_G_L1)
+            loss_G_LAP = self.LAP_LOSS(y_fake, y) if lcon['DO_LAPLACIAN_LOSS'] else torch.zeros_like(loss_G_L1)
+            loss_G = ( # Calculate final generator loss
+                loss_G_GAN + 
+                loss_G_L1 * self.config['LOSS']['LAMBDA_L1'] + 
+                loss_G_SOBEL * self.config['LOSS']['LAMBDA_SOBEL'] + 
+                loss_G_LAP * self.config['LOSS']['LAMBDA_LAPLACIAN']) 
+        return { # Return generator losses
             'loss_G': loss_G,
             'loss_G_GAN': loss_G_GAN,
             'loss_G_L1': loss_G_L1,
@@ -175,15 +199,21 @@ class Trainer():
         self.g_scaler.step(self.opt_gen) # Optimizer step
         self.g_scaler.update() # Update scaling factor
 
+    def update_schedulers(self):
+        '''Updates model schedulers'''
+        self.disc_lr_scheduler.step() # Discriminator LR scheduler
+        self.gen_lr_scheduler.step()  # Generator LR scheduler
+
     def train(self, current_epoch:int):
         '''Training function for the generator and discriminator networks.
         
-        Loops over all (x, y) pairs in training set. Generator first makes a fake
-        image (y_fake). Then losses are computed for discriminator based on x, y,
-        and y fake. Then losses are computer for generator based on discriminator
+        Loops over each batch of (x, y) pairs in training set. Generator first makes
+        a fake image (y_fake). Then losses are computed for discriminator based on x, 
+        y, and y fake. Then losses are computed for generator based on discriminator
         output and additional loss functions. Losses get applied to both networks,
-        then we print losses if applicable this iteration and move to next image.
+        then we print losses if applicable this iteration and move to next batch.
         '''
+        lcon = self.config['LOSS'] # Get loss config settings
         for idx, (x, y) in enumerate(self.train_loader):
             # Get (x, y) of image[idx] from training dataset
             x, y = x.to(self.config['COMMON']['DEVICE']), y.to(self.config['COMMON']['DEVICE'])
@@ -192,33 +222,37 @@ class Trainer():
             with torch.amp.autocast('cuda'):
                 y_fake = self.gen(x)
 
-            # Train discriminator, get losses
+            # Get discriminator losses, apply gradients
             losses_D = self.compute_loss_D(x, y, y_fake)
             self.backward_D(losses_D['loss_D'])
             
-            # Train generator, get losses
-            losses_G = self.compute_loss_G(x, y, y_fake)
+            # Get generator losses, apply gradients
+            losses_G = self.compute_loss_G(lcon, x, y, y_fake)
             self.backward_G(losses_G['loss_G'])
-
             
             if idx % self.config['MISC']['UPDATE_FREQUENCY'] == 0:
                 self.update_display(x, y, y_fake, current_epoch, idx, losses_G, losses_D)
 
+        self.update_schedulers() # Update schedulers after training
+
     def start(self):
         '''Runs a pix2pix training loop based on the config file provided during
-        init, or default if no config path provided (/pix2pix-graphical/config.json)'''
+        init, or default if no config path provided (/pix2pix-graphical/config.json)
+        '''
         self.init_plotting() # Init numpy plotting
         plt.show() # Show pyplot
 
         self.build_output_directory() # Build experiment output directory
         self.export_config() # Export JSON config file to output directory
-        for epoch in range(self.config['TRAIN']['NUM_EPOCHS']):
+
+        epoch_count = self.config['TRAIN']['NUM_EPOCHS'] + self.config['TRAIN']['NUM_EPOCHS_DECAY']
+        for epoch in range(epoch_count):
             begin_epoch = time.perf_counter()
 
             index = epoch + 1 + self.config['LOAD']['LOAD_EPOCH'] if self.config['LOAD']['CONTINUE_TRAIN'] else epoch + 1
             self.train(index)
             
-            if epoch == self.config['TRAIN']['NUM_EPOCHS']-1:
+            if epoch == epoch_count-1:
                 # Always save model after final epoch
                 checkpoint_name = 'final_net{}.pth.tar'
                 utility.save_checkpoint(
@@ -237,7 +271,7 @@ class Trainer():
                 utility.save_examples(self.config, self.gen, self.val_loader, index, output_directory=self.examples_dir)
 
             end_epoch = time.perf_counter()
-            print(f'(End of epoch {index}) Time: {end_epoch - begin_epoch:.6f} seconds', flush=True)
+            self.print_end_of_epoch(index, end_epoch, begin_epoch)
 
 if __name__ == "__main__":
     trainer = Trainer()

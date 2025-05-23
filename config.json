@@ -4,7 +4,7 @@
             "DEVICE": "cuda:0",
             "DATAROOT": "E:/ML/test_data/pix2pix/datasets/facades",
             "OUTPUT_DIRECTORY": "E:/ML/test_data/pix2pix/output",
-            "EXPERIMENT_NAME": "facades_flat_01",
+            "EXPERIMENT_NAME": "facades_01",
             "DIRECTION": "BtoA",
             "INPUT_NC": 3,
             "LOAD_SIZE": 256,
@@ -14,6 +14,7 @@
         },
         "TRAIN": {
             "NUM_EPOCHS": 50,
+            "NUM_EPOCHS_DECAY": 50,
             "LEARNING_RATE": 0.0002
         },
         "LOSS": {
