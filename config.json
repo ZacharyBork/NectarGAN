@@ -1,34 +1,53 @@
 {
     "config": {
-        "DEVICE": "cuda:0",
-        "DATAROOT": "E:/ML/test_data/pix2pix/datasets/facades",
-        "OUTPUT_DIRECTORY": "E:/ML/test_data/pix2pix/output",
-        "EXPERIMENT_NAME": "facades_flat_01",
-        "DIRECTION": "BtoA",
-        "NUM_EPOCHS": 50,
-        "LEARNING_RATE": 0.0002,
-        "BATCH_SIZE": 1,
-        "NUM_WORKERS": 4,
-        "INPUT_NC": 3,
-        "LOAD_SIZE": 256,
-        "CROP_SIZE": 256,
-        "LAMBDA_L1": 100.0,
-        "DO_SOBEL_LOSS": false,
-        "LAMBDA_SOBEL": 1.0,
-        "DO_LAPLACIAN_LOSS": false,
-        "LAMBDA_LAPLACIAN": 1.0,
-        "BETA1": 0.5,
-        "N_LAYERS_D": 3,
-        "BASE_CHANNELS_D": 64,
-        "MAX_CHANNELS_D": 512,
-        "CONTINUE_TRAIN": false,
-        "LOAD_EPOCH": 3,
-        "SAVE_MODEL": false,
-        "MODEL_SAVE_RATE": 1,
-        "SAVE_EXAMPLES": false,
-        "EXAMPLE_SAVE_RATE": 1,
-        "NUM_EXAMPLES": 5,
-        "UPDATE_FREQUENCY": 20
+        "COMMON": {
+            "DEVICE": "cuda:0",
+            "DATAROOT": "E:/ML/test_data/pix2pix/datasets/facades",
+            "OUTPUT_DIRECTORY": "E:/ML/test_data/pix2pix/output",
+            "EXPERIMENT_NAME": "facades_flat_01",
+            "DIRECTION": "BtoA",
+            "INPUT_NC": 3,
+            "LOAD_SIZE": 256,
+            "CROP_SIZE": 256,
+            "BATCH_SIZE": 1,
+            "NUM_WORKERS": 4
+        },
+        "TRAIN": {
+            "NUM_EPOCHS": 50,
+            "LEARNING_RATE": 0.0002
+        },
+        "LOSS": {
+            "LAMBDA_L1": 100.0,
+            "DO_SOBEL_LOSS": false,
+            "LAMBDA_SOBEL": 1.0,
+            "DO_LAPLACIAN_LOSS": false,
+            "LAMBDA_LAPLACIAN": 1.0
+        },
+        "GENERATOR": {
+            "UPSAMPLE_MODE": "Transpose"
+        },
+        "DISCRIMINATOR": {
+            "N_LAYERS_D": 3,
+            "BASE_CHANNELS_D": 64,
+            "MAX_CHANNELS_D": 512
+        },
+        "OPTIMIZER": {
+            "BETA1": 0.5
+        },
+        "LOAD": {
+            "CONTINUE_TRAIN": false,
+            "LOAD_EPOCH": 3
+        },
+        "SAVE": {
+            "SAVE_MODEL": false,
+            "MODEL_SAVE_RATE": 1,
+            "SAVE_EXAMPLES": false,
+            "EXAMPLE_SAVE_RATE": 1,
+            "NUM_EXAMPLES": 5
+        },
+        "MISC": {
+            "UPDATE_FREQUENCY": 20
+        }  
     },
     "notes": {
         "DEVICE": "Which device should torch cast to for training.",
@@ -48,10 +67,10 @@
         "LAMBDA_SOBEL": "Scaling factor for generator Sobel loss.",
         "DO_LAPLACIAN_LOSS": "Enable generator Laplacian loss.",
         "LAMBDA_LAPLACIAN": "Scaling factor for generator Laplacian loss.",
-        "BETA1": "Momentum term of Adam.",
         "N_LAYERS_D": "Number of discriminator layers.",
         "BASE_CHANNELS_D": "Filter count for first discriminator conv layer",
         "MAX_CHANNELS_D": "Max filters per discriminator conv layer.",
+        "BETA1": "Momentum term of Adam.",
         "CONTINUE_TRAIN": "Resume training of model from a checkpoint.",
         "LOAD_EPOCH": "Epoch to load if CONTINUE_TRAIN is true.",
         "SAVE_MODEL": "Save checkpoint files.",

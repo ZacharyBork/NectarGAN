@@ -15,7 +15,7 @@ class Pix2pixDataset(Dataset):
             [
                 # A.Resize(width=self.config['LOAD_SIZE'], height=self.config['LOAD_SIZE']),
                 # A.RandomCrop(height=self.config['CROP_SIZE'], width=self.config['CROP_SIZE']), 
-                A.Resize(width=self.config['CROP_SIZE'], height=self.config['CROP_SIZE']),
+                A.Resize(width=self.config['COMMON']['CROP_SIZE'], height=self.config['COMMON']['CROP_SIZE']),
                 A.HorizontalFlip(p=0.5),
             ], additional_targets={"image0": "image"},
         )
@@ -43,10 +43,10 @@ class Pix2pixDataset(Dataset):
         image = np.array(Image.open(image_path.as_posix()))
 
         input_image = target_image = np.array
-        if self.config['DIRECTION'] == 'AtoB':
-            input_image, target_image = image[:, :self.config['LOAD_SIZE'], :], image[:, self.config['LOAD_SIZE']:, :]
-        elif self.config['DIRECTION'] == 'BtoA':
-            input_image, target_image = image[:, self.config['LOAD_SIZE']:, :], image[:, :self.config['LOAD_SIZE'], :]
+        if self.config['COMMON']['DIRECTION'] == 'AtoB':
+            input_image, target_image = image[:, :self.config['COMMON']['LOAD_SIZE'], :], image[:, self.config['COMMON']['LOAD_SIZE']:, :]
+        elif self.config['COMMON']['DIRECTION'] == 'BtoA':
+            input_image, target_image = image[:, self.config['COMMON']['LOAD_SIZE']:, :], image[:, :self.config['COMMON']['LOAD_SIZE'], :]
         else: raise Exception('Invalid direction. Valid directions are AtoB and BtoA')
 
         augmentations = self.both_transform(image=input_image, image0=target_image)

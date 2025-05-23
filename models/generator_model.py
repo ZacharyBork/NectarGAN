@@ -23,22 +23,25 @@ Input: [1, 3, 512, 512] (512^2 RGB)                     Output:  [1, 3, 512, 512
                         ↓                                 ↑
 [1, 512, 4, 4] ---> bottleneck --> [1, 512, 2, 2] → → → → up1 -> [1, 512, 4, 4]
 '''
-
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import torch.nn.init as init
 
 from .generator_blocks import UnetBlock
 from .generator_blocks import ResidualUnetBlock
 
 class Generator(nn.Module):
-    def __init__(self, input_size: int, in_channels: int=3, features: int=64, extra_layers: int=0, block_type=UnetBlock):
+    '''This class defines a modular UNet style generator with a configurable layer count.'''
+    def __init__(self, input_size: int, in_channels: int=3, 
+                 features: int=64, extra_layers: int=0, 
+                 block_type=UnetBlock, upconv_type: str='Transpose'):
         super().__init__()
         self.input_size = input_size
         self.in_channels = in_channels
         self.features = features
         self.extra_layers = extra_layers
-        self.n_down = 5
+        self.n_down = 6
         self.block_type = block_type
 
         # Validate layer count for current input shape
@@ -85,6 +88,9 @@ class Generator(nn.Module):
             nn.Tanh(),
         )
 
+        # Initialize layer weights
+        self.apply(self.init_weights)
+
 
     def validate_layer_count(self):
         '''Checks number of downsampling layers against input image
@@ -121,6 +127,7 @@ class Generator(nn.Module):
         up_channels.insert(0, (self.features*8, self.features*8)) # Add IO shape for first up layer
 
         for i in range(len(up_channels)):
+            # Add current up channel size to corresponding skip channel size for input
             x = up_channels[i][0] + skip_channels[i][0]
             y = up_channels[i][1]
             up_channels[i] = (x, y)
@@ -133,6 +140,18 @@ class Generator(nn.Module):
             'final_up': up_channels[-1]
         }
         return channel_map
+    
+    def init_weights(self, m):
+        '''Initializes layer weights based on layer type.'''
+        if isinstance(m, (nn.Conv2d, nn.ConvTranspose2d)):
+            init.normal_(m.weight, 0.0, 0.02)
+            if m.bias is not None:
+                init.constant_(m.bias, 0)
+        elif isinstance(m, (nn.InstanceNorm2d, nn.BatchNorm2d)):
+            if m.weight is not None:
+                init.normal_(m.weight, 1.0, 0.02)
+            if m.bias is not None:
+                init.constant_(m.bias, 0)
 
     def forward(self, x):
         x = self.initial_down(x) # Run downsampling layer
