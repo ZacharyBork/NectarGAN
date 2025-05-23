@@ -24,7 +24,7 @@
         "LOSS": {
             "LAMBDA_L1": 100.0,
             "DO_SOBEL_LOSS": false,
-            "LAMBDA_SOBEL": 2.0,
+            "LAMBDA_SOBEL": 1.0,
             "DO_LAPLACIAN_LOSS": false,
             "LAMBDA_LAPLACIAN": 1.0
         },
@@ -50,8 +50,10 @@
             "EXAMPLE_SAVE_RATE": 1,
             "NUM_EXAMPLES": 5
         },
-        "MISC": {
-            "UPDATE_FREQUENCY": 20
+        "VISUALIZER": {
+            "UPDATE_FREQUENCY": 20,
+            "ENABLE_VISDOM": true,
+            "VISDOM_ENV_NAME": "main"
         }  
     },
     "notes": {

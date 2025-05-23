@@ -1,15 +1,12 @@
 import time
 import pathlib
-import numpy as np
-from visdom import Visdom
 
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from torchvision.utils import make_grid
 
-from utils import utility
-from utils import scheduler
+from utils import utility, scheduler
+from visualizer.visdom_visualizer import VisdomVisualizer
 from models.generator_model import Generator
 from models.discriminator_model import Discriminator
 from models.loss import SobelLoss, LaplacianLoss
@@ -18,7 +15,7 @@ class Trainer():
     def __init__(self, config_filepath: str=None):
         # Get configuration data
         self.config = utility.get_config_data(config_filepath)
-        self.vis = self.init_visdom() # Init Visdom and validate connection
+        self.init_visualizers() # Init visualizer
 
         self.init_generator()     # Init generator
         self.init_discriminator() # Init discriminator
@@ -30,47 +27,38 @@ class Trainer():
         if self.config['LOAD']['CONTINUE_TRAIN']: # Load checkpoint if applicable
             utility.load_checkpoint(self.config, self.gen, self.opt_gen, self.disc, self.opt_disc)
 
-    def init_visdom(self):
-        vis = Visdom()
-        assert vis.check_connection()
-        return vis
+    def init_visualizers(self):
+        vcon = self.config['VISUALIZER'] # Get visualizer config data
+        if vcon['ENABLE_VISDOM']:        # Init Visdom visualizer
+            self.vis = VisdomVisualizer(env=vcon['VISDOM_ENV_NAME']) 
+            self.vis.clear_env()         # Clear Visdom environment
 
     def init_generator(self):
         '''Initializes generator and discriminator, and also initializes
         an optimizer and a learning rate scheduler for each.
         '''
-        # Init Generator
-        self.gen = Generator( 
+        self.gen = Generator( # Init Generator
             input_size=self.config['DATALOADER']['CROP_SIZE'], 
             in_channels=self.config['COMMON']['INPUT_NC']).to(self.config['COMMON']['DEVICE'])
-        # Init optimizer for generator
-        self.opt_gen = optim.Adam( 
+        self.opt_gen = optim.Adam( # Init optimizer
             self.gen.parameters(), 
             lr=self.config['TRAIN']['LEARNING_RATE'], 
             betas=(self.config['OPTIMIZER']['BETA1'], 0.999))
-        # Init LR scheduler for generator
-        self.gen_lr_scheduler = scheduler.LRScheduler( 
-            self.opt_gen,
-            self.config['TRAIN']['NUM_EPOCHS'],
-            self.config['TRAIN']['NUM_EPOCHS_DECAY'])
+        self.gen_lr_scheduler = scheduler.LRScheduler( # Init LR scheduler
+            self.opt_gen, self.config['TRAIN']['NUM_EPOCHS'], self.config['TRAIN']['NUM_EPOCHS_DECAY'])
         
     def init_discriminator(self):
-        # Init discriminator
-        self.disc = Discriminator(
+        self.disc = Discriminator( # Init discriminator
             in_channels=self.config['COMMON']['INPUT_NC'],
             base_channels=self.config['DISCRIMINATOR']['BASE_CHANNELS_D'],
             n_layers=self.config['DISCRIMINATOR']['N_LAYERS_D'],
             max_channels=self.config['DISCRIMINATOR']['MAX_CHANNELS_D']).to(self.config['COMMON']['DEVICE'])
-        # Init optimizer for discriminator
-        self.opt_disc = optim.Adam(
+        self.opt_disc = optim.Adam( # Init optimizer
             self.disc.parameters(), 
             lr=self.config['TRAIN']['LEARNING_RATE'], 
             betas=(self.config['OPTIMIZER']['BETA1'], 0.999))
-        # Init LR scheduler for discriminator
-        self.disc_lr_scheduler = scheduler.LRScheduler(
-            self.opt_disc,
-            self.config['TRAIN']['NUM_EPOCHS'],
-            self.config['TRAIN']['NUM_EPOCHS_DECAY'])     
+        self.disc_lr_scheduler = scheduler.LRScheduler( # Init LR scheduler
+            self.opt_disc, self.config['TRAIN']['NUM_EPOCHS'], self.config['TRAIN']['NUM_EPOCHS_DECAY'])     
 
     def build_dataloaders(self):
         '''Builds dataloaders for training and validation datasets.'''
@@ -114,32 +102,13 @@ class Trainer():
             'D_fake': round(losses_D['loss_D_fake'].item(), 2)
         }
         utility.print_losses(current_epoch, idx, losses) # Print current loss values
-
-        # Denormalize tensor [-1:1] -> [0:1]
-        def denorm(j): return (j + 1) * 0.5
         
-        # Update visdom images
-        composite = torch.cat([denorm(x), denorm(y_fake), denorm(y)], dim=3)
-        grid = make_grid(composite, nrow=1, padding=2)
-        self.vis.image(grid.cpu(), win='comparison_grid', opts=dict(title='real_A | fake_B | real_B'))
+        if self.config['VISUALIZER']['ENABLE_VISDOM']:
+            self.vis.update_images(x=x, y=y_fake, z=y, title='real_A | fake_B | real_B') # Update images
 
-        # Update visdom graphs
-        num_batches = len(self.train_loader)
-        graph_step = current_epoch + idx / num_batches
-        self.vis.line(
-            Y=np.column_stack((losses['G_GAN'], losses['G_L1'], losses['G_SOBEL'], losses['G_LAP'])),
-            X=np.column_stack((graph_step, graph_step, graph_step, graph_step)),
-            win='loss_G', update='append',
-            opts=dict(
-                title='Generator Loss', xlabel='Iterations', ylabel='Loss',
-                legend=['G_GAN', 'G_L1', 'G_SOBEL', 'G_LAP']))
-        self.vis.line(
-            Y=np.column_stack((losses['D_real'], losses['D_fake'])),
-            X=np.column_stack((graph_step, graph_step)),
-            win='loss_D', update='append',
-            opts=dict(
-                title='Discriminator Loss', xlabel='Iterations', ylabel='Loss',
-                legend=['D_real', 'D_fake']))
+            num_batches = len(self.train_loader) # Get batch count per epoch
+            graph_step = current_epoch + idx / num_batches # Epoch normalized graph step
+            self.vis.update_loss_graphs(losses, graph_step) # Update loss graphs
 
     def print_end_of_epoch(self, index, end_epoch, begin_epoch):
         print(f'(End of epoch {index}) Time: {end_epoch - begin_epoch:.2f} seconds', flush=True)
@@ -243,7 +212,7 @@ class Trainer():
             losses_G = self.forward_G(lcon, x, y, y_fake)
             self.backward_G(losses_G['loss_G'])
             
-            if idx % self.config['MISC']['UPDATE_FREQUENCY'] == 0:
+            if idx % self.config['VISUALIZER']['UPDATE_FREQUENCY'] == 0:
                 self.update_display(x, y, y_fake, current_epoch, idx, losses_G, losses_D)
 
         self.update_schedulers() # Update schedulers after training
