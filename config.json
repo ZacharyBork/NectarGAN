@@ -6,11 +6,15 @@
             "OUTPUT_DIRECTORY": "E:/ML/test_data/pix2pix/output",
             "EXPERIMENT_NAME": "facades_01",
             "DIRECTION": "BtoA",
-            "INPUT_NC": 3,
-            "LOAD_SIZE": 256,
+            "INPUT_NC": 3
+        },
+        "DATALOADER": {
+            "LOAD_SIZE": 512,
             "CROP_SIZE": 256,
             "BATCH_SIZE": 1,
-            "NUM_WORKERS": 4
+            "NUM_WORKERS": 4,
+            "BOTH_FLIP_CHANCE": 0.5,
+            "INPUT_COLORJITTER_CHANCE": 0.0
         },
         "TRAIN": {
             "NUM_EPOCHS": 50,

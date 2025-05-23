@@ -32,7 +32,7 @@ class Trainer():
         '''
         # Init Generator
         self.gen = Generator( 
-            input_size=self.config['COMMON']['CROP_SIZE'], 
+            input_size=self.config['DATALOADER']['CROP_SIZE'], 
             in_channels=self.config['COMMON']['INPUT_NC']).to(self.config['COMMON']['DEVICE'])
         # Init optimizer for generator
         self.opt_gen = optim.Adam( 

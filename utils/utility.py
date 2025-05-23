@@ -51,8 +51,8 @@ def build_dataloader(config: dict, loader_type: str):
         raise Exception(f'Unable to locate dataset at: {dataset_path.as_posix()}')
     dataset = Pix2pixDataset(config=config, root_dir=dataset_path)
     return torch.utils.data.DataLoader(
-        dataset, batch_size=config['COMMON']['BATCH_SIZE'], 
-        shuffle=True, num_workers=config['COMMON']['NUM_WORKERS'])
+        dataset, batch_size=config['DATALOADER']['BATCH_SIZE'], 
+        shuffle=True, num_workers=config['DATALOADER']['NUM_WORKERS'])
 
 def tensor_to_image(tensor):
     '''Converts normalized tensor to uint8 numpy image.'''

@@ -8,21 +8,22 @@ from albumentations.pytorch import ToTensorV2
 class Pix2pixDataset(Dataset):
     def __init__(self, config: dict, root_dir: pathlib.Path):
         self.config = config
+        self.load_size = config['DATALOADER']['LOAD_SIZE']
+        self.crop_size = config['DATALOADER']['CROP_SIZE']
         self.root_dir = root_dir
         self.list_files = [i for i in root_dir.iterdir()]
 
         self.both_transform = A.Compose(
             [
-                # A.Resize(width=self.config['LOAD_SIZE'], height=self.config['LOAD_SIZE']),
-                # A.RandomCrop(height=self.config['CROP_SIZE'], width=self.config['CROP_SIZE']), 
-                A.Resize(width=self.config['COMMON']['CROP_SIZE'], height=self.config['COMMON']['CROP_SIZE']),
-                A.HorizontalFlip(p=0.5),
+                A.RandomCrop(height=self.crop_size, width=self.crop_size), 
+                # A.Resize(width=self.config['COMMON']['CROP_SIZE'], height=self.config['COMMON']['CROP_SIZE']),
+                A.HorizontalFlip(p=self.config['DATALOADER']['BOTH_FLIP_CHANCE']),
             ], additional_targets={"image0": "image"},
         )
 
         self.transform_only_input = A.Compose(
             [
-                A.ColorJitter(p=0.1),
+                A.ColorJitter(p=self.config['DATALOADER']['INPUT_COLORJITTER_CHANCE']),
                 A.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5], max_pixel_value=255.0),
                 ToTensorV2(),
             ]
@@ -40,13 +41,13 @@ class Pix2pixDataset(Dataset):
     
     def __getitem__(self, index):
         image_path = self.list_files[index]
-        image = np.array(Image.open(image_path.as_posix()))
+        image = np.array(Image.open(image_path.as_posix()).resize((self.load_size*2, self.load_size)))
 
         input_image = target_image = np.array
         if self.config['COMMON']['DIRECTION'] == 'AtoB':
-            input_image, target_image = image[:, :self.config['COMMON']['LOAD_SIZE'], :], image[:, self.config['COMMON']['LOAD_SIZE']:, :]
+            input_image, target_image = image[:, :self.load_size, :], image[:, self.load_size:, :]
         elif self.config['COMMON']['DIRECTION'] == 'BtoA':
-            input_image, target_image = image[:, self.config['COMMON']['LOAD_SIZE']:, :], image[:, :self.config['COMMON']['LOAD_SIZE'], :]
+            input_image, target_image = image[:, self.load_size:, :], image[:, :self.load_size, :]
         else: raise Exception('Invalid direction. Valid directions are AtoB and BtoA')
 
         augmentations = self.both_transform(image=input_image, image0=target_image)
