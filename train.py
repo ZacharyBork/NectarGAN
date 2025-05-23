@@ -20,7 +20,8 @@ class Trainer():
         self.config = utility.get_config_data(config_filepath)
         self.vis = self.init_visdom() # Init Visdom and validate connection
 
-        self.init_networks()      # Init generator and discriminator
+        self.init_generator()     # Init generator
+        self.init_discriminator() # Init discriminator
         self.build_dataloaders()  # Get datasets and create data loaders
         self.define_gradscalers() # Create gradient scalers
         self.init_losses()        # Init loss functions
@@ -34,7 +35,7 @@ class Trainer():
         assert vis.check_connection()
         return vis
 
-    def init_networks(self):
+    def init_generator(self):
         '''Initializes generator and discriminator, and also initializes
         an optimizer and a learning rate scheduler for each.
         '''
@@ -52,7 +53,8 @@ class Trainer():
             self.opt_gen,
             self.config['TRAIN']['NUM_EPOCHS'],
             self.config['TRAIN']['NUM_EPOCHS_DECAY'])
-
+        
+    def init_discriminator(self):
         # Init discriminator
         self.disc = Discriminator(
             in_channels=self.config['COMMON']['INPUT_NC'],
@@ -114,10 +116,10 @@ class Trainer():
         utility.print_losses(current_epoch, idx, losses) # Print current loss values
 
         # Denormalize tensor [-1:1] -> [0:1]
-        def norm(j): return (j + 1) * 0.5
+        def denorm(j): return (j + 1) * 0.5
         
         # Update visdom images
-        composite = torch.cat([norm(x), norm(y_fake), norm(y)], dim=3)
+        composite = torch.cat([denorm(x), denorm(y_fake), denorm(y)], dim=3)
         grid = make_grid(composite, nrow=1, padding=2)
         self.vis.image(grid.cpu(), win='comparison_grid', opts=dict(title='real_A | fake_B | real_B'))
 
@@ -146,7 +148,7 @@ class Trainer():
         disc_lr_step = self.disc_lr_scheduler.get_lr()
         print(f'Learning rate (D): {disc_lr_step[0]} => {disc_lr_step[1]}')
 
-    def compute_loss_D(self, x, y, y_fake):
+    def forward_D(self, x, y, y_fake):
         '''Forward step for discriminator. Run each iteration to compute
         discriminator loss.
         '''
@@ -171,16 +173,23 @@ class Trainer():
         self.d_scaler.step(self.opt_disc) # Optimizer step
         self.d_scaler.update() # Update scaling factor
         
-    def compute_loss_G(self, lcon, x, y, y_fake):
+    def compute_GAN_loss(self, x, y_fake):
+        D_fake = self.disc(x, y_fake) # Get prediction from discriminator
+        return self.BCE(D_fake, torch.ones_like(D_fake))
+    
+    def compute_structure_loss(self, lcon, x, y, y_fake):
+        loss_G_L1 = self.L1_LOSS(y_fake, y)
+        loss_G_SOBEL = self.SOBEL_LOSS(y_fake, y) if lcon['DO_SOBEL_LOSS'] else torch.zeros_like(loss_G_L1)
+        loss_G_LAP = self.LAP_LOSS(y_fake, y) if lcon['DO_LAPLACIAN_LOSS'] else torch.zeros_like(loss_G_L1)
+        return loss_G_L1, loss_G_SOBEL, loss_G_LAP
+        
+    def forward_G(self, lcon, x, y, y_fake):
         '''Forward step for generator. Run each iteration to compute
         generator loss.
         '''
         with torch.amp.autocast('cuda'):
-            D_fake = self.disc(x, y_fake) # Get prediction from discriminator
-            loss_G_GAN = self.BCE(D_fake, torch.ones_like(D_fake))
-            loss_G_L1 = self.L1_LOSS(y_fake, y)
-            loss_G_SOBEL = self.SOBEL_LOSS(y_fake, y) if lcon['DO_SOBEL_LOSS'] else torch.zeros_like(loss_G_L1)
-            loss_G_LAP = self.LAP_LOSS(y_fake, y) if lcon['DO_LAPLACIAN_LOSS'] else torch.zeros_like(loss_G_L1)
+            loss_G_GAN = self.compute_GAN_loss(x, y_fake)
+            loss_G_L1, loss_G_SOBEL, loss_G_LAP = self.compute_structure_loss(lcon, x, y, y_fake)
             loss_G = ( # Calculate final generator loss
                 loss_G_GAN + 
                 loss_G_L1 * self.config['LOSS']['LAMBDA_L1'] + 
@@ -227,11 +236,11 @@ class Trainer():
                 y_fake = self.gen(x)
 
             # Get discriminator losses, apply gradients
-            losses_D = self.compute_loss_D(x, y, y_fake)
+            losses_D = self.forward_D(x, y, y_fake)
             self.backward_D(losses_D['loss_D'])
             
             # Get generator losses, apply gradients
-            losses_G = self.compute_loss_G(lcon, x, y, y_fake)
+            losses_G = self.forward_G(lcon, x, y, y_fake)
             self.backward_G(losses_G['loss_G'])
             
             if idx % self.config['MISC']['UPDATE_FREQUENCY'] == 0:
