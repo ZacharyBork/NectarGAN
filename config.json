@@ -9,7 +9,7 @@
             "INPUT_NC": 3
         },
         "DATALOADER": {
-            "LOAD_SIZE": 512,
+            "LOAD_SIZE": 256,
             "CROP_SIZE": 256,
             "BATCH_SIZE": 1,
             "NUM_WORKERS": 4,

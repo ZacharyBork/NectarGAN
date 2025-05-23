@@ -119,27 +119,22 @@ class Generator(nn.Module):
         extra_layers = [(self.features*8, self.features*8) for _ in range(self.extra_layers)]
         down_channels = down_channels[:self.n_down+1] + extra_layers
 
-        # Create layer IO shapes for up and skip channels
+        # Create layer IO shapes skip channels
         skip_channels = list(reversed([(out_ch, in_ch) for (in_ch, out_ch) in down_channels]))
-        up_channels = skip_channels.copy()
+        
+        # Build IO shapes for ups with skips
+        up_channels = [(in_ch*2, out_ch) for in_ch, out_ch in skip_channels] 
 
-        skip_channels.insert(0, (0, 0)) # Add dummy shape for skip size addition
-        up_channels.insert(0, (self.features*8, self.features*8)) # Add IO shape for first up layer
+        # Add IO shape for first up layer
+        up_channels.insert(0, (self.features*8, self.features*8)) 
 
-        for i in range(len(up_channels)):
-            # Add current up channel size to corresponding skip channel size for input
-            x = up_channels[i][0] + skip_channels[i][0]
-            y = up_channels[i][1]
-            up_channels[i] = (x, y)
-
-        channel_map = {
+        return {
             'initial_down': down_channels[0],
             'downs': down_channels[1:],
             'bottleneck': (self.features*8, self.features*8),
             'ups': up_channels[:-1],
             'final_up': up_channels[-1]
         }
-        return channel_map
     
     def init_weights(self, m):
         '''Initializes layer weights based on layer type.'''
