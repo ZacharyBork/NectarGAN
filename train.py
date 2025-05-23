@@ -1,11 +1,12 @@
-import matplotlib.pyplot as plt
+import time
+import pathlib
 import numpy as np
+from visdom import Visdom
 
 import torch
 import torch.nn as nn
 import torch.optim as optim
-import pathlib
-import time
+from torchvision.utils import make_grid
 
 from utils import utility
 from utils import scheduler
@@ -17,14 +18,21 @@ class Trainer():
     def __init__(self, config_filepath: str=None):
         # Get configuration data
         self.config = utility.get_config_data(config_filepath)
+        self.vis = self.init_visdom() # Init Visdom and validate connection
 
         self.init_networks()      # Init generator and discriminator
         self.build_dataloaders()  # Get datasets and create data loaders
         self.define_gradscalers() # Create gradient scalers
         self.init_losses()        # Init loss functions
         
+        
         if self.config['LOAD']['CONTINUE_TRAIN']: # Load checkpoint if applicable
             utility.load_checkpoint(self.config, self.gen, self.opt_gen, self.disc, self.opt_disc)
+
+    def init_visdom(self):
+        vis = Visdom()
+        assert vis.check_connection()
+        return vis
 
     def init_networks(self):
         '''Initializes generator and discriminator, and also initializes
@@ -61,22 +69,6 @@ class Trainer():
             self.opt_disc,
             self.config['TRAIN']['NUM_EPOCHS'],
             self.config['TRAIN']['NUM_EPOCHS_DECAY'])     
-        
-    def init_plotting(self):
-        # Temporary numpy plotting for model validation
-        plt.ion()
-        image_data = np.random.rand(512, 512)
-        self.fig, self.axes = plt.subplots(1, 3)
-
-        names = ['real_A', 'fake_B', 'real_B']#, 'L1_response', 'SOBEL_response', 'LAP_response']
-        self.ax_data = []
-        for i, name in enumerate(names):
-            # ax = self.axes[0 if i<3 else 1][i%3]
-            ax = self.axes[i]
-            ax.axis('off')
-            ax.set_title(name)
-            data = ax.imshow(image_data)
-            self.ax_data.append(data)
 
     def build_dataloaders(self):
         '''Builds dataloaders for training and validation datasets.'''
@@ -111,29 +103,41 @@ class Trainer():
 
     def update_display(self, x, y, y_fake, current_epoch, idx, losses_G, losses_D):
         '''Function to update loss and image displays during training.'''
-        utility.print_losses( # Print current loss values
-            current_epoch, idx, 
-            losses={
-                'G_GAN': round(losses_G['loss_G_GAN'].item(), 2),
-                'G_L1': round(losses_G['loss_G_L1'].item(), 2),
-                'G_SOBEL': round(losses_G['loss_G_SOBEL'].item(), 2),
-                'G_LAP': round(losses_G['loss_G_LAP'].item(), 2),
-                'D_real': round(losses_D['loss_D_real'].item(), 2),
-                'D_fake': round(losses_D['loss_D_fake'].item(), 2)
-            }
-        )
+        losses = {
+            'G_GAN': round(losses_G['loss_G_GAN'].item(), 2),
+            'G_L1': round(losses_G['loss_G_L1'].item(), 2),
+            'G_SOBEL': round(losses_G['loss_G_SOBEL'].item(), 2),
+            'G_LAP': round(losses_G['loss_G_LAP'].item(), 2),
+            'D_real': round(losses_D['loss_D_real'].item(), 2),
+            'D_fake': round(losses_D['loss_D_fake'].item(), 2)
+        }
+        utility.print_losses(current_epoch, idx, losses) # Print current loss values
 
-        # Convert x, y, y_fake tensors to images
-        vis_x, vis_y = utility.tensor_to_image(x), utility.tensor_to_image(y)
-        vis_y_fake = utility.tensor_to_image(y_fake)
-        visualizers = [vis_x, vis_y_fake, vis_y]
+        # Denormalize tensor [-1:1] -> [0:1]
+        def norm(j): return (j + 1) * 0.5
+        
+        # Update visdom images
+        composite = torch.cat([norm(x), norm(y_fake), norm(y)], dim=3)
+        grid = make_grid(composite, nrow=1, padding=2)
+        self.vis.image(grid.cpu(), win='comparison_grid', opts=dict(title='real_A | fake_B | real_B'))
 
-        # Update numpy plotting
-        for i, vis in enumerate(visualizers):
-            try: self.ax_data[i].set_data(vis)
-            except: continue
-        self.fig.canvas.draw()
-        self.fig.canvas.flush_events()
+        # Update visdom graphs
+        num_batches = len(self.train_loader)
+        graph_step = current_epoch + idx / num_batches
+        self.vis.line(
+            Y=np.column_stack((losses['G_GAN'], losses['G_L1'], losses['G_SOBEL'], losses['G_LAP'])),
+            X=np.column_stack((graph_step, graph_step, graph_step, graph_step)),
+            win='loss_G', update='append',
+            opts=dict(
+                title='Generator Loss', xlabel='Iterations', ylabel='Loss',
+                legend=['G_GAN', 'G_L1', 'G_SOBEL', 'G_LAP']))
+        self.vis.line(
+            Y=np.column_stack((losses['D_real'], losses['D_fake'])),
+            X=np.column_stack((graph_step, graph_step)),
+            win='loss_D', update='append',
+            opts=dict(
+                title='Discriminator Loss', xlabel='Iterations', ylabel='Loss',
+                legend=['D_real', 'D_fake']))
 
     def print_end_of_epoch(self, index, end_epoch, begin_epoch):
         print(f'(End of epoch {index}) Time: {end_epoch - begin_epoch:.2f} seconds', flush=True)
@@ -239,9 +243,6 @@ class Trainer():
         '''Runs a pix2pix training loop based on the config file provided during
         init, or default if no config path provided (/pix2pix-graphical/config.json)
         '''
-        self.init_plotting() # Init numpy plotting
-        plt.show() # Show pyplot
-
         self.build_output_directory() # Build experiment output directory
         self.export_config() # Export JSON config file to output directory
 

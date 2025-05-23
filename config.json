@@ -2,14 +2,14 @@
     "config": {
         "COMMON": {
             "DEVICE": "cuda:0",
-            "DATAROOT": "E:/ML/test_data/pix2pix/datasets/facades",
+            "DATAROOT": "E:/ML/test_data/pix2pix/datasets/maps",
             "OUTPUT_DIRECTORY": "E:/ML/test_data/pix2pix/output",
-            "EXPERIMENT_NAME": "facades_01",
-            "DIRECTION": "BtoA",
+            "EXPERIMENT_NAME": "maps_01",
+            "DIRECTION": "AtoB",
             "INPUT_NC": 3
         },
         "DATALOADER": {
-            "LOAD_SIZE": 256,
+            "LOAD_SIZE": 512,
             "CROP_SIZE": 256,
             "BATCH_SIZE": 1,
             "NUM_WORKERS": 4,
@@ -24,7 +24,7 @@
         "LOSS": {
             "LAMBDA_L1": 100.0,
             "DO_SOBEL_LOSS": false,
-            "LAMBDA_SOBEL": 1.0,
+            "LAMBDA_SOBEL": 2.0,
             "DO_LAPLACIAN_LOSS": false,
             "LAMBDA_LAPLACIAN": 1.0
         },
