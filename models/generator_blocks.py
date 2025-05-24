@@ -1,24 +1,40 @@
 import torch
 import torch.nn as nn
+from typing import Union
+
 
 class UnetBlock(nn.Module):
     '''This class defines a standard UNet block to be used by the generator model.'''
-    def __init__(self, in_channels, out_channels, down=True, use_dropout=False):
+    def __init__(
+            self, in_channels: int, out_channels: int, upconv_type: str, 
+            activation: Union[str, None], norm: Union[str, None], down: bool=True, bias: bool=True, use_dropout: bool=False):
         super().__init__()
+        modules = []
         if down:
-            self.conv = nn.Sequential(
-                nn.Conv2d(in_channels, out_channels, kernel_size=4, stride=2, padding=1, bias=False, padding_mode='reflect'),
-                nn.InstanceNorm2d(out_channels),
-                nn.LeakyReLU(0.2),
-            )
+            modules.append(nn.Conv2d(in_channels, out_channels, kernel_size=4, stride=2, padding=1, bias=bias, padding_mode='reflect'))
         else:
-            self.conv = nn.Sequential(
-                # nn.Upsample(scale_factor=2, mode='bilinear', align_corners=False),
-                # nn.Conv2d(in_channels, out_channels, kernel_size=3, stride=1, padding=1),
-                nn.ConvTranspose2d(in_channels, out_channels, kernel_size=4, stride=2, padding=1, bias=False),
-                nn.InstanceNorm2d(out_channels),
-                nn.ReLU(),
-            )
+            match upconv_type:
+                case 'Transpose':
+                    modules.append(nn.ConvTranspose2d(in_channels, out_channels, kernel_size=4, stride=2, padding=1, bias=bias))
+                case 'Bilinear':
+                    modules.append(nn.Upsample(scale_factor=2, mode='bilinear', align_corners=False))
+                    modules.append(nn.Conv2d(in_channels, out_channels, kernel_size=3, stride=1, padding=1))
+                case _: raise ValueError('Invalid upsampling type.')
+        
+        match norm:
+            case 'instance': modules.append(nn.InstanceNorm2d(out_channels))
+            case None: pass
+            case _: raise ValueError('Invalid normalization type.')
+
+        match activation:
+            case 'leaky': modules.append(nn.LeakyReLU(0.2))
+            case 'relu': modules.append(nn.ReLU())
+            case 'tanh': modules.append(nn.Tanh())
+            case None: pass
+            case _: raise ValueError('Invalid activation function.')
+
+        self.conv = nn.Sequential(*modules)
+
         self.use_dropout = use_dropout
         self.dropout = nn.Dropout(0.5)
 

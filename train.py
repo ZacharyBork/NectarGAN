@@ -29,18 +29,19 @@ class Trainer():
         if self.config.load.continue_train: # Load checkpoint if applicable
             utility.load_checkpoint(self.config, self.gen, self.opt_gen, self.disc, self.opt_disc)
 
-    def init_visualizers(self):
+    def init_visualizers(self) -> None:
         vcon = self.config.visualizer # Get visualizer config data
-        if vcon.enable_visdom:             # Init Visdom visualizer
+        if vcon.enable_visdom:        # Init Visdom visualizer
             self.vis = VisdomVisualizer(env=vcon.visdom_env_name) 
-            self.vis.clear_env()         # Clear Visdom environment
+            self.vis.clear_env()      # Clear Visdom environment
 
-    def init_generator(self):
+    def init_generator(self) -> None:
         '''Initializes generator with optimizer and lr scheduler.
         '''
         self.gen = Generator( # Init Generator
             input_size=self.config.dataloader.crop_size, 
-            in_channels=self.config.common.input_nc).to(self.config.common.device)
+            in_channels=self.config.common.input_nc,
+            upconv_type=self.config.generator.upsample_block_type).to(self.config.common.device)
         self.opt_gen = optim.Adam( # Init optimizer
             self.gen.parameters(), 
             lr=self.config.train.learning_rate, 
@@ -48,7 +49,7 @@ class Trainer():
         self.gen_lr_scheduler = scheduler.LRScheduler( # Init LR scheduler
             self.opt_gen, self.config.train.num_epochs, self.config.train.num_epochs_decay)
         
-    def init_discriminator(self):
+    def init_discriminator(self) -> None:
         '''Initializes discriminator with optimizer and lr scheduler.
         '''
         self.disc = Discriminator( # Init discriminator
@@ -63,12 +64,12 @@ class Trainer():
         self.disc_lr_scheduler = scheduler.LRScheduler( # Init LR scheduler
             self.opt_disc, self.config.train.num_epochs, self.config.train.num_epochs_decay)     
 
-    def build_dataloaders(self):
+    def build_dataloaders(self) -> None:
         '''Builds dataloaders for training and validation datasets.'''
         self.train_loader = utility.build_dataloader(self.config, 'train')
         self.val_loader = utility.build_dataloader(self.config, 'val')
 
-    def define_gradscalers(self):
+    def define_gradscalers(self) -> None:
         '''Defines gradient scalers for generator and discriminator
         based on current selected device.
         '''
@@ -76,25 +77,27 @@ class Trainer():
             self.g_scaler = self.d_scaler = torch.amp.GradScaler('cpu')
         else: self.g_scaler = self.d_scaler = torch.amp.GradScaler('cuda')
 
-    def init_losses(self):
+    def init_losses(self) -> None:
         '''Initializes model loss functions.'''
         self.BCE = nn.BCEWithLogitsLoss().to(self.config.common.device)
         self.L1_LOSS = nn.L1Loss().to(self.config.common.device)
         self.SOBEL_LOSS = SobelLoss().to(self.config.common.device)
         self.LAP_LOSS = LaplacianLoss().to(self.config.common.device)
 
-    def build_output_directory(self):
+    def build_output_directory(self) -> None:
         '''Builds an output directory structure for the experiment.'''
         self.experiment_dir, self.examples_dir = utility.build_experiment_directory(
             self.config.common.output_directory, 
             self.config.common.experiment_name, 
             self.config.load.continue_train)
         
-    def export_config(self):
+    def export_config(self) -> None:
         '''Exports a versioned config JSON file to the experiment output directory.'''
         self.config_manager.export_config(self.experiment_dir)
 
-    def update_display(self, x, y, y_fake, current_epoch, idx, losses_G, losses_D):
+    def update_display(
+            self, x: torch.Tensor, y: torch.Tensor, y_fake: torch.Tensor, current_epoch: int, 
+            idx: int, losses_G: dict[str, torch.Tensor], losses_D: dict[str, torch.Tensor]) -> None:
         '''Function to update loss and image displays during training.'''
         losses = {
             'G_GAN': round(losses_G['loss_G_GAN'].item(), 2),
@@ -108,7 +111,7 @@ class Trainer():
         
         if self.config.visualizer.enable_visdom:
             self.vis.update_images( # Update x, y_fake, y image grid
-                x=x, y=y_fake, z=y, 
+                x=x, y=y_fake, z=y,
                 title='real_A | fake_B | real_B', 
                 image_size=self.config.visualizer.visdom_image_size)
 
@@ -116,14 +119,14 @@ class Trainer():
             graph_step = current_epoch + idx / num_batches # Epoch normalized graph step
             self.vis.update_loss_graphs(losses, graph_step) # Update loss graphs
 
-    def print_end_of_epoch(self, index, end_epoch, begin_epoch):
+    def print_end_of_epoch(self, index: int, end_epoch: float, begin_epoch: float) -> None:
         print(f'(End of epoch {index}) Time: {end_epoch - begin_epoch:.2f} seconds', flush=True)
         gen_lr_step = self.gen_lr_scheduler.get_lr()
         print(f'Learning rate (G): {gen_lr_step[0]} => {gen_lr_step[1]}')
         disc_lr_step = self.disc_lr_scheduler.get_lr()
         print(f'Learning rate (D): {disc_lr_step[0]} => {disc_lr_step[1]}')
 
-    def forward_D(self, x, y, y_fake):
+    def forward_D(self, x: torch.Tensor, y: torch.Tensor, y_fake: torch.Tensor) -> dict[str, torch.Tensor]:
         '''Forward step for discriminator. Run each iteration to compute
         discriminator loss.
         '''
@@ -139,7 +142,7 @@ class Trainer():
             'loss_D_fake': loss_D_fake
         }
 
-    def backward_D(self, loss_D):
+    def backward_D(self, loss_D: torch.Tensor) -> None:
         '''Backward step for the discriminator. Computes and applies gradients from
         discriminator loss and updates optimizer scaling accordingly.
         '''
@@ -148,19 +151,18 @@ class Trainer():
         self.d_scaler.step(self.opt_disc) # Optimizer step
         self.d_scaler.update() # Update scaling factor
         
-    def compute_GAN_loss(self, x, y_fake):
+    def compute_GAN_loss(self, x: torch.Tensor, y_fake: torch.Tensor) -> torch.Tensor:
         D_fake = self.disc(x, y_fake) # Get prediction from discriminator
         return self.BCE(D_fake, torch.ones_like(D_fake))
     
-    def compute_structure_loss(self, x, y, y_fake):
+    def compute_structure_loss(self, x: torch.Tensor, y: torch.Tensor, y_fake: torch.Tensor) -> tuple[torch.Tensor]:
         loss_G_L1 = self.L1_LOSS(y_fake, y)
         loss_G_SOBEL = self.SOBEL_LOSS(y_fake, y) if self.config.loss.do_sobel_loss else torch.zeros_like(loss_G_L1)
         loss_G_LAP = self.LAP_LOSS(y_fake, y) if self.config.loss.do_laplacian_loss else torch.zeros_like(loss_G_L1)
-        return loss_G_L1, loss_G_SOBEL, loss_G_LAP
+        return (loss_G_L1, loss_G_SOBEL, loss_G_LAP)
         
-    def forward_G(self, x, y, y_fake):
-        '''Forward step for generator. Run each iteration to compute
-        generator loss.
+    def forward_G(self, x: torch.Tensor, y: torch.Tensor, y_fake: torch.Tensor) -> dict[str, torch.Tensor]:
+        '''Forward step for generator. Run each iteration to compute generator loss.
         '''
         with torch.amp.autocast('cuda'):
             loss_G_GAN = self.compute_GAN_loss(x, y_fake)
@@ -178,7 +180,7 @@ class Trainer():
             'loss_G_LAP': loss_G_LAP
         }
     
-    def backward_G(self, loss_G):
+    def backward_G(self, loss_G: torch.Tensor) -> None:
         '''Backward step for the generator. Computes and applies gradients from
         generator loss and updates optimizer scaling accordingly.
         '''
@@ -187,19 +189,22 @@ class Trainer():
         self.g_scaler.step(self.opt_gen) # Optimizer step
         self.g_scaler.update() # Update scaling factor
 
-    def update_schedulers(self):
+    def update_schedulers(self) -> None:
         '''Updates model schedulers'''
         self.disc_lr_scheduler.step() # Discriminator LR scheduler
         self.gen_lr_scheduler.step()  # Generator LR scheduler
 
-    def train(self, current_epoch:int):
+    def train(self, current_epoch:int) -> None:
         '''Training function for the generator and discriminator networks.
         
         Loops over each batch of (x, y) pairs in training set. Generator first makes
         a fake image (y_fake). Then losses are computed for discriminator based on x, 
         y, and y fake. Then losses are computed for generator based on discriminator
         output and additional loss functions. Losses get applied to both networks,
-        then we print losses if applicable this iteration and move to next batch.
+        then we print losses if applicable this idx and move to next batch.
+
+        Args:
+            current_epoch : index of current epoch. From start() it is train_loop_iter+1
         '''
         for idx, (x, y) in enumerate(self.train_loader):
             # Get (x, y) of image[idx] from training dataset
@@ -222,7 +227,7 @@ class Trainer():
 
         self.update_schedulers() # Update schedulers after training
 
-    def start(self):
+    def start(self) -> None:
         '''Runs a pix2pix training loop based on the config file provided during
         init, or default if no config path provided (/pix2pix-graphical/config.json)
         '''

@@ -34,7 +34,7 @@ class ConfigLoss:
 
 @dataclass
 class ConfigGenerator:
-    upsample_mode: str
+    upsample_block_type: str
 
 @dataclass
 class ConfigDiscriminator:

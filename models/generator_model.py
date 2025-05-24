@@ -33,66 +33,30 @@ from .generator_blocks import ResidualUnetBlock
 
 class Generator(nn.Module):
     '''This class defines a modular UNet style generator with a configurable layer count.'''
-    def __init__(self, input_size: int, in_channels: int=3, 
-                 features: int=64, extra_layers: int=0, 
-                 block_type=UnetBlock, upconv_type: str='Transpose'):
+    def __init__(
+            self, input_size: int, in_channels: int=3, features: int=64, extra_layers: int=0, 
+            use_dropout_layers: int=3, block_type=UnetBlock, upconv_type: str='Transpose'):
         super().__init__()
         self.input_size = input_size
         self.in_channels = in_channels
         self.features = features
         self.extra_layers = extra_layers
+        self.use_dropout_layers = use_dropout_layers
         self.n_down = 6
         self.block_type = block_type
+        self.upconv_type = upconv_type
 
-        # Validate layer count for current input shape
-        self.validate_layer_count()
+        self.build_model() # Initialize generator model
 
-        # Build channel map
-        self.channel_map = self.build_channel_map()
+    def build_model(self):
+        self.validate_layer_count()       # Validate layer count for input shape
+        self.build_channel_map()          # Build channel map
+        self.define_downsampling_blocks() # Define downsampling blocks
+        self.define_bottleneck()          # Define bottleneck
+        self.define_upsampling_blocks()   # Define Upsampling Blocks
+        self.apply(self.init_weights)     # Initialize layer weights
 
-        # Define initial downsampling layer
-        self.initial_down = nn.Sequential(
-            nn.Conv2d(
-                self.channel_map['initial_down'][0], self.channel_map['initial_down'][1], 
-                kernel_size=4, stride=2, padding=1, padding_mode='reflect'), 
-            nn.LeakyReLU(0.2),   
-        )
-
-        # Define additional downsampling layers
-        self.downs = nn.ModuleList()
-        for (in_ch, out_ch) in self.channel_map['downs']:
-            self.downs.append(block_type(in_ch, out_ch, down=True, use_dropout=False))
-
-        # Define bottleneck
-        self.bottleneck = nn.Sequential(
-            nn.Conv2d(
-                self.channel_map['bottleneck'][0], self.channel_map['bottleneck'][1], 
-                kernel_size=4, stride=2, padding=1, padding_mode='reflect'),
-            nn.ReLU(),
-        )
-
-        # Define upsampling layers
-        self.ups = nn.ModuleList()
-        for i, (in_ch, out_ch) in enumerate(self.channel_map['ups']):
-            self.ups.append(block_type(in_ch, out_ch, down=False, use_dropout=i<3))
-
-        # Define final upsampling layer
-        self.final_up = nn.Sequential(
-            nn.ConvTranspose2d(
-                self.channel_map['final_up'][0], self.channel_map['final_up'][1], 
-                kernel_size=4, stride=2, padding=1),
-            # nn.Upsample(scale_factor=2, mode='bilinear', align_corners=False),
-            # nn.Conv2d(
-            #     self.channel_map['final_up'][0], self.channel_map['final_up'][1], 
-            #     kernel_size=3, stride=1, padding=1),
-            nn.Tanh(),
-        )
-
-        # Initialize layer weights
-        self.apply(self.init_weights)
-
-
-    def validate_layer_count(self):
+    def validate_layer_count(self) -> None:
         '''Checks number of downsampling layers against input image
         resolution to ensure that bottleneck channel size never reaches 0x0.
 
@@ -106,7 +70,7 @@ class Generator(nn.Module):
             e = f'Input too small for n_down={self.n_down}. Min size: {min_size}x{min_size}'
             raise ValueError(e) # Raise error if input images are too small
 
-    def build_channel_map(self):
+    def build_channel_map(self) -> None:
         '''Assembles Unet channel structure.'''
         down_channels = [(self.in_channels, self.features)]
         in_features = out_features = self.features
@@ -128,7 +92,7 @@ class Generator(nn.Module):
         # Add IO shape for first up layer
         up_channels.insert(0, (self.features*8, self.features*8)) 
 
-        return {
+        self.channel_map = {
             'initial_down': down_channels[0],
             'downs': down_channels[1:],
             'bottleneck': (self.features*8, self.features*8),
@@ -136,7 +100,45 @@ class Generator(nn.Module):
             'final_up': up_channels[-1]
         }
     
-    def init_weights(self, m):
+    def define_downsampling_blocks(self) -> None:
+        # Define initial downsampling layer
+        self.initial_down = self.block_type(
+            self.channel_map['initial_down'][0], self.channel_map['initial_down'][1], 
+            upconv_type=self.upconv_type, activation='leaky',
+            norm=None, down=True, bias=True, use_dropout=False)
+
+        # Define additional downsampling layers
+        self.downs = nn.ModuleList()
+        for (in_ch, out_ch) in self.channel_map['downs']:
+            self.downs.append(
+                self.block_type(
+                    in_ch, out_ch, 
+                    upconv_type=self.upconv_type, activation='leaky',
+                    norm='instance', down=True, bias=False, use_dropout=False))
+
+    def define_bottleneck(self) -> None:
+        # Define bottleneck
+        self.bottleneck = self.block_type(
+                    self.channel_map['bottleneck'][0], self.channel_map['bottleneck'][1], 
+                    upconv_type=self.upconv_type, activation='relu',
+                    norm=None, down=True, bias=True, use_dropout=False)
+
+    def define_upsampling_blocks(self) -> None:
+        # Define upsampling layers
+        self.ups = nn.ModuleList()
+        for i, (in_ch, out_ch) in enumerate(self.channel_map['ups']):
+            self.ups.append(self.block_type(
+                in_ch, out_ch, upconv_type=self.upconv_type, 
+                activation='relu', norm='instance', down=False, bias=False, 
+                use_dropout=i<self.use_dropout_layers))
+
+        # Define final upsampling layer
+        self.final_up = self.block_type(
+            self.channel_map['final_up'][0], self.channel_map['final_up'][1], 
+            upconv_type=self.upconv_type, activation='tanh',
+            norm=None, down=False, bias=True, use_dropout=False)
+
+    def init_weights(self, m: nn.Module) -> None:
         '''Initializes layer weights based on layer type.'''
         if isinstance(m, (nn.Conv2d, nn.ConvTranspose2d)):
             init.normal_(m.weight, 0.0, 0.02)
@@ -148,7 +150,7 @@ class Generator(nn.Module):
             if m.bias is not None:
                 init.constant_(m.bias, 0)
 
-    def forward(self, x):
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
         x = self.initial_down(x) # Run downsampling layer
         skips = [x] # Store outputs for skip connections
         for down in self.downs:

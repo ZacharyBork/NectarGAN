@@ -2,14 +2,14 @@
     "config": {
         "common": {
             "device": "cuda:0",
-            "dataroot": "E:/ML/test_data/pix2pix/datasets/maps",
+            "dataroot": "E:/ML/test_data/pix2pix/datasets/cityscapes",
             "output_directory": "E:/ML/test_data/pix2pix/output",
-            "experiment_name": "maps_01",
-            "direction": "AtoB",
+            "experiment_name": "cityscapes_01",
+            "direction": "BtoA",
             "input_nc": 3
         },
         "dataloader": {
-            "load_size": 512,
+            "load_size": 256,
             "crop_size": 256,
             "batch_size": 1,
             "num_workers": 4,
@@ -23,13 +23,13 @@
         },
         "loss": {
             "lambda_l1": 100.0,
-            "do_sobel_loss": true,
+            "do_sobel_loss": false,
             "lambda_sobel": 1.0,
-            "do_laplacian_loss": true,
+            "do_laplacian_loss": false,
             "lambda_laplacian": 1.0
         },
         "generator": {
-            "upsample_mode": "Transpose"
+            "upsample_block_type": "Transpose"
         },
         "discriminator": {
             "n_layers_d": 3,
@@ -54,7 +54,7 @@
             "update_frequency": 20,
             "enable_visdom": true,
             "visdom_env_name": "main",
-            "visdom_image_size": 350
+            "visdom_image_size": 400
         }
     }
 }
