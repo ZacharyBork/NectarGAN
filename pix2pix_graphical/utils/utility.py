@@ -5,8 +5,8 @@ import numpy as np
 import torch
 from torchvision.utils import save_image
 
-from .config.config_data import Config
-from .dataset import Pix2pixDataset
+from pix2pix_graphical.config.config_data import Config
+from pix2pix_graphical.dataset.pix2pix_dataset import Pix2pixDataset
 
 def print_losses(epoch: int, iter: int, losses: dict):
     infostring = f'(epoch: {epoch}, iters: {iter})'

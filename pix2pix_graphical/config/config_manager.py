@@ -3,7 +3,7 @@ import json
 from typing import Type, TypeVar, Union, Any
 from dataclasses import is_dataclass
 
-from . import config_data
+from pix2pix_graphical.config import config_data
 T = TypeVar('T')
 GROUP_SCHEMA = {
     'common': config_data.ConfigCommon,
@@ -27,8 +27,8 @@ class ConfigManager():
         '''Loads a JSON config file and returns the raw config data.
         
         config_filepath can also be None. In this case, this function will instead try
-        to load the default config file located at "/pix2pix-graphical/config.json". If
-        it is unable to do that, it will raise a FileNotFoundError.
+        to load the default config file located at "./default.json". If it is unable to 
+        do that, it will raise a FileNotFoundError.
 
         Args:
             config_filepath : Absolute file path of config JSON, or None.
@@ -43,7 +43,7 @@ class ConfigManager():
         config_file = pathlib.Path
         if config_filepath == None:
             script_root = pathlib.Path(__file__).parent
-            config_file = pathlib.Path(script_root, '../../config.json').resolve()
+            config_file = pathlib.Path(script_root, 'default.json').resolve()
         else: config_file = pathlib.Path(config_filepath)
         
         if not config_file.exists():

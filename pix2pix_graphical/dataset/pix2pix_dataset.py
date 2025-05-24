@@ -5,7 +5,7 @@ from torch.utils.data import Dataset
 import albumentations as A
 from albumentations.pytorch import ToTensorV2
 
-from .config.config_data import Config
+from pix2pix_graphical.config.config_data import Config
 
 class Pix2pixDataset(Dataset):
     def __init__(self, config: Config, root_dir: pathlib.Path):

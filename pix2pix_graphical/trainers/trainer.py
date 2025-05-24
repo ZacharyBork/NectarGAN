@@ -6,13 +6,13 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 
-from utils import utility, scheduler
-from utils.config.config_manager import ConfigManager
-from visualizer.visdom_visualizer import VisdomVisualizer
+from pix2pix_graphical.utils import utility, scheduler
+from pix2pix_graphical.config.config_manager import ConfigManager
+from pix2pix_graphical.visualizer.visdom_visualizer import VisdomVisualizer
 
-from models.generator_model import Generator
-from models.discriminator_model import Discriminator
-from models.loss import SobelLoss, LaplacianLoss
+from pix2pix_graphical.models.generator_model import Generator
+from pix2pix_graphical.models.discriminator_model import Discriminator
+from pix2pix_graphical.models.loss import SobelLoss, LaplacianLoss
 
 class Trainer():
     def __init__(self, config_filepath: Union[str, None]=None) -> None:
@@ -226,43 +226,4 @@ class Trainer():
                 self.update_display(x, y, y_fake, current_epoch, idx, losses_G, losses_D)
 
         self.update_schedulers() # Update schedulers after training
-
-    def start(self) -> None:
-        '''Runs a pix2pix training loop based on the config file provided during
-        init, or default if no config path provided (/pix2pix-graphical/config.json)
-        '''
-        self.build_output_directory() # Build experiment output directory
-        self.export_config() # Export JSON config file to output directory
-
-        epoch_count = self.config.train.num_epochs + self.config.train.num_epochs_decay
-        for epoch in range(epoch_count):
-            begin_epoch = time.perf_counter()
-
-            index = epoch + 1 + self.config.load.load_epoch if self.config.load.continue_train else epoch + 1
-            self.train(index)
-            
-            if epoch == epoch_count-1:
-                # Always save model after final epoch
-                checkpoint_name = 'final_net{}.pth.tar'
-                utility.save_checkpoint(
-                    self.gen, self.opt_gen, output_path=pathlib.Path(self.experiment_dir, checkpoint_name.format(str(index), 'G')))
-                utility.save_checkpoint(
-                    self.disc, self.opt_disc, output_path=pathlib.Path(self.experiment_dir, checkpoint_name.format(str(index), 'D')))
-            elif self.config.save.save_model and epoch % self.config.save.model_save_rate == 0:
-                # Save intermediate checkpoints if applicable
-                checkpoint_name = 'epoch{}_net{}.pth.tar'
-                utility.save_checkpoint(
-                    self.gen, self.opt_gen, output_path=pathlib.Path(self.experiment_dir, checkpoint_name.format(str(index), 'G')))
-                utility.save_checkpoint(
-                    self.disc, self.opt_disc, output_path=pathlib.Path(self.experiment_dir, checkpoint_name.format(str(index), 'D')))
-            
-            if self.config.save.save_examples and epoch % self.config.save.example_save_rate == 0:
-                utility.save_examples(self.config, self.gen, self.val_loader, index, output_directory=self.examples_dir)
-
-            end_epoch = time.perf_counter()
-            self.print_end_of_epoch(index, end_epoch, begin_epoch)
-
-if __name__ == "__main__":
-    trainer = Trainer()
-    trainer.start()
 
