@@ -53,7 +53,8 @@
         "VISUALIZER": {
             "UPDATE_FREQUENCY": 20,
             "ENABLE_VISDOM": true,
-            "VISDOM_ENV_NAME": "main"
+            "VISDOM_ENV_NAME": "main",
+            "VISDOM_IMAGE_SIZE": 350
         }  
     },
     "notes": {

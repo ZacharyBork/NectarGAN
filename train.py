@@ -104,7 +104,10 @@ class Trainer():
         utility.print_losses(current_epoch, idx, losses) # Print current loss values
         
         if self.config['VISUALIZER']['ENABLE_VISDOM']:
-            self.vis.update_images(x=x, y=y_fake, z=y, title='real_A | fake_B | real_B') # Update images
+            self.vis.update_images( # Update x, y_fake, y image grid
+                x=x, y=y_fake, z=y, 
+                title='real_A | fake_B | real_B', 
+                image_size=self.config['VISUALIZER']['VISDOM_IMAGE_SIZE'])
 
             num_batches = len(self.train_loader) # Get batch count per epoch
             graph_step = current_epoch + idx / num_batches # Epoch normalized graph step

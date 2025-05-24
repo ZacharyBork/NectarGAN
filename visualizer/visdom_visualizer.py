@@ -1,13 +1,14 @@
 import torch
 import numpy as np
 from visdom import Visdom
-from torchvision.utils import make_grid
-from typing import Sequence
+
+from typing import Sequence, Any
 from collections.abc import Mapping
 
 class VisdomVisualizer():
-    def __init__(self, env='main'):
+    def __init__(self, env: str='main', port: int=8097):
         self.env = env
+        self.port = port
         self.init_visdom()
 
     def start_server(self):
@@ -19,7 +20,7 @@ class VisdomVisualizer():
         Also assigns Visdom client to self.vis internally to send commands.
         
         Raises:
-            ConnectionError: If unable to connect to Visdom server.
+            ConnectionError : If unable to connect to Visdom server.
         '''
         vis = Visdom(env=self.env)
         if not vis.check_connection():
@@ -40,8 +41,8 @@ class VisdomVisualizer():
         which is what Visdom is expecting for images.
 
         Args:
-            tensor: The torch.Tensor object to denormalize.
-            clamp: Whether to clamp the denormed values to [0, 1].
+            tensor : The torch.Tensor object to denormalize.
+            clamp : Whether to clamp the denormed values to [0, 1].
 
         Returns:
             torch.Tensor: The input tensor renormalized to [0, 1].
@@ -49,7 +50,9 @@ class VisdomVisualizer():
         norm = (tensor + 1) * 0.5
         return torch.clamp(norm, 0.0, 1.0) if clamp else norm
 
-    def update_images(self, x: torch.Tensor, y: torch.Tensor, z: torch.Tensor, title: str) -> None:
+    def update_images(
+            self, x: torch.Tensor, y: torch.Tensor, z: torch.Tensor, 
+            title: str, image_size: int=300) -> None:
         '''Updates the Visdom [x, y, z] image grid.
         
         Takes three torch.Tensor objects as input and normalizes them [0, 1], then
@@ -61,13 +64,16 @@ class VisdomVisualizer():
             y : The second input tensor (middle image in grid).
             z : The third input tensor (right image in grid).
             title : The title of the concatenated image window.
+            image_size : The width and height, in pixels, to render each image. 
         '''
         composite = torch.cat([
             self.denorm_tensor(x), 
             self.denorm_tensor(y), 
             self.denorm_tensor(z)], dim=3)
-        grid = make_grid(composite, nrow=1, padding=2)
-        self.vis.image(grid.cpu(), win='comparison_grid', opts=dict(title=title))
+        self.vis.images(
+            composite.cpu(), win='comparison_grid', nrow=1, padding=2,
+            opts=dict(title=title, width=image_size*3, height=image_size)
+        )
 
     def update_graph(
         self, values: Sequence[float], steps: Sequence[float],
