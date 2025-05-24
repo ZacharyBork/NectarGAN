@@ -1,21 +1,24 @@
 import time
 import pathlib
+from typing import Union
 
 import torch
 import torch.nn as nn
 import torch.optim as optim
 
 from utils import utility, scheduler
+from utils.config.config_manager import ConfigManager
 from visualizer.visdom_visualizer import VisdomVisualizer
+
 from models.generator_model import Generator
 from models.discriminator_model import Discriminator
 from models.loss import SobelLoss, LaplacianLoss
 
 class Trainer():
-    def __init__(self, config_filepath: str=None):
-        # Get configuration data
-        self.config = utility.get_config_data(config_filepath)
-        self.init_visualizers() # Init visualizer
+    def __init__(self, config_filepath: Union[str, None]=None) -> None:
+        self.config_manager = ConfigManager(config_filepath)  # Init config manager
+        self.config = self.config_manager.data # Store config data for easier access
+        self.init_visualizers()   # Init visualizer
 
         self.init_generator()     # Init generator
         self.init_discriminator() # Init discriminator
@@ -23,42 +26,42 @@ class Trainer():
         self.define_gradscalers() # Create gradient scalers
         self.init_losses()        # Init loss functions
         
-        
-        if self.config['LOAD']['CONTINUE_TRAIN']: # Load checkpoint if applicable
+        if self.config.load.continue_train: # Load checkpoint if applicable
             utility.load_checkpoint(self.config, self.gen, self.opt_gen, self.disc, self.opt_disc)
 
     def init_visualizers(self):
-        vcon = self.config['VISUALIZER'] # Get visualizer config data
-        if vcon['ENABLE_VISDOM']:        # Init Visdom visualizer
-            self.vis = VisdomVisualizer(env=vcon['VISDOM_ENV_NAME']) 
+        vcon = self.config.visualizer # Get visualizer config data
+        if vcon.enable_visdom:             # Init Visdom visualizer
+            self.vis = VisdomVisualizer(env=vcon.visdom_env_name) 
             self.vis.clear_env()         # Clear Visdom environment
 
     def init_generator(self):
-        '''Initializes generator and discriminator, and also initializes
-        an optimizer and a learning rate scheduler for each.
+        '''Initializes generator with optimizer and lr scheduler.
         '''
         self.gen = Generator( # Init Generator
-            input_size=self.config['DATALOADER']['CROP_SIZE'], 
-            in_channels=self.config['COMMON']['INPUT_NC']).to(self.config['COMMON']['DEVICE'])
+            input_size=self.config.dataloader.crop_size, 
+            in_channels=self.config.common.input_nc).to(self.config.common.device)
         self.opt_gen = optim.Adam( # Init optimizer
             self.gen.parameters(), 
-            lr=self.config['TRAIN']['LEARNING_RATE'], 
-            betas=(self.config['OPTIMIZER']['BETA1'], 0.999))
+            lr=self.config.train.learning_rate, 
+            betas=(self.config.optimizer.beta1, 0.999))
         self.gen_lr_scheduler = scheduler.LRScheduler( # Init LR scheduler
-            self.opt_gen, self.config['TRAIN']['NUM_EPOCHS'], self.config['TRAIN']['NUM_EPOCHS_DECAY'])
+            self.opt_gen, self.config.train.num_epochs, self.config.train.num_epochs_decay)
         
     def init_discriminator(self):
+        '''Initializes discriminator with optimizer and lr scheduler.
+        '''
         self.disc = Discriminator( # Init discriminator
-            in_channels=self.config['COMMON']['INPUT_NC'],
-            base_channels=self.config['DISCRIMINATOR']['BASE_CHANNELS_D'],
-            n_layers=self.config['DISCRIMINATOR']['N_LAYERS_D'],
-            max_channels=self.config['DISCRIMINATOR']['MAX_CHANNELS_D']).to(self.config['COMMON']['DEVICE'])
+            in_channels=self.config.common.input_nc,
+            base_channels=self.config.discriminator.base_channels_d,
+            n_layers=self.config.discriminator.n_layers_d,
+            max_channels=self.config.discriminator.max_channels_d).to(self.config.common.device)
         self.opt_disc = optim.Adam( # Init optimizer
             self.disc.parameters(), 
-            lr=self.config['TRAIN']['LEARNING_RATE'], 
-            betas=(self.config['OPTIMIZER']['BETA1'], 0.999))
+            lr=self.config.train.learning_rate, 
+            betas=(self.config.optimizer.beta1, 0.999))
         self.disc_lr_scheduler = scheduler.LRScheduler( # Init LR scheduler
-            self.opt_disc, self.config['TRAIN']['NUM_EPOCHS'], self.config['TRAIN']['NUM_EPOCHS_DECAY'])     
+            self.opt_disc, self.config.train.num_epochs, self.config.train.num_epochs_decay)     
 
     def build_dataloaders(self):
         '''Builds dataloaders for training and validation datasets.'''
@@ -69,27 +72,27 @@ class Trainer():
         '''Defines gradient scalers for generator and discriminator
         based on current selected device.
         '''
-        if self.config['COMMON']['DEVICE'] == 'cpu':
+        if self.config.common.device == 'cpu':
             self.g_scaler = self.d_scaler = torch.amp.GradScaler('cpu')
         else: self.g_scaler = self.d_scaler = torch.amp.GradScaler('cuda')
 
     def init_losses(self):
         '''Initializes model loss functions.'''
-        self.BCE = nn.BCEWithLogitsLoss().to(self.config['COMMON']['DEVICE'])
-        self.L1_LOSS = nn.L1Loss().to(self.config['COMMON']['DEVICE'])
-        self.SOBEL_LOSS = SobelLoss().to(self.config['COMMON']['DEVICE'])
-        self.LAP_LOSS = LaplacianLoss().to(self.config['COMMON']['DEVICE'])
+        self.BCE = nn.BCEWithLogitsLoss().to(self.config.common.device)
+        self.L1_LOSS = nn.L1Loss().to(self.config.common.device)
+        self.SOBEL_LOSS = SobelLoss().to(self.config.common.device)
+        self.LAP_LOSS = LaplacianLoss().to(self.config.common.device)
 
     def build_output_directory(self):
         '''Builds an output directory structure for the experiment.'''
         self.experiment_dir, self.examples_dir = utility.build_experiment_directory(
-            self.config['COMMON']['OUTPUT_DIRECTORY'], 
-            self.config['COMMON']['EXPERIMENT_NAME'], 
-            self.config['LOAD']['CONTINUE_TRAIN'])
+            self.config.common.output_directory, 
+            self.config.common.experiment_name, 
+            self.config.load.continue_train)
         
     def export_config(self):
         '''Exports a versioned config JSON file to the experiment output directory.'''
-        utility.export_training_config(self.config, self.experiment_dir)
+        self.config_manager.export_config(self.experiment_dir)
 
     def update_display(self, x, y, y_fake, current_epoch, idx, losses_G, losses_D):
         '''Function to update loss and image displays during training.'''
@@ -103,11 +106,11 @@ class Trainer():
         }
         utility.print_losses(current_epoch, idx, losses) # Print current loss values
         
-        if self.config['VISUALIZER']['ENABLE_VISDOM']:
+        if self.config.visualizer.enable_visdom:
             self.vis.update_images( # Update x, y_fake, y image grid
                 x=x, y=y_fake, z=y, 
                 title='real_A | fake_B | real_B', 
-                image_size=self.config['VISUALIZER']['VISDOM_IMAGE_SIZE'])
+                image_size=self.config.visualizer.visdom_image_size)
 
             num_batches = len(self.train_loader) # Get batch count per epoch
             graph_step = current_epoch + idx / num_batches # Epoch normalized graph step
@@ -149,24 +152,24 @@ class Trainer():
         D_fake = self.disc(x, y_fake) # Get prediction from discriminator
         return self.BCE(D_fake, torch.ones_like(D_fake))
     
-    def compute_structure_loss(self, lcon, x, y, y_fake):
+    def compute_structure_loss(self, x, y, y_fake):
         loss_G_L1 = self.L1_LOSS(y_fake, y)
-        loss_G_SOBEL = self.SOBEL_LOSS(y_fake, y) if lcon['DO_SOBEL_LOSS'] else torch.zeros_like(loss_G_L1)
-        loss_G_LAP = self.LAP_LOSS(y_fake, y) if lcon['DO_LAPLACIAN_LOSS'] else torch.zeros_like(loss_G_L1)
+        loss_G_SOBEL = self.SOBEL_LOSS(y_fake, y) if self.config.loss.do_sobel_loss else torch.zeros_like(loss_G_L1)
+        loss_G_LAP = self.LAP_LOSS(y_fake, y) if self.config.loss.do_laplacian_loss else torch.zeros_like(loss_G_L1)
         return loss_G_L1, loss_G_SOBEL, loss_G_LAP
         
-    def forward_G(self, lcon, x, y, y_fake):
+    def forward_G(self, x, y, y_fake):
         '''Forward step for generator. Run each iteration to compute
         generator loss.
         '''
         with torch.amp.autocast('cuda'):
             loss_G_GAN = self.compute_GAN_loss(x, y_fake)
-            loss_G_L1, loss_G_SOBEL, loss_G_LAP = self.compute_structure_loss(lcon, x, y, y_fake)
+            loss_G_L1, loss_G_SOBEL, loss_G_LAP = self.compute_structure_loss(x, y, y_fake)
             loss_G = ( # Calculate final generator loss
                 loss_G_GAN + 
-                loss_G_L1 * self.config['LOSS']['LAMBDA_L1'] + 
-                loss_G_SOBEL * self.config['LOSS']['LAMBDA_SOBEL'] + 
-                loss_G_LAP * self.config['LOSS']['LAMBDA_LAPLACIAN']) 
+                loss_G_L1 * self.config.loss.lambda_l1 + 
+                loss_G_SOBEL * self.config.loss.lambda_sobel + 
+                loss_G_LAP * self.config.loss.lambda_laplacian) 
         return { # Return generator losses
             'loss_G': loss_G,
             'loss_G_GAN': loss_G_GAN,
@@ -198,10 +201,9 @@ class Trainer():
         output and additional loss functions. Losses get applied to both networks,
         then we print losses if applicable this iteration and move to next batch.
         '''
-        lcon = self.config['LOSS'] # Get loss config settings
         for idx, (x, y) in enumerate(self.train_loader):
             # Get (x, y) of image[idx] from training dataset
-            x, y = x.to(self.config['COMMON']['DEVICE']), y.to(self.config['COMMON']['DEVICE'])
+            x, y = x.to(self.config.common.device), y.to(self.config.common.device)
 
             # Generate fake image
             with torch.amp.autocast('cuda'):
@@ -212,10 +214,10 @@ class Trainer():
             self.backward_D(losses_D['loss_D'])
             
             # Get generator losses, apply gradients
-            losses_G = self.forward_G(lcon, x, y, y_fake)
+            losses_G = self.forward_G(x, y, y_fake)
             self.backward_G(losses_G['loss_G'])
             
-            if idx % self.config['VISUALIZER']['UPDATE_FREQUENCY'] == 0:
+            if idx % self.config.visualizer.update_frequency == 0:
                 self.update_display(x, y, y_fake, current_epoch, idx, losses_G, losses_D)
 
         self.update_schedulers() # Update schedulers after training
@@ -227,11 +229,11 @@ class Trainer():
         self.build_output_directory() # Build experiment output directory
         self.export_config() # Export JSON config file to output directory
 
-        epoch_count = self.config['TRAIN']['NUM_EPOCHS'] + self.config['TRAIN']['NUM_EPOCHS_DECAY']
+        epoch_count = self.config.train.num_epochs + self.config.train.num_epochs_decay
         for epoch in range(epoch_count):
             begin_epoch = time.perf_counter()
 
-            index = epoch + 1 + self.config['LOAD']['LOAD_EPOCH'] if self.config['LOAD']['CONTINUE_TRAIN'] else epoch + 1
+            index = epoch + 1 + self.config.load.load_epoch if self.config.load.continue_train else epoch + 1
             self.train(index)
             
             if epoch == epoch_count-1:
@@ -241,7 +243,7 @@ class Trainer():
                     self.gen, self.opt_gen, output_path=pathlib.Path(self.experiment_dir, checkpoint_name.format(str(index), 'G')))
                 utility.save_checkpoint(
                     self.disc, self.opt_disc, output_path=pathlib.Path(self.experiment_dir, checkpoint_name.format(str(index), 'D')))
-            elif self.config['SAVE']['SAVE_MODEL'] and epoch % self.config['SAVE']['MODEL_SAVE_RATE'] == 0:
+            elif self.config.save.save_model and epoch % self.config.save.model_save_rate == 0:
                 # Save intermediate checkpoints if applicable
                 checkpoint_name = 'epoch{}_net{}.pth.tar'
                 utility.save_checkpoint(
@@ -249,7 +251,7 @@ class Trainer():
                 utility.save_checkpoint(
                     self.disc, self.opt_disc, output_path=pathlib.Path(self.experiment_dir, checkpoint_name.format(str(index), 'D')))
             
-            if self.config['SAVE']['SAVE_EXAMPLES'] and epoch % self.config['SAVE']['EXAMPLE_SAVE_RATE'] == 0:
+            if self.config.save.save_examples and epoch % self.config.save.example_save_rate == 0:
                 utility.save_examples(self.config, self.gen, self.val_loader, index, output_directory=self.examples_dir)
 
             end_epoch = time.perf_counter()

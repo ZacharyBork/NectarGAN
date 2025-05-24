@@ -5,25 +5,26 @@ from torch.utils.data import Dataset
 import albumentations as A
 from albumentations.pytorch import ToTensorV2
 
+from .config.config_data import Config
+
 class Pix2pixDataset(Dataset):
-    def __init__(self, config: dict, root_dir: pathlib.Path):
+    def __init__(self, config: Config, root_dir: pathlib.Path):
         self.config = config
-        self.load_size = config['DATALOADER']['LOAD_SIZE']
-        self.crop_size = config['DATALOADER']['CROP_SIZE']
+        self.load_size = config.dataloader.load_size
+        self.crop_size = config.dataloader.crop_size
         self.root_dir = root_dir
         self.list_files = [i for i in root_dir.iterdir()]
 
         self.both_transform = A.Compose(
             [
                 A.RandomCrop(height=self.crop_size, width=self.crop_size), 
-                # A.Resize(width=self.config['COMMON']['CROP_SIZE'], height=self.config['COMMON']['CROP_SIZE']),
-                A.HorizontalFlip(p=self.config['DATALOADER']['BOTH_FLIP_CHANCE']),
+                A.HorizontalFlip(p=self.config.dataloader.both_flip_chance),
             ], additional_targets={"image0": "image"},
         )
 
         self.transform_only_input = A.Compose(
             [
-                A.ColorJitter(p=self.config['DATALOADER']['INPUT_COLORJITTER_CHANCE']),
+                A.ColorJitter(p=self.config.dataloader.input_colorjitter_chance),
                 A.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5], max_pixel_value=255.0),
                 ToTensorV2(),
             ]
@@ -44,9 +45,9 @@ class Pix2pixDataset(Dataset):
         image = np.array(Image.open(image_path.as_posix()).resize((self.load_size*2, self.load_size)))
 
         input_image = target_image = np.array
-        if self.config['COMMON']['DIRECTION'] == 'AtoB':
+        if self.config.common.direction == 'AtoB':
             input_image, target_image = image[:, :self.load_size, :], image[:, self.load_size:, :]
-        elif self.config['COMMON']['DIRECTION'] == 'BtoA':
+        elif self.config.common.direction == 'BtoA':
             input_image, target_image = image[:, self.load_size:, :], image[:, :self.load_size, :]
         else: raise Exception('Invalid direction. Valid directions are AtoB and BtoA')
 

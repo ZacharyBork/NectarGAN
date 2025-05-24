@@ -29,7 +29,7 @@ class LRScheduler():
         '''
         self.scheduler.step()
         self._old_lr = self._new_lr
-        self._new_lr = self.scheduler.get_last_lr() 
+        self._new_lr = self.scheduler.get_last_lr()[0]
 
     def get_lr(self):
         '''To be called after step, returns the LR of the just completed epoch

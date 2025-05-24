@@ -5,6 +5,7 @@ import numpy as np
 import torch
 from torchvision.utils import save_image
 
+from .config.config_data import Config
 from .dataset import Pix2pixDataset
 
 def print_losses(epoch: int, iter: int, losses: dict):
@@ -12,26 +13,6 @@ def print_losses(epoch: int, iter: int, losses: dict):
     for loss_type in losses:
         infostring += f' {loss_type}: {losses[loss_type]}'
     print(infostring)
-
-def get_config_data(config_filepath: str):
-    config_file = pathlib.Path
-    if config_filepath == None:
-        util_dir = pathlib.Path(__file__).parent
-        config_file = pathlib.Path(util_dir, '../config.json').resolve()
-    else: config_file = pathlib.Path(config_filepath)
-    
-    with open(config_file.as_posix(), 'r') as file:
-        config_data = json.loads(file.read())['config']
-    file.close()
-    return config_data
-
-def export_training_config(config: dict, output_directory: pathlib.Path):
-    data = { 'config': config }
-    existing_configs = [i for i in output_directory.iterdir() if i.suffix == '.json']
-    config_export_path = pathlib.Path(output_directory, f'train{str(1 + len(existing_configs))}_config.json')
-    with open(config_export_path.as_posix(), 'w') as file:
-        json.dump(data, file, indent=4)
-    file.close()
 
 def build_experiment_directory(output_directory: str, experiment_name: str, exist_ok: bool):
     output_root = pathlib.Path(output_directory)
@@ -45,14 +26,15 @@ def build_experiment_directory(output_directory: str, experiment_name: str, exis
 
     return experiment_dir, examples_dir
 
-def build_dataloader(config: dict, loader_type: str):
-    dataset_path = pathlib.Path(config['COMMON']['DATAROOT'], loader_type).resolve()
+def build_dataloader(config: Config, loader_type: str):
+    '''Initializes a Torch dataloader of the given type from a Pix2pixDataset.'''
+    dataset_path = pathlib.Path(config.common.dataroot, loader_type).resolve()
     if not dataset_path.exists(): # Make sure data directory exists
         raise Exception(f'Unable to locate dataset at: {dataset_path.as_posix()}')
     dataset = Pix2pixDataset(config=config, root_dir=dataset_path)
     return torch.utils.data.DataLoader(
-        dataset, batch_size=config['DATALOADER']['BATCH_SIZE'], 
-        shuffle=True, num_workers=config['DATALOADER']['NUM_WORKERS'])
+        dataset, batch_size=config.dataloader.batch_size, 
+        shuffle=True, num_workers=config.dataloader.num_workers)
 
 def tensor_to_image(tensor):
     '''Converts normalized tensor to uint8 numpy image.'''
@@ -63,15 +45,15 @@ def tensor_to_image(tensor):
     img = np.transpose(img, (1, 2, 0))
     return img
 
-def save_examples(config: dict, gen, val_loader: torch.utils.data.DataLoader, epoch: int, output_directory: pathlib.Path):
+def save_examples(config: Config, gen, val_loader: torch.utils.data.DataLoader, epoch: int, output_directory: pathlib.Path):
     gen.eval()
 
     val_data = list(val_loader.dataset)
-    indices = random.sample(range(len(val_data)), config['SAVE']['NUM_EXAMPLES'])
+    indices = random.sample(range(len(val_data)), config.save.num_examples)
     for i, idx in enumerate(indices):
         x, y = val_data[idx]
-        x = x.unsqueeze(0).to(config['COMMON']['DEVICE'])
-        y = y.unsqueeze(0).to(config['COMMON']['DEVICE'])
+        x = x.unsqueeze(0).to(config.common.device)
+        y = y.unsqueeze(0).to(config.common.device)
 
         with torch.no_grad():
             y_fake = gen(x)
@@ -89,13 +71,13 @@ def save_checkpoint(model, optimizer, output_path: pathlib.Path):
     }
     torch.save(checkpoint, output_path.as_posix())
 
-def load_checkpoint(config, gen, opt_gen, disc, opt_disc):
-    load_epoch = config['LOAD']['LOAD_EPOCH']
+def load_checkpoint(config: Config, gen, opt_gen, disc, opt_disc):
+    load_epoch = config.load.load_epoch
     if load_epoch == -1: base_name = f'final'
     else: base_name = f'epoch{load_epoch}'
 
-    output_directory = pathlib.Path(config['COMMON']['OUTPUT_DIRECTORY'])
-    experiment_directory = pathlib.Path(output_directory, config['COMMON']['EXPERIMENT_NAME'])
+    output_directory = pathlib.Path(config.common.output_directory)
+    experiment_directory = pathlib.Path(output_directory, config.common.experiment_name)
     
     # Load generator checkpoint
     checkpoint_gen_path = pathlib.Path(experiment_directory, f'{base_name}_netG.pth.tar')
@@ -109,10 +91,10 @@ def load_checkpoint(config, gen, opt_gen, disc, opt_disc):
     
     models = [(checkpoint_gen_path, gen, opt_gen), (checkpoint_disc_path, disc, opt_disc)]
     for path, model, optimizer in models:
-        checkpoint = torch.load(path.as_posix(), map_location=config['COMMON']['DEVICE'])
+        checkpoint = torch.load(path.as_posix(), map_location=config.common.device)
         model.load_state_dict(checkpoint['state_dict'])
         optimizer.load_state_dict(checkpoint['optimizer'])
 
         for param_group in optimizer.param_groups:
-            param_group['lr'] = config['TRAIN']['LEARNING_RATE']
+            param_group['lr'] = config.train.learning_rate
 

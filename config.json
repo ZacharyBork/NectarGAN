@@ -1,91 +1,60 @@
 {
     "config": {
-        "COMMON": {
-            "DEVICE": "cuda:0",
-            "DATAROOT": "E:/ML/test_data/pix2pix/datasets/maps",
-            "OUTPUT_DIRECTORY": "E:/ML/test_data/pix2pix/output",
-            "EXPERIMENT_NAME": "maps_01",
-            "DIRECTION": "AtoB",
-            "INPUT_NC": 3
+        "common": {
+            "device": "cuda:0",
+            "dataroot": "E:/ML/test_data/pix2pix/datasets/maps",
+            "output_directory": "E:/ML/test_data/pix2pix/output",
+            "experiment_name": "maps_01",
+            "direction": "AtoB",
+            "input_nc": 3
         },
-        "DATALOADER": {
-            "LOAD_SIZE": 512,
-            "CROP_SIZE": 256,
-            "BATCH_SIZE": 1,
-            "NUM_WORKERS": 4,
-            "BOTH_FLIP_CHANCE": 0.5,
-            "INPUT_COLORJITTER_CHANCE": 0.0
+        "dataloader": {
+            "load_size": 512,
+            "crop_size": 256,
+            "batch_size": 1,
+            "num_workers": 4,
+            "both_flip_chance": 0.5,
+            "input_colorjitter_chance": 0.0
         },
-        "TRAIN": {
-            "NUM_EPOCHS": 50,
-            "NUM_EPOCHS_DECAY": 50,
-            "LEARNING_RATE": 0.0002
+        "train": {
+            "num_epochs": 100,
+            "num_epochs_decay": 100,
+            "learning_rate": 0.0002
         },
-        "LOSS": {
-            "LAMBDA_L1": 100.0,
-            "DO_SOBEL_LOSS": false,
-            "LAMBDA_SOBEL": 1.0,
-            "DO_LAPLACIAN_LOSS": false,
-            "LAMBDA_LAPLACIAN": 1.0
+        "loss": {
+            "lambda_l1": 100.0,
+            "do_sobel_loss": true,
+            "lambda_sobel": 1.0,
+            "do_laplacian_loss": true,
+            "lambda_laplacian": 1.0
         },
-        "GENERATOR": {
-            "UPSAMPLE_MODE": "Transpose"
+        "generator": {
+            "upsample_mode": "Transpose"
         },
-        "DISCRIMINATOR": {
-            "N_LAYERS_D": 3,
-            "BASE_CHANNELS_D": 64,
-            "MAX_CHANNELS_D": 512
+        "discriminator": {
+            "n_layers_d": 3,
+            "base_channels_d": 64,
+            "max_channels_d": 512
         },
-        "OPTIMIZER": {
-            "BETA1": 0.5
+        "optimizer": {
+            "beta1": 0.5
         },
-        "LOAD": {
-            "CONTINUE_TRAIN": false,
-            "LOAD_EPOCH": 3
+        "load": {
+            "continue_train": false,
+            "load_epoch": 3
         },
-        "SAVE": {
-            "SAVE_MODEL": false,
-            "MODEL_SAVE_RATE": 1,
-            "SAVE_EXAMPLES": false,
-            "EXAMPLE_SAVE_RATE": 1,
-            "NUM_EXAMPLES": 5
+        "save": {
+            "save_model": false,
+            "model_save_rate": 1,
+            "save_examples": false,
+            "example_save_rate": 1,
+            "num_examples": 5
         },
-        "VISUALIZER": {
-            "UPDATE_FREQUENCY": 20,
-            "ENABLE_VISDOM": true,
-            "VISDOM_ENV_NAME": "main",
-            "VISDOM_IMAGE_SIZE": 350
-        }  
-    },
-    "notes": {
-        "DEVICE": "Which device should torch cast to for training.",
-        "DATAROOT": "Root directory of dataset, should contrain test/train/val folder structure.",
-        "OUTPUT_DIRECTORY": "Root output directory where experiment output directory is created.",
-        "EXPERIMENT_NAME": "Name of current experiment.",
-        "DIRECTION": "Dataset direction [BtoA | AtoB].",
-        "NUM_EPOCHS": "How many epochs to run the current train for.",
-        "LEARNING_RATE": "Model learning rate. default: 2e-04",
-        "BATCH_SIZE": "Training batch size. Pix2pix paper default is 1.",
-        "NUM_WORKERS": "Number of subprocesses used to load data.",
-        "INPUT_NC": "Number of channels in input image. 1 for mono, 3 for RGB",
-        "LOAD_SIZE": "Size in pixels to load dataset images.",
-        "CROP_SIZE": "Size in pixels to crop dataset images.",
-        "LAMBDA_L1": "Scaling factor for generator L1 loss.",
-        "DO_SOBEL_LOSS": "Enable generator Sobel loss.",
-        "LAMBDA_SOBEL": "Scaling factor for generator Sobel loss.",
-        "DO_LAPLACIAN_LOSS": "Enable generator Laplacian loss.",
-        "LAMBDA_LAPLACIAN": "Scaling factor for generator Laplacian loss.",
-        "N_LAYERS_D": "Number of discriminator layers.",
-        "BASE_CHANNELS_D": "Filter count for first discriminator conv layer",
-        "MAX_CHANNELS_D": "Max filters per discriminator conv layer.",
-        "BETA1": "Momentum term of Adam.",
-        "CONTINUE_TRAIN": "Resume training of model from a checkpoint.",
-        "LOAD_EPOCH": "Epoch to load if CONTINUE_TRAIN is true.",
-        "SAVE_MODEL": "Save checkpoint files.",
-        "MODEL_SAVE_RATE": "Rate in epochs at which to save checkpoint files if SAVE_MODEL is true.",
-        "SAVE_EXAMPLES": "Load and eval the model and save example images.",
-        "EXAMPLE_SAVE_RATE": "Rate in epochs at which to save example images if SAVE_EXAMPLES is true.",
-        "NUM_EXAMPLES": "Number of examples to save each time when SAVE_EXAMPLES is true",
-        "UPDATE_FREQUENCY": "Frequency (in iterations) of updates to loss and visualizer data."
+        "visualizer": {
+            "update_frequency": 20,
+            "enable_visdom": true,
+            "visdom_env_name": "main",
+            "visdom_image_size": 350
+        }
     }
 }
