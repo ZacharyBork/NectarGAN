@@ -1,9 +1,6 @@
-import json
 import pathlib
-import random
 import numpy as np
 import torch
-from torchvision.utils import save_image
 
 from pix2pix_graphical.config.config_data import Config
 from pix2pix_graphical.dataset.pix2pix_dataset import Pix2pixDataset
@@ -13,18 +10,7 @@ def print_losses(epoch: int, iter: int, losses: dict):
     for loss_type in losses:
         infostring += f' {loss_type}: {losses[loss_type]}'
     print(infostring)
-
-def build_experiment_directory(output_directory: str, experiment_name: str, exist_ok: bool):
-    output_root = pathlib.Path(output_directory)
-    experiment_dir = pathlib.Path(output_root, experiment_name)
-    try: experiment_dir.mkdir(parents=False, exist_ok=exist_ok)
-    except Exception:
-        raise
-
-    examples_dir = pathlib.Path(experiment_dir, 'examples')
-    examples_dir.mkdir(exist_ok=exist_ok)
-
-    return experiment_dir, examples_dir
+    
 
 def build_dataloader(config: Config, loader_type: str):
     '''Initializes a Torch dataloader of the given type from a Pix2pixDataset.'''
@@ -43,25 +29,7 @@ def tensor_to_image(tensor):
     img = tensor.detach().cpu().numpy()
     img = np.clip((img + 1) / 2.0 * 255.0, 0, 255).astype(np.uint8)
     img = np.transpose(img, (1, 2, 0))
-    return img
-
-def save_examples(config: Config, gen, val_loader: torch.utils.data.DataLoader, epoch: int, output_directory: pathlib.Path):
-    gen.eval()
-
-    val_data = list(val_loader.dataset)
-    indices = random.sample(range(len(val_data)), config.save.num_examples)
-    for i, idx in enumerate(indices):
-        x, y = val_data[idx]
-        x = x.unsqueeze(0).to(config.common.device)
-        y = y.unsqueeze(0).to(config.common.device)
-
-        with torch.no_grad():
-            y_fake = gen(x)
-        
-        save_image(y_fake * 0.5 + 0.5, pathlib.Path(output_directory, f'epoch{epoch}_{str(i+1)}_B_fake.png').as_posix())
-        save_image(x * 0.5 + 0.5, pathlib.Path(output_directory, f'epoch{epoch}_{str(i+1)}_A_real.png').as_posix())
-        save_image(y * 0.5 + 0.5, pathlib.Path(output_directory, f'epoch{epoch}_{str(i+1)}_B_real.png').as_posix())
-    gen.train()
+    return img    
 
 def save_checkpoint(model, optimizer, output_path: pathlib.Path):
     print('=> Saving Checkpoint')

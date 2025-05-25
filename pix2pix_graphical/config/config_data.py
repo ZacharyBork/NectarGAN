@@ -6,6 +6,7 @@ class ConfigCommon:
     dataroot: str
     output_directory: str
     experiment_name: str
+    experiment_version: int
     direction: str
     input_nc: int
 
@@ -55,6 +56,7 @@ class ConfigLoad:
 class ConfigSave:
     save_model: bool
     model_save_rate: int
+    auto_increment_version: bool
     save_examples: bool
     example_save_rate: int
     num_examples: int

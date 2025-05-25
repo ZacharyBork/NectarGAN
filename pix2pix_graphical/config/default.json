@@ -4,7 +4,8 @@
             "device": "cuda:0",
             "dataroot": "E:/ML/test_data/pix2pix/datasets/cityscapes",
             "output_directory": "E:/ML/test_data/pix2pix/output",
-            "experiment_name": "cityscapes_01",
+            "experiment_name": "cityscapes",
+            "experiment_version": 1,
             "direction": "BtoA",
             "input_nc": 3
         },
@@ -44,9 +45,10 @@
             "load_epoch": 3
         },
         "save": {
-            "save_model": false,
+            "save_model": true,
             "model_save_rate": 1,
-            "save_examples": false,
+            "auto_increment_version": true,
+            "save_examples": true,
             "example_save_rate": 1,
             "num_examples": 5
         },

@@ -1,39 +1,27 @@
 import time
-import pathlib
 
-from pix2pix_graphical.utils import utility
-from pix2pix_graphical.trainers.trainer import Trainer
+from pix2pix_graphical.trainers.pix2pix_trainer import Pix2pixTrainer
 
 if __name__ == "__main__":
-    trainer = Trainer()
+    trainer = Pix2pixTrainer()
     trainer.build_output_directory() # Build experiment output directory
     trainer.export_config() # Export JSON config file to output directory
 
-    epoch_count = trainer.config.train.num_epochs + trainer.config.train.num_epochs_decay
-    for epoch in range(epoch_count):
-        begin_epoch = time.perf_counter()
+    cfg = trainer.config
 
-        index = epoch + 1 + trainer.config.load.load_epoch if trainer.config.load.continue_train else epoch + 1
-        trainer.train(index)
+    epoch_count = cfg.train.num_epochs + cfg.train.num_epochs_decay
+    for epoch in range(epoch_count):
+        begin_epoch = time.perf_counter() # Get epoch start time
+        trainer.train(epoch) # Train generator and discriminator
         
         if epoch == epoch_count-1:
-            # Always save model after final epoch
-            checkpoint_name = 'final_net{}.pth.tar'
-            utility.save_checkpoint(
-                trainer.gen, trainer.opt_gen, output_path=pathlib.Path(trainer.experiment_dir, checkpoint_name.format(str(index), 'G')))
-            utility.save_checkpoint(
-                trainer.disc, trainer.opt_disc, output_path=pathlib.Path(trainer.experiment_dir, checkpoint_name.format(str(index), 'D')))
-        elif trainer.config.save.save_model and epoch % trainer.config.save.model_save_rate == 0:
-            # Save intermediate checkpoints if applicable
-            checkpoint_name = 'epoch{}_net{}.pth.tar'
-            utility.save_checkpoint(
-                trainer.gen, trainer.opt_gen, output_path=pathlib.Path(trainer.experiment_dir, checkpoint_name.format(str(index), 'G')))
-            utility.save_checkpoint(
-                trainer.disc, trainer.opt_disc, output_path=pathlib.Path(trainer.experiment_dir, checkpoint_name.format(str(index), 'D')))
+            trainer.save_checkpoint() # Always save model after final epoch
+        elif cfg.save.save_model and epoch % cfg.save.model_save_rate == 0:
+            trainer.save_checkpoint() # Save intermediate checkpoints
         
-        if trainer.config.save.save_examples and epoch % trainer.config.save.example_save_rate == 0:
-            utility.save_examples(trainer.config, trainer.gen, trainer.val_loader, index, output_directory=trainer.examples_dir)
+        if cfg.save.save_examples and epoch % cfg.save.example_save_rate == 0:
+            trainer.save_examples() # Save example images if enabled
 
-        end_epoch = time.perf_counter()
-        trainer.print_end_of_epoch(index, end_epoch, begin_epoch)
+        end_epoch = time.perf_counter() # Get epoch end time
+        trainer.print_end_of_epoch(begin_epoch, end_epoch)
 
