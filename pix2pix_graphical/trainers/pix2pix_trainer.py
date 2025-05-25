@@ -144,7 +144,7 @@ class Pix2pixTrainer(Trainer):
             loss_G_GAN = self.compute_GAN_loss(x, y_fake)
             loss_G_L1, loss_G_SOBEL, loss_G_LAP = self.compute_structure_loss(x, y, y_fake)
             loss_G = ( # Calculate final generator loss
-                loss_G_GAN + 
+                loss_G_GAN * self.config.loss.lambda_gan + 
                 loss_G_L1 * self.config.loss.lambda_l1 + 
                 loss_G_SOBEL * self.config.loss.lambda_sobel + 
                 loss_G_LAP * self.config.loss.lambda_laplacian) 

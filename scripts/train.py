@@ -16,11 +16,13 @@ if __name__ == "__main__":
         
         if epoch == epoch_count-1:
             trainer.save_checkpoint() # Always save model after final epoch
-        elif cfg.save.save_model and epoch % cfg.save.model_save_rate == 0:
+        elif cfg.save.save_model and epoch % cfg.save.model_save_rate-1 == 0:
             trainer.save_checkpoint() # Save intermediate checkpoints
-        
-        if cfg.save.save_examples and epoch % cfg.save.example_save_rate == 0:
-            trainer.save_examples() # Save example images if enabled
+
+        if (cfg.save.save_examples
+            and epoch != 0
+            and epoch % cfg.save.example_save_rate-1 == 0):
+            trainer.save_examples() # Save example images if applicable
 
         end_epoch = time.perf_counter() # Get epoch end time
         trainer.print_end_of_epoch(begin_epoch, end_epoch)

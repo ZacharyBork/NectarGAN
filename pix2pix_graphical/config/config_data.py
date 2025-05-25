@@ -27,6 +27,7 @@ class ConfigTrain:
 
 @dataclass
 class ConfigLoss:
+    lambda_gan: float
     lambda_l1: float
     do_sobel_loss: bool
     lambda_sobel: float
