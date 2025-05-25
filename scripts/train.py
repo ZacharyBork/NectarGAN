@@ -12,7 +12,7 @@ if __name__ == "__main__":
     epoch_count = cfg.train.num_epochs + cfg.train.num_epochs_decay
     for epoch in range(epoch_count):
         begin_epoch = time.perf_counter() # Get epoch start time
-        trainer.train(epoch) # Train generator and discriminator
+        trainer.train_paired(epoch) # Train generator and discriminator
         
         if epoch == epoch_count-1:
             trainer.save_checkpoint() # Always save model after final epoch

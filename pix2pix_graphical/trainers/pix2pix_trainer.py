@@ -1,17 +1,13 @@
-import random
-import pathlib
-from typing import Literal, Union
-
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from torchvision.utils import save_image
+from typing import Literal
 
 from pix2pix_graphical.trainers.trainer import Trainer
 from pix2pix_graphical.models.unet_model import UnetGenerator
 from pix2pix_graphical.models.patchgan_model import Discriminator
 
-from pix2pix_graphical.utils import utility, scheduler
+from pix2pix_graphical.utils import scheduler
 from pix2pix_graphical.models.loss import SobelLoss, LaplacianLoss
 
 class Pix2pixTrainer(Trainer):
@@ -25,12 +21,12 @@ class Pix2pixTrainer(Trainer):
         self.init_losses()        # Init loss functions
         
         if self.config.load.continue_train: # Load checkpoint if applicable
-            utility.load_checkpoint(self.config, self.gen, self.opt_gen, self.disc, self.opt_disc)
+            self.load_checkpoint(self.gen, self.opt_gen, self.disc, self.opt_disc)
 
     def build_dataloaders(self) -> None:
         '''Builds dataloaders for training and validation datasets.'''
-        self.train_loader = utility.build_dataloader(self.config, 'train')
-        self.val_loader = utility.build_dataloader(self.config, 'val')
+        self.train_loader = self.build_dataloader('train')
+        self.val_loader = self.build_dataloader('val')
 
     def init_generator(self) -> None:
         '''Initializes generator with optimizer and lr scheduler.
@@ -88,12 +84,11 @@ class Pix2pixTrainer(Trainer):
             'D_real': round(losses_D['loss_D_real'].item(), 2),
             'D_fake': round(losses_D['loss_D_fake'].item(), 2)
         }
-        utility.print_losses(self.current_epoch, idx, losses) # Print current loss values
+        self.print_losses(idx, losses) # Print current loss values
         
         if self.config.visualizer.enable_visdom:
             self.vis.update_images( # Update x, y_fake, y image grid
-                x=x, y=y_fake, z=y,
-                title='real_A | fake_B | real_B', 
+                x=x, y=y_fake, z=y, title='real_A | fake_B | real_B', 
                 image_size=self.config.visualizer.visdom_image_size)
 
             num_batches = len(self.train_loader) # Get batch count per epoch
@@ -175,53 +170,46 @@ class Pix2pixTrainer(Trainer):
         self.disc_lr_scheduler.step() # Discriminator LR scheduler
         self.gen_lr_scheduler.step()  # Generator LR scheduler
 
-    def train(self, epoch:int) -> None:
-        '''Training function for the generator and discriminator networks.
+    def on_train_start(self) -> None:
+        '''Train start callback for pix2pix trainer. (see: Trainer.train_paired)
+        '''
+        pass
+
+    def train_step(self, x: torch.Tensor, y: torch.Tensor, idx: int) -> None:
+        '''Train step callback for pix2pix trainer (see: Trainer.train_paired).
         
-        Loops over each batch of (x, y) pairs in training set. Generator first makes
-        a fake image (y_fake). Then losses are computed for discriminator based on x, 
-        y, and y fake. Then losses are computed for generator based on discriminator
-        output and additional loss functions. Losses get applied to both networks,
-        then we print losses if applicable this idx and move to next batch.
+        Generator first makes a fake image (y_fake). Then losses are computed for 
+        the discriminator based on x, y, and y_fake. Then losses are computed for 
+        generator based on discriminator output and additional loss functions. 
+        Losses get applied to both networks, then we update display if applicable.
 
         Args:
-            epoch : Index of current epoch, starting from 0
+            x : torch.Tensor of input image.
+            y : torch.Tensor of ground image.
+            idx : Batch iteration value from training loop.
         '''
-        # self.current_epoch is a sort of human-readable current epoch value
-        # Basically just epoch+1 but it also accounts for loaded checkpoints
-        if self.config.load.continue_train:
-            self.current_epoch = epoch + 1 + self.config.load.load_epoch
-        else: self.current_epoch = epoch + 1
+        with torch.amp.autocast('cuda'): 
+            y_fake = self.gen(x)
 
-        # Iterate through batches in dataloader
-        for idx, (x, y) in enumerate(self.train_loader):
-            # Get (x, y) of batch[idx] from training dataset
-            x, y = x.to(self.config.common.device), y.to(self.config.common.device)
-
-            # Generate fake image
-            with torch.amp.autocast('cuda'): 
-                y_fake = self.gen(x)
-
-            # Get discriminator losses, apply gradients
-            losses_D = self.forward_D(x, y, y_fake)
-            self.backward_D(losses_D['loss_D'])
-            
-            # Get generator losses, apply gradients
-            losses_G = self.forward_G(x, y, y_fake)
-            self.backward_G(losses_G['loss_G'])
-            
-            if idx % self.config.visualizer.update_frequency == 0:
-                self.update_display(x, y, y_fake, idx, losses_G, losses_D)
-
-        self.update_schedulers() # Update schedulers after training
-
+        # Get discriminator losses, apply gradients
+        losses_D = self.forward_D(x, y, y_fake)
+        self.backward_D(losses_D['loss_D'])
+        
+        # Get generator losses, apply gradients
+        losses_G = self.forward_G(x, y, y_fake)
+        self.backward_G(losses_G['loss_G'])
+        
+        if idx % self.config.visualizer.update_frequency == 0:
+            self.update_display(x, y, y_fake, idx, losses_G, losses_D)
+        
+    def on_train_end(self) -> None:
+        '''Train end callback for pix2pix trainer. (see: Trainer.train_paired)
+        '''
+        # Update schedulers after training
+        self.update_schedulers()
+        
     def save_checkpoint(self, mode: Literal['g', 'd', 'both'] = 'both') -> None:
         '''Saves a .pth.tar checkpoint file named with the current epoch.
-
-        This function also contains a nested function 'save(net: str)' which
-        is used to save a checkpoint for a single generator and associated
-        optimizer to the experiment output directory. File names will be 
-        formatted as epoch{current_epoch}_gen{model_to_save}.pth.tar.
         
         Args:
             mode : Defines which checkpoints to save. 
@@ -232,44 +220,15 @@ class Pix2pixTrainer(Trainer):
         Raises:
             ValueError : If input mode is not valid.
         '''        
-        def save(mod: Union[UnetGenerator, Discriminator], opt: torch.optim.Adam, net: str) -> None: 
-            checkpoint = {'state_dict': mod.state_dict(), 'optimizer': opt.state_dict(),}
-            name = f'epoch{str(self.current_epoch)}_net{net}'
-            output_path = pathlib.Path(self.experiment_dir, name)
-            print(f'Saving Checkpoint({net}): {output_path.as_posix()}')
-            torch.save(checkpoint, output_path.as_posix())
-            
         match mode:
-            case 'g': save(self.gen, self.opt_gen, 'G')
-            case 'd': save(self.disc, self.opt_disc, 'D')
+            case 'g': self.export_model_weights(self.gen, self.opt_gen, 'G')
+            case 'd': self.export_model_weights(self.disc, self.opt_disc, 'D')
             case 'both':
-                save(self.gen, self.opt_gen, 'G')
-                save(self.disc, self.opt_disc, 'D')
+                self.export_model_weights(self.gen, self.opt_gen, 'G')
+                self.export_model_weights(self.disc, self.opt_disc, 'D')
             case _: raise ValueError('Encountered invalid mode while saving checkpoint.')
 
     def save_examples(self) -> None:
         '''Evaluates model and saves examples to example output directory.
-
-        This function will switch the generator model to eval mode and select
-        a number of random images, defined by [save][num_examples] in the config
-        file, from the validation dataset. It will then run the generator on each
-        of those input images and export a set of [x, y, y_fake] for each to the
-        experiment/examples directory.
         '''        
-        self.gen.eval()
-        val_data = list(self.val_loader.dataset)
-        indices = random.sample(range(len(val_data)), self.config.save.num_examples)
-        for i, idx in enumerate(indices):
-            x, y = val_data[idx]
-            x = x.unsqueeze(0).to(self.config.common.device)
-            y = y.unsqueeze(0).to(self.config.common.device)
-
-            with torch.no_grad():
-                y_fake = self.gen(x)
-            
-            base_name = f'epoch{self.current_epoch}_{str(i+1)}'
-            imgs = [(x, 'A_real'), (y, 'B_real'), (y_fake, 'B_fake')]
-            for img, id in imgs:
-                output_path = pathlib.Path(self.examples_dir, f'{base_name}_{id}.png')
-                save_image(img * 0.5 + 0.5, output_path.as_posix())
-        self.gen.train()
+        self.save_xyz_examples(network=self.gen, dataloader=self.val_loader)
