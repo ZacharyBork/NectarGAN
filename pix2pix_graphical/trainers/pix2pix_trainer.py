@@ -8,7 +8,7 @@ from pix2pix_graphical.models.unet_model import UnetGenerator
 from pix2pix_graphical.models.patchgan_model import Discriminator
 
 from pix2pix_graphical.utils import scheduler
-from pix2pix_graphical.models.loss import SobelLoss, LaplacianLoss
+from pix2pix_graphical.losses.losses import SobelLoss, LaplacianLoss
 
 class Pix2pixTrainer(Trainer):
     def __init__(self, config_filepath = None):

@@ -157,10 +157,10 @@ class Trainer():
             train_fn(x, y, idx) # Run train step function
         end_fn() # Run post-train function
 
-    def print_losses(self, iter: int, losses: dict):
+    def print_losses(self, iter: int, losses: dict, precision: int=2):
         output = f'(epoch: {self.current_epoch}, iters: {iter}) Loss: '
         for loss_type in losses:
-            output += f' {loss_type}: {losses[loss_type]}'
+            output += f' {loss_type}: {round(losses[loss_type], precision)}'
         print(output)
 
     def print_end_of_epoch(self, index: int, begin_epoch: float, end_epoch: float) -> None:
