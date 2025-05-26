@@ -8,7 +8,6 @@ from pix2pix_graphical.models.unet_model import UnetGenerator
 from pix2pix_graphical.models.patchgan_model import Discriminator
 
 from pix2pix_graphical.utils import scheduler
-from pix2pix_graphical.losses.losses import SobelLoss, LaplacianLoss
 
 class Pix2pixTrainer(Trainer):
     def __init__(
@@ -18,7 +17,7 @@ class Pix2pixTrainer(Trainer):
         ) -> None:
         super().__init__(config_filepath)
 
-        self.extended_loss_spec = loss_subspec != 'basic'
+        self.extend_loss_spec = loss_subspec != 'basic'
 
         self.init_generator()     # Init generator
         self.init_discriminator() # Init discriminator
@@ -114,8 +113,8 @@ class Pix2pixTrainer(Trainer):
                 x=x, y=y_fake, z=y, title='real_A | fake_B | real_B', 
                 image_size=self.config.visualizer.visdom_image_size)
             
-            losses_G = self.loss_manager.get_loss_values('G')
-            losses_D = self.loss_manager.get_loss_values('D')
+            losses_G = self.loss_manager.get_loss_values(query=['G'])
+            losses_D = self.loss_manager.get_loss_values(query=['D'])
 
             num_batches = len(self.train_loader) # Get batch count per epoch
             graph_step = self.current_epoch + idx / num_batches # Epoch normalized graph step
@@ -212,7 +211,7 @@ class Pix2pixTrainer(Trainer):
         loss_G_SOBEL = torch.zeros_like(loss_G_L1)
         loss_G_LAP = torch.zeros_like(loss_G_L1)
         
-        if self.extended_loss_spec:
+        if self.extend_loss_spec:
             loss_G_SOBEL = self.loss_manager.compute_loss_xy('G_SOBEL', y_fake, y)
             loss_G_LAP = self.loss_manager.compute_loss_xy('G_LAP', y_fake, y)            
 

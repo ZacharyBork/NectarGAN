@@ -24,10 +24,10 @@
         },
         "loss": {
             "lambda_gan": 1.0,
-            "lambda_l1": 25.0,
+            "lambda_l1": 100.0,
             "do_sobel_loss": true,
-            "lambda_sobel": 15.0,
-            "do_laplacian_loss": false,
+            "lambda_sobel": 1.0,
+            "do_laplacian_loss": true,
             "lambda_laplacian": 1.0
         },
         "generator": {
@@ -47,11 +47,11 @@
         },
         "save": {
             "save_model": true,
-            "model_save_rate": 2,
+            "model_save_rate": 3,
             "auto_increment_version": true,
-            "save_examples": true,
-            "example_save_rate": 2,
-            "num_examples": 5
+            "save_examples": false,
+            "example_save_rate": 3,
+            "num_examples": 1
         },
         "visualizer": {
             "update_frequency": 20,
