@@ -111,6 +111,7 @@ class VisdomVisualizer():
             graph_step : Graph step value to add input losses to.
         '''
         graph_info = [
+            # Losses, visdom window name, graph title
             (losses_G, 'loss_G', 'Generator Loss'),
             (losses_D, 'loss_D', 'Discriminator Loss')]
         

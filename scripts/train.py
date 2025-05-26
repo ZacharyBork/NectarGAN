@@ -1,9 +1,19 @@
 import time
+import argparse
 
 from pix2pix_graphical.trainers.pix2pix_trainer import Pix2pixTrainer
 
+def init_cli():
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        '-lss', '--loss_subspec', type=str, default='basic', 
+        help='Loss subspec for pix2pix LossManager. ("basic", "extended")')
+    return parser.parse_args()
+
 if __name__ == "__main__":
-    trainer = Pix2pixTrainer()
+    args = init_cli()
+
+    trainer = Pix2pixTrainer(loss_subspec=args.loss_subspec)
     trainer.build_output_directory() # Build experiment output directory
     trainer.export_config() # Export JSON config file to output directory
 

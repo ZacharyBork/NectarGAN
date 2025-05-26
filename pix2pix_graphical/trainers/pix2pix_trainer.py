@@ -213,11 +213,8 @@ class Pix2pixTrainer(Trainer):
         loss_G_LAP = torch.zeros_like(loss_G_L1)
         
         if self.extended_loss_spec:
-            # loss_G_SOBEL = self.SOBEL_LOSS(y_fake, y)
             loss_G_SOBEL = self.loss_manager.compute_loss_xy('G_SOBEL', y_fake, y)
-        if self.extended_loss_spec:
-            # loss_G_LAP = self.LAP_LOSS(y_fake, y)
-            loss_G_LAP = self.loss_manager.compute_loss_xy('G_LAP', y_fake, y)
+            loss_G_LAP = self.loss_manager.compute_loss_xy('G_LAP', y_fake, y)            
 
         return (
             loss_G_L1 * self.config.loss.lambda_l1, 
