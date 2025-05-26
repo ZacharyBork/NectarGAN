@@ -64,7 +64,7 @@ class UnetGenerator(nn.Module):
         # Get shape of dummy image input
         shape = torch.randn(1, 3, self.input_size, self.input_size).shape[1:]
         # Define min resolution based on number of downsampling layers
-        min_size = 2 ** (self.n_down + 2)  # +1 for initial_down, +1 for bottleneck
+        min_size = 2 ** (self.extra_layers + self.n_down + 2)  # +1 for initial_down, +1 for bottleneck
         if any(s < min_size for s in shape[-2:]): # Check tensort shape against min resolution
             e = f'Input too small for n_down={self.n_down}. Min size: {min_size}x{min_size}'
             raise ValueError(e) # Raise error if input images are too small

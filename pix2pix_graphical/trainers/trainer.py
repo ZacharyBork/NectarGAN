@@ -1,7 +1,7 @@
 import random
 import pathlib
-import numpy as np
-from typing import Union, Callable
+from os import PathLike
+from typing import Callable
 
 import torch
 import torch.optim as optim
@@ -9,18 +9,37 @@ import torch.nn as nn
 from torchvision.utils import save_image
 
 from pix2pix_graphical.config.config_manager import ConfigManager
+from pix2pix_graphical.losses.loss_manager import LossManager
 from pix2pix_graphical.visualizer.visdom_visualizer import VisdomVisualizer
 from pix2pix_graphical.dataset.pix2pix_dataset import Pix2pixDataset
 
 class Trainer():
-    def __init__(self, config_filepath: Union[str, None]=None) -> None:
-        self.config_manager = ConfigManager(config_filepath)  # Init config manager
-        self.config = self.config_manager.data # Store config data for easier access
-        self.init_visualizers()   # Init visualizer
+    def __init__(
+            self, 
+            input_config: str | PathLike | ConfigManager | None=None
+        ) -> None:
+        self.init_config(input_config)
+        self.loss_manager = LossManager(self.config) # Init loss manager
+        self.init_visualizers() # Init visualizer
         
         self.current_epoch: int | None = None
         self.train_loader: torch.utils.data.DataLoader | None = None
         self.val_loader: torch.utils.data.DataLoader | None = None
+
+    def init_config(self, input_config: str | PathLike | ConfigManager | None):
+        '''Handles various input_config types and inits config data accordingly.
+        '''
+        match input_config:
+            case str() | PathLike() | None:
+                # ConfigManager handles logic for these cases
+                self.config_manager = ConfigManager(input_config)
+            case ConfigManager():
+                # If input_config is a ConfigManager, we just override self.configmanager
+                self.config_manager = input_config
+            case _:
+                valid_types = [type(str), type(PathLike), type(ConfigManager), None]
+                raise ValueError(f'Invalid input config type. Valid types are {valid_types}')
+        self.config = self.config_manager.data # Store config data for easier access         
 
     def init_visualizers(self) -> None:
         vcon = self.config.visualizer # Get visualizer config data
@@ -102,7 +121,8 @@ class Trainer():
         # Load discriminator checkpoint
         checkpoint_disc_path = pathlib.Path(experiment_directory, f'{base_name}_netD.pth.tar')
         if not checkpoint_disc_path.exists():
-            raise Exception(f'Unable to locate discriminator checkpoint at: {checkpoint_disc_path.as_posix()}')
+            raise FileNotFoundError(
+                f'Unable to locate discriminator checkpoint at: {checkpoint_disc_path.as_posix()}')
         
         models = [
             (checkpoint_gen_path, generator, gen_optimizer), 
@@ -156,12 +176,6 @@ class Trainer():
             x, y = x.to(self.config.common.device), y.to(self.config.common.device)
             train_fn(x, y, idx) # Run train step function
         end_fn() # Run post-train function
-
-    def print_losses(self, iter: int, losses: dict, precision: int=2):
-        output = f'(epoch: {self.current_epoch}, iters: {iter}) Loss: '
-        for loss_type in losses:
-            output += f' {loss_type}: {round(losses[loss_type], precision)}'
-        print(output)
 
     def print_end_of_epoch(self, index: int, begin_epoch: float, end_epoch: float) -> None:
         print(f'(End of epoch {index}) Time: {end_epoch - begin_epoch:.2f} seconds', flush=True)

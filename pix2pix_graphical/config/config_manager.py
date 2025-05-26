@@ -1,4 +1,5 @@
 import pathlib
+from os import PathLike
 import json
 from typing import Type, TypeVar, Union, Any
 from dataclasses import is_dataclass
@@ -19,11 +20,11 @@ GROUP_SCHEMA = {
 }
 
 class ConfigManager():
-    def __init__(self, config_filepath: Union[str, None]=None) -> None:
+    def __init__(self, config_filepath: Union[str, PathLike, None]=None) -> None:
         self.raw = self.parse_config_file(config_filepath)
         self.data = self.load_full_config()
 
-    def parse_config_file(self, config_filepath: Union[str, None]=None) -> dict:
+    def parse_config_file(self, config_filepath: Union[str, PathLike, None]=None) -> dict:
         '''Loads a JSON config file and returns the raw config data.
         
         config_filepath can also be None. In this case, this function will instead try

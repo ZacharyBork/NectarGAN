@@ -76,7 +76,7 @@ class VisdomVisualizer():
         )
 
     def update_graph(
-        self, values: Sequence[float], steps: Sequence[float],
+        self, values: Sequence[torch.Tensor], steps: Sequence[float],
         window_internal_name: str, window_title: str,
         xlabel: str, ylabel: str, legend: list[str]) -> None:
         '''Updates a visdom.Visdom.line graph to add new values at steps.
@@ -89,14 +89,18 @@ class VisdomVisualizer():
             xlabel : The X axis label of the graph.
             ylabel : The Y axis label of the graph.
             legend : List of strings, one per value, to title each line on the graph.
-        '''
+        ''' 
         self.vis.line(
-            Y=np.column_stack(values),
-            X=np.column_stack(steps),
+            Y=np.column_stack((values)),
+            X=np.column_stack((steps)),
             win=window_internal_name, update='append',
             opts=dict(title=window_title, xlabel=xlabel, ylabel=ylabel,legend=legend))
 
-    def update_loss_graphs(self, losses: Mapping[str, float], graph_step: float) -> None:
+    def update_loss_graphs(
+            self, graph_step: float,
+            losses_G: Mapping[str, float], 
+            losses_D: Mapping[str, float]    
+        ) -> None:
         '''Updates generator and discriminator loss graphs.
 
         Takes a dictionary of loss values and a current graph step, generated 
@@ -106,13 +110,15 @@ class VisdomVisualizer():
             losses : Loss values to graph.
             graph_step : Graph step value to add input losses to.
         '''
-        self.update_graph( # Generator loss graph
-            values=(losses['G_GAN'], losses['G_L1'], losses['G_SOBEL'], losses['G_LAP']),
-            steps=(graph_step, graph_step, graph_step, graph_step),
-            window_internal_name='loss_G', window_title='Generator Loss',
-            xlabel='Iterations', ylabel='Loss', legend=['G_GAN', 'G_L1', 'G_SOBEL', 'G_LAP'])
-        self.update_graph( # Discriminator loss graph
-            values=(losses['D_real'], losses['D_fake']), steps=(graph_step, graph_step),
-            window_internal_name='loss_D', window_title='Discriminator Loss',
-            xlabel='Iterations', ylabel='Loss', legend=['D_real', 'D_fake'])
+        graph_info = [
+            (losses_G, 'loss_G', 'Generator Loss'),
+            (losses_D, 'loss_D', 'Discriminator Loss')]
+        
+        for graph in graph_info:             # Loop through graphs
+            legend = list(graph[0].keys())   # Get loss keys
+            values = list(graph[0].values()) # Get loss values
+            steps = [graph_step]*len(values) # Build steps list
+            self.update_graph(               # Update loss graph
+                values=values, steps=steps, window_internal_name=graph[1], 
+                window_title=graph[2], xlabel='Iterations', ylabel='Loss', legend=legend)
         

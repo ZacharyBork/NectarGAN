@@ -49,7 +49,7 @@ class Pix2pixDataset(Dataset):
             input_image, target_image = image[:, :self.load_size, :], image[:, self.load_size:, :]
         elif self.config.common.direction == 'BtoA':
             input_image, target_image = image[:, self.load_size:, :], image[:, :self.load_size, :]
-        else: raise Exception('Invalid direction. Valid directions are AtoB and BtoA')
+        else: raise RuntimeError('Invalid direction. Valid directions are AtoB and BtoA')
 
         augmentations = self.both_transform(image=input_image, image0=target_image)
         input_image, target_image = augmentations['image'], augmentations['image0']
