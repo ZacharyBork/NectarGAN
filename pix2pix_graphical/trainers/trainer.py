@@ -16,18 +16,21 @@ from pix2pix_graphical.dataset.pix2pix_dataset import Pix2pixDataset
 class Trainer():
     def __init__(
             self, 
-            input_config: str | PathLike | ConfigManager | None=None
+            config: str | PathLike | ConfigManager | None=None
         ) -> None:
-        self.init_config(input_config)
-        self.loss_manager = LossManager(self.config) # Init loss manager
-        self.init_visualizers() # Init visualizer
-        
+        self.log_losses: bool = True
         self.current_epoch: int | None = None
         self.train_loader: torch.utils.data.DataLoader | None = None
         self.val_loader: torch.utils.data.DataLoader | None = None
 
+        self.init_config(config) # Init config
+        self.build_output_directory()  # Build experiment output directory    
+        self.init_loss_manager()       # Init LossManager
+        self.export_config()           # Export config file
+        self.init_visualizers()        # Init visualizer
+
     def init_config(self, input_config: str | PathLike | ConfigManager | None):
-        '''Handles various input_config types and inits config data accordingly.
+        '''Handles input config types and inits config data accordingly.
         '''
         match input_config:
             case str() | PathLike() | None:
@@ -80,6 +83,14 @@ class Trainer():
         except Exception as e:
             raise RuntimeError('Unable to create examples output directory.') from e
         self.experiment_dir, self.examples_dir =  experiment_dir, examples_dir
+
+    def init_loss_manager(self):
+        self.loss_manager = LossManager( # Init loss manager
+            self.config, 
+            self.experiment_dir, 
+            enable_logging=self.log_losses) 
+        if self.log_losses:
+            self.loss_manager.export_base_log() # Save initial loss log
 
     def export_config(self) -> None:
         '''Exports a versioned config JSON file to the experiment output directory.

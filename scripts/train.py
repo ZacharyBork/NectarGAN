@@ -12,16 +12,18 @@ def init_cli():
     parser.add_argument(
         '-lss', '--loss_subspec', type=str, default='basic', 
         help='Loss subspec for pix2pix LossManager. ("basic", "extended")')
+    parser.add_argument(
+        '-log', '--log_losses', type=bool,
+        help='Enables loss history logging. (default=True)')
     return parser.parse_args()
 
 if __name__ == "__main__":
     args = init_cli()
 
     trainer = Pix2pixTrainer(
-        config_filepath=args.config_file, 
-        loss_subspec=args.loss_subspec)
-    trainer.build_output_directory() # Build experiment output directory
-    trainer.export_config() # Export JSON config file to output directory
+        config=args.config_file, 
+        loss_subspec=args.loss_subspec,
+        log_losses=args.log_losses)
 
     cfg = trainer.config
 

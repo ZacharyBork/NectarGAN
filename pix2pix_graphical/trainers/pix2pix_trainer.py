@@ -1,9 +1,20 @@
+'''
+TO-DO:
+    - Fix bug where loss graphs show pre-lambda loss values.
+        This bug also affects loss printing to console. A
+        good possible solution is to have the LossManager
+        manage the loss function's lambda values as well. 
+        Then the LossManager could maybe also just be a good 
+        base for loss lambda scheduling.
+'''
 import torch
-import torch.nn as nn
 import torch.optim as optim
+from os import PathLike
 from typing import Literal
 
 from pix2pix_graphical.trainers.trainer import Trainer
+from pix2pix_graphical.config.config_manager import ConfigManager
+
 from pix2pix_graphical.models.unet_model import UnetGenerator
 from pix2pix_graphical.models.patchgan_model import Discriminator
 
@@ -12,12 +23,14 @@ from pix2pix_graphical.utils import scheduler
 class Pix2pixTrainer(Trainer):
     def __init__(
             self, 
-            config_filepath: str | None=None,
-            loss_subspec: Literal['basic', 'extended']='basic'
+            config: str | PathLike | ConfigManager | None=None,
+            loss_subspec: Literal['basic', 'extended']='basic',
+            log_losses: bool=True
         ) -> None:
-        super().__init__(config_filepath)
+        super().__init__(config)
 
         self.extend_loss_spec = loss_subspec != 'basic'
+        self.log_losses = log_losses
 
         self.init_generator()     # Init generator
         self.init_discriminator() # Init discriminator
@@ -95,7 +108,7 @@ class Pix2pixTrainer(Trainer):
         if not loss_subspec in pix2pix_subspecs:
             raise ValueError(
                 f'Invalid loss subspec. Valid options are: {pix2pix_subspecs}')
-        self.loss_manager.init_from_spec(spec='pix2pix', sub_spec=loss_subspec)
+        self.loss_manager.init_from_spec(spec='pix2pix', subspec=loss_subspec)
 
     def update_display(self, x: torch.Tensor, y: torch.Tensor, y_fake: torch.Tensor,idx: int) -> None:
         '''Function to print losses and update image displays during training.
@@ -190,8 +203,7 @@ class Pix2pixTrainer(Trainer):
             torch.Tensor : Generator adversarial loss.
         '''
         D_fake = self.disc(x, y_fake) # Get prediction from discriminator
-        loss = self.loss_manager.compute_loss_xy('G_GAN', D_fake, torch.ones_like(D_fake))
-        return loss * self.config.loss.lambda_gan
+        return self.loss_manager.compute_loss_xy('G_GAN', D_fake, torch.ones_like(D_fake))
     
     def compute_structure_loss(
             self, 
@@ -215,10 +227,7 @@ class Pix2pixTrainer(Trainer):
             loss_G_SOBEL = self.loss_manager.compute_loss_xy('G_SOBEL', y_fake, y)
             loss_G_LAP = self.loss_manager.compute_loss_xy('G_LAP', y_fake, y)            
 
-        return (
-            loss_G_L1 * self.config.loss.lambda_l1, 
-            loss_G_SOBEL * self.config.loss.lambda_sobel, 
-            loss_G_LAP * self.config.loss.lambda_laplacian)
+        return (loss_G_L1, loss_G_SOBEL, loss_G_LAP)
         
     def forward_G(
             self, 
@@ -300,6 +309,10 @@ class Pix2pixTrainer(Trainer):
     def on_train_end(self) -> None:
         '''Train end callback for pix2pix trainer. (see: Trainer.train_paired)
         '''
+        # Dump stored loss values to log_log.json
+        if self.log_losses: # From parent Trainer class
+            self.loss_manager.update_loss_log(silent=False)
+        
         # Update schedulers after training
         self.update_schedulers()
         
