@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-import torch.nn as nn
+import torch
 from torch import Tensor
 
 @dataclass
@@ -48,8 +48,8 @@ class LMLoss:
             loss result is applied to the generator or the discriminator.
     '''
     name: str
-    function: nn.Module
-    loss_weight: float | None
-    last_loss_map: Tensor
-    history: LMHistory
-    tags: list[str]
+    function: torch.nn.Module
+    loss_weight: float | None=None
+    last_loss_map: torch.Tensor = field(default_factory=lambda: torch.empty(0))
+    history: LMHistory = field(default_factory=LMHistory)
+    tags: list[str] = field(default_factory=list)

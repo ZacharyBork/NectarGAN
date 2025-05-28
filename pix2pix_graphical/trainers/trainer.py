@@ -347,7 +347,7 @@ class Trainer():
         checkpoint = {
             'state_dict': mod.state_dict(), 
             'optimizer': opt.state_dict()}
-        name = f'epoch{str(self.current_epoch)}_net{net}'
+        name = f'epoch{str(self.current_epoch)}_net{net}.pth.tar'
         output_path = pathlib.Path(self.experiment_dir, name)
         print(f'Saving Checkpoint({net}): {output_path.as_posix()}')
         try: torch.save(checkpoint, output_path.as_posix())

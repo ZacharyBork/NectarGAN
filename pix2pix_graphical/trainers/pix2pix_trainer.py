@@ -19,6 +19,7 @@ from pix2pix_graphical.config.config_manager import ConfigManager
 
 from pix2pix_graphical.models.unet_model import UnetGenerator
 from pix2pix_graphical.models.patchgan_model import Discriminator
+import pix2pix_graphical.losses.pix2pix_objective as spec
 
 from pix2pix_graphical.utils import scheduler
 
@@ -26,12 +27,18 @@ class Pix2pixTrainer(Trainer):
     def __init__(
             self, 
             config: str | PathLike | ConfigManager | None=None,
-            loss_subspec: Literal['basic', 'extended']='basic',
+            loss_subspec: Literal[
+                'basic', 
+                'basic+vgg', 
+                'extended',
+                'extended+vgg'
+            ] = 'basic',
             log_losses: bool=True
         ) -> None:
         super().__init__(config)
 
-        self.extend_loss_spec = loss_subspec != 'basic'
+        self.extend_loss_spec = 'basic' not in loss_subspec 
+        self.vgg_loss_enabled = '+vgg' in loss_subspec 
         self.log_losses = log_losses
 
         self.init_generator()     # Init generator
@@ -94,30 +101,45 @@ class Pix2pixTrainer(Trainer):
             self.g_scaler = self.d_scaler = torch.amp.GradScaler('cpu')
         else: self.g_scaler = self.d_scaler = torch.amp.GradScaler('cuda')
 
-    def init_losses(self, loss_subspec: Literal['basic', 'extended']) -> None:
+    def init_losses(self, loss_subspec: str) -> None:
         '''Initializes model loss functions.
 
-        This function takes `loss_subspec: Literal['basic', 'extended']`
-        as input. This defines the subspec to initialize the generator's
-        LossManager with. Valid subspecs for pix2pix are:
+        This function takes `loss_subspec: ['basic', 'extended']` as input. 
+        This defines the subspec to initialize the generator's LossManager 
+        with. Valid subspecs for pix2pix are:
             
         'basic': Losses as described in the original paper
             G Loss Funtions: ['G_GAN', 'G_L1']
             D Loss Functions: ['D_real', 'D_fake']
+        'basic+vgg': 'basic' + VGG19-based perceptual loss
         'extended': Additional structure loss functions.
             G Loss Funtions: 'basic' + ['G_SOBEL', 'G_LAP']
             D Loss Functions: ['D_real', 'D_fake']
+        'extended+vgg': 'extended' + VGG19-based perceptual loss
+
+        This function also shows an example implementation of 
+        `LossManager.init_from_spec()`. `spec.pix2pix` is a function that
+        registers the LMLoss items for pix2pix model training. It takes as
+        arguments a `Config` object (to more easily assign loss weight values) 
+        and a str to define the loss subspec, and returns a dict[str, LMLoss]. 
+        Passing the funtion reference and it's arguements to `init_from_spec`
+        tells the LossManager to run that function, get the return dict, and 
+        register all of the losses contained within it.
+
+        For more information on spec functions, please see:
+
+            - `pix2pix_graphical.losses.pix2pix_objective.pix2pix()`
+            - `pix2pix_graphical.losses.loss_manager.init_from_spec()`
 
         Args:
             loss_subspec : The subspec to initialize the LossManager with.
         '''
-        # Per LossManager.register_pix2pix_losses(), default
-        # loss subspecs for pix2pix are ['basic', 'extended']
-        pix2pix_subspecs = ['basic', 'extended']
-        if not loss_subspec in pix2pix_subspecs:
+        valid_subspecs = ['basic', 'basic+vgg', 'extended', 'extended+vgg']
+        if not loss_subspec in valid_subspecs:
             raise ValueError(
-                f'Invalid loss subspec. Valid options are: {pix2pix_subspecs}')
-        self.loss_manager.init_from_spec(spec='pix2pix', subspec=loss_subspec)
+                f'Invalid loss subspec. Valid options are: {valid_subspecs}')
+        self.loss_manager.init_from_spec( # Init loss manager
+            spec.pix2pix, self.config, loss_subspec)
 
     def update_display(
             self, 
@@ -281,12 +303,15 @@ class Pix2pixTrainer(Trainer):
         loss_G_L1 = lm.compute_loss_xy('G_L1', y_fake, y)
         loss_G_SOBEL = torch.zeros_like(loss_G_L1)
         loss_G_LAP = torch.zeros_like(loss_G_L1)
+        loss_G_VGG = torch.zeros_like(loss_G_L1)
         
         if self.extend_loss_spec:
             loss_G_SOBEL = lm.compute_loss_xy('G_SOBEL', y_fake, y)
-            loss_G_LAP = lm.compute_loss_xy('G_LAP', y_fake, y)            
+            loss_G_LAP = lm.compute_loss_xy('G_LAP', y_fake, y)   
+        if self.vgg_loss_enabled:
+            loss_G_VGG = lm.compute_loss_xy('G_VGG', y_fake, y)          
 
-        return (loss_G_L1, loss_G_SOBEL, loss_G_LAP)
+        return (loss_G_L1, loss_G_SOBEL, loss_G_LAP, loss_G_VGG)
         
     def forward_G(
             self, 

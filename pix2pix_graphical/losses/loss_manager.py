@@ -4,22 +4,19 @@ import copy
 import warnings
 import pathlib
 from os import PathLike
-from typing import Any, Literal
+from typing import Any, Literal, Callable
 
 import torch
 import torch.nn as nn
 
 from pix2pix_graphical.config.config_data import Config
 from pix2pix_graphical.losses.lm_data import LMHistory, LMLoss
-import pix2pix_graphical.losses.lm_specs as specs
 
 class LossManager():
     def __init__(
         self, 
         config: Config,
         experiment_dir: PathLike,
-        spec: Literal['pix2pix'] | None=None,
-        subspec: str='basic',
         enable_logging: bool=True,
         history_buffer_size: int=50000
     ) -> None:
@@ -29,13 +26,6 @@ class LossManager():
             config: A Config object, created either via a Trainer, or via 
                 pix2pix_graphical.config.config_manager.ConfigManager().
             experiment_dir: System path to experiment output dir.
-            spec: Specification with which to init the LossManager losses, or 
-                None (default) to create an empty LossManager to register 
-                losses with later.
-            subspec: Modifier to specs, allowing you to easily add additional 
-                functionality to init specifications. The pix2pix spec, for
-                example, implements a 'basic' subspec for standard losses, and
-                an 'extended' subspec for added structural loss functions.
             enable_logging: If True, this tool will export a JSON loss log to
                 the experiment_dir. Loss values and weights will be stored over
                 time, and can be dumped to the loss log with:
@@ -57,7 +47,7 @@ class LossManager():
         self.loss_fns: dict[str, LMLoss] = {}
 
         self.make_dummy_shape()
-        self.init_from_spec(spec, subspec)
+        self.init_from_spec(spec=None)
 
     def export_base_log(self) -> None:
         '''Creates a JSON file in the experiment_dir to save loss logs to.
@@ -98,37 +88,52 @@ class LossManager():
         size = self.config.dataloader.crop_size  # Get input W, H
         self.dummy = torch.zeros((1, channels, size, size)).to(self.device)
 
+    def reset_last_lost_tensors(self) -> None:
+        '''Resets the last_loss_map tensors for all registered LMLoss objects.
+        '''
+        # Creates sanitized dummy tensors for loss structure
+        dummy = lambda : self.dummy.clone().detach().cpu()
+        for loss_object in self.loss_fns.values():
+            loss_object.last_loss_map = dummy()
+
     def init_from_spec(
         self,
-        spec: Literal['core', 'pix2pix'],
-        subspec: Literal['basic', 'extended'] = 'basic'
-    ) -> None:
+        spec: Callable[..., dict[str, LMLoss]],
+        *args: Any,
+        **kwargs: Any
+    ) -> dict[str, LMLoss]:
         '''Initialize loss manager losses from a given specification.
 
-        This is a helper function to allow you to quickly initialize basic loss
-        schemas from common specifications. If spec='core' (default if you init
-        the LossManager without passing it an init_spec argument), it will just
-        create an empty loss structure which you can then register your own 
-        losses to.
+        Allows you to quickly initialize pre-defined objective functions. 
+        `spec` functions must return dict[str, LMLoss]. If spec=None (default 
+        if this function has not been called from the LossManager instance), it 
+        will just create an empty loss structure which you can then register 
+        your own  losses to.
 
         Args:
-            spec : Specification used to initialize the LossManager losses.
+            spec : Reference to callable that initializes a LossManager loss
+                specification. Please see `pix2pix_trainer.init_losses()` for
+                example implimentation.
+            *args : Arguments for input spec function.
+            **kwargs : Keyword arguments for input spec function. 
 
         Raises:
             RuntimeError : If unable to init from spec.
-            ValueError : If init spec is invalid.
+            AssertionError : If init spec is invalid.
         '''
-        match spec:
-            case None: self.loss_fns = {}
-            case 'pix2pix': 
-                try:
-                    _spec = specs.pix2pix(self.config, self.dummy, subspec)
-                    self.loss_fns = _spec
-                    #self.register_pix2pix_losses(subspec=subspec)
-                except Exception as e:
-                    message = 'Unable to init from spec.'
-                    raise RuntimeError(message) from e
-            case _: raise ValueError(f'Invalid LossManager init_spec: {spec}')
+        if not spec is None: 
+            try: # If spec != None, try to run spec function 
+                _spec = spec(*args, **kwargs)
+                assert isinstance(next(iter(_spec.values())), LMLoss)
+            except Exception as e: 
+                message = (
+                    f'Unable to initialize LossManager from provided spec. '
+                    f'Please ensure the spec funtion matches the guidelines: '
+                    f'[spec functions must return dict[str, LMLoss]]')
+                raise RuntimeError(message) from e
+            self.loss_fns = _spec # If spec is valid, register the losses
+            self.reset_last_lost_tensors() # Init last_loss_map tensor
+        else: self.loss_fns = {} # If spec=None, init empty LossManager
 
     def _strip_loss_history(self, loss: LMLoss) -> LMLoss:
         '''Removes the loss history lists from a given loss.

@@ -29,10 +29,9 @@ class ConfigTrain:
 class ConfigLoss:
     lambda_gan: float
     lambda_l1: float
-    do_sobel_loss: bool
     lambda_sobel: float
-    do_laplacian_loss: bool
     lambda_laplacian: float
+    lambda_vgg: float
 
 @dataclass
 class ConfigGenerator:

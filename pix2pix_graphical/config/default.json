@@ -25,10 +25,9 @@
         "loss": {
             "lambda_gan": 1.0,
             "lambda_l1": 100.0,
-            "do_sobel_loss": true,
             "lambda_sobel": 1.0,
-            "do_laplacian_loss": true,
-            "lambda_laplacian": 1.0
+            "lambda_laplacian": 1.0,
+            "lambda_vgg": 10.0
         },
         "generator": {
             "upsample_block_type": "Transpose"
