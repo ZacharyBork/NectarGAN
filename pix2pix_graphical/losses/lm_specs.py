@@ -11,17 +11,17 @@ def pix2pix(
         dummy: torch.Tensor,
         subspec: Literal['basic', 'extended'] = 'basic'
     ) -> None:
-    '''Builds and registers LMLoss objects for pix2pix model.
+    '''Builds LMLoss objects for pix2pix model objective function.
 
-    mode='basic' (default) will contstruct a pix2pix objective function
-    as it was originally defined in Section 4.2 of:
+    mode='basic' (default) will contstruct a pix2pix objective function as it 
+    was originally defined in Section 4.2 of:
 
         - Isola et al., *Image-to-Image Translation with Conditional 
             Adversarial Networks*, CVPR 2017.
         - https://arxiv.org/abs/1611.07004
 
-    They found that the best results could generally be derived from a
-    combination of L1+cGAN loss. That is defined here as:
+    Through their research, they found that the best results could generally 
+    be derived from a combination of L1+cGAN loss. That is defined here as:
 
         - L1: Pixel-wise loss
             - Generator: 'G_L1'
@@ -29,8 +29,8 @@ def pix2pix(
             - Generator: 'G_GAN'
             - Discriminator: 'D_real', 'D_fake'
 
-    mode='extended' will register all of the losses from mode='basic', but
-    it will also register some additional loss functions that can sometimes 
+    mode='extended' will register all of the losses from mode='basic', but it 
+    will also register some additional loss functions that can sometimes 
     produce fun and interesting results. These are:
 
         - SobelLoss:

@@ -31,10 +31,18 @@ import torch.nn.init as init
 from pix2pix_graphical.models.unet_blocks import UnetBlock, ResidualUnetBlock
 
 class UnetGenerator(nn.Module):
-    '''This class defines a modular UNet style generator with a configurable layer count.'''
+    '''Defines a modular UNet style generator with a configurable layer count.
+    '''
     def __init__(
-            self, input_size: int, in_channels: int=3, features: int=64, extra_layers: int=0, 
-            use_dropout_layers: int=3, block_type=UnetBlock, upconv_type: str='Transpose'):
+            self, 
+            input_size: int, 
+            in_channels: int=3, 
+            features: int=64, 
+            extra_layers: int=0, 
+            use_dropout_layers: int=3, 
+            block_type=UnetBlock, 
+            upconv_type: str='Transpose'
+        ) -> None:
         super().__init__()
         self.input_size = input_size
         self.in_channels = in_channels
@@ -48,7 +56,7 @@ class UnetGenerator(nn.Module):
         self.build_model() # Initialize generator model
 
     def build_model(self):
-        self.validate_layer_count()       # Validate layer count for input shape
+        self.validate_layer_count()       # Validate layer count for in shape
         self.build_channel_map()          # Build channel map
         self.define_downsampling_blocks() # Define downsampling blocks
         self.define_bottleneck()          # Define bottleneck
@@ -63,11 +71,16 @@ class UnetGenerator(nn.Module):
         '''
         # Get shape of dummy image input
         shape = torch.randn(1, 3, self.input_size, self.input_size).shape[1:]
+        
         # Define min resolution based on number of downsampling layers
-        min_size = 2 ** (self.extra_layers + self.n_down + 2)  # +1 for initial_down, +1 for bottleneck
-        if any(s < min_size for s in shape[-2:]): # Check tensort shape against min resolution
-            e = f'Input too small for n_down={self.n_down}. Min size: {min_size}x{min_size}'
-            raise ValueError(e) # Raise error if input images are too small
+        # +1 for initial_down, +1 for bottleneck
+        min_size = 2 ** (self.extra_layers + self.n_down + 2)  
+
+        # Check tensor shape against min resolution
+        if any(s < min_size for s in shape[-2:]):
+            # Raise error if input size is too small
+            e = 'Input too small for n_down={}. Min size: {}x{}'
+            raise ValueError(e.format(self.n_down, min_size, min_size)) 
 
     def build_channel_map(self) -> None:
         '''Assembles Unet channel structure.'''
@@ -79,11 +92,13 @@ class UnetGenerator(nn.Module):
             down_channels.append((in_features, out_features))
 
         # Create extra layer IO shapes and add to down channels list
-        extra_layers = [(self.features*8, self.features*8) for _ in range(self.extra_layers)]
+        extra_layers = [(self.features*8, self.features*8) 
+            for _ in range(self.extra_layers)]
         down_channels = down_channels[:self.n_down+1] + extra_layers
 
         # Create layer IO shapes skip channels
-        skip_channels = list(reversed([(out_ch, in_ch) for (in_ch, out_ch) in down_channels]))
+        skip_channels = list(reversed(
+            [(out_ch, in_ch) for (in_ch, out_ch) in down_channels]))
         
         # Build IO shapes for ups with skips
         up_channels = [(in_ch*2, out_ch) for in_ch, out_ch in skip_channels] 
@@ -102,7 +117,8 @@ class UnetGenerator(nn.Module):
     def define_downsampling_blocks(self) -> None:
         # Define initial downsampling layer
         self.initial_down = self.block_type(
-            self.channel_map['initial_down'][0], self.channel_map['initial_down'][1], 
+            self.channel_map['initial_down'][0], 
+            self.channel_map['initial_down'][1], 
             upconv_type=self.upconv_type, activation='leaky',
             norm=None, down=True, bias=True, use_dropout=False)
 
@@ -118,9 +134,10 @@ class UnetGenerator(nn.Module):
     def define_bottleneck(self) -> None:
         # Define bottleneck
         self.bottleneck = self.block_type(
-                    self.channel_map['bottleneck'][0], self.channel_map['bottleneck'][1], 
-                    upconv_type=self.upconv_type, activation='relu',
-                    norm=None, down=True, bias=True, use_dropout=False)
+            self.channel_map['bottleneck'][0], 
+            self.channel_map['bottleneck'][1], 
+            upconv_type=self.upconv_type, activation='relu',
+            norm=None, down=True, bias=True, use_dropout=False)
 
     def define_upsampling_blocks(self) -> None:
         # Define upsampling layers
@@ -171,6 +188,6 @@ class UnetGenerator(nn.Module):
 
 if __name__ == "__main__":
     x = torch.randn((1, 3, 256, 256))
-    model = Generator()
+    model = UnetGenerator()
     output = model(x)
     print(output.shape)

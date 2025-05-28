@@ -1,7 +1,4 @@
-import time
 import argparse
-from typing import Union
-
 from pix2pix_graphical.trainers.pix2pix_trainer import Pix2pixTrainer
 
 def init_cli():
@@ -24,24 +21,20 @@ if __name__ == "__main__":
         config=args.config_file, 
         loss_subspec=args.loss_subspec,
         log_losses=args.log_losses)
-
     cfg = trainer.config
 
     epoch_count = cfg.train.num_epochs + cfg.train.num_epochs_decay
     for epoch in range(epoch_count):
-        begin_epoch = time.perf_counter() # Get epoch start time
         trainer.train_paired(epoch) # Train generator and discriminator
         
         if epoch == epoch_count-1:
             trainer.save_checkpoint() # Always save model after final epoch
-        elif cfg.save.save_model and epoch % cfg.save.model_save_rate-1 == 0:
+        elif cfg.save.save_model and (epoch+1) % cfg.save.model_save_rate == 0:
             trainer.save_checkpoint() # Save intermediate checkpoints
 
         if (cfg.save.save_examples
-            and epoch != 0
-            and epoch % cfg.save.example_save_rate-1 == 0):
+            and (epoch+1) % cfg.save.example_save_rate == 0):
             trainer.save_examples() # Save example images if applicable
 
-        end_epoch = time.perf_counter() # Get epoch end time
-        trainer.print_end_of_epoch(begin_epoch, end_epoch)
+        trainer.print_end_of_epoch()
 

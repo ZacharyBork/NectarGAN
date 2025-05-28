@@ -24,21 +24,28 @@ class VisdomVisualizer():
         '''
         vis = Visdom(env=self.env)
         if not vis.check_connection():
-            raise ConnectionError(
-                'Unable to connect to Visdom server. Please ensure it is running.')
+            message = (
+                f'Unable to connect to Visdom server. '
+                f'Please ensure it is running.')
+            raise ConnectionError(message)
         self.vis = vis
 
     def clear_env(self) -> None:
-        '''Closes all windows in the VisdomVisualizer's environment.'''
+        '''Closes all windows in the VisdomVisualizer's environment.
+        '''
         self.vis.close(win=None, env=self.env)
         
-    def denorm_tensor(self, tensor: torch.Tensor, clamp: bool=True) -> torch.Tensor: 
+    def denorm_tensor(
+            self, 
+            tensor: torch.Tensor, 
+            clamp: bool=True
+        ) -> torch.Tensor: 
         '''Denormalizes a pix2pix output tensor [-1, 1] -> [0, 1] for viewing.
         
-        The final upsampling convolutional layer in the pix2pix architecture uses
-        tanh nonlinearity. This outputs a tensor normalized [-1, 1]. This function 
-        just takes those output tensors and renormalizes them to the [0, 1] range
-        which is what Visdom is expecting for images.
+        The final upsampling convolutional layer in the pix2pix architecture 
+        uses tanh nonlinearity. This outputs a tensor normalized [-1, 1]. This 
+        function just takes those output tensors and renormalizes them to the 
+        [0, 1] range which is what Visdom is expecting for images.
 
         Args:
             tensor : The torch.Tensor object to denormalize.
@@ -55,9 +62,9 @@ class VisdomVisualizer():
             title: str, image_size: int=300) -> None:
         '''Updates the Visdom [x, y, z] image grid.
         
-        Takes three torch.Tensor objects as input and normalizes them [0, 1], then
-        concatenates them [x, y, z]. Creates a torchvision.utils.make_grid
-        from them and updates Visdom with the concatenated image.
+        Takes three torch.Tensor objects as input and normalizes them [0, 1], 
+        then concatenates them [x, y, z], then updates Visdom with the 
+        concatenated image.
 
         Args:
             x : The first input tensor (left image in grid).
@@ -88,13 +95,17 @@ class VisdomVisualizer():
             window_title : The human-readable title of the Visdom graph window.
             xlabel : The X axis label of the graph.
             ylabel : The Y axis label of the graph.
-            legend : List of strings, one per value, to title each line on the graph.
+            legend : List of strings, one per value, to title each graph line.
         ''' 
         self.vis.line(
             Y=np.column_stack((values)),
             X=np.column_stack((steps)),
             win=window_internal_name, update='append',
-            opts=dict(title=window_title, xlabel=xlabel, ylabel=ylabel,legend=legend))
+            opts=dict(
+                title=window_title, 
+                xlabel=xlabel, 
+                ylabel=ylabel,
+                legend=legend))
 
     def update_loss_graphs(
             self, graph_step: float,
@@ -120,6 +131,7 @@ class VisdomVisualizer():
             values = list(graph[0].values()) # Get loss values
             steps = [graph_step]*len(values) # Build steps list
             self.update_graph(               # Update loss graph
-                values=values, steps=steps, window_internal_name=graph[1], 
-                window_title=graph[2], xlabel='Iterations', ylabel='Loss', legend=legend)
+                values=values, steps=steps, 
+                window_internal_name=graph[1], window_title=graph[2], 
+                xlabel='Iterations', ylabel='Loss', legend=legend)
         

@@ -12,6 +12,7 @@ import torch.nn as nn
 from pix2pix_graphical.config.config_data import Config
 from pix2pix_graphical.losses.lm_data import LMHistory, LMLoss
 import pix2pix_graphical.losses.lm_specs as specs
+
 class LossManager():
     def __init__(
         self, 
@@ -212,8 +213,8 @@ class LossManager():
     ) -> dict[str, torch.Tensor]:
         '''Returns the queried LMLoss's last_loss_map tensors.
 
-        Note: This function uses the last value stored in self.last_loss_map. As 
-        such, this function should generally be called AFTER all of the 
+        Note: This function uses the last value stored in self.last_loss_map. 
+        As such, this function should generally be called AFTER all of the 
         registered loss functions have been run for the batch. Calling it 
         before running some or all of the loss funtions could lead to 
         unexpected results.
@@ -260,7 +261,10 @@ class LossManager():
         If you would prefer to get the loss values as a dict, please see: 
             - LossManager.get_loss_values()
 
-        If you are trying to access the registered LMLoss items, see: 
+        Or if you are trying to get the prev loss results as torch.Tensors: 
+            - LossManager.get_loss_tensors()
+
+        If you are trying to access the registered LMLoss items, please see: 
             - LossManager.get_registered_losses()
 
         Args:
@@ -484,9 +488,9 @@ class LossManager():
         '''Runs a loss function and returns the result.
 
         Also detaches a version of the loss result tensor and moves it to CPU, 
-        then stores it in self.losses_{"G"|"D"}[loss_name][1]. Additionally, 
-        this function also computes the mean values of the loss tensor and adds 
-        it to the associated self.history entry.
+        then stores it in self.loss_fns[loss_name].last_loss_map. Additionally, 
+        this function also computes the mean values of the loss tensor, via
+        self._append_loss_history() and self._swap_loss_values().
 
         Args:
             loss_name : The name used when registering the losses, or the 

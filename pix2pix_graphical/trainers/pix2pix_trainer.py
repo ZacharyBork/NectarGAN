@@ -9,6 +9,8 @@ TO-DO:
 '''
 import torch
 import torch.optim as optim
+import torch.nn as nn
+
 from os import PathLike
 from typing import Literal
 
@@ -40,7 +42,8 @@ class Pix2pixTrainer(Trainer):
         self.init_losses(loss_subspec) # Init loss functions
         
         if self.config.load.continue_train: # Load checkpoint if applicable
-            self.load_checkpoint(self.gen, self.opt_gen, self.disc, self.opt_disc)
+            self.load_checkpoint(
+                self.gen, self.opt_gen, self.disc, self.opt_disc)
 
     def build_dataloaders(self) -> None:
         '''Builds dataloaders for training and validation datasets.
@@ -54,13 +57,15 @@ class Pix2pixTrainer(Trainer):
         self.gen = UnetGenerator( # Init Generator
             input_size=self.config.dataloader.crop_size, 
             in_channels=self.config.common.input_nc,
-            upconv_type=self.config.generator.upsample_block_type).to(self.config.common.device)
-        self.opt_gen = optim.Adam( # Init optimizer
-            self.gen.parameters(), 
-            lr=self.config.train.learning_rate, 
-            betas=(self.config.optimizer.beta1, 0.999))
+            upconv_type=self.config.generator.upsample_block_type)
+        self.gen.to(self.device) # Cast to current device
+        self.opt_gen = self.build_optimizer(
+            optimizer=optim.Adam, network=self.gen, 
+            lr=self.config.train.learning_rate,
+            beta1=self.config.optimizer.beta1)
         self.gen_lr_scheduler = scheduler.LRScheduler( # Init LR scheduler
-            self.opt_gen, self.config.train.num_epochs, self.config.train.num_epochs_decay)
+            self.opt_gen, self.config.train.num_epochs, 
+            self.config.train.num_epochs_decay)
         
     def init_discriminator(self) -> None:
         '''Initializes discriminator with optimizer and lr scheduler.
@@ -69,17 +74,21 @@ class Pix2pixTrainer(Trainer):
             in_channels=self.config.common.input_nc,
             base_channels=self.config.discriminator.base_channels_d,
             n_layers=self.config.discriminator.n_layers_d,
-            max_channels=self.config.discriminator.max_channels_d).to(self.config.common.device)
-        self.opt_disc = optim.Adam( # Init optimizer
-            self.disc.parameters(), 
-            lr=self.config.train.learning_rate, 
-            betas=(self.config.optimizer.beta1, 0.999))
+            max_channels=self.config.discriminator.max_channels_d)
+        self.disc.to(self.device) # Cast to current device
+        self.opt_disc = self.build_optimizer(
+            optimizer=optim.Adam, network=self.disc, 
+            lr=self.config.train.learning_rate,
+            beta1=self.config.optimizer.beta1)
         self.disc_lr_scheduler = scheduler.LRScheduler( # Init LR scheduler
-            self.opt_disc, self.config.train.num_epochs, self.config.train.num_epochs_decay) 
+            self.opt_disc, self.config.train.num_epochs, 
+            self.config.train.num_epochs_decay) 
         
     def define_gradscalers(self) -> None:
-        '''Defines gradient scalers for generator and discriminator
-        based on current selected device.
+        '''Defines gradient scalers for generator and discriminator.
+
+        This function will init the GradScaler device based on the device
+        specified in the config file.
         '''
         if self.config.common.device == 'cpu':
             self.g_scaler = self.d_scaler = torch.amp.GradScaler('cpu')
@@ -110,7 +119,13 @@ class Pix2pixTrainer(Trainer):
                 f'Invalid loss subspec. Valid options are: {pix2pix_subspecs}')
         self.loss_manager.init_from_spec(spec='pix2pix', subspec=loss_subspec)
 
-    def update_display(self, x: torch.Tensor, y: torch.Tensor, y_fake: torch.Tensor,idx: int) -> None:
+    def update_display(
+            self, 
+            x: torch.Tensor, 
+            y: torch.Tensor, 
+            y_fake: torch.Tensor,
+            idx: int
+        ) -> None:
         '''Function to print losses and update image displays during training.
 
         Args:
@@ -119,33 +134,30 @@ class Pix2pixTrainer(Trainer):
             y_fake : Generated fake image as torch.Tensor.
             idx : Batch iteration value from training loop.
         '''
-        self.loss_manager.print_losses(self.current_epoch, idx) # Print current loss values
+        self.loss_manager.print_losses(self.current_epoch, idx) # Print losses
         
         if self.config.visualizer.enable_visdom:
             self.vis.update_images( # Update x, y_fake, y image grid
                 x=x, y=y_fake, z=y, title='real_A | fake_B | real_B', 
                 image_size=self.config.visualizer.visdom_image_size)
             
+            # Get G and D loss values from LossManager
             losses_G = self.loss_manager.get_loss_values(query=['G'])
             losses_D = self.loss_manager.get_loss_values(query=['D'])
 
-            num_batches = len(self.train_loader) # Get batch count per epoch
-            graph_step = self.current_epoch + idx / num_batches # Epoch normalized graph step
-            self.vis.update_loss_graphs(graph_step, losses_G, losses_D) # Update loss graphs
+            # Normalize by epoch to get graph step
+            graph_step = self.current_epoch + idx / len(self.train_loader) 
+            self.vis.update_loss_graphs(graph_step, losses_G, losses_D)
 
-    def print_end_of_epoch(self, begin_epoch: float, end_epoch: float) -> None:
+    def print_end_of_epoch(self) -> None:
         '''Prints information at end of epoch.
         
         The base Trainer class implements this function to epoch index and time
         taken. This child class adds to that lines to show the changes in
         learning rate between the just completed epoch, and the epoch which is
         about to being.
-
-        Args:
-            begin_epoch : Epoch start time.
-            end_epoch : Epoch end time.
         '''
-        super().print_end_of_epoch(self.current_epoch, begin_epoch, end_epoch)
+        super().print_end_of_epoch()
         gen_lr_step = self.gen_lr_scheduler.get_lr()
         print(f'Learning rate (G): {gen_lr_step[0]} => {gen_lr_step[1]}')
         disc_lr_step = self.disc_lr_scheduler.get_lr()
@@ -159,7 +171,12 @@ class Pix2pixTrainer(Trainer):
         ) -> dict[str, torch.Tensor]:
         '''Forward step for discriminator. 
         
-        Run each batch to compute discriminator loss.
+        Run each batch to compute discriminator loss, this function first has
+        the discriminator make a prediction of a real (x, y) pair, then it has
+        it make a prediction on the generators fake output (x, y_fake). Loss is
+        computed for each prediction via BCEWithLogits, the the two resulting
+        loss tensors are averaged to compute the final discriminator loss for
+        the batch.
 
         Args:
             x : Input image as torch.Tensor.
@@ -167,43 +184,78 @@ class Pix2pixTrainer(Trainer):
             y_fake : Generated fake image as torch.Tensor.
         '''
         with torch.amp.autocast('cuda'):
-            D_real = self.disc(x, y)               # Make prediction on real image
+            D_real = self.disc(x, y)               # Predict on real image
             D_fake = self.disc(x, y_fake.detach()) # Then on fake image
-            loss_D_real = self.loss_manager.compute_loss_xy('D_real', D_real, torch.ones_like(D_real))
-            loss_D_fake = self.loss_manager.compute_loss_xy('D_fake', D_fake, torch.zeros_like(D_fake))
-            loss_D = (loss_D_real + loss_D_fake) * 0.5 # Normalized loss gradient
+
+            # Compute loss on real and fake images
+            loss_D_real = self.loss_manager.compute_loss_xy(
+                'D_real', D_real, torch.ones_like(D_real))
+            loss_D_fake = self.loss_manager.compute_loss_xy(
+                'D_fake', D_fake, torch.zeros_like(D_fake))
+            
+            # Get final discriminator loss by averaging real and fake
+            loss_D = (loss_D_real + loss_D_fake) * 0.5 
+        
         return { # Return losses
             'loss_D': loss_D,
             'loss_D_real': loss_D_real, 
-            'loss_D_fake': loss_D_fake
-        }
+            'loss_D_fake': loss_D_fake}
 
     def backward_D(self, loss_D: torch.Tensor) -> None:
         '''Backward step for the discriminator.
         
-        Computes and applies gradients from discriminator loss and updates optimizer 
-        scaling accordingly.
+        This function takes the loss computed during the forward_D step and
+        uses it to compute and apply the discriminator network's loss gradients
+        for the batch. It first zeroes out the discriminator's loss gradients,
+        then it scales loss_D by the GradScalers current scale factor and 
+        computes the new loss gradient. This loss gradient is then unscaled in-
+        place to check for invalid data (NaN, Inf), then the scaling factor of
+        the GradScaler is updated based on the results.
 
         Args:
             loss_D : Discriminator loss for current batch.
         '''
         self.disc.zero_grad()                  # Clear loss gradients
-        self.d_scaler.scale(loss_D).backward() # Scale loss and compute gradient
+        self.d_scaler.scale(loss_D).backward() # Scale loss, compute gradient
         self.d_scaler.step(self.opt_disc)      # Optimizer step
         self.d_scaler.update()                 # Update scaling factor
         
-    def compute_GAN_loss(self, x: torch.Tensor, y_fake: torch.Tensor) -> torch.Tensor:
-        '''Computes adversarial loss (BCEWithLogits) for the generator model.
+    def compute_GAN_loss(
+            self, 
+            x: torch.Tensor, 
+            y_fake: torch.Tensor
+        ) -> torch.Tensor:
+        '''Computes adversarial loss for the generator network.
+
+        This function first has the discriminator model make a prediction on
+        the generated image (or images if batch_size>1), then takes the result
+        of that prediction and uses it to compute adversarial loss for the
+        generator via BCEWithLogitsLoss, and returns the resulting loss tensor.
+
+        When we invoke the loss function, done here via the LossManager, we
+        pass it three arguments. Here, those are:
+
+            loss_name : This this the lookup key for the loss type registered
+                with the LossManager. We have BCEWithLogits registered as 
+                'G_GAN' in both the 'common' and 'extended' pix2pix specs.
+            x : This is the resulting prediction tensor from the discriminator.
+            y : This is just a tensor of all 1's. If G was absolutely perfect, 
+                D_fake would be a tensor only containing 1's, since G is able 
+                to completely fool D every time. The y input tensor here 
+                mimicking what D's output would be in that scenario. This is 
+                effectively treated as the goal for G when computing
+                adversarial loss.
 
         Args:
             x : Input image as torch.Tensor.
-            y_fake : Generated fake image as torch.Tensor
+            y_fake : Generated fake image as torch.Tensor.
 
         Returns:
             torch.Tensor : Generator adversarial loss.
         '''
         D_fake = self.disc(x, y_fake) # Get prediction from discriminator
-        return self.loss_manager.compute_loss_xy('G_GAN', D_fake, torch.ones_like(D_fake))
+        return self.loss_manager.compute_loss_xy( # Compute G loss from D_fake
+            'G_GAN', D_fake, torch.ones_like(D_fake))
     
     def compute_structure_loss(
             self, 
@@ -212,6 +264,12 @@ class Pix2pixTrainer(Trainer):
         ) -> tuple[torch.Tensor]:
         '''Computes structural loss (L1, SOBEL, etc.) for the generator model.
 
+        This function computes structural loss for the generator network. If 
+        the current loss subspec is 'basic', it will only output the L1 loss 
+        result. If it is set to 'extended', however, it will also compute and
+        output the results of some additional structure loss functions. Please
+        see `pix2pix_graphical.losses.lm_specs.pix2pix()` for more details.
+
         Args:
             y : Ground truth image as torch.Tensor.
             y_fake : Generated fake image as torch.Tensor.
@@ -219,13 +277,14 @@ class Pix2pixTrainer(Trainer):
         Returns:
             tuple[torch.Tensor] : Generator structural losses.
         '''        
-        loss_G_L1 = self.loss_manager.compute_loss_xy('G_L1', y_fake, y)
+        lm = self.loss_manager
+        loss_G_L1 = lm.compute_loss_xy('G_L1', y_fake, y)
         loss_G_SOBEL = torch.zeros_like(loss_G_L1)
         loss_G_LAP = torch.zeros_like(loss_G_L1)
         
         if self.extend_loss_spec:
-            loss_G_SOBEL = self.loss_manager.compute_loss_xy('G_SOBEL', y_fake, y)
-            loss_G_LAP = self.loss_manager.compute_loss_xy('G_LAP', y_fake, y)            
+            loss_G_SOBEL = lm.compute_loss_xy('G_SOBEL', y_fake, y)
+            loss_G_LAP = lm.compute_loss_xy('G_LAP', y_fake, y)            
 
         return (loss_G_L1, loss_G_SOBEL, loss_G_LAP)
         
@@ -237,7 +296,10 @@ class Pix2pixTrainer(Trainer):
         ) -> torch.Tensor:
         '''Forward step for generator. 
         
-        Run each iteration to compute generator loss.
+        Run each iteration to compute generator loss, this function first
+        computes adversarial loss for the generator, then computes structure
+        loss, then it sums them all together to get the final loss of the
+        generator network for this batch.
 
         Args:
             x : Input image as torch.Tensor.
@@ -257,16 +319,26 @@ class Pix2pixTrainer(Trainer):
     def backward_G(self, loss_G: torch.Tensor) -> None:
         '''Backward step for the generator. 
         
-        Computes and applies gradients from generator loss and updates optimizer 
-        scaling accordingly.
+        Please see `Pix2pixTrainer.backward_D()`.
+
+        One thing to note, though, is that in `backward_D()`, we zero out the
+        loss gradients for the discriminator model itself, where here, we
+        instead zero the gradients for the optimizer associated with the
+        generator model. The does not make a difference for this trainer since
+        self.opt_gen manages all of the generator parameters. My general
+        understanding of the philosophy behind this idea, though, is that, as
+        models become more complex with more parameters to track and manage,
+        this more granular approach enforces a sort of clarity in what opt
+        owns what parms, etc. Here, though, we have one optimizer per network
+        so they effectively do the same thing.
 
         Args:
             loss_G : Total generator loss for batch.
         '''
-        self.opt_gen.zero_grad() # Clear generator optimizer loss gradients
-        self.g_scaler.scale(loss_G).backward() # Scale loss and compute gradient
-        self.g_scaler.step(self.opt_gen) # Optimizer step
-        self.g_scaler.update() # Update scaling factor
+        self.opt_gen.zero_grad()               # Clear optimizer loss gradients
+        self.g_scaler.scale(loss_G).backward() # Scale loss, compute gradient
+        self.g_scaler.step(self.opt_gen)       # Optimizer step
+        self.g_scaler.update()                 # Update scaling factor
 
     def update_schedulers(self) -> None:
         '''Updates model schedulers.
@@ -275,17 +347,18 @@ class Pix2pixTrainer(Trainer):
         self.gen_lr_scheduler.step()  # Generator LR scheduler
 
     def on_train_start(self) -> None:
-        '''Train start callback for pix2pix trainer. (see: Trainer.train_paired)
+        '''Train start callback for pix2pix trainer (see: Trainer.train_paired)
         '''
         pass
 
     def train_step(self, x: torch.Tensor, y: torch.Tensor, idx: int) -> None:
         '''Train step callback for pix2pix trainer (see: Trainer.train_paired).
         
-        Generator first makes a fake image (y_fake). Then losses are computed for 
-        the discriminator based on x, y, and y_fake. Then losses are computed for 
-        generator based on discriminator output and additional loss functions. 
-        Losses get applied to both networks, then we update display if applicable.
+        Generator first makes a fake image (y_fake). Then losses are computed 
+        for the discriminator based on x, y, and y_fake. Then losses are 
+        computed for generator based on discriminator output and additional 
+        loss functions. Losses get applied to both networks, then we update
+        display if applicable.
 
         Args:
             x : torch.Tensor of input image.
@@ -316,7 +389,7 @@ class Pix2pixTrainer(Trainer):
         # Update schedulers after training
         self.update_schedulers()
         
-    def save_checkpoint(self, mode: Literal['g', 'd', 'both'] = 'both') -> None:
+    def save_checkpoint(self, mode: Literal['g', 'd', 'both']='both') -> None:
         '''Saves a .pth.tar checkpoint file named with the current epoch.
         
         Args:
@@ -327,16 +400,20 @@ class Pix2pixTrainer(Trainer):
         
         Raises:
             ValueError : If input mode is not valid.
-        '''        
-        match mode:
-            case 'g': self.export_model_weights(self.gen, self.opt_gen, 'G')
-            case 'd': self.export_model_weights(self.disc, self.opt_disc, 'D')
+        '''    
+        match mode.lower():
+            case 'g' | 'g': 
+                self.export_model_weights(self.gen, self.opt_gen, mode.upper())
             case 'both':
                 self.export_model_weights(self.gen, self.opt_gen, 'G')
                 self.export_model_weights(self.disc, self.opt_disc, 'D')
-            case _: raise ValueError('Encountered invalid mode while saving checkpoint.')
+            case _: 
+                message = 'Encountered invalid mode while saving checkpoint.'
+                raise ValueError(message)
 
-    def save_examples(self) -> None:
-        '''Evaluates model and saves examples to example output directory.
+    def save_examples(self, silent: bool=False) -> None:
+        '''Evaluates model and saves images to example output directory.
         '''        
+        if not silent:
+            print(f'Saving example images: {self.examples_dir.as_posix()}')
         self.save_xyz_examples(network=self.gen, dataloader=self.val_loader)

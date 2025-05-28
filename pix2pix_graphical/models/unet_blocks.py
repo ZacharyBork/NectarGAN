@@ -2,23 +2,40 @@ import torch
 import torch.nn as nn
 from typing import Union
 
-
 class UnetBlock(nn.Module):
-    '''This class defines a standard UNet block to be used by the generator model.'''
+    '''Defines a standard UNet block to be used by the generator model.'''
     def __init__(
-            self, in_channels: int, out_channels: int, upconv_type: str, 
-            activation: Union[str, None], norm: Union[str, None], down: bool=True, bias: bool=True, use_dropout: bool=False):
+            self, in_channels: int, 
+            out_channels: int, 
+            upconv_type: str, 
+            activation: Union[str, None], 
+            norm: Union[str, None], 
+            down: bool=True, 
+            bias: bool=True, 
+            use_dropout: bool=False
+        ) -> None:
         super().__init__()
         modules = []
         if down:
-            modules.append(nn.Conv2d(in_channels, out_channels, kernel_size=4, stride=2, padding=1, bias=bias, padding_mode='reflect'))
+            modules.append(
+                nn.Conv2d(
+                    in_channels, out_channels, 
+                    kernel_size=4, stride=2, padding=1, 
+                    bias=bias, padding_mode='reflect'))
         else:
             match upconv_type:
                 case 'Transpose':
-                    modules.append(nn.ConvTranspose2d(in_channels, out_channels, kernel_size=4, stride=2, padding=1, bias=bias))
+                    modules.append(nn.ConvTranspose2d(
+                        in_channels, out_channels, 
+                        kernel_size=4, stride=2, padding=1, bias=bias))
                 case 'Bilinear':
-                    modules.append(nn.Upsample(scale_factor=2, mode='bilinear', align_corners=False))
-                    modules.append(nn.Conv2d(in_channels, out_channels, kernel_size=3, stride=1, padding=1))
+                    modules.append(nn.Upsample(
+                        scale_factor=2, 
+                        mode='bilinear', 
+                        align_corners=False))
+                    modules.append(nn.Conv2d(
+                        in_channels, out_channels, 
+                        kernel_size=3, stride=1, padding=1))
                 case _: raise ValueError('Invalid upsampling type.')
         
         match norm:
@@ -43,8 +60,15 @@ class UnetBlock(nn.Module):
         return self.dropout(x) if self.use_dropout else x
     
 class ResidualUnetBlock(nn.Module):
-    '''This class defines a ResidualUNet block to be used by the generator model.'''
-    def __init__(self, in_channels, out_channels, down=True, act='relu', use_dropout=False):
+    '''Defines a ResidualUNet block to be used by the generator model.'''
+    def __init__(
+            self, 
+            in_channels: int, 
+            out_channels: int, 
+            down: bool=True, 
+            act: str='relu', 
+            use_dropout: bool=False
+        ) -> None:
         super().__init__()
         self.down = down
         self.use_dropout = use_dropout
@@ -59,23 +83,34 @@ class ResidualUnetBlock(nn.Module):
 
         if down: # Downsampling layer
             self.conv = nn.Sequential(
-                nn.Conv2d(in_channels, out_channels, kernel_size=4, stride=2, padding=1, padding_mode='reflect'),
+                nn.Conv2d(
+                    in_channels, out_channels, 
+                    kernel_size=4, stride=2, padding=1, 
+                    padding_mode='reflect'),
                 norm(out_channels),
                 self.activation,
             )
         else: # Upsampling layer
             self.conv = nn.Sequential(
-                nn.ConvTranspose2d(in_channels, out_channels, kernel_size=4, stride=2, padding=1),
+                nn.ConvTranspose2d(
+                    in_channels, out_channels, 
+                    kernel_size=4, stride=2, padding=1),
                 norm(out_channels),
                 self.activation,
             )
 
         if in_channels != out_channels or down: # Residual shortcut
-            # This will almost always be a 1x1 conv with stride=2 except at 
-            # the bottleneck or if # of features exceeds the cap (Generator.features * 8)
-            if down: self.residual = nn.Conv2d(in_channels, out_channels, kernel_size=1, stride=2)
-            else: self.residual = nn.ConvTranspose2d(in_channels, out_channels, kernel_size=1, stride=2, output_padding=1)
-        else: self.residual = nn.Identity() # Residual = Identity if we hit feature cap 
+            # This will almost always be a 1x1 conv with stride=2 except at the 
+            # bottleneck or if # of features exceeds cap (Generator.features*8)
+            if down: 
+                self.residual = nn.Conv2d(
+                    in_channels, out_channels, 
+                    kernel_size=1, stride=2)
+            else: 
+                self.residual = nn.ConvTranspose2d(
+                    in_channels, out_channels, 
+                    kernel_size=1, stride=2, output_padding=1)
+        else: self.residual = nn.Identity() # Residual=Identity if we hit max 
 
         if use_dropout: # Define dropout if applicable
             self.dropout = nn.Dropout(0.5)

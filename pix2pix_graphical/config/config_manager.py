@@ -20,22 +20,28 @@ GROUP_SCHEMA = {
 }
 
 class ConfigManager():
-    def __init__(self, config_filepath: Union[str, PathLike, None]=None) -> None:
+    def __init__(
+            self, 
+            config_filepath: Union[str, PathLike, None]=None
+        ) -> None:
         self.raw = self.parse_config_file(config_filepath)
         self.data = self.load_full_config()
 
-    def parse_config_file(self, config_filepath: Union[str, PathLike, None]=None) -> dict:
+    def parse_config_file(
+            self, 
+            config_filepath: Union[str, PathLike, None]
+        ) -> dict:
         '''Loads a JSON config file and returns the raw config data.
         
-        config_filepath can also be None. In this case, this function will instead try
-        to load the default config file located at "./default.json". If it is unable to 
-        do that, it will raise a FileNotFoundError.
+        config_filepath can also be None. In this case, this function will 
+        instead try to load the default config file from "./default.json". If 
+        it is unable to do that, it will raise a FileNotFoundError.
 
         Args:
             config_filepath : Absolute file path of config JSON, or None.
 
         Returns:
-            dict : The raw JSON data imported from the config file as a dict[str, Any].
+            dict : The raw JSON data imported from the config file.
 
         Raises:
             FileNotFoundError : If provided config file does not exist and/ or 
@@ -48,7 +54,8 @@ class ConfigManager():
         else: config_file = pathlib.Path(config_filepath)
         
         if not config_file.exists():
-            raise FileNotFoundError(f'Unable to locate config file at: {config_file.as_posix()}')
+            msg = f'Unable to locate config file at: {config_file.as_posix()}'
+            raise FileNotFoundError(msg)
 
         with open(config_file.as_posix(), 'r') as file:
             config_data = json.loads(file.read())['config']
@@ -56,10 +63,11 @@ class ConfigManager():
         return config_data
     
     def load_config_section(self, data: dict[str, Any], cls: Type[T]) -> T:
-        '''Loops through the provided dataclass and assigns the corresponding value from the data dict.
+        '''Loops through dataclass and assigns corresponding value from dict.
         
         Args:
-            data : Dict of data from a section of the config file (e.g. COMMON, TRAIN, etc.).
+            data : Dict of data from a section of the config file (e.g. COMMON, 
+                TRAIN, etc.).
             cls : Dataclass to initialize values for.
 
         Returns:
@@ -88,7 +96,8 @@ class ConfigManager():
         '''Initializes a config_data.Config dataclass from config JSON data.
         
         Returns:
-            config_data.Config : Config dataclass with all nested sub-dataclasses.
+            config_data.Config : Config dataclass with all nested 
+                sub-dataclasses.
         '''
         sections = {}
         for name, cls in GROUP_SCHEMA.items():
@@ -98,12 +107,13 @@ class ConfigManager():
         return config_data.Config(**sections)
     
     def export_config(self, output_directory: pathlib.Path):
-        '''Exports a copy of the current config file to the provided output directory.
+        '''Exports a copy of the config to the provided output directory.
         
-        This function will first check the files in the provided output directory looking
-        for previously exported config files. If it finds any, it will increment the name
-        accordingly. The files are named trainX_config.json to help automatically keep 
-        track of settings during fine tuning of models.
+        This function will first check the files in the provided output 
+        directory looking for previously exported config files. If it finds 
+        any, it will increment the name accordingly. The files are named 
+        trainX_config.json to help automatically keep track of settings during 
+        fine tuning of models.
 
         Args:
             output_directory : Directory to export config file to.
@@ -112,16 +122,18 @@ class ConfigManager():
             FileNotFoundError : If output directory does not exist.
         '''
         if not output_directory.exists():
-            raise FileNotFoundError(f'Unable to export config file to: {output_directory.as_posix()}')
+            msg = 'Unable to export config file to: {}'
+            raise FileNotFoundError(msg.format(output_directory.as_posix()))
         data = { 'config': self.raw }
-        existing_configs = [i for i in output_directory.iterdir() if i.suffix == '.json']
-        config_export_path = pathlib.Path(output_directory, f'train{str(1 + len(existing_configs))}_config.json')
+        existing_configs = [i for i in output_directory.glob('*config.json')]
+        filename = f'train{str(1 + len(existing_configs))}_config.json'
+        config_path = pathlib.Path(output_directory, filename)
         try:
-            with open(config_export_path.as_posix(), 'w') as file:
+            with open(config_path.as_posix(), 'w') as file:
                 json.dump(data, file, indent=4)
         except Exception as e:
-            raise Exception(
-                f'Unable to export config file: {config_export_path.as_posix()}') from e
+            message = 'Unable to export config file: {}'
+            raise Exception(message.format(config_path.as_posix())) from e
 
     
 if __name__ == '__main__':

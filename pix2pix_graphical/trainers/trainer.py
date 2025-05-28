@@ -1,5 +1,6 @@
 import random
 import pathlib
+import time
 from os import PathLike
 from typing import Callable
 
@@ -20,29 +21,39 @@ class Trainer():
         ) -> None:
         self.log_losses: bool = True
         self.current_epoch: int | None = None
+        self.last_epoch_time: float = 0.0
         self.train_loader: torch.utils.data.DataLoader | None = None
         self.val_loader: torch.utils.data.DataLoader | None = None
 
-        self.init_config(config) # Init config
+        self.init_config(config)       # Init config
         self.build_output_directory()  # Build experiment output directory    
         self.init_loss_manager()       # Init LossManager
         self.export_config()           # Export config file
         self.init_visualizers()        # Init visualizer
 
-    def init_config(self, input_config: str | PathLike | ConfigManager | None):
+        self.device = self.config.common.device # Store device for easy lookup
+
+    def init_config(
+            self, 
+            config: str | PathLike | ConfigManager | None
+        ) -> None:
         '''Handles input config types and inits config data accordingly.
+
+        Args:
+            config : The config to init from. This can be a Pathlike object to 
+                pointing to a config JSON, a ConfigManager instance, or None to 
+                init from the default config (/root/config/default.json)
         '''
-        match input_config:
+        match config:
             case str() | PathLike() | None:
-                # ConfigManager handles logic for these cases
-                self.config_manager = ConfigManager(input_config)
-            case ConfigManager():
-                # If input_config is a ConfigManager, we just override self.configmanager
-                self.config_manager = input_config
+                # ConfigManager handles logic for: str() | PathLike() | None
+                self.config_manager = ConfigManager(config)
+            case ConfigManager():            # If config is a ConfigManager
+                self.config_manager = config # Override self.config_manager
             case _:
-                valid_types = [type(str), type(PathLike), type(ConfigManager), None]
-                raise ValueError(f'Invalid input config type. Valid types are {valid_types}')
-        self.config = self.config_manager.data # Store config data for easier access         
+                x = [type(str), type(PathLike), type(ConfigManager), None]
+                raise ValueError(f'Invalid config type. Valid types are {x}')
+        self.config = self.config_manager.data # Store values for easier access         
 
     def init_visualizers(self) -> None:
         vcon = self.config.visualizer # Get visualizer config data
@@ -51,120 +62,229 @@ class Trainer():
             self.vis.clear_env()      # Clear Visdom environment    
 
     def build_output_directory(self) -> None:
-        '''Builds an output directory structure for the experiment.'''
+        '''Builds an output directory structure for the experiment.
+        
+        Raises:
+            FileExistsError : If config.save.auto_increment_version=False and
+                experiment directory already exists.
+            RuntimeError : If unable to increment experiment directory.
+            RuntimeError : If unable to create examples output directory.
+        '''
         output_root = pathlib.Path(self.config.common.output_directory)
-        exp_name = self.config.common.experiment_name       # Get experiment name
-        exp_version = self.config.common.experiment_version # Get experiment version
-        name = f'{exp_name}_v{exp_version}'                 # Build output dir name
+        exp_name = self.config.common.experiment_name       # Experiment name
+        exp_version = self.config.common.experiment_version # Version
+        name = f'{exp_name}_v{exp_version}'                 # Output dir name
         experiment_dir = pathlib.Path(output_root, name)    # Output dir path
         
-        try: # Exists okay is true if we're loading a previously trained model
-            experiment_dir.mkdir(parents=False, exist_ok=self.config.load.continue_train)
-        except FileExistsError as e: # Otherwise we check to see if auto-increment is on
+        try: 
+            experiment_dir.mkdir( # Exists okay=True if loading a checkpoint
+                parents=False, exist_ok=self.config.load.continue_train)
+        except FileExistsError as e: 
             if self.config.save.auto_increment_version:
-                try:
-                    prev_versions = [i.name for i in experiment_dir.parent.iterdir() if exp_name in i.name]
+                try: # If experiment dir exists and auto_increment enabled
+                    prev_versions = [ # Try to increment experiment dir
+                        i.name for i in experiment_dir.parent.iterdir() 
+                        if exp_name in i.name]
                     prev_versions.sort()
                     new_version = 1 + int(prev_versions[-1].split('v')[-1])
-                    experiment_dir = pathlib.Path(output_root, f'{exp_name}_v{new_version}')
-                    
-                    try: experiment_dir.mkdir(parents=False, exist_ok=False)
-                    except Exception: raise
-                except Exception as x: raise RuntimeError('Unable to overwrite experiment dir') from x
-            else:
+                    new_name = f'{exp_name}_v{new_version}'
+                    experiment_dir = pathlib.Path(output_root, new_name)
+                    experiment_dir.mkdir(parents=False, exist_ok=False)
+                except Exception as x: 
+                    message = 'Unable to increment experiment dir.'
+                    raise RuntimeError(message) from x
+            else: # But if auto-increment is disabled, raise error instead
                 error_message = (
                     f'Unable to save experiment: '
                     f'Experiment directory already exists. '
-                    f'Please increment experiment version or enable auto_increment_version.')
-                raise RuntimeError(error_message) from e
+                    f'Please increment experiment version or '
+                    f'enable auto_increment_version.')
+                raise FileExistsError(error_message) from e
 
         examples_dir = pathlib.Path(experiment_dir, 'examples')
         try: examples_dir.mkdir(exist_ok=self.config.load.continue_train)
         except Exception as e:
-            raise RuntimeError('Unable to create examples output directory.') from e
+            message = 'Unable to create examples output directory.'
+            raise RuntimeError(message) from e
         self.experiment_dir, self.examples_dir =  experiment_dir, examples_dir
 
-    def init_loss_manager(self):
+    def init_loss_manager(self) -> None:
+        '''Initializes a loss manager for the Trainer instance.
+        '''
         self.loss_manager = LossManager( # Init loss manager
-            self.config, 
-            self.experiment_dir, 
-            enable_logging=self.log_losses) 
-        if self.log_losses:
-            self.loss_manager.export_base_log() # Save initial loss log
+            self.config, self.experiment_dir, enable_logging=self.log_losses) 
+        if self.log_losses: # If loss_logging=True, save initial loss log
+            self.loss_manager.export_base_log() 
 
     def export_config(self) -> None:
-        '''Exports a versioned config JSON file to the experiment output directory.
+        '''Exports a versioned config file to the experiment output directory.
         
-        This function just abstracts ConfigManager.export_config for ease of use with
-        instances of trainer classes. This is also not strictly necessary to do. The
-        Trainer's config data is intialized from the input config file. This just makes
-        a copy of it in the experiment output directory for notekeeping purposes.
+        This function just abstracts ConfigManager.export_config for ease of 
+        use with instances of Trainer classes. This is also not strictly 
+        necessary to do. The Trainer's config data is intialized from the input 
+        config file. This just makes a copy of it in the experiment output 
+        directory for notekeeping purposes.
         '''
         self.config_manager.export_config(self.experiment_dir)
 
-    def build_dataloader(self, loader_type: str):
-        '''Initializes a Torch dataloader of the given type from a Pix2pixDataset.'''
-        dataset_path = pathlib.Path(self.config.common.dataroot, loader_type).resolve()
+    def build_dataloader(
+            self, 
+            loader_type: str
+        ) -> torch.utils.data.DataLoader:
+        '''Initializes a dataloader of the given type from a Pix2pixDataset.
+
+        This function will grab the dataroot path from the config and use it to
+        first create a Pix2pixDataset instance of the given loader type, then 
+        use that dataset to create and return a Torch Dataloader.
+
+        Args:
+            loader_type : Type of loader to create (e.g. 'train', 'val')
+
+        Returns:
+            torch.utils.data.DataLoader : Dataloader created from the dataset.
+        '''
+        dataset_path = pathlib.Path(  # Get global sys path to data
+            self.config.common.dataroot, loader_type).resolve()
         if not dataset_path.exists(): # Make sure data directory exists
-            raise Exception(f'Unable to locate dataset at: {dataset_path.as_posix()}')
+            message = f'Unable to locate dataset at: {dataset_path.as_posix()}'
+            raise FileNotFoundError(message)
         dataset = Pix2pixDataset(config=self.config, root_dir=dataset_path)
-        return torch.utils.data.DataLoader(
+        return torch.utils.data.DataLoader( # Build dataloader from dataset
             dataset, batch_size=self.config.dataloader.batch_size, 
             shuffle=True, num_workers=self.config.dataloader.num_workers)
     
+    def build_optimizer(
+            self, 
+            network: nn.Module,
+            optimizer: torch.optim,
+            lr: float,
+            beta1: float
+        ) -> torch.optim:
+        '''Constructs and returns an optimizer for the given network.
+        
+        Args:
+            network: Network to build the optimizer for.
+            optimizer: Type of optimizer to build.
+            learning_rate: Learning rate for the new optimizer.
+            beta1: Momentum term for optimizer.
+        '''
+        return optimizer(network.parameters(), lr=lr, betas=(beta1, 0.999))
+    
     def load_checkpoint(
-            self, generator: nn.Module, gen_optimizer: optim.Optimizer,
-            discriminator: nn.Module, disc_optimizer: optim.Optimizer) -> None:
+            self, 
+            generator: nn.Module, 
+            gen_optimizer: optim.Optimizer,
+            discriminator: nn.Module, 
+            disc_optimizer: optim.Optimizer
+        ) -> None:
         '''Loads pre-trained model weights to continue training.
+
+        Args:
+            generator : The generator to load the netG weights into.
+            gen_optimizer : The generator's associated optimizer.
+            discriminator : The discriminator to load the netD weights into.
+            disc_optimizer : The discriminator's associated optimizer.
         '''
         load_epoch = self.config.load.load_epoch
         if load_epoch == -1: base_name = f'final'
         else: base_name = f'epoch{load_epoch}'
 
         output_directory = pathlib.Path(self.config.common.output_directory)
-        experiment_directory = pathlib.Path(output_directory, self.config.common.experiment_name)
+        experiment_directory = pathlib.Path(
+            output_directory, self.config.common.experiment_name)
         
         # Load generator checkpoint
-        checkpoint_gen_path = pathlib.Path(experiment_directory, f'{base_name}_netG.pth.tar')
+        checkpoint_gen_path = pathlib.Path(
+            experiment_directory, f'{base_name}_netG.pth.tar')
         if not checkpoint_gen_path.exists():
-            raise Exception(f'Unable to locate generator checkpoint at: {checkpoint_gen_path.as_posix()}')
+            message = 'Unable to locate generator checkpoint at: {}'
+            raise Exception(message.format(checkpoint_gen_path.as_posix()))
         
         # Load discriminator checkpoint
-        checkpoint_disc_path = pathlib.Path(experiment_directory, f'{base_name}_netD.pth.tar')
+        checkpoint_disc_path = pathlib.Path(
+            experiment_directory, f'{base_name}_netD.pth.tar')
         if not checkpoint_disc_path.exists():
+            message = 'Unable to locate discriminator checkpoint at: {}'
             raise FileNotFoundError(
-                f'Unable to locate discriminator checkpoint at: {checkpoint_disc_path.as_posix()}')
+                message.format(checkpoint_disc_path.as_posix()))
         
         models = [
             (checkpoint_gen_path, generator, gen_optimizer), 
             (checkpoint_disc_path, discriminator, disc_optimizer)]
         for path, model, optimizer in models:
-            checkpoint = torch.load(path.as_posix(), map_location=self.config.common.device)
+            checkpoint = torch.load(path.as_posix(), map_location=self.device)
             model.load_state_dict(checkpoint['state_dict'])
             optimizer.load_state_dict(checkpoint['optimizer'])
 
             for param_group in optimizer.param_groups:
                 param_group['lr'] = self.config.train.learning_rate
 
-    def on_train_start(self, x: torch.Tensor, y: torch.Tensor, idx: int) -> None:
-        raise NotImplementedError('on_train_start() is not implemented by the child class.')
+    def on_train_start(self) -> None:
+        '''Train start callback function.
+        
+        This function is meant to overridden by the child class. It is called
+        at the beginning of a training cycle, just before the training loop is
+        started. It is fairly open ended and can be populated with whatever you
+        would like. Print statements, value updates, etc.
+
+        Raises:
+            NotImplementedError : If training is run and this callback is not 
+                implemented in the child class that is initiating the training.
+        '''
+        message = 'on_train_start() is not implemented by the child class.'
+        raise NotImplementedError(message)
 
     def train_step(self, x: torch.Tensor, y: torch.Tensor, idx: int) -> None:
-        raise NotImplementedError('train_step() is not implemented by the child class.')
+        '''Train step callback function.
+        
+        This function is meant to overridden by the child class. It is inside
+        of the training loop, once per batch, and is used as a core training
+        function for the child Trainer. If you are writing a custom Trainer,
+        this callback is where you would run your forward and backward steps
+        for both the generator, and the discriminator. See `train_step()`
+        implementation in Pix2pixTrainer for more info.
+
+        Args:
+            x : First input tensor, passed to function via `train_paired()`.
+            y : Second input tensor, passed to function via `train_paired()`.
+            idx : Batch iter value, passed to function via `train_paired()`.
+
+        Raises:
+            NotImplementedError : If training is run and this callback is not 
+                implemented in the child class that is initiating the training.
+        '''
+        message = 'train_step() is not implemented by the child class.'
+        raise NotImplementedError(message)
     
-    def on_train_end(self, x: torch.Tensor, y: torch.Tensor, idx: int) -> None:
-        raise NotImplementedError('on_train_end() is not implemented by the child class.')
+    def on_train_end(self) -> None:
+        '''Train end callback function.
+        
+        This function is meant to overridden by the child class. It is called
+        at the end of a training cycle, just after the training loop has
+        finished all batches for the epoch. It is fairly open ended and can be 
+        populated with whatever you would like. Print statements, value 
+        updates, etc. The Pix2pixTrainer class uses this to dump loss history
+        to the logs and updated the learning rate schedulers.
+
+        Raises:
+            NotImplementedError : If training is run and this callback is not 
+                implemented in the child class that is initiating the training.
+        '''
+        message = 'on_train_end() is not implemented by the child class.'
+        raise NotImplementedError(message)
 
     def train_paired(
             self, epoch:int,
             on_train_start: Callable[[], None] | None=None,
-            train_step: Callable[[torch.Tensor, torch.Tensor, int], None] | None=None,
+            train_step: Callable[[torch.Tensor, torch.Tensor, int], None] | 
+            None=None,
             on_train_end: Callable[[], None] | None=None) -> None:
         '''Paired adversarial training function.
         
-        This funtion runs a paired adversarial training loop, the components of which
-        can be defined as an override method in the child class, or by passing the 
-        function as a callable to the input argument of the same name.
+        This funtion runs a paired adversarial training loop, the components of 
+        which can be defined as an override method in the child class, or by 
+        passing the function as a callable to the input argument of the same 
+        name.
 
         Args:
             on_train_start : Run once, right before the training loop begins.
@@ -177,25 +297,44 @@ class Trainer():
             self.current_epoch = epoch + 1 + self.config.load.load_epoch
         else: self.current_epoch = epoch + 1
 
-        start_fn = on_train_start or self.on_train_start # Init pre-train funtion
-        train_fn = train_step or self.train_step         # Init train step funtion
-        end_fn = on_train_end or self.on_train_end       # Init post-train funtion
+        start_fn = on_train_start or self.on_train_start # Init pre-train fn
+        train_fn = train_step or self.train_step         # Init train step fn
+        end_fn = on_train_end or self.on_train_end       # Init post-train fn
+
+        start_time = time.perf_counter() # Start epoch time
         
         start_fn() # Run pre-train function
         for idx, (x, y) in enumerate(self.train_loader):
             # Get (x, y) of batch[idx] from training dataset
-            x, y = x.to(self.config.common.device), y.to(self.config.common.device)
+            x, y = x.to(self.device), y.to(self.device)
             train_fn(x, y, idx) # Run train step function
         end_fn() # Run post-train function
 
-    def print_end_of_epoch(self, index: int, begin_epoch: float, end_epoch: float) -> None:
-        print(f'(End of epoch {index}) Time: {end_epoch - begin_epoch:.2f} seconds', flush=True)
+        end_time = time.perf_counter() # End epoch time
+        self.last_epoch_time = end_time-start_time
 
-    def export_model_weights(self, mod: nn.Module, opt: optim.Optimizer, net: str) -> None: 
+    def print_end_of_epoch(self) -> None:
+        '''Print function for epoch end.
+        
+        When called from a training script, usually at the end of each epoch,
+        the function prints a line to the console tagged with the index of the
+        epoch that just concluded, and the time it took to complete the epoch.
+        '''
+        message = (
+            f'(End of epoch {self.current_epoch}) '
+            f'Time: {self.last_epoch_time:.2f} seconds')
+        print(message, flush=True)
+
+    def export_model_weights(
+            self,
+            mod: nn.Module, 
+            opt: optim.Optimizer, 
+            net: str
+        ) -> None: 
         '''Save a checkpoint for a single network and associated optimizer.
         
-        They will be saved to the experiment output directory. File names will be 
-        formatted as epoch{current_epoch}_net{model_to_save}.pth.tar.
+        They will be saved to the experiment output directory. File names will 
+        be formatted as epoch{current_epoch}_net{model_to_save}.pth.tar.
 
         Args:
             mod : The network to save.
@@ -205,30 +344,44 @@ class Trainer():
         Raises:
             RuntimeError : If unable to save checkpoint file.
         '''
-        checkpoint = {'state_dict': mod.state_dict(), 'optimizer': opt.state_dict(),}
+        checkpoint = {
+            'state_dict': mod.state_dict(), 
+            'optimizer': opt.state_dict()}
         name = f'epoch{str(self.current_epoch)}_net{net}'
         output_path = pathlib.Path(self.experiment_dir, name)
         print(f'Saving Checkpoint({net}): {output_path.as_posix()}')
         try: torch.save(checkpoint, output_path.as_posix())
         except Exception as e:
-            raise RuntimeError(f'Unable to save checkpoint file: {output_path.as_posix()}') from e
+            message = 'Unable to save checkpoint file: {}'
+            raise RuntimeError(message.format(output_path.as_posix())) from e
 
-    def save_xyz_examples(self, network: nn.Module, dataloader: torch.utils.data.Dataset) -> None:
+    def save_xyz_examples(
+            self, 
+            network: nn.Module, 
+            dataloader: torch.utils.data.Dataset
+        ) -> None:
         '''Evaluates model and saves examples to example output directory.
 
         This function will switch the generator model to eval mode and select
-        a number of random images, defined by [save][num_examples] in the config
-        file, from the validation dataset. It will then run the generator on each
-        of those input images and export a set of [x, y, y_fake] for each to the
-        experiment/examples directory.
-        '''        
+        a number of random images, defined by save.num_examples in the config
+        file, from the validation dataset. It will then run the generator on 
+        each of those input images and export a set of [x, y, y_fake] for each 
+        to the experiment/examples directory.
+
+        Args:
+            network : The network to perform the example inference.
+            dataloader : The dataloader containing the validation set to eval
+                the model on.
+        '''               
         network.eval()
         val_data = list(dataloader.dataset)
-        indices = random.sample(range(len(val_data)), self.config.save.num_examples)
+        indices = random.sample(
+            range(len(val_data)), 
+            self.config.save.num_examples)
         for i, idx in enumerate(indices):
             x, y = val_data[idx]
-            x = x.unsqueeze(0).to(self.config.common.device)
-            y = y.unsqueeze(0).to(self.config.common.device)
+            x = x.unsqueeze(0).to(self.device)
+            y = y.unsqueeze(0).to(self.device)
 
             with torch.no_grad():
                 y_fake = network(x)
@@ -236,6 +389,7 @@ class Trainer():
             base_name = f'epoch{self.current_epoch}_{str(i+1)}'
             imgs = [(x, 'A_real'), (y, 'B_real'), (y_fake, 'B_fake')]
             for img, id in imgs:
-                output_path = pathlib.Path(self.examples_dir, f'{base_name}_{id}.png')
+                filename = f'{base_name}_{id}.png'
+                output_path = pathlib.Path(self.examples_dir, filename)
                 save_image(img * 0.5 + 0.5, output_path.as_posix())
         network.train()
