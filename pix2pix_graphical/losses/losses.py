@@ -95,8 +95,8 @@ class Laplacian(torch.nn.Module):
 class VGGPerceptual(nn.Module):
     '''Implements a VGG19-based perceptual loss function.
 
-    Please see `pix2pix_graphical.losses.lm_specs()` for more information on 
-    VGG-based perceptual loss.
+    Please see `pix2pix_graphical.losses.pix2pix_objective` for more 
+    information on VGG-based perceptual loss.
 
     Note: Running this loss function for the first time, or registering it with
     a LossManager instance, will install the VGG19 default weights from PyTorch 
@@ -113,9 +113,6 @@ class VGGPerceptual(nn.Module):
         vgg = models.vgg19(weights=vgg19_weights).features.eval()
         vgg.requires_grad_(False)
         self.blocks = nn.ModuleList([vgg[:4], vgg[4:9], vgg[9:16],])
-        # for block in self.blocks:
-        #     for p in block.parameters():
-        #         p.requires_grad = False
 
         self.layer_weights = [1.0, 1.0, 1.0]
         self.L1 = nn.L1Loss()

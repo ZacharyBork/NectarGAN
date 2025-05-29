@@ -2,7 +2,7 @@ import random
 import pathlib
 import time
 from os import PathLike
-from typing import Callable
+from typing import Callable, Any
 
 import torch
 import torch.optim as optim
@@ -19,6 +19,14 @@ class Trainer():
             self, 
             config: str | PathLike | ConfigManager | None=None
         ) -> None:
+        '''Init function for the base Trainer class.
+
+        Args:
+            config: Something representing a training config, either a str or
+                os.Pathlike object pointing to a config JSON, or a pre-defined
+                ConfigManager instance, or None to init from the default config
+                located at (/root/config/default.json). Defaults to None.
+        '''
         self.log_losses: bool = True
         self.current_epoch: int | None = None
         self.last_epoch_time: float = 0.0
@@ -219,13 +227,18 @@ class Trainer():
             for param_group in optimizer.param_groups:
                 param_group['lr'] = self.config.train.learning_rate
 
-    def on_train_start(self) -> None:
+    def on_train_start(self, **kwargs: Any) -> None:
         '''Train start callback function.
         
         This function is meant to overridden by the child class. It is called
         at the beginning of a training cycle, just before the training loop is
         started. It is fairly open ended and can be populated with whatever you
         would like. Print statements, value updates, etc.
+
+        Args:
+            **kwargs : Any keyword arguments you would like to pass to the 
+                callback during training. See `Pix2pixTrainer.on_train_start()` 
+                for example implementation.
 
         Raises:
             NotImplementedError : If training is run and this callback is not 
@@ -234,7 +247,13 @@ class Trainer():
         message = 'on_train_start() is not implemented by the child class.'
         raise NotImplementedError(message)
 
-    def train_step(self, x: torch.Tensor, y: torch.Tensor, idx: int) -> None:
+    def train_step(
+            self,  
+            x: torch.Tensor, 
+            y: torch.Tensor, 
+            idx: int,
+            **kwargs: Any
+        ) -> None:
         '''Train step callback function.
         
         This function is meant to overridden by the child class. It is inside
@@ -248,6 +267,9 @@ class Trainer():
             x : First input tensor, passed to function via `train_paired()`.
             y : Second input tensor, passed to function via `train_paired()`.
             idx : Batch iter value, passed to function via `train_paired()`.
+            **kwargs : Any additional keyword arguments you would like to pass 
+                to the callback during training. See 
+                `Pix2pixTrainer.on_train_start()` for example implementation.
 
         Raises:
             NotImplementedError : If training is run and this callback is not 
@@ -256,7 +278,7 @@ class Trainer():
         message = 'train_step() is not implemented by the child class.'
         raise NotImplementedError(message)
     
-    def on_train_end(self) -> None:
+    def on_train_end(self, **kwargs: Any) -> None:
         '''Train end callback function.
         
         This function is meant to overridden by the child class. It is called
@@ -265,6 +287,11 @@ class Trainer():
         populated with whatever you would like. Print statements, value 
         updates, etc. The Pix2pixTrainer class uses this to dump loss history
         to the logs and updated the learning rate schedulers.
+
+        Args:
+            **kwargs : Any keyword arguments you would like to pass to the 
+                callback during training. See `Pix2pixTrainer.on_train_start()` 
+                for example implementation.
 
         Raises:
             NotImplementedError : If training is run and this callback is not 
@@ -278,7 +305,9 @@ class Trainer():
             on_train_start: Callable[[], None] | None=None,
             train_step: Callable[[torch.Tensor, torch.Tensor, int], None] | 
             None=None,
-            on_train_end: Callable[[], None] | None=None) -> None:
+            on_train_end: Callable[[], None] | None=None,
+            callback_kwargs: dict[str, dict[str, Any]] = {}
+        ) -> None:
         '''Paired adversarial training function.
         
         This funtion runs a paired adversarial training loop, the components of 
@@ -290,6 +319,20 @@ class Trainer():
             on_train_start : Run once, right before the training loop begins.
             train_step : Run once per batch in the dataset.
             on_train_end : Run once, after all batches have been completed.
+            callback_kwargs : A dict[str, dict[str, Any]] with any keyword
+                arguments you would like to pass to the callback functions
+                during training. kwargs are parsed internally and passed to
+                their repective callbacks. The dict should be formatted as 
+                follows:
+
+                    callback_kwargs = {
+                        'on_train_start': { 'var1': 1.0 },
+                        'train_step': { 'var2': True, 'var3': [1.0, 2.0] },
+                        'on_train_end': {'var4': { 'x': 1.0, 'y': 2.0 } }
+                    }
+
+                See `Pix2pixTrainer.on_train_start()` for example 
+                implementation.
         '''
         # self.current_epoch is a sort of human-readable current epoch value
         # Basically just epoch+1 but it also accounts for loaded checkpoints
@@ -303,12 +346,18 @@ class Trainer():
 
         start_time = time.perf_counter() # Start epoch time
         
-        start_fn() # Run pre-train function
+        # Run pre-train function
+        start_fn(**callback_kwargs.get('on_train_start', {})) 
+        
         for idx, (x, y) in enumerate(self.train_loader):
             # Get (x, y) of batch[idx] from training dataset
             x, y = x.to(self.device), y.to(self.device)
-            train_fn(x, y, idx) # Run train step function
-        end_fn() # Run post-train function
+            
+            # Run train step function
+            train_fn(x, y, idx, **callback_kwargs.get('train_step', {})) 
+        
+        # Run post-train function
+        end_fn(**callback_kwargs.get('on_train_end', {})) 
 
         end_time = time.perf_counter() # End epoch time
         self.last_epoch_time = end_time-start_time

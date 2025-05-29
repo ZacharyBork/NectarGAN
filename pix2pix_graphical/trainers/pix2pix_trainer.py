@@ -9,10 +9,9 @@ TO-DO:
 '''
 import torch
 import torch.optim as optim
-import torch.nn as nn
 
 from os import PathLike
-from typing import Literal
+from typing import Literal, Any
 
 from pix2pix_graphical.trainers.trainer import Trainer
 from pix2pix_graphical.config.config_manager import ConfigManager
@@ -104,9 +103,9 @@ class Pix2pixTrainer(Trainer):
     def init_losses(self, loss_subspec: str) -> None:
         '''Initializes model loss functions.
 
-        This function takes `loss_subspec: ['basic', 'extended']` as input. 
-        This defines the subspec to initialize the generator's LossManager 
-        with. Valid subspecs for pix2pix are:
+        This function takes `loss_subspec` as input. This defines the subspec 
+        to initialize the generator's LossManager with. Valid subspecs for 
+        pix2pix are:
             
         'basic': Losses as described in the original paper
             G Loss Funtions: ['G_GAN', 'G_L1']
@@ -174,10 +173,10 @@ class Pix2pixTrainer(Trainer):
     def print_end_of_epoch(self) -> None:
         '''Prints information at end of epoch.
         
-        The base Trainer class implements this function to epoch index and time
-        taken. This child class adds to that lines to show the changes in
-        learning rate between the just completed epoch, and the epoch which is
-        about to being.
+        The base Trainer class implements this function to print epoch index
+        and time taken. This child class adds to that lines to show the changes
+        in learning rate between the just completed epoch, and the epoch which
+        is about to begin.
         '''
         super().print_end_of_epoch()
         gen_lr_step = self.gen_lr_scheduler.get_lr()
@@ -194,9 +193,9 @@ class Pix2pixTrainer(Trainer):
         '''Forward step for discriminator. 
         
         Run each batch to compute discriminator loss, this function first has
-        the discriminator make a prediction of a real (x, y) pair, then it has
+        the discriminator make a prediction on a real (x, y) pair, then it has
         it make a prediction on the generators fake output (x, y_fake). Loss is
-        computed for each prediction via BCEWithLogits, the the two resulting
+        computed for each prediction via BCEWithLogits, then the two resulting
         loss tensors are averaged to compute the final discriminator loss for
         the batch.
 
@@ -349,7 +348,7 @@ class Pix2pixTrainer(Trainer):
         One thing to note, though, is that in `backward_D()`, we zero out the
         loss gradients for the discriminator model itself, where here, we
         instead zero the gradients for the optimizer associated with the
-        generator model. The does not make a difference for this trainer since
+        generator model. This does not make a difference for this trainer since
         self.opt_gen manages all of the generator parameters. My general
         understanding of the philosophy behind this idea, though, is that, as
         models become more complex with more parameters to track and manage,
@@ -371,12 +370,55 @@ class Pix2pixTrainer(Trainer):
         self.disc_lr_scheduler.step() # Discriminator LR scheduler
         self.gen_lr_scheduler.step()  # Generator LR scheduler
 
-    def on_train_start(self) -> None:
-        '''Train start callback for pix2pix trainer (see: Trainer.train_paired)
-        '''
-        pass
+    def on_train_start(self, **kwargs: Any) -> None:
+        '''Train start override method for Pix2pixTrainer class.
 
-    def train_step(self, x: torch.Tensor, y: torch.Tensor, idx: int) -> None:
+        This method overrides Trainer.on_train_start() and is called at the 
+        beginning of a training cycle, just before the training loop is 
+        started.
+
+        This implementation also demonstrates how to use the additional keyword
+        arguments for the Trainer callback functions. In `/scripts/train.py`,
+        we are calling `Trainer.train_paired()`, and passing it the current
+        epoch, and a dict for the callback_kwargs. This dict contains an entry
+        called `on_train_start`, same as the callback name, and it's value is
+        a dict containing a single bool value, `print_train_start`. 
+        
+        That is passed through to this function via the training function, so 
+        here, we are able to look up that value and, if it is true, we have the 
+        script print a line telling us what epoch is about to begin. You can 
+        create  one dict for each callback (`on_train_start`, `train_step`, 
+        `on_train_end`), and each dict should be added as separate entries to
+        a another dict with the key set at the name of the callback you would
+        like to pass the kwargs to.
+
+        Example:
+
+            trainer = Pix2pixTrainer()
+
+            for epoch in epochs:
+                trainer.train_paired(
+                    epoch, 
+                    callback_kwargs={
+                        'on_train_start': { 'var1': 1.0 },
+                        'train_step': { 'var2': True, 'var3': [1.0, 2.0] },
+                        'on_train_end': {'var4': { 'x': 1.0, 'y': 2.0 } }
+                    }
+
+        Args:
+            **kwargs : Any keyword arguments you would like to pass to the 
+                callback during training.
+        '''
+        if kwargs['print_train_start']:
+            print(f'Beginning epoch: {self.current_epoch}')
+
+    def train_step(
+            self, 
+            x: torch.Tensor, 
+            y: torch.Tensor, 
+            idx: int,
+            **kwargs: Any
+        ) -> None:
         '''Train step callback for pix2pix trainer (see: Trainer.train_paired).
         
         Generator first makes a fake image (y_fake). Then losses are computed 
@@ -389,6 +431,9 @@ class Pix2pixTrainer(Trainer):
             x : torch.Tensor of input image.
             y : torch.Tensor of ground image.
             idx : Batch iteration value from training loop.
+            **kwargs : Any additional keyword arguments you would like to pass 
+                to the callback during training. See 
+                `Pix2pixTrainer.on_train_start()` for example implementation.
         '''
         with torch.amp.autocast('cuda'): 
             y_fake = self.gen(x)
@@ -404,8 +449,13 @@ class Pix2pixTrainer(Trainer):
         if idx % self.config.visualizer.update_frequency == 0:
             self.update_display(x, y, y_fake, idx)
         
-    def on_train_end(self) -> None:
+    def on_train_end(self, **kwargs: Any) -> None:
         '''Train end callback for pix2pix trainer. (see: Trainer.train_paired)
+
+        Args:
+            **kwargs : Any keyword arguments you would like to pass to the 
+                callback during training. See `Pix2pixTrainer.on_train_start()` 
+                for example implementation.
         '''
         # Dump stored loss values to log_log.json
         if self.log_losses: # From parent Trainer class

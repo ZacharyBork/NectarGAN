@@ -1,4 +1,5 @@
 import time
+import math
 import json
 import copy
 import warnings
@@ -18,6 +19,7 @@ class LossManager():
         config: Config,
         experiment_dir: PathLike,
         enable_logging: bool=True,
+        store_history_frequency: int=1,
         history_buffer_size: int=50000
     ) -> None:
         '''Init function for the LossManager class.
@@ -30,6 +32,12 @@ class LossManager():
                 the experiment_dir. Loss values and weights will be stored over
                 time, and can be dumped to the loss log with:
                     - LossManager.update_loss_log()
+            store_history_frequency : The frequency in iterations (or batches, 
+                if batch_size>1) to append loss info to history. Default (and 
+                minimum) is 1, but increasing this can lead to smaller loss_log
+                files, and reduce time spent dumping loss information to large
+                logs, at the cost of a portion of the history being discarded.
+                Values smaller than 1 will be clamped at 
             history_buffer_size: The max length of each list (losses, weights)
                 for any LMHistory object managed by the LossManager. This is a
                 sort of fallback, the stored losses will be dumped to the loss
@@ -41,6 +49,7 @@ class LossManager():
         self.device = self.config.common.device
         self.experiment_dir = pathlib.Path(experiment_dir)
         self.enable_logging = enable_logging
+        self.store_history_frequency = max(1, store_history_frequency)
         self.buffer_size = history_buffer_size
 
         # Stores registered losses with str keys for easy lookup
@@ -48,6 +57,18 @@ class LossManager():
 
         self.make_dummy_shape()
         self.init_from_spec(spec=None)
+
+    def build_log_blank(self) -> None:
+        '''Defines a dummy log to build default log JSON structure.
+        '''
+        return { # 
+            'LOSSMANAGER_LOG':{
+                'device': f'{self.config.common.device}',
+                'dataroot': f'{self.config.common.dataroot}',
+                'experiment': f'{self.experiment_dir.name}',
+                'loss_functions': {}
+            }
+        }
 
     def export_base_log(self) -> None:
         '''Creates a JSON file in the experiment_dir to save loss logs to.
@@ -66,12 +87,7 @@ class LossManager():
                 '`enable_logging=False`. Bypassing.')
             return
         log_path = pathlib.Path(self.experiment_dir, 'loss_log.json')
-        blank = { # Dummy log to define log JSON structure
-            'LOSSMANAGER_LOG':{
-                'device': f'{self.config.common.device}',
-                'dataroot': f'{self.config.common.dataroot}',
-                'experiment': f'{self.experiment_dir.name}',
-                'loss_functions': {}}}
+        blank = self.build_log_blank()
         
         try: # Try to save log file, raise any exceptions
             with open(log_path.as_posix(), 'w') as file:
@@ -393,27 +409,36 @@ class LossManager():
 
     def _append_loss_history(
             self, 
-            name: str, 
+            name: str,
+            # idx: int,
             value: torch.Tensor,
             silent: bool=True
         ) -> None:
         '''Internal function to append values to loss histories.
 
         This function will append the value and weight of the loss queried with 
-        `name` to the LMLoss's history. Before appending new loss values, this 
-        funtion first does a safety check to make sure the current LMLoss's 
-        history isn't >= max buffer size. If it is, it will first dump the 
-        buffer to the loss log.
+        `name` to the LMLoss's history if applicable this `idx`. Before 
+        appending new loss values, this funtion first does a safety check to 
+        make sure the current LMLoss's history isn't >= max buffer size. If it
+        is, it will first dump the buffer to the loss log.
 
         Args:
             name : Name of the loss object which houses the LMHistory you want 
                 to dump the output values of.
+            idx : Current batch index at the time the loss function is called.
             value : The torch.Tensor result of the corresponding loss function.
+            silent : If True (default), this function will silently dump losses 
+                stored in history to the loss_log when the history buffer is 
+                full. If False, it will instead raise a RuntimeError when the
+                log reaches its limit.
 
         Raises:
             ValueError : If silent=False and the requested LMloss's history is 
                 greater than self.buffer_size.
         '''
+        # Check history freq to make sure we should store this iter
+        # if not idx % self.store_history_frequency == 0: return # Return if not
+        
         loss_fn = self.loss_fns[name] # Lookup requested loss function
         if len(loss_fn.history.losses) >= self.buffer_size:
             if silent: # Dump to log if history >= buffer size
@@ -505,6 +530,7 @@ class LossManager():
 
                     - LossManager.get_registered_losses().
 
+            idx : Current batch index at the time the loss function is called.
             x : First input for the loss function, usually a torch.Tensor.
             y : Second input for the loss function, usually a torch.Tensor.
 

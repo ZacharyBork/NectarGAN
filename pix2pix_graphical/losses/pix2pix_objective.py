@@ -1,10 +1,9 @@
-import torch
 import torch.nn as nn
 from typing import Literal
 
 from pix2pix_graphical.config.config_data import Config
 from pix2pix_graphical.losses.losses import Sobel, Laplacian, VGGPerceptual
-from pix2pix_graphical.losses.lm_data import LMHistory, LMLoss
+from pix2pix_graphical.losses.lm_data import LMLoss
 
 def pix2pix(
         config: Config,
@@ -49,7 +48,7 @@ def pix2pix(
             generator to preserve smaller textural details and sharp edges.
             - Generator: 'G_LAP'
 
-    Both 'basic' and 'extended' have an related subspec called `subspec+vgg`. 
+    Both 'basic' and 'extended' have a related subspec called `subspec+vgg`. 
     For each, this will init with the named loss subspec, but it will also 
     register an additional loss, `VGGPerceptual`. VGG loss is really 
     interesting, it passes a real ground truth image and a fake generator 
@@ -60,15 +59,15 @@ def pix2pix(
     images, but punishes the generator much less harshly than standard L1 loss 
     for small deviations, allowing the generator some room to create detail 
     without as much blurring or averaging. In some cases, this can allow the 
-    generator to create extremely realistic output. It is computatationally 
-    expensive though, and in my extremely informal testing, I noticed around a 
-    10-15% increase in training time with this loss function enabled.
+    generator to create extremely realistic output after a relatively small
+    number of epochs. It is computatationally expensive though, and in my 
+    extremely informal testing, I noticed around a 10-15% increase in training 
+    time with this loss function enabled.
 
     Resources:
     - https://docs.pytorch.org/vision/main/models/generated/torchvision.models.vgg19.html
     - https://medium.com/@siddheshb008/vgg-net-architecture-explained-71179310050f
     - https://medium.com/software-dev-explore/neural-style-transfer-vgg19-dab643ec6160
-
     '''
     device = config.common.device
     BCE = nn.BCEWithLogitsLoss().to(device)  # G_GAN, D_real, D_fake
@@ -97,6 +96,5 @@ def pix2pix(
         VGG = VGGPerceptual().to(device)
         loss_fns['G_VGG'] = LMLoss(
             name='G_VGG', function=VGG, 
-            loss_weight=config.loss.lambda_vgg,
-            history=LMHistory([], []), tags=['G'])
+            loss_weight=config.loss.lambda_vgg, tags=['G'])
     return loss_fns

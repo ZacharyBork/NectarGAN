@@ -25,7 +25,9 @@ if __name__ == "__main__":
 
     epoch_count = cfg.train.num_epochs + cfg.train.num_epochs_decay
     for epoch in range(epoch_count):
-        trainer.train_paired(epoch) # Train generator and discriminator
+        trainer.train_paired( # Train generator and discriminator
+            epoch, 
+            callback_kwargs={ 'on_train_start': {'print_train_start': True} }) 
         
         if epoch == epoch_count-1:
             trainer.save_checkpoint() # Always save model after final epoch
