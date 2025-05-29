@@ -11,13 +11,33 @@ class ConfigCommon:
     input_nc: int
 
 @dataclass
+class ConfigAugsBoth:
+    h_flip_chance: float
+    v_flip_chance: float
+    rot90_chance: float
+
+@dataclass
+class ConfigAugsInput:
+    colorjitter_chance: float
+    colorjitter_brightness: list[float]
+
+@dataclass
+class ConfigAugsOutput:
+    dummy: float
+
+@dataclass
+class ConfigDataLoaderAugmentations:
+    both: ConfigAugsBoth
+    input: ConfigAugsInput
+    output: ConfigAugsOutput
+
+@dataclass
 class ConfigDataloader:
     load_size: int
     crop_size: int
     batch_size: int
     num_workers: int
-    both_flip_chance: float
-    input_colorjitter_chance: float
+    augmentations: ConfigDataLoaderAugmentations
 
 @dataclass
 class ConfigTrain:

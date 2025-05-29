@@ -14,8 +14,20 @@
             "crop_size": 256,
             "batch_size": 1,
             "num_workers": 4,
-            "both_flip_chance": 0.5,
-            "input_colorjitter_chance": 0.0
+            "augmentations": {
+                "both": {
+                    "h_flip_chance": 0.5,
+                    "v_flip_chance": 0.0,
+                    "rot90_chance": 0.0
+                },
+                "input": {
+                    "colorjitter_chance": 0.0,
+                    "colorjitter_brightness": [0.8, 1.2]
+                },
+                "target": {
+
+                }
+            }
         },
         "train": {
             "num_epochs": 100,
@@ -46,14 +58,14 @@
         },
         "save": {
             "save_model": true,
-            "model_save_rate": 5,
+            "model_save_rate": 20,
             "auto_increment_version": true,
             "save_examples": true,
-            "example_save_rate": 1,
+            "example_save_rate": 5,
             "num_examples": 1
         },
         "visualizer": {
-            "update_frequency": 20,
+            "update_frequency": 40,
             "enable_visdom": true,
             "visdom_env_name": "main",
             "visdom_image_size": 400

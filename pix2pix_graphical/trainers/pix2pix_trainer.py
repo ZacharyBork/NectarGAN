@@ -170,19 +170,28 @@ class Pix2pixTrainer(Trainer):
             graph_step = self.current_epoch + idx / len(self.train_loader) 
             self.vis.update_loss_graphs(graph_step, losses_G, losses_D)
 
-    def print_end_of_epoch(self) -> None:
+    def print_end_of_epoch(self, precision: int=2) -> None:
         '''Prints information at end of epoch.
         
         The base Trainer class implements this function to print epoch index
         and time taken. This child class adds to that lines to show the changes
         in learning rate between the just completed epoch, and the epoch which
         is about to begin.
+
+        Args:
+            precision : Rounding precision of printed learning rates.
         '''
         super().print_end_of_epoch()
+        
+        # Print prev and new generator learning rate
         gen_lr_step = self.gen_lr_scheduler.get_lr()
-        print(f'Learning rate (G): {gen_lr_step[0]} => {gen_lr_step[1]}')
+        print( f'Learning rate (G): {round(gen_lr_step[0], precision)}'
+               f' => {round(gen_lr_step[1], precision)}')
+        
+        # Print prev and new discriminator learning rate
         disc_lr_step = self.disc_lr_scheduler.get_lr()
-        print(f'Learning rate (D): {disc_lr_step[0]} => {disc_lr_step[1]}')
+        print(f'Learning rate (D): {round(disc_lr_step[0], precision)}'
+              f' => {round(disc_lr_step[1], precision)}')
 
     def forward_D(
             self, 

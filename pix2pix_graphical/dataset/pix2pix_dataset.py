@@ -1,61 +1,62 @@
 from PIL import Image
 import numpy as np
 import pathlib
+from os import PathLike
 from torch.utils.data import Dataset
-import albumentations as A
-from albumentations.pytorch import ToTensorV2
 
 from pix2pix_graphical.config.config_data import Config
+from pix2pix_graphical.dataset.transformer import Transformer
 
 class Pix2pixDataset(Dataset):
-    def __init__(self, config: Config, root_dir: pathlib.Path):
+    '''Defines a pix2pix dataset loader.
+    '''
+    def __init__(
+            self, 
+            config: Config, 
+            root_dir: PathLike
+        ) -> None:
+        '''Init funtion for Pix2pixDataset class.
+
+        Args:
+            config: The Config object being used for the current training.
+            root_dir: Pathlike object point to the dataset root.
+        '''
         self.config = config
         self.load_size = config.dataloader.load_size
-        self.crop_size = config.dataloader.crop_size
-        self.root_dir = root_dir
         self.list_files = [i for i in root_dir.iterdir()]
+        self.xform = Transformer(config=self.config)
 
-        self.both_transform = A.Compose(
-            [
-                A.RandomCrop(height=self.crop_size, width=self.crop_size), 
-                A.HorizontalFlip(p=self.config.dataloader.both_flip_chance),
-            ], additional_targets={"image0": "image"},
-        )
-
-        self.transform_only_input = A.Compose(
-            [
-                A.ColorJitter(p=self.config.dataloader.input_colorjitter_chance),
-                A.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5], max_pixel_value=255.0),
-                ToTensorV2(),
-            ]
-        )
-
-        self.transform_only_target = A.Compose(
-            [
-                A.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5], max_pixel_value=255.0),
-                ToTensorV2(),
-            ]
-        )
-
-    def __len__(self):
+    def __len__(self) -> int:
+        '''Length method override.
+        
+        Returns:
+            int : The number of files in the dataset.
+        '''
         return len(self.list_files)
     
-    def __getitem__(self, index):
-        image_path = self.list_files[index]
-        image = np.array(Image.open(image_path.as_posix()).resize((self.load_size*2, self.load_size)))
+    def __getitem__(self, index: int):
+        '''Gets and item from the dataset and applies associated transforms.
+        
+        Args:
+            index : Index of the file to retrieve.
 
-        input_image = target_image = np.array
+        Raises:
+            RuntimeError : If config.common.direction is invalid.
+        '''
+        image = np.array(Image.open( # Get input and resize
+            self.list_files[index].as_posix()
+        ).resize((self.load_size*2, self.load_size)))
+
         if self.config.common.direction == 'AtoB':
-            input_image, target_image = image[:, :self.load_size, :], image[:, self.load_size:, :]
+            input_image = image[:, :self.load_size, :]
+            target_image = image[:, self.load_size:, :]
         elif self.config.common.direction == 'BtoA':
-            input_image, target_image = image[:, self.load_size:, :], image[:, :self.load_size, :]
-        else: raise RuntimeError('Invalid direction. Valid directions are AtoB and BtoA')
+            input_image = image[:, self.load_size:, :] 
+            target_image = image[:, :self.load_size, :]
+        else: 
+            message = 'Invalid direction. Valid directions are AtoB and BtoA'
+            raise RuntimeError(message)
 
-        augmentations = self.both_transform(image=input_image, image0=target_image)
-        input_image, target_image = augmentations['image'], augmentations['image0']
+        return self.xform.apply_transforms(input_image, target_image)
 
-        input_image = self.transform_only_input(image=input_image)['image']
-        target_image = self.transform_only_target(image=target_image)['image']
-
-        return input_image, target_image
     

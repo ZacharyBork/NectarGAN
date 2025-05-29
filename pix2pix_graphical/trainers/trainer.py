@@ -17,7 +17,8 @@ from pix2pix_graphical.dataset.pix2pix_dataset import Pix2pixDataset
 class Trainer():
     def __init__(
             self, 
-            config: str | PathLike | ConfigManager | None=None
+            config: str | PathLike | ConfigManager | None=None,
+            quicksetup: bool=True
         ) -> None:
         '''Init function for the base Trainer class.
 
@@ -27,19 +28,16 @@ class Trainer():
                 ConfigManager instance, or None to init from the default config
                 located at (/root/config/default.json). Defaults to None.
         '''
+        # These are either set by child classes, or passed by training script
         self.log_losses: bool = True
         self.current_epoch: int | None = None
         self.last_epoch_time: float = 0.0
         self.train_loader: torch.utils.data.DataLoader | None = None
         self.val_loader: torch.utils.data.DataLoader | None = None
 
-        self.init_config(config)       # Init config
-        self.build_output_directory()  # Build experiment output directory    
-        self.init_loss_manager()       # Init LossManager
-        self.export_config()           # Export config file
-        self.init_visualizers()        # Init visualizer
-
+        self.init_config(config)                # Init config
         self.device = self.config.common.device # Store device for easy lookup
+        if quicksetup: self.quicksetup()        # Do quicksetup if applicable
 
     def init_config(
             self, 
@@ -63,11 +61,13 @@ class Trainer():
                 raise ValueError(f'Invalid config type. Valid types are {x}')
         self.config = self.config_manager.data # Store values for easier access         
 
-    def init_visualizers(self) -> None:
-        vcon = self.config.visualizer # Get visualizer config data
-        if vcon.enable_visdom:        # Init Visdom visualizer
-            self.vis = VisdomVisualizer(env=vcon.visdom_env_name) 
-            self.vis.clear_env()      # Clear Visdom environment    
+    def quicksetup(self) -> None:
+        '''Function to quickly perform all init steps for Trainer instance.
+        '''
+        self.build_output_directory()  # Build experiment output directory    
+        self.init_loss_manager()       # Init LossManager
+        self.export_config()           # Export config file
+        self.init_visualizers()        # Init visualizer
 
     def build_output_directory(self) -> None:
         '''Builds an output directory structure for the experiment.
@@ -116,24 +116,43 @@ class Trainer():
             raise RuntimeError(message) from e
         self.experiment_dir, self.examples_dir =  experiment_dir, examples_dir
 
-    def init_loss_manager(self) -> None:
+    def init_loss_manager(self, override: LossManager | None=None) -> None:
         '''Initializes a loss manager for the Trainer instance.
+
+        Args:
+            override : A pre-initialized LossManager to assign to the Trainer, 
+                or None (default) to create and assign a new LossManager.
+
+        Raises:
+            AssertationError : If override is not LossManager or None.
         '''
-        self.loss_manager = LossManager( # Init loss manager
-            self.config, self.experiment_dir, enable_logging=self.log_losses) 
-        if self.log_losses: # If loss_logging=True, save initial loss log
-            self.loss_manager.export_base_log() 
+        if override is None:
+            self.loss_manager = LossManager( # Init loss manager
+                self.config, self.experiment_dir, enable_logging=self.log_losses) 
+            if self.log_losses: # If loss_logging=True, save initial loss log
+                self.loss_manager.export_base_log() 
+        else: 
+            assert isinstance(override, LossManager)
+            self.loss_manager = override
 
     def export_config(self) -> None:
         '''Exports a versioned config file to the experiment output directory.
         
-        This function just abstracts ConfigManager.export_config for ease of 
+        This function just abstracts `ConfigManager.export_config` for ease of 
         use with instances of Trainer classes. This is also not strictly 
         necessary to do. The Trainer's config data is intialized from the input 
         config file. This just makes a copy of it in the experiment output 
         directory for notekeeping purposes.
         '''
         self.config_manager.export_config(self.experiment_dir)
+
+    def init_visualizers(self) -> None:
+        '''Initializes output visualizers.
+        '''
+        vcon = self.config.visualizer # Get visualizer config data
+        if vcon.enable_visdom:        # Init Visdom visualizer
+            self.vis = VisdomVisualizer(env=vcon.visdom_env_name) 
+            self.vis.clear_env()      # Clear Visdom environment   
 
     def build_dataloader(
             self, 
