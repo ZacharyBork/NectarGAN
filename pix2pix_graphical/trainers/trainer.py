@@ -11,8 +11,8 @@ from torchvision.utils import save_image
 
 from pix2pix_graphical.config.config_manager import ConfigManager
 from pix2pix_graphical.losses.loss_manager import LossManager
-from pix2pix_graphical.visualizer.visdom_visualizer import VisdomVisualizer
-from pix2pix_graphical.dataset.pix2pix_dataset import Pix2pixDataset
+from pix2pix_graphical.visualizer.visdom.visualizer import VisdomVisualizer
+from pix2pix_graphical.dataset.paired_dataset import PairedDataset
 
 class Trainer():
     def __init__(
@@ -158,10 +158,10 @@ class Trainer():
             self, 
             loader_type: str
         ) -> torch.utils.data.DataLoader:
-        '''Initializes a dataloader of the given type from a Pix2pixDataset.
+        '''Initializes a dataloader of the given type from a PairedDataset.
 
         This function will grab the dataroot path from the config and use it to
-        first create a Pix2pixDataset instance of the given loader type, then 
+        first create a PairedDataset instance of the given loader type, then 
         use that dataset to create and return a Torch Dataloader.
 
         Args:
@@ -175,7 +175,7 @@ class Trainer():
         if not dataset_path.exists(): # Make sure data directory exists
             message = f'Unable to locate dataset at: {dataset_path.as_posix()}'
             raise FileNotFoundError(message)
-        dataset = Pix2pixDataset(config=self.config, root_dir=dataset_path)
+        dataset = PairedDataset(config=self.config, root_dir=dataset_path)
         return torch.utils.data.DataLoader( # Build dataloader from dataset
             dataset, batch_size=self.config.dataloader.batch_size, 
             shuffle=True, num_workers=self.config.dataloader.num_workers)
@@ -304,7 +304,7 @@ class Trainer():
         at the end of a training cycle, just after the training loop has
         finished all batches for the epoch. It is fairly open ended and can be 
         populated with whatever you would like. Print statements, value 
-        updates, etc. The Pix2pixTrainer class uses this to dump loss history
+        updates, etc. The Pix2pixTrainer class uses this to dump loss history 
         to the logs and updated the learning rate schedulers.
 
         Args:

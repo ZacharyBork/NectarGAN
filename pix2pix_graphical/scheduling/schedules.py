@@ -1,8 +1,8 @@
-from pix2pix_graphical.losses.lm_data import LMWeightSchedule
+from pix2pix_graphical.scheduling.data import WeightSchedule
 
 class WeightSchedules:
     @staticmethod
-    def linear(schedule: LMWeightSchedule, epoch: int) -> float:
+    def linear(schedule: WeightSchedule, epoch: int) -> float:
         '''Defines a linear loss weight schedule.
 
         Graph:
@@ -11,7 +11,7 @@ class WeightSchedules:
             - v1, v2 : start, end value
 
         Args:
-            schedule LMWeightSchedule to use when computing the new weight.
+            schedule : WeightSchedule to use when computing the new weight.
             epoch : Current epoch that the time this function is called.
         '''
         initial, target = schedule.initial_weight, schedule.target_weight
@@ -33,7 +33,7 @@ class WeightSchedules:
     
     @staticmethod
     def exponential(
-        schedule: LMWeightSchedule, 
+        schedule: WeightSchedule, 
         epoch: int,
         epsilon: float=1e-09,
         allow_zero_weights: bool=True,
@@ -47,7 +47,7 @@ class WeightSchedules:
             - v1, v2 : start, end value
 
         Args:
-            schedule LMWeightSchedule to use when computing the new weight.
+            schedule WeightSchedule to use when computing the new weight.
             epoch : Current epoch that the time this function is called.
             epsilon : Epsilon for initial and target values. Only used if
                 `allow_zero_weights` is True (default).
@@ -94,3 +94,9 @@ class WeightSchedules:
 
         # Return the current weight value.
         return min(highest, max(lowest, value))
+
+# Map of valid default schedule functions
+schedule_map = { 
+    'linear': WeightSchedules.linear, 
+    'exponential': WeightSchedules.exponential
+}

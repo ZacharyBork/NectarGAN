@@ -57,11 +57,11 @@
             "load_epoch": 3
         },
         "save": {
-            "save_model": true,
-            "model_save_rate": 20,
+            "save_model": false,
+            "model_save_rate": 5,
             "auto_increment_version": true,
             "save_examples": true,
-            "example_save_rate": 5,
+            "example_save_rate": 1,
             "num_examples": 1
         },
         "visualizer": {

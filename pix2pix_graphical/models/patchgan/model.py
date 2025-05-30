@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from pix2pix_graphical.models.patchgan_blocks import CNNBlock
+from pix2pix_graphical.models.patchgan.blocks import CNNBlock
 
 class Discriminator(nn.Module):
     '''Defines a PatchGAN discriminator model with a configurable layer count.

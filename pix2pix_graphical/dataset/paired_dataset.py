@@ -7,15 +7,15 @@ from torch.utils.data import Dataset
 from pix2pix_graphical.config.config_data import Config
 from pix2pix_graphical.dataset.transformer import Transformer
 
-class Pix2pixDataset(Dataset):
-    '''Defines a pix2pix dataset loader.
+class PairedDataset(Dataset):
+    '''Defines a dataset loader for paired training.
     '''
     def __init__(
             self, 
             config: Config, 
             root_dir: PathLike
         ) -> None:
-        '''Init funtion for Pix2pixDataset class.
+        '''Init funtion for PairedDataset class.
 
         Args:
             config: The Config object being used for the current training.
@@ -23,7 +23,7 @@ class Pix2pixDataset(Dataset):
         '''
         self.config = config
         self.load_size = config.dataloader.load_size
-        self.list_files = [i for i in root_dir.iterdir()]
+        self.list_files = [i for i in pathlib.Path(root_dir).iterdir()]
         self.xform = Transformer(config=self.config)
 
     def __len__(self) -> int:
@@ -35,7 +35,7 @@ class Pix2pixDataset(Dataset):
         return len(self.list_files)
     
     def __getitem__(self, index: int):
-        '''Gets and item from the dataset and applies associated transforms.
+        '''Gets an item from the dataset and applies associated transforms.
         
         Args:
             index : Index of the file to retrieve.

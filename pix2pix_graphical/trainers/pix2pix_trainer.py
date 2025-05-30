@@ -1,12 +1,3 @@
-'''
-TO-DO:
-    - Fix bug where loss graphs show pre-lambda loss values.
-        This bug also affects loss printing to console. A
-        good possible solution is to have the LossManager
-        manage the loss function's lambda values as well. 
-        Then the LossManager could maybe also just be a good 
-        base for loss lambda scheduling.
-'''
 import torch
 import torch.optim as optim
 
@@ -16,11 +7,11 @@ from typing import Literal, Any
 from pix2pix_graphical.trainers.trainer import Trainer
 from pix2pix_graphical.config.config_manager import ConfigManager
 
-from pix2pix_graphical.models.unet_model import UnetGenerator
-from pix2pix_graphical.models.patchgan_model import Discriminator
+from pix2pix_graphical.models.unet.model import UnetGenerator
+from pix2pix_graphical.models.patchgan.model import Discriminator
 import pix2pix_graphical.losses.pix2pix_objective as spec
 
-from pix2pix_graphical.utils import scheduler
+from pix2pix_graphical.scheduling.scheduler_torch import LRScheduler
 
 class Pix2pixTrainer(Trainer):
     def __init__(
@@ -52,14 +43,12 @@ class Pix2pixTrainer(Trainer):
                 self.gen, self.opt_gen, self.disc, self.opt_disc)
 
     def build_dataloaders(self) -> None:
-        '''Builds dataloaders for training and validation datasets.
-        '''
+        '''Builds dataloaders for training and validation datasets.'''
         self.train_loader = self.build_dataloader('train')
         self.val_loader = self.build_dataloader('val')
 
     def init_generator(self) -> None:
-        '''Initializes generator with optimizer and lr scheduler.
-        '''
+        '''Initializes generator with optimizer and lr scheduler.'''
         self.gen = UnetGenerator( # Init Generator
             input_size=self.config.dataloader.crop_size, 
             in_channels=self.config.common.input_nc,
@@ -69,13 +58,12 @@ class Pix2pixTrainer(Trainer):
             optimizer=optim.Adam, network=self.gen, 
             lr=self.config.train.learning_rate,
             beta1=self.config.optimizer.beta1)
-        self.gen_lr_scheduler = scheduler.LRScheduler( # Init LR scheduler
+        self.gen_lr_scheduler = LRScheduler( # Init LR scheduler
             self.opt_gen, self.config.train.num_epochs, 
             self.config.train.num_epochs_decay)
         
     def init_discriminator(self) -> None:
-        '''Initializes discriminator with optimizer and lr scheduler.
-        '''
+        '''Initializes discriminator with optimizer and lr scheduler.'''
         self.disc = Discriminator( # Init discriminator
             in_channels=self.config.common.input_nc,
             base_channels=self.config.discriminator.base_channels_d,
@@ -86,7 +74,7 @@ class Pix2pixTrainer(Trainer):
             optimizer=optim.Adam, network=self.disc, 
             lr=self.config.train.learning_rate,
             beta1=self.config.optimizer.beta1)
-        self.disc_lr_scheduler = scheduler.LRScheduler( # Init LR scheduler
+        self.disc_lr_scheduler = LRScheduler( # Init LR scheduler
             self.opt_disc, self.config.train.num_epochs, 
             self.config.train.num_epochs_decay) 
         
@@ -500,8 +488,7 @@ class Pix2pixTrainer(Trainer):
                 raise ValueError(message)
 
     def save_examples(self, silent: bool=False) -> None:
-        '''Evaluates model and saves images to example output directory.
-        '''        
+        '''Evaluates model and saves images to example output directory.'''        
         if not silent:
             print(f'Saving example images: {self.examples_dir.as_posix()}')
         self.save_xyz_examples(network=self.gen, dataloader=self.val_loader)

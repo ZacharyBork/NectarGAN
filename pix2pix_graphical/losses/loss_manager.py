@@ -11,9 +11,10 @@ import torch
 import torch.nn as nn
 
 from pix2pix_graphical.config.config_data import Config
-from pix2pix_graphical.losses.scheduling import WeightSchedules as WS
-from pix2pix_graphical.losses.lm_data import (
-    LMLoss, LMWeightSchedule, LMHistory)
+from pix2pix_graphical.scheduling.data import WeightSchedule
+from pix2pix_graphical.scheduling.schedules import schedule_map
+from pix2pix_graphical.losses.lm_data import LMLoss, LMHistory
+
 
 class LossManager():
     def __init__(
@@ -51,6 +52,7 @@ class LossManager():
         self.device = self.config.common.device
         self.experiment_dir = pathlib.Path(experiment_dir)
         self.enable_logging = enable_logging
+        
         self.store_history_frequency = max(1, store_history_frequency)
         self.buffer_size = history_buffer_size
 
@@ -477,7 +479,6 @@ class LossManager():
     def _append_loss_history(
             self, 
             name: str,
-            # idx: int,
             value: torch.Tensor,
             silent: bool=True
         ) -> None:
@@ -492,8 +493,8 @@ class LossManager():
         Args:
             name : Name of the loss object which houses the LMHistory you want 
                 to dump the output values of.
-            idx : Current batch index at the time the loss function is called.
             value : The torch.Tensor result of the corresponding loss function.
+            idx : Current batch index at the time the loss function is called.
             silent : If True (default), this function will silently dump losses 
                 stored in history to the loss_log when the history buffer is 
                 full. If False, it will instead raise a RuntimeError when the
@@ -590,11 +591,8 @@ class LossManager():
             epoch : The epoch that the loss value was calculated during.
         '''
         s = loss_entry.schedule # Get LMLossSchedule
-        # Map of valid default schedule functions
-        schedule_map = { 'linear': WS.linear, 'exponential': WS.exponential }
-        
         # If the loss isn't scheduled, just apply weight and return
-        if s == LMWeightSchedule():
+        if s == WeightSchedule():
             return loss_value * s.current_weight
         
         # Otherwise get and apply currently scheduled weights
@@ -606,7 +604,7 @@ class LossManager():
             message = (
                 f'Invalid schedule type: {type(fn)}: ({fn})\n'
                 f'Valid types are: Literal["linear"] | '
-                f'Callable[[LMWeightSchedule, int], None]')
+                f'Callable[[WeightSchedule, int], None]')
             raise TypeError(message)
         return loss_value * s.current_weight
 

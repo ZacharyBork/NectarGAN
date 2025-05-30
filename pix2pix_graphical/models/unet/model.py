@@ -28,7 +28,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.nn.init as init
 
-from pix2pix_graphical.models.unet_blocks import UnetBlock, ResidualUnetBlock
+from pix2pix_graphical.models.unet.blocks import UnetBlock, ResidualUnetBlock
 
 class UnetGenerator(nn.Module):
     '''Defines a modular UNet style generator with a configurable layer count.
