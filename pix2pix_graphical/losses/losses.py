@@ -95,13 +95,21 @@ class Laplacian(torch.nn.Module):
 class VGGPerceptual(nn.Module):
     '''Implements a VGG19-based perceptual loss function.
 
-    Please see `pix2pix_graphical.losses.pix2pix_objective` for more 
-    information on VGG-based perceptual loss.
-
     Note: Running this loss function for the first time, or registering it with
     a LossManager instance, will install the VGG19 default weights from PyTorch 
     if you do not already have them installed in the Python environment you are 
     running it from.
+
+    Please see `pix2pix_graphical.losses.pix2pix_objective` for more 
+    information on VGG-based perceptual loss. Good weight values for this loss
+    function vary by task. For the facades dataset, a lambda_vgg of 10.0 and
+    a lambda_l1 of 100.0 produces results that are almost indistinguishable
+    from the ground truths after 100 epoch + 100 decay epochs. On the 
+    cityscapes dataset, similar values can also dramatically increase visual 
+    realism, especially early in training.
+        
+    Datasets (facades/cityscapes):
+        - https://efrosgans.eecs.berkeley.edu/pix2pix/datasets/
     '''
     def __init__(self):
         '''Init for VGGPerceptual loss.

@@ -219,9 +219,9 @@ class Pix2pixTrainer(Trainer):
 
             # Compute loss on real and fake images
             loss_D_real = self.loss_manager.compute_loss_xy(
-                'D_real', D_real, torch.ones_like(D_real))
+                'D_real', D_real, torch.ones_like(D_real), self.current_epoch)
             loss_D_fake = self.loss_manager.compute_loss_xy(
-                'D_fake', D_fake, torch.zeros_like(D_fake))
+                'D_fake', D_fake, torch.zeros_like(D_fake), self.current_epoch)
             
             # Get final discriminator loss by averaging real and fake
             loss_D = (loss_D_real + loss_D_fake) * 0.5 
@@ -285,7 +285,7 @@ class Pix2pixTrainer(Trainer):
         '''
         D_fake = self.disc(x, y_fake) # Get prediction from discriminator
         return self.loss_manager.compute_loss_xy( # Compute G loss from D_fake
-            'G_GAN', D_fake, torch.ones_like(D_fake))
+            'G_GAN', D_fake, torch.ones_like(D_fake), self.current_epoch)
     
     def compute_structure_loss(
             self, 
@@ -308,14 +308,16 @@ class Pix2pixTrainer(Trainer):
             tuple[torch.Tensor] : Generator structural losses.
         '''        
         lm = self.loss_manager
-        loss_G_L1 = lm.compute_loss_xy('G_L1', y_fake, y)
+        loss_G_L1 = lm.compute_loss_xy('G_L1', y_fake, y, self.current_epoch)
         loss_G_SOBEL = torch.zeros_like(loss_G_L1)
         loss_G_LAP = torch.zeros_like(loss_G_L1)
         loss_G_VGG = torch.zeros_like(loss_G_L1)
         
         if self.extend_loss_spec:
-            loss_G_SOBEL = lm.compute_loss_xy('G_SOBEL', y_fake, y)
-            loss_G_LAP = lm.compute_loss_xy('G_LAP', y_fake, y)   
+            loss_G_SOBEL = lm.compute_loss_xy(
+                'G_SOBEL', y_fake, y, self.current_epoch)
+            loss_G_LAP = lm.compute_loss_xy(
+                'G_LAP', y_fake, y, self.current_epoch)   
         if self.vgg_loss_enabled:
             loss_G_VGG = lm.compute_loss_xy('G_VGG', y_fake, y)          
 
@@ -395,8 +397,8 @@ class Pix2pixTrainer(Trainer):
         
         That is passed through to this function via the training function, so 
         here, we are able to look up that value and, if it is true, we have the 
-        script print a line telling us what epoch is about to begin. You can 
-        create  one dict for each callback (`on_train_start`, `train_step`, 
+        script print some training info at the start of each epoch. You can 
+        create one dict for each callback (`on_train_start`, `train_step`, 
         `on_train_end`), and each dict should be added as separate entries to
         a another dict with the key set at the name of the callback you would
         like to pass the kwargs to.
@@ -420,6 +422,7 @@ class Pix2pixTrainer(Trainer):
         '''
         if kwargs['print_train_start']:
             print(f'Beginning epoch: {self.current_epoch}')
+            self.loss_manager.print_weights()
 
     def train_step(
             self, 

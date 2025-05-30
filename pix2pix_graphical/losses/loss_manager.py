@@ -5,13 +5,15 @@ import copy
 import warnings
 import pathlib
 from os import PathLike
-from typing import Any, Literal, Callable
+from typing import Any, Callable
 
 import torch
 import torch.nn as nn
 
 from pix2pix_graphical.config.config_data import Config
-from pix2pix_graphical.losses.lm_data import LMHistory, LMLoss
+from pix2pix_graphical.losses.scheduling import WeightSchedules as WS
+from pix2pix_graphical.losses.lm_data import (
+    LMLoss, LMWeightSchedule, LMHistory)
 
 class LossManager():
     def __init__(
@@ -55,10 +57,10 @@ class LossManager():
         # Stores registered losses with str keys for easy lookup
         self.loss_fns: dict[str, LMLoss] = {}
 
-        self.make_dummy_shape()
+        self._make_dummy_shape()
         self.init_from_spec(spec=None)
 
-    def build_log_blank(self) -> None:
+    def _build_log_blank(self) -> None:
         '''Defines a dummy log to build default log JSON structure.
         '''
         return { # 
@@ -87,7 +89,7 @@ class LossManager():
                 '`enable_logging=False`. Bypassing.')
             return
         log_path = pathlib.Path(self.experiment_dir, 'loss_log.json')
-        blank = self.build_log_blank()
+        blank = self._build_log_blank()
         
         try: # Try to save log file, raise any exceptions
             with open(log_path.as_posix(), 'w') as file:
@@ -97,14 +99,14 @@ class LossManager():
             raise RuntimeError(message) from e
         self.loss_log = log_path # Store log filepath as pathlib.Path
 
-    def make_dummy_shape(self) -> None:
+    def _make_dummy_shape(self) -> None:
         '''Creates a dummy tensor of the correct model input shape.
         '''
         channels = self.config.common.input_nc  # Get input channels
         size = self.config.dataloader.crop_size  # Get input W, H
         self.dummy = torch.zeros((1, channels, size, size)).to(self.device)
 
-    def reset_last_lost_tensors(self) -> None:
+    def _reset_last_lost_tensors(self) -> None:
         '''Resets the last_loss_map tensors for all registered LMLoss objects.
         '''
         # Creates sanitized dummy tensors for loss structure
@@ -148,7 +150,7 @@ class LossManager():
                     f'[spec functions must return dict[str, LMLoss]]')
                 raise RuntimeError(message) from e
             self.loss_fns = _spec # If spec is valid, register the losses
-            self.reset_last_lost_tensors() # Init last_loss_map tensor
+            self._reset_last_lost_tensors() # Init last_loss_map tensor
         else: self.loss_fns = {} # If spec=None, init empty LossManager
 
     def _strip_loss_history(self, loss: LMLoss) -> LMLoss:
@@ -173,7 +175,9 @@ class LossManager():
         return loss
 
     def get_registered_losses(
-        self, query: list[str] | None = None, strip=True
+        self, 
+        query: list[str] | None=None, 
+        strip=True
     ) -> dict[str, LMLoss]:
         '''Returns a dictionary of losses registered with the LossManager.
 
@@ -205,7 +209,7 @@ class LossManager():
 
     def get_loss_values(
         self,
-        query: list[str] | None = None,
+        query: list[str] | None=None,
         precision: int = 2
     ) -> dict[str, float]:
         '''Returns all of the most recent loss values (Tensor.mean) as a dict.
@@ -230,7 +234,7 @@ class LossManager():
 
     def get_loss_tensors(
         self,
-        query: list[str] | None = None
+        query: list[str] | None=None
     ) -> dict[str, torch.Tensor]:
         '''Returns the queried LMLoss's last_loss_map tensors.
 
@@ -301,6 +305,69 @@ class LossManager():
         output = f'(epoch: {epoch}, iters: {iter}) Loss:'
         for loss in losses:
             output += f' {loss}: {losses[loss]}'
+        if not capture:
+            print(output)
+            return None
+        else:
+            return output
+
+    def get_loss_weights(
+        self,
+        query: list[str] | None=None,
+        precision: int=2
+    ) -> dict[str, float]:
+        '''Returns all of the most recent loss weights as a dict.
+
+        Note: This function uses the last weight value stored in:
+            - `LossManager.schedule.current_weight`
+        Since this value is updated immediately after the associated loss has
+        been run, the weight values that this function returns are the ones 
+        which will be applied the next time the loss is run.
+
+        Args:
+            query : List of tags to search for when requesting weights. Only
+                the weights of registered losses which have a tag matching the 
+                query will be returned.
+            precision : Rounding precision of the returned weight values.
+        Returns:
+            dict : The requested weight values, mapped by their loss name.
+        '''
+        fns = self.get_registered_losses(query, strip=True)
+        return {name: round(fns[name].schedule.current_weight, precision)
+            for name in fns}
+
+    def print_weights(
+            self, 
+            precision: int=2, 
+            capture: bool = False
+        ) -> str | None:
+        '''Prints (or optionally returns) loss weight information.
+
+        Note: This function uses the last weight value stored in:
+            - `LossManager.schedule.current_weight`
+        Since this value is updated immediately after the associated loss has
+        been run, the weight values that this function prints (or returns) are 
+        the ones which will be applied the next time the loss is run.
+
+        By default, this function will print a string of all registered losses 
+        and their most recent weights formatted as:
+
+        "Loss weights: {L_1_N}: {L_1_W} {L_2_N}: {L_2_W} ..."
+
+        Key:
+            L_X_N : Loss X name
+            L_X_W : Loss X weight
+
+        If capture=True, however, the function will return the above formatted 
+        string rather than printing it. 
+
+        If you would prefer to get the loss weights as a dict, please see: 
+            - LossManager.get_loss_weights()
+        '''
+        weights = self.get_loss_weights(precision=precision)
+        output = f'Loss weights:'
+        for loss_name in weights:
+            output += f' {loss_name}: {weights[loss_name]}'
         if not capture:
             print(output)
             return None
@@ -470,7 +537,6 @@ class LossManager():
         loss_fn.history = LMHistory([], []) # Clear old loss value
         self._add_loss_to_history(loss_fn, value) # Add new loss values
 
-
     def update_loss_log(self, silent: bool=True) -> None:
         '''Exports loss history to loss log.
 
@@ -509,11 +575,46 @@ class LossManager():
                 end = time.perf_counter()
                 print(f'LossManager: Time taken: {end - start:.3f} seconds')
 
+    def _weight_loss(
+            self, 
+            loss_entry: LMLoss,
+            loss_value: torch.Tensor,
+            epoch: int
+        ) -> torch.Tensor:
+        '''Applies weighting to a loss value from an LMLoss object definition.
+
+        Args:
+            loss_entry : The LMLoss object which defines the weighting.
+            loss_value : The loss value to apply the weighting to.
+            epoch : The epoch that the loss value was calculated during.
+        '''
+        s = loss_entry.schedule # Get LMLossSchedule
+        # Map of valid default schedule functions
+        schedule_map = { 'linear': WS.linear }
+        
+        # If the loss isn't scheduled, just apply weight and return
+        if s == LMWeightSchedule():
+            return loss_value * s.current_weight
+        
+        # Otherwise get and apply currently scheduled weights
+        fn = s.schedule # Schedule function definition
+        if isinstance(fn, Callable): s.current_weight = fn(s, epoch)
+        elif isinstance(fn, str) and fn in schedule_map.keys():
+            s.current_weight = schedule_map[fn](s, epoch)
+        else: 
+            message = (
+                f'Invalid schedule type: {type(fn)}: ({fn})\n'
+                f'Valid types are: Literal["linear"] | '
+                f'Callable[[LMWeightSchedule, int], None]')
+            raise TypeError(message)
+        return loss_value * s.current_weight
+
     def compute_loss_xy(
         self,
         loss_name: str,
         x: torch.Tensor | Any,
-        y: torch.Tensor | Any
+        y: torch.Tensor | Any,
+        epoch: int=0
     ) -> torch.Tensor:
         '''Runs a loss function and returns the result.
 
@@ -533,6 +634,9 @@ class LossManager():
             idx : Current batch index at the time the loss function is called.
             x : First input for the loss function, usually a torch.Tensor.
             y : Second input for the loss function, usually a torch.Tensor.
+            epoch : The current epoch value when the loss function is called.
+                This is used for loss weight scheduling and does not need to
+                be set if the loss you are calling does not have a schedule.
 
         Returns:
             torch.Tensor : Computed loss value.
@@ -548,11 +652,12 @@ class LossManager():
 
         # First, compute loss value
         loss_value = loss_entry.function(x, y)
-        if not loss_entry.loss_weight is None:
-            loss_value *= loss_entry.loss_weight
+        loss_value = self._weight_loss(loss_entry, loss_value, epoch)
+
         # Then update the corresponding last_loss_map tensor
         self.loss_fns[loss_name].last_loss_map = loss_value.clone()
         self.loss_fns[loss_name].last_loss_map.detach().cpu()
+        
         # Then update loss history
         if self.enable_logging:
             self._append_loss_history(loss_name, loss_value)

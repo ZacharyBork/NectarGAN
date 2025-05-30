@@ -3,7 +3,7 @@ from typing import Literal
 
 from pix2pix_graphical.config.config_data import Config
 from pix2pix_graphical.losses.losses import Sobel, Laplacian, VGGPerceptual
-from pix2pix_graphical.losses.lm_data import LMLoss
+from pix2pix_graphical.losses.lm_data import LMLoss, LMWeightSchedule
 
 def pix2pix(
         config: Config,

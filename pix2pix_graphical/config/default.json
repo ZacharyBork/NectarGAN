@@ -2,9 +2,9 @@
     "config": {
         "common": {
             "device": "cuda:0",
-            "dataroot": "E:/ML/test_data/pix2pix/datasets/cityscapes",
+            "dataroot": "E:/ML/test_data/pix2pix/datasets/facades",
             "output_directory": "E:/ML/test_data/pix2pix/output",
-            "experiment_name": "cityscapes",
+            "experiment_name": "facades",
             "experiment_version": 1,
             "direction": "BtoA",
             "input_nc": 3
@@ -37,8 +37,8 @@
         "loss": {
             "lambda_gan": 1.0,
             "lambda_l1": 100.0,
-            "lambda_sobel": 1.0,
-            "lambda_laplacian": 1.0,
+            "lambda_sobel": 0.0,
+            "lambda_laplacian": 0.0,
             "lambda_vgg": 10.0
         },
         "generator": {
