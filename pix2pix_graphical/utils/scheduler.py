@@ -1,10 +1,10 @@
-from torch import optim
+import torch.nn as nn
 from torch.optim.lr_scheduler import LambdaLR
 
 class LRScheduler():
     def __init__(
             self, 
-            optimizer: optim.Adam, 
+            optimizer: nn.Module, 
             n_epochs: int, 
             n_epochs_decay: int
         ) -> None:

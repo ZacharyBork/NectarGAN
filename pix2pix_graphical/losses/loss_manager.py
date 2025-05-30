@@ -511,7 +511,7 @@ class LossManager():
             if silent: # Dump to log if history >= buffer size
                 self._dump_to_log(name) 
             else:
-                message = f'Loss log full! Limit: {self.buffer_size}'
+                message = f'Loss history full! Limit: {self.buffer_size}'
                 raise RuntimeError(message)
         self._add_loss_to_history(loss_fn, value)
 
@@ -579,7 +579,8 @@ class LossManager():
             self, 
             loss_entry: LMLoss,
             loss_value: torch.Tensor,
-            epoch: int
+            epoch: int,
+            **weight_kwargs: Any
         ) -> torch.Tensor:
         '''Applies weighting to a loss value from an LMLoss object definition.
 
@@ -590,7 +591,7 @@ class LossManager():
         '''
         s = loss_entry.schedule # Get LMLossSchedule
         # Map of valid default schedule functions
-        schedule_map = { 'linear': WS.linear }
+        schedule_map = { 'linear': WS.linear, 'exponential': WS.exponential }
         
         # If the loss isn't scheduled, just apply weight and return
         if s == LMWeightSchedule():
@@ -600,7 +601,7 @@ class LossManager():
         fn = s.schedule # Schedule function definition
         if isinstance(fn, Callable): s.current_weight = fn(s, epoch)
         elif isinstance(fn, str) and fn in schedule_map.keys():
-            s.current_weight = schedule_map[fn](s, epoch)
+            s.current_weight = schedule_map[fn](s, epoch, **weight_kwargs)
         else: 
             message = (
                 f'Invalid schedule type: {type(fn)}: ({fn})\n'
@@ -614,7 +615,8 @@ class LossManager():
         loss_name: str,
         x: torch.Tensor | Any,
         y: torch.Tensor | Any,
-        epoch: int=0
+        epoch: int=0,
+        loss_kwargs: dict[str, dict[str, Any]]={}
     ) -> torch.Tensor:
         '''Runs a loss function and returns the result.
 
@@ -652,12 +654,14 @@ class LossManager():
 
         # First, compute loss value
         loss_value = loss_entry.function(x, y)
-        loss_value = self._weight_loss(loss_entry, loss_value, epoch)
+        loss_value = self._weight_loss(
+            loss_entry, loss_value, epoch,
+            **loss_kwargs.get('weight_kwargs', {}))
 
         # Then update the corresponding last_loss_map tensor
         self.loss_fns[loss_name].last_loss_map = loss_value.clone()
         self.loss_fns[loss_name].last_loss_map.detach().cpu()
-        
+
         # Then update loss history
         if self.enable_logging:
             self._append_loss_history(loss_name, loss_value)

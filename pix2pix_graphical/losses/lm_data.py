@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import Literal, Callable
+from typing import Literal, Callable, Any
 from dataclasses import dataclass, field
 from torch import nn, Tensor, empty
 
@@ -35,8 +35,6 @@ class LMWeightSchedule:
                 
                 - `LossManager._weight_loss()`
         
-        type : What type of schedule to run. "growth" if the loss weight should
-            increase over time, "decay" if it should decrease.
         start_epoch : Epoch to start increasing or decreasing the loss values.
         end_epoch : Epoch to stop increasing or decreasing the loss values.
         initial_weight : Loss weight value to use until start_epoch.
@@ -46,9 +44,8 @@ class LMWeightSchedule:
             to weight the return value of registered losses when they are run.
     '''
     schedule: (
-        Literal['linear'] | 
+        Literal['linear', 'exponential'] | 
         Callable[[LMWeightSchedule, int], None])='linear'
-    type: Literal['growth', 'decay']='decay'
     start_epoch: int=0
     end_epoch: int=int(1e07)
     initial_weight: float=1.0

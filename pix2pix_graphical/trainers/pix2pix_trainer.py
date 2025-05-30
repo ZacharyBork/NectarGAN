@@ -170,7 +170,7 @@ class Pix2pixTrainer(Trainer):
             graph_step = self.current_epoch + idx / len(self.train_loader) 
             self.vis.update_loss_graphs(graph_step, losses_G, losses_D)
 
-    def print_end_of_epoch(self, precision: int=2) -> None:
+    def print_end_of_epoch(self, precision: int=8) -> None:
         '''Prints information at end of epoch.
         
         The base Trainer class implements this function to print epoch index
@@ -307,18 +307,19 @@ class Pix2pixTrainer(Trainer):
         Returns:
             tuple[torch.Tensor] : Generator structural losses.
         '''        
-        lm = self.loss_manager
+        lm = self.loss_manager # Get loss manager and compute L1 loss
         loss_G_L1 = lm.compute_loss_xy('G_L1', y_fake, y, self.current_epoch)
-        loss_G_SOBEL = torch.zeros_like(loss_G_L1)
-        loss_G_LAP = torch.zeros_like(loss_G_L1)
-        loss_G_VGG = torch.zeros_like(loss_G_L1)
+
+        loss_G_SOBEL = torch.zeros_like(loss_G_L1) # Dummy tensor for sobel
+        loss_G_LAP = torch.zeros_like(loss_G_L1)   # And for Laplacian
+        loss_G_VGG = torch.zeros_like(loss_G_L1)   # And also for VGG
         
-        if self.extend_loss_spec:
+        if self.extend_loss_spec: # Extended losses, if enabled 
             loss_G_SOBEL = lm.compute_loss_xy(
                 'G_SOBEL', y_fake, y, self.current_epoch)
             loss_G_LAP = lm.compute_loss_xy(
                 'G_LAP', y_fake, y, self.current_epoch)   
-        if self.vgg_loss_enabled:
+        if self.vgg_loss_enabled: # VGG perceptual, if enabled
             loss_G_VGG = lm.compute_loss_xy('G_VGG', y_fake, y)          
 
         return (loss_G_L1, loss_G_SOBEL, loss_G_LAP, loss_G_VGG)
