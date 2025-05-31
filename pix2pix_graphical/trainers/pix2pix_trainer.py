@@ -1,5 +1,5 @@
 import torch
-import torch.optim as optim
+from torch import optim
 
 from os import PathLike
 from typing import Literal, Any
@@ -11,7 +11,8 @@ from pix2pix_graphical.models.unet.model import UnetGenerator
 from pix2pix_graphical.models.patchgan.model import Discriminator
 import pix2pix_graphical.losses.pix2pix_objective as spec
 
-from pix2pix_graphical.scheduling.scheduler_torch import LRScheduler
+from pix2pix_graphical.scheduling.scheduler_torch import TorchScheduler
+from pix2pix_graphical.scheduling.data import Schedule
 
 class Pix2pixTrainer(Trainer):
     def __init__(
@@ -49,34 +50,48 @@ class Pix2pixTrainer(Trainer):
 
     def init_generator(self) -> None:
         '''Initializes generator with optimizer and lr scheduler.'''
+        t = self.config.train     # Get config train data
         self.gen = UnetGenerator( # Init Generator
             input_size=self.config.dataloader.crop_size, 
             in_channels=self.config.common.input_nc,
             upconv_type=self.config.generator.upsample_block_type)
-        self.gen.to(self.device) # Cast to current device
+        self.gen.to(self.device)  # Cast to current device
+
         self.opt_gen = self.build_optimizer(
             optimizer=optim.Adam, network=self.gen, 
-            lr=self.config.train.learning_rate,
-            beta1=self.config.optimizer.beta1)
-        self.gen_lr_scheduler = LRScheduler( # Init LR scheduler
-            self.opt_gen, self.config.train.num_epochs, 
-            self.config.train.num_epochs_decay)
+            lr=t.learning_rate, beta1=self.config.optimizer.beta1)
+        
+        # Get total epochs, then add 1 so the last epoch isn't LR=0.0
+        # See: `pix2pix_graphical.scheduling.data.Schedule`
+        total_epochs = t.num_epochs+t.num_epochs_decay + 1
+        self.gen_lr_scheduler = TorchScheduler( # Init LR scheduler
+            self.opt_gen)
+        # self.gen_lr_scheduler = TorchScheduler( # Init LR scheduler
+        #     self.opt_gen, Schedule(
+        #         start_epoch=t.num_epochs, end_epoch=total_epochs,
+        #         initial_value=t.learning_rate, target_value=0.0))
         
     def init_discriminator(self) -> None:
         '''Initializes discriminator with optimizer and lr scheduler.'''
+        t = self.config.train      # Get config train data
         self.disc = Discriminator( # Init discriminator
             in_channels=self.config.common.input_nc,
             base_channels=self.config.discriminator.base_channels_d,
             n_layers=self.config.discriminator.n_layers_d,
             max_channels=self.config.discriminator.max_channels_d)
-        self.disc.to(self.device) # Cast to current device
+        self.disc.to(self.device)  # Cast to current device
+
         self.opt_disc = self.build_optimizer(
             optimizer=optim.Adam, network=self.disc, 
-            lr=self.config.train.learning_rate,
-            beta1=self.config.optimizer.beta1)
-        self.disc_lr_scheduler = LRScheduler( # Init LR scheduler
-            self.opt_disc, self.config.train.num_epochs, 
-            self.config.train.num_epochs_decay) 
+            lr=t.learning_rate, beta1=self.config.optimizer.beta1)
+        
+        # Get total epochs, then add 1 so the last epoch isn't LR=0.0
+        # See: `pix2pix_graphical.scheduling.data.Schedule`
+        total_epochs = t.num_epochs+t.num_epochs_decay + 1
+        self.disc_lr_scheduler = TorchScheduler( # Init LR scheduler
+            self.opt_disc, Schedule(
+                start_epoch=t.num_epochs, end_epoch=total_epochs,
+                initial_value=t.learning_rate, target_value=0.0)) 
         
     def define_gradscalers(self) -> None:
         '''Defines gradient scalers for generator and discriminator.

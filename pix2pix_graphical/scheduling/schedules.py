@@ -1,8 +1,8 @@
-from pix2pix_graphical.scheduling.data import WeightSchedule
+from pix2pix_graphical.scheduling.data import Schedule
 
-class WeightSchedules:
+class ScheduleDefs:
     @staticmethod
-    def linear(schedule: WeightSchedule, epoch: int) -> float:
+    def linear(schedule: Schedule, epoch: int) -> float:
         '''Defines a linear loss weight schedule.
 
         Graph:
@@ -11,10 +11,10 @@ class WeightSchedules:
             - v1, v2 : start, end value
 
         Args:
-            schedule : WeightSchedule to use when computing the new weight.
+            schedule : Schedule object to use when computing the new weight.
             epoch : Current epoch that the time this function is called.
         '''
-        initial, target = schedule.initial_weight, schedule.target_weight
+        initial, target = schedule.initial_value, schedule.target_value
 
         # Normalized sample position from current epoch
         sample = ((float(epoch) - float(schedule.start_epoch)) / 
@@ -33,7 +33,7 @@ class WeightSchedules:
     
     @staticmethod
     def exponential(
-        schedule: WeightSchedule, 
+        schedule: Schedule, 
         epoch: int,
         epsilon: float=1e-09,
         allow_zero_weights: bool=True,
@@ -47,7 +47,7 @@ class WeightSchedules:
             - v1, v2 : start, end value
 
         Args:
-            schedule WeightSchedule to use when computing the new weight.
+            schedule : Schedule object to use when computing the new weight.
             epoch : Current epoch that the time this function is called.
             epsilon : Epsilon for initial and target values. Only used if
                 `allow_zero_weights` is True (default).
@@ -61,11 +61,11 @@ class WeightSchedules:
             silent : See `allow_zero_weights`.
 
         Raises:
-            ZeroDivisionError : If `schedule.initial_weight` or `schedule.
-                target_weight` are zero and both `allow_zero_weights` and
+            ZeroDivisionError : If `schedule.initial_value` or `schedule.
+                target_value` are zero and both `allow_zero_weights` and
                 `silent` are False.
         '''
-        initial, target = schedule.initial_weight, schedule.target_weight
+        initial, target = schedule.initial_value, schedule.target_value
 
         # Normalized sample position from current epoch
         sample = ((float(epoch) - float(schedule.start_epoch)) / 
@@ -76,7 +76,7 @@ class WeightSchedules:
             if allow_zero_weights: # Stops decay just above zero
                 initial = max(initial, epsilon)
                 target = max(target, epsilon)
-            else:     # Bailout if divide by zero
+            else: # Bailout if divide by zero
                 if silent: return target if sample >= 1.0 else initial
                 else: # Or error if silent=False
                     message = (
@@ -97,6 +97,6 @@ class WeightSchedules:
 
 # Map of valid default schedule functions
 schedule_map = { 
-    'linear': WeightSchedules.linear, 
-    'exponential': WeightSchedules.exponential
+    'linear': ScheduleDefs.linear, 
+    'exponential': ScheduleDefs.exponential
 }

@@ -1,5 +1,4 @@
 import time
-import math
 import json
 import copy
 import warnings
@@ -11,7 +10,7 @@ import torch
 import torch.nn as nn
 
 from pix2pix_graphical.config.config_data import Config
-from pix2pix_graphical.scheduling.data import WeightSchedule
+from pix2pix_graphical.scheduling.data import Schedule
 from pix2pix_graphical.scheduling.schedules import schedule_map
 from pix2pix_graphical.losses.lm_data import LMLoss, LMHistory
 
@@ -321,7 +320,7 @@ class LossManager():
         '''Returns all of the most recent loss weights as a dict.
 
         Note: This function uses the last weight value stored in:
-            - `LossManager.schedule.current_weight`
+            - `LossManager.schedule.current_value`
         Since this value is updated immediately after the associated loss has
         been run, the weight values that this function returns are the ones 
         which will be applied the next time the loss is run.
@@ -335,7 +334,7 @@ class LossManager():
             dict : The requested weight values, mapped by their loss name.
         '''
         fns = self.get_registered_losses(query, strip=True)
-        return {name: round(fns[name].schedule.current_weight, precision)
+        return {name: round(fns[name].schedule.current_value, precision)
             for name in fns}
 
     def print_weights(
@@ -346,7 +345,7 @@ class LossManager():
         '''Prints (or optionally returns) loss weight information.
 
         Note: This function uses the last weight value stored in:
-            - `LossManager.schedule.current_weight`
+            - `LossManager.schedule.current_value`
         Since this value is updated immediately after the associated loss has
         been run, the weight values that this function prints (or returns) are 
         the ones which will be applied the next time the loss is run.
@@ -592,21 +591,20 @@ class LossManager():
         '''
         s = loss_entry.schedule # Get LMLossSchedule
         # If the loss isn't scheduled, just apply weight and return
-        if s == WeightSchedule():
-            return loss_value * s.current_weight
+        if s == Schedule(): return loss_value * s.current_value
         
         # Otherwise get and apply currently scheduled weights
         fn = s.schedule # Schedule function definition
-        if isinstance(fn, Callable): s.current_weight = fn(s, epoch)
+        if isinstance(fn, Callable): s.current_value = fn(s, epoch)
         elif isinstance(fn, str) and fn in schedule_map.keys():
-            s.current_weight = schedule_map[fn](s, epoch, **weight_kwargs)
+            s.current_value = schedule_map[fn](s, epoch, **weight_kwargs)
         else: 
             message = (
                 f'Invalid schedule type: {type(fn)}: ({fn})\n'
                 f'Valid types are: Literal["linear"] | '
-                f'Callable[[WeightSchedule, int], None]')
+                f'Callable[[Schedule, int], None]')
             raise TypeError(message)
-        return loss_value * s.current_weight
+        return loss_value * s.current_value
 
     def compute_loss_xy(
         self,
