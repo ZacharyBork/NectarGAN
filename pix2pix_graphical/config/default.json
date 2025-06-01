@@ -4,11 +4,11 @@
             "device": "cuda",
             "gpu_ids": [0],
             "output_directory": "E:/ML/test_data/pix2pix/output",
-            "experiment_name": "facades",
+            "experiment_name": "cityscapes",
             "experiment_version": 1
         },
         "dataloader": {
-            "dataroot": "E:/ML/test_data/pix2pix/datasets/facades",
+            "dataroot": "E:/ML/test_data/pix2pix/datasets/cityscapes",
             "direction": "BtoA",
             "batch_size": 1,
             "num_workers": 4,
@@ -84,6 +84,7 @@
             "visdom": {
                 "enable": true,
                 "env_name": "main",
+                "port": 8097,
                 "image_size": 400,
                 "update_frequency": 40
             }

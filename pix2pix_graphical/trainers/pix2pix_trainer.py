@@ -1,8 +1,8 @@
-import torch
-from torch import optim
-
 from os import PathLike
 from typing import Literal, Any
+
+import torch
+from torch import optim
 
 from pix2pix_graphical.trainers.trainer import Trainer
 from pix2pix_graphical.config.config_manager import ConfigManager
@@ -407,10 +407,10 @@ class Pix2pixTrainer(Trainer):
 
     ### OVERRIDE METHODS FOR TRAINING CALLBACKS ###
 
-    def on_train_start(self, **kwargs: Any) -> None:
+    def on_epoch_start(self, **kwargs: Any) -> None:
         '''Train start override method for Pix2pixTrainer class.
 
-        This method overrides Trainer.on_train_start() and is called at the 
+        This method overrides Trainer.on_epoch_start() and is called at the 
         beginning of a training cycle, just before the training loop is 
         started.
 
@@ -418,14 +418,14 @@ class Pix2pixTrainer(Trainer):
         arguments for the Trainer callback functions. In `/scripts/train.py`,
         we are calling `Trainer.train_paired()`, and passing it the current
         epoch, and a dict for the callback_kwargs. This dict contains an entry
-        called `on_train_start`, same as the callback name, and it's value is
+        called `on_epoch_start`, same as the callback name, and it's value is
         a dict containing a single bool value, `print_train_start`. 
         
         That is passed through to this function via the training function, so 
         here, we are able to look up that value and, if it is true, we have the 
         script print some training info at the start of each epoch. You can 
-        create one dict for each callback (`on_train_start`, `train_step`, 
-        `on_train_end`), and each dict should be added as separate entries to
+        create one dict for each callback (`on_epoch_start`, `train_step`, 
+        `on_epoch_end`), and each dict should be added as separate entries to
         a another dict with the key set at the name of the callback you would
         like to pass the kwargs to.
 
@@ -437,9 +437,9 @@ class Pix2pixTrainer(Trainer):
                 trainer.train_paired(
                     epoch, 
                     callback_kwargs={
-                        'on_train_start': { 'var1': 1.0 },
+                        'on_epoch_start': { 'var1': 1.0 },
                         'train_step': { 'var2': True, 'var3': [1.0, 2.0] },
-                        'on_train_end': {'var4': { 'x': 1.0, 'y': 2.0 } }
+                        'on_epoch_end': {'var4': { 'x': 1.0, 'y': 2.0 } }
                     }
 
         Args:
@@ -471,7 +471,7 @@ class Pix2pixTrainer(Trainer):
             idx : Batch iteration value from training loop.
             **kwargs : Any additional keyword arguments you would like to pass 
                 to the callback during training. See 
-                `Pix2pixTrainer.on_train_start()` for example implementation.
+                `Pix2pixTrainer.on_epoch_start()` for example implementation.
         '''
         with torch.amp.autocast('cuda'): 
             y_fake = self.gen(x)
@@ -487,12 +487,12 @@ class Pix2pixTrainer(Trainer):
         if idx % self.config.visualizer.visdom.update_frequency == 0:
             self.update_display(x, y, y_fake, idx)
         
-    def on_train_end(self, **kwargs: Any) -> None:
+    def on_epoch_end(self, **kwargs: Any) -> None:
         '''Train end callback for pix2pix trainer. (see: Trainer.train_paired)
 
         Args:
             **kwargs : Any keyword arguments you would like to pass to the 
-                callback during training. See `Pix2pixTrainer.on_train_start()` 
+                callback during training. See `Pix2pixTrainer.on_epoch_start()` 
                 for example implementation.
         '''
         # Dump stored loss values to log_log.json

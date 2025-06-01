@@ -1,20 +1,27 @@
+from typing import Sequence, Any
+from collections.abc import Mapping
+import threading
+import queue
+
 import torch
 import numpy as np
 from visdom import Visdom
 
-from typing import Sequence, Any
-from collections.abc import Mapping
-
 class VisdomVisualizer():
-    def __init__(self, env: str='main', port: int=8097):
+    def __init__(
+            self, 
+            env: str='main', 
+            port: int=8097
+        ) -> None:
         self.env = env
         self.port = port
+        self.is_threaded: bool = False # Overridden by `self.start_thread()`
+
         self.init_visdom()
 
-    def start_server(self):
-        pass
+    ### INITIALIZATION ###
 
-    def init_visdom(self):
+    def init_visdom(self) -> None:
         '''Initializes Visdom and validates endpoint connection.
 
         Also assigns Visdom client to self.vis internally to send commands.
@@ -31,11 +38,12 @@ class VisdomVisualizer():
         self.vis = vis
 
     def clear_env(self) -> None:
-        '''Closes all windows in the VisdomVisualizer's environment.
-        '''
+        '''Closes all windows in the VisdomVisualizer's environment.'''
         self.vis.close(win=None, env=self.env)
         
-    def denorm_tensor(
+    ### HELPERS ###
+
+    def _denorm_tensor(
             self, 
             tensor: torch.Tensor, 
             clamp: bool=True
@@ -57,9 +65,38 @@ class VisdomVisualizer():
         norm = (tensor + 1) * 0.5
         return torch.clamp(norm, 0.0, 1.0) if clamp else norm
 
+    ### UPDATE (UNTHREADED) ###
+
     def update_images(
-            self, x: torch.Tensor, y: torch.Tensor, z: torch.Tensor, 
-            title: str, image_size: int=300) -> None:
+            self,
+            x: torch.Tensor, 
+            y: torch.Tensor, 
+            z: torch.Tensor, 
+            title: str, 
+            image_size: int=300
+        ) -> None:
+        if self.is_threaded: self._store_images(x, y, z, title, image_size)
+        else: self._update_images_core(x, y, z, title, image_size)
+
+    def update_loss_graphs(
+            self, 
+            graph_step: float,
+            losses_G: Mapping[str, float], 
+            losses_D: Mapping[str, float]    
+        ) -> None:
+        if self.is_threaded:
+            self._store_graph_data(graph_step, losses_G, losses_D)
+        else: 
+            self._update_loss_graphs_core(graph_step, losses_G, losses_D)
+
+    def _update_images_core(
+            self,
+            x: torch.Tensor, 
+            y: torch.Tensor, 
+            z: torch.Tensor, 
+            title: str, 
+            image_size: int=300
+        ) -> None:
         '''Updates the Visdom [x, y, z] image grid.
         
         Takes three torch.Tensor objects as input and normalizes them [0, 1], 
@@ -74,18 +111,23 @@ class VisdomVisualizer():
             image_size : The width and height, in pixels, to render each image. 
         '''
         composite = torch.cat([
-            self.denorm_tensor(x), 
-            self.denorm_tensor(y), 
-            self.denorm_tensor(z)], dim=3)
+            self._denorm_tensor(x), 
+            self._denorm_tensor(y), 
+            self._denorm_tensor(z)], dim=3)
         self.vis.images(
-            composite.cpu(), win='comparison_grid', nrow=1, padding=2,
-            opts=dict(title=title, width=image_size*3, height=image_size)
-        )
+            composite, win='comparison_grid', nrow=1, padding=2,
+            opts=dict(title=title, width=image_size*3, height=image_size))
 
-    def update_graph(
-        self, values: Sequence[torch.Tensor], steps: Sequence[float],
-        window_internal_name: str, window_title: str,
-        xlabel: str, ylabel: str, legend: list[str]) -> None:
+    def _update_graph(
+            self, 
+            values: Sequence[torch.Tensor], 
+            steps: Sequence[float],
+            window_internal_name: str, 
+            window_title: str,
+            xlabel: str, 
+            ylabel: str, 
+            legend: list[str]
+        ) -> None:
         '''Updates a visdom.Visdom.line graph to add new values at steps.
 
         Args:
@@ -107,8 +149,9 @@ class VisdomVisualizer():
                 ylabel=ylabel,
                 legend=legend))
 
-    def update_loss_graphs(
-            self, graph_step: float,
+    def _update_loss_graphs_core(
+            self, 
+            graph_step: float,
             losses_G: Mapping[str, float], 
             losses_D: Mapping[str, float]    
         ) -> None:
@@ -130,8 +173,70 @@ class VisdomVisualizer():
             legend = list(graph[0].keys())   # Get loss keys
             values = list(graph[0].values()) # Get loss values
             steps = [graph_step]*len(values) # Build steps list
-            self.update_graph(               # Update loss graph
+            self._update_graph(              # Update loss graph
                 values=values, steps=steps, 
                 window_internal_name=graph[1], window_title=graph[2], 
                 xlabel='Iterations', ylabel='Loss', legend=legend)
+    
+    ### STORE THREAD DATA ###
+
+    def _store_images(
+            self,
+            x: torch.Tensor, 
+            y: torch.Tensor, 
+            z: torch.Tensor, 
+            title: str, 
+            image_size: int=300
+        ) -> None:
+        self._image_queue.put({
+            'tensors': (x.detach().cpu(), y.detach().cpu(), z.detach().cpu()),
+            'title': title,
+            'image_size': image_size})
+        
+    def _store_graph_data(
+            self, 
+            graph_step: float,
+            losses_G: Mapping[str, float], 
+            losses_D: Mapping[str, float]    
+        ) -> None:
+        self._graph_queue.put({
+            'graph_step': graph_step,
+            'losses_G': losses_G,
+            'losses_D': losses_D})
+
+    ### UPDATE (THREADED) ###
+
+    def start_thread(self) -> None:
+        '''Starts a thread for updating the Visdom visualizer.'''
+        self.is_threaded = True
+        self._image_queue = queue.Queue()
+        self._graph_queue = queue.Queue()
+        self._stop = threading.Event()
+        self._thread = threading.Thread(target=self._update, daemon=True)
+        self._thread.start()
+
+    def _update(self) -> None:
+        while not self._stop.is_set():
+            try: image_data = self._image_queue.get(timeout=1)
+            except queue.Empty: continue
+            try: graph_data = self._graph_queue.get(timeout=1)
+            except queue.Empty: continue
+            if self._stop.is_set(): break
+            self._update_images_core(
+                x=image_data['tensors'][0], 
+                y=image_data['tensors'][1], 
+                z=image_data['tensors'][2], 
+                title=image_data['title'], 
+                image_size=image_data['image_size'])
+            self._image_queue.task_done()
+            if self._stop.is_set(): break
+            self._update_loss_graphs_core(
+                graph_step=graph_data['graph_step'], 
+                losses_G=graph_data['losses_G'], 
+                losses_D=graph_data['losses_D'])
+            self._graph_queue.task_done()
+
+    def stop_thread(self) -> None:
+        '''Stops the visdom visualizer thread.'''
+        self._stop.set()
         

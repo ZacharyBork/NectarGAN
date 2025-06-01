@@ -1,3 +1,4 @@
+import sys
 import random
 import pathlib
 import time
@@ -18,20 +19,22 @@ class Trainer():
     def __init__(
             self, 
             config: str | PathLike | ConfigManager | None=None,
-            quicksetup: bool=True,
-            console: dict[str, bool]={
-                'start_epoch': True,
-                'loss_weights': True,
-                'loss_values': True,
-            }
+            quicksetup: bool=True
         ) -> None:
         '''Init function for the base Trainer class.
 
         Args:
             config: Something representing a training config, either a str or
                 os.Pathlike object pointing to a config JSON, or a pre-defined
-                ConfigManager instance, or None to init from the default config
-                located at (/root/config/default.json). Defaults to None.
+                ConfigManager instance, or None (default) to init from the
+                default config located at (/root/config/default.json).
+            quicksetup : If enabled (default), the `Trainer` will run a 
+                quicksetup during its init function. This will automatically 
+                create an output directory for the experiment from the settings 
+                in the config and output a copy of the config JSON to that 
+                directory, create and assign a `LossManager` instance to 
+                manager manage losses during training, and initialize Visdom to 
+                visualize results.
         '''
         # These are either set by child classes, or passed by training script
         self.log_losses: bool = True
@@ -141,7 +144,9 @@ class Trainer():
         '''
         vcon = self.config.visualizer # Get visualizer config data
         if vcon.visdom.enable:        # Init Visdom visualizer
-            self.vis = VisdomVisualizer(env=vcon.visdom.env_name) 
+            self.vis = VisdomVisualizer(
+                env=vcon.visdom.env_name,
+                port=vcon.visdom.port) 
             self.vis.clear_env()      # Clear Visdom environment  
 
     def load_checkpoint(
@@ -262,7 +267,7 @@ class Trainer():
 
     ### TRAINING CALLBACK ###
 
-    def on_train_start(self, **kwargs: Any) -> None:
+    def on_epoch_start(self, **kwargs: Any) -> None:
         '''Train start callback function.
         
         This function is meant to overridden by the child class. It is called
@@ -272,14 +277,14 @@ class Trainer():
 
         Args:
             **kwargs : Any keyword arguments you would like to pass to the 
-                callback during training. See `Pix2pixTrainer.on_train_start()` 
+                callback during training. See `Pix2pixTrainer.on_epoch_start()` 
                 for example implementation.
 
         Raises:
             NotImplementedError : If training is run and this callback is not 
                 implemented in the child class that is initiating the training.
         '''
-        message = 'on_train_start() is not implemented by the child class.'
+        message = 'on_epoch_start() is not implemented by the child class.'
         raise NotImplementedError(message)
 
     def train_step(
@@ -304,7 +309,7 @@ class Trainer():
             idx : Batch iter value, passed to function via `train_paired()`.
             **kwargs : Any additional keyword arguments you would like to pass 
                 to the callback during training. See 
-                `Pix2pixTrainer.on_train_start()` for example implementation.
+                `Pix2pixTrainer.on_epoch_start()` for example implementation.
 
         Raises:
             NotImplementedError : If training is run and this callback is not 
@@ -313,7 +318,7 @@ class Trainer():
         message = 'train_step() is not implemented by the child class.'
         raise NotImplementedError(message)
     
-    def on_train_end(self, **kwargs: Any) -> None:
+    def on_epoch_end(self, **kwargs: Any) -> None:
         '''Train end callback function.
         
         This function is meant to overridden by the child class. It is called
@@ -325,24 +330,25 @@ class Trainer():
 
         Args:
             **kwargs : Any keyword arguments you would like to pass to the 
-                callback during training. See `Pix2pixTrainer.on_train_start()` 
+                callback during training. See `Pix2pixTrainer.on_epoch_start()` 
                 for example implementation.
 
         Raises:
             NotImplementedError : If training is run and this callback is not 
                 implemented in the child class that is initiating the training.
         '''
-        message = 'on_train_end() is not implemented by the child class.'
+        message = 'on_epoch_end() is not implemented by the child class.'
         raise NotImplementedError(message)
 
     ### TRAINING LOOP ###
 
     def train_paired(
             self, epoch:int,
-            on_train_start: Callable[[], None] | None=None,
+            on_epoch_start: Callable[[], None] | None=None,
             train_step: Callable[[torch.Tensor, torch.Tensor, int], None] | 
             None=None,
-            on_train_end: Callable[[], None] | None=None,
+            on_epoch_end: Callable[[], None] | None=None,
+            multithreaded: bool=True,
             callback_kwargs: dict[str, dict[str, Any]] = {}
         ) -> None:
         '''Paired adversarial training function.
@@ -353,9 +359,12 @@ class Trainer():
         name.
 
         Args:
-            on_train_start : Run once, right before the training loop begins.
+            on_epoch_start : Run once, right before the training loop begins.
             train_step : Run once per batch in the dataset.
-            on_train_end : Run once, after all batches have been completed.
+            on_epoch_end : Run once, after all batches have been completed.
+            multithreaded : If True (default), this function will start a new 
+                thread to update the Visdom visualizers. If False, it will
+                update them in the same thread used for training.
             callback_kwargs : A dict[str, dict[str, Any]] with any keyword
                 arguments you would like to pass to the callback functions
                 during training. kwargs are parsed internally and passed to
@@ -363,12 +372,12 @@ class Trainer():
                 follows:
 
                     callback_kwargs = {
-                        'on_train_start': { 'var1': 1.0 },
+                        'on_epoch_start': { 'var1': 1.0 },
                         'train_step': { 'var2': True, 'var3': [1.0, 2.0] },
-                        'on_train_end': {'var4': { 'x': 1.0, 'y': 2.0 } }
+                        'on_epoch_end': {'var4': { 'x': 1.0, 'y': 2.0 } }
                     }
 
-                See `Pix2pixTrainer.on_train_start()` for example 
+                See `Pix2pixTrainer.on_epoch_start()` for example 
                 implementation.
         '''
         # self.current_epoch is a sort of human-readable current epoch value
@@ -377,24 +386,30 @@ class Trainer():
             self.current_epoch = 1 + epoch + self.config.train.load.load_epoch
         else: self.current_epoch = epoch + 1
 
-        start_fn = on_train_start or self.on_train_start # Init pre-train fn
+        start_fn = on_epoch_start or self.on_epoch_start # Init pre-train fn
         train_fn = train_step or self.train_step         # Init train step fn
-        end_fn = on_train_end or self.on_train_end       # Init post-train fn
+        end_fn = on_epoch_end or self.on_epoch_end       # Init post-train fn
+        
+        def loop(): # Loop through (x, y) of batch[idx] from training dataset
+            for idx, (x, y) in enumerate(self.train_loader):
+                x, y = x.to(self.device), y.to(self.device) # And train model
+                train_fn(x, y, idx, **callback_kwargs.get('train_step', {})) 
 
         start_time = time.perf_counter() # Start epoch time
         
         # Run pre-train function
-        start_fn(**callback_kwargs.get('on_train_start', {})) 
-        
-        for idx, (x, y) in enumerate(self.train_loader):
-            # Get (x, y) of batch[idx] from training dataset
-            x, y = x.to(self.device), y.to(self.device)
-            
-            # Run train step function
-            train_fn(x, y, idx, **callback_kwargs.get('train_step', {})) 
+        start_fn(**callback_kwargs.get('on_epoch_start', {})) 
+        if multithreaded: 
+            try:
+                self.vis.start_thread()
+                loop()
+            except KeyboardInterrupt:
+                sys.exit('Interrupt Recieved: Stopping training...')
+            finally: self.vis.stop_thread()
+        else: loop()
         
         # Run post-train function
-        end_fn(**callback_kwargs.get('on_train_end', {})) 
+        end_fn(**callback_kwargs.get('on_epoch_end', {})) 
 
         end_time = time.perf_counter() # End epoch time
         self.last_epoch_time = end_time-start_time
