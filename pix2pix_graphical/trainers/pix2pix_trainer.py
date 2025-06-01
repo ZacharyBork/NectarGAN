@@ -31,79 +31,93 @@ class Pix2pixTrainer(Trainer):
         self.extend_loss_spec = 'basic' not in loss_subspec 
         self.vgg_loss_enabled = '+vgg' in loss_subspec 
         self.log_losses = log_losses
+           
+        self._init_lr_scheduling() # Handle split LR logic 
+        self._init_generator()     # Init generator
+        self._init_discriminator() # Init discriminator
+        self._init_dataloaders()   # Get datasets and create data loaders
+        self._init_gradscalers()   # Create gradient scalers
 
-        self.init_generator()     # Init generator
-        self.init_discriminator() # Init discriminator
-        self.build_dataloaders()  # Get datasets and create data loaders
-        self.define_gradscalers() # Create gradient scalers
-
-        self.init_losses(loss_subspec) # Init loss functions
+        self._init_losses(loss_subspec) # Init loss functions
         
-        if self.config.load.continue_train: # Load checkpoint if applicable
-            self.load_checkpoint(
+        if self.config.train.load.continue_train:
+            self.load_checkpoint(  # Load checkpoint if enabled
                 self.gen, self.opt_gen, self.disc, self.opt_disc)
 
-    def build_dataloaders(self) -> None:
-        '''Builds dataloaders for training and validation datasets.'''
-        self.train_loader = self.build_dataloader('train')
-        self.val_loader = self.build_dataloader('val')
+    ### INITIALIZATION ###
 
-    def init_generator(self) -> None:
+    def _init_lr_scheduling(self) -> None:
+        '''If not using separate LR schedules, overrides D LR with G LR.'''
+        train = self.config.train
+        if train.separate_lr_schedules:
+            train.discriminator.learning_rate = train.generator.learning_rate
+
+    def _init_generator(self) -> None:
         '''Initializes generator with optimizer and lr scheduler.'''
-        t = self.config.train     # Get config train data
+        tg = self.config.train.generator # Get config train data
         self.gen = UnetGenerator( # Init Generator
-            input_size=self.config.dataloader.crop_size, 
-            in_channels=self.config.common.input_nc,
-            upconv_type=self.config.generator.upsample_block_type)
+            input_size=self.config.dataloader.load.crop_size, 
+            in_channels=self.config.dataloader.load.input_nc,
+            upconv_type=tg.upsample_block_type)
         self.gen.to(self.device)  # Cast to current device
 
         self.opt_gen = self.build_optimizer(
             optimizer=optim.Adam, network=self.gen, 
-            lr=t.learning_rate, beta1=self.config.optimizer.beta1)
+            lr=tg.learning_rate.initial, beta1=tg.optimizer.beta1)
         
-        # Get total epochs, then add 1 so the last epoch isn't LR=0.0
+        # Get total epochs and add 1 so the last epoch isn't LR=0.0
         # See: `pix2pix_graphical.scheduling.data.Schedule`
-        total_epochs = t.num_epochs+t.num_epochs_decay + 1
+        total_epochs = (1 + tg.learning_rate.epochs 
+                        + tg.learning_rate.epochs_decay)
         self.gen_lr_scheduler = TorchScheduler( # Init LR scheduler
-            self.opt_gen)
-        # self.gen_lr_scheduler = TorchScheduler( # Init LR scheduler
-        #     self.opt_gen, Schedule(
-        #         start_epoch=t.num_epochs, end_epoch=total_epochs,
-        #         initial_value=t.learning_rate, target_value=0.0))
+            self.opt_gen, Schedule(
+                start_epoch=tg.learning_rate.epochs, 
+                end_epoch=total_epochs,
+                initial_value=tg.learning_rate.initial, 
+                target_value=tg.learning_rate.target))
         
-    def init_discriminator(self) -> None:
+    def _init_discriminator(self) -> None:
         '''Initializes discriminator with optimizer and lr scheduler.'''
-        t = self.config.train      # Get config train data
+        td = self.config.train.discriminator # Get config train data
         self.disc = Discriminator( # Init discriminator
-            in_channels=self.config.common.input_nc,
-            base_channels=self.config.discriminator.base_channels_d,
-            n_layers=self.config.discriminator.n_layers_d,
-            max_channels=self.config.discriminator.max_channels_d)
+            in_channels=self.config.dataloader.load.input_nc,
+            base_channels=td.base_channels,
+            n_layers=td.n_layers,
+            max_channels=td.max_channels)
         self.disc.to(self.device)  # Cast to current device
 
         self.opt_disc = self.build_optimizer(
             optimizer=optim.Adam, network=self.disc, 
-            lr=t.learning_rate, beta1=self.config.optimizer.beta1)
+            lr=td.learning_rate.initial, beta1=td.optimizer.beta1)
         
         # Get total epochs, then add 1 so the last epoch isn't LR=0.0
         # See: `pix2pix_graphical.scheduling.data.Schedule`
-        total_epochs = t.num_epochs+t.num_epochs_decay + 1
+        total_epochs = (1 + td.learning_rate.epochs 
+                        + td.learning_rate.epochs_decay)
         self.disc_lr_scheduler = TorchScheduler( # Init LR scheduler
             self.opt_disc, Schedule(
-                start_epoch=t.num_epochs, end_epoch=total_epochs,
-                initial_value=t.learning_rate, target_value=0.0)) 
+                start_epoch=td.learning_rate.epochs, 
+                end_epoch=total_epochs,
+                initial_value=td.learning_rate.initial, 
+                target_value=td.learning_rate.target)) 
         
-    def define_gradscalers(self) -> None:
+    def _init_dataloaders(self) -> None:
+        '''Builds dataloaders for training and validation datasets.'''
+        self.train_loader = self.build_dataloader('train')
+        self.val_loader = self.build_dataloader('val')
+
+    def _init_gradscalers(self) -> None:
         '''Defines gradient scalers for generator and discriminator.
 
         This function will init the GradScaler device based on the device
         specified in the config file.
         '''
-        if self.config.common.device == 'cpu':
-            self.g_scaler = self.d_scaler = torch.amp.GradScaler('cpu')
-        else: self.g_scaler = self.d_scaler = torch.amp.GradScaler('cuda')
+        # if self.config.common.device == 'cpu':
+        #     self.g_scaler = self.d_scaler = torch.amp.GradScaler('cpu')
+        # else: self.g_scaler = self.d_scaler = torch.amp.GradScaler('cuda')
+        self.g_scaler = self.d_scaler = torch.amp.GradScaler(self.device)
 
-    def init_losses(self, loss_subspec: str) -> None:
+    def _init_losses(self, loss_subspec: str) -> None:
         '''Initializes model loss functions.
 
         This function takes `loss_subspec` as input. This defines the subspec 
@@ -143,6 +157,8 @@ class Pix2pixTrainer(Trainer):
         self.loss_manager.init_from_spec( # Init loss manager
             spec.pix2pix, self.config, loss_subspec)
 
+    ### DATA VISUALIZATION ###
+
     def update_display(
             self, 
             x: torch.Tensor, 
@@ -160,10 +176,10 @@ class Pix2pixTrainer(Trainer):
         '''
         self.loss_manager.print_losses(self.current_epoch, idx) # Print losses
         
-        if self.config.visualizer.enable_visdom:
+        if self.config.visualizer.visdom.enable:
             self.vis.update_images( # Update x, y_fake, y image grid
                 x=x, y=y_fake, z=y, title='real_A | fake_B | real_B', 
-                image_size=self.config.visualizer.visdom_image_size)
+                image_size=self.config.visualizer.visdom.image_size)
             
             # Get G and D loss values from LossManager
             losses_G = self.loss_manager.get_loss_values(query=['G'])
@@ -195,6 +211,8 @@ class Pix2pixTrainer(Trainer):
         disc_lr_step = self.disc_lr_scheduler.get_lr()
         print(f'Learning rate (D): {round(disc_lr_step[0], precision)}'
               f' => {round(disc_lr_step[1], precision)}')
+
+    ### DISCRIMINATOR TRAINING ###
 
     def forward_D(
             self, 
@@ -252,7 +270,9 @@ class Pix2pixTrainer(Trainer):
         self.d_scaler.scale(loss_D).backward() # Scale loss, compute gradient
         self.d_scaler.step(self.opt_disc)      # Optimizer step
         self.d_scaler.update()                 # Update scaling factor
-        
+
+    ### GENERATOR TRAINING ##
+
     def compute_GAN_loss(
             self, 
             x: torch.Tensor, 
@@ -385,6 +405,8 @@ class Pix2pixTrainer(Trainer):
         self.disc_lr_scheduler.step() # Discriminator LR scheduler
         self.gen_lr_scheduler.step()  # Generator LR scheduler
 
+    ### OVERRIDE METHODS FOR TRAINING CALLBACKS ###
+
     def on_train_start(self, **kwargs: Any) -> None:
         '''Train start override method for Pix2pixTrainer class.
 
@@ -462,7 +484,7 @@ class Pix2pixTrainer(Trainer):
         loss_G = self.forward_G(x, y, y_fake)
         self.backward_G(loss_G)
         
-        if idx % self.config.visualizer.update_frequency == 0:
+        if idx % self.config.visualizer.visdom.update_frequency == 0:
             self.update_display(x, y, y_fake, idx)
         
     def on_train_end(self, **kwargs: Any) -> None:
@@ -480,6 +502,8 @@ class Pix2pixTrainer(Trainer):
         # Update schedulers after training
         self.update_schedulers()
         
+    ### SAVE MODEL/EXAMPLE ###
+
     def save_checkpoint(self, mode: Literal['g', 'd', 'both']='both') -> None:
         '''Saves a .pth.tar checkpoint file named with the current epoch.
         

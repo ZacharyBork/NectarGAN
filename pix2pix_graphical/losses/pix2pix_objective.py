@@ -75,10 +75,10 @@ def pix2pix(
     loss_fns = {
         'G_GAN': LMLoss(
             name='G_GAN', function=BCE, 
-            loss_weight=config.loss.lambda_gan, tags=['G']),
+            loss_weight=config.train.loss.lambda_gan, tags=['G']),
         'G_L1': LMLoss(
             name='G_L1', function=L1, 
-            loss_weight=config.loss.lambda_l1, tags=['G']),
+            loss_weight=config.train.loss.lambda_l1, tags=['G']),
         'D_real': LMLoss(
             name='D_real', function=BCE, tags=['D']),
         'D_fake': LMLoss(
@@ -87,14 +87,14 @@ def pix2pix(
         SOBEL = Sobel().to(device)
         loss_fns['G_SOBEL'] = LMLoss(
             name='G_SOBEL',function=SOBEL, 
-            loss_weight=config.loss.lambda_sobel, tags=['G'])
+            loss_weight=config.train.loss.lambda_sobel, tags=['G'])
         LAP = Laplacian().to(device)
         loss_fns['G_LAP'] = LMLoss(
             name='G_LAP', function=LAP, 
-            loss_weight=config.loss.lambda_laplacian, tags=['G'])
+            loss_weight=config.train.loss.lambda_laplacian, tags=['G'])
     if '+vgg' in subspec:
         VGG = VGGPerceptual().to(device)
         loss_fns['G_VGG'] = LMLoss(
             name='G_VGG', function=VGG, 
-            loss_weight=config.loss.lambda_vgg, tags=['G'])
+            loss_weight=config.train.loss.lambda_vgg, tags=['G'])
     return loss_fns

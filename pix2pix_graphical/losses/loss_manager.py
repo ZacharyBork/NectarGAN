@@ -14,7 +14,6 @@ from pix2pix_graphical.scheduling.data import Schedule
 from pix2pix_graphical.scheduling.schedules import schedule_map
 from pix2pix_graphical.losses.lm_data import LMLoss, LMHistory
 
-
 class LossManager():
     def __init__(
         self, 
@@ -61,13 +60,15 @@ class LossManager():
         self._make_dummy_shape()
         self.init_from_spec(spec=None)
 
+    ### LOG FILE CREATION ###
+
     def _build_log_blank(self) -> None:
         '''Defines a dummy log to build default log JSON structure.
         '''
         return { # 
             'LOSSMANAGER_LOG':{
-                'device': f'{self.config.common.device}',
-                'dataroot': f'{self.config.common.dataroot}',
+                'device': f'{self.device}',
+                'dataroot': f'{self.config.dataloader.dataroot}',
                 'experiment': f'{self.experiment_dir.name}',
                 'loss_functions': {}
             }
@@ -100,11 +101,13 @@ class LossManager():
             raise RuntimeError(message) from e
         self.loss_log = log_path # Store log filepath as pathlib.Path
 
+    ### INITIALIZATION ###
+
     def _make_dummy_shape(self) -> None:
         '''Creates a dummy tensor of the correct model input shape.
         '''
-        channels = self.config.common.input_nc  # Get input channels
-        size = self.config.dataloader.crop_size  # Get input W, H
+        channels = self.config.dataloader.load.input_nc # Get input channels
+        size = self.config.dataloader.load.crop_size    # Get input W, H
         self.dummy = torch.zeros((1, channels, size, size)).to(self.device)
 
     def _reset_last_lost_tensors(self) -> None:
@@ -153,6 +156,8 @@ class LossManager():
             self.loss_fns = _spec # If spec is valid, register the losses
             self._reset_last_lost_tensors() # Init last_loss_map tensor
         else: self.loss_fns = {} # If spec=None, init empty LossManager
+
+    ### GETTER FUNCTIONS ### 
 
     def _strip_loss_history(self, loss: LMLoss) -> LMLoss:
         '''Removes the loss history lists from a given loss.
@@ -255,6 +260,33 @@ class LossManager():
         return {name: container.last_loss_map 
             for name, container in fns.items()}
 
+    def get_loss_weights(
+        self,
+        query: list[str] | None=None,
+        precision: int=2
+    ) -> dict[str, float]:
+        '''Returns all of the most recent loss weights as a dict.
+
+        Note: This function uses the last weight value stored in:
+            - `LossManager.schedule.current_value`
+        Since this value is updated immediately after the associated loss has
+        been run, the weight values that this function returns are the ones 
+        which will be applied the next time the loss is run.
+
+        Args:
+            query : List of tags to search for when requesting weights. Only
+                the weights of registered losses which have a tag matching the 
+                query will be returned.
+            precision : Rounding precision of the returned weight values.
+        Returns:
+            dict : The requested weight values, mapped by their loss name.
+        '''
+        fns = self.get_registered_losses(query, strip=True)
+        return {name: round(fns[name].schedule.current_value, precision)
+            for name in fns}
+
+    ### CONSOLE OUTPUT ###
+
     def print_losses(
         self,
         epoch: int,
@@ -312,31 +344,6 @@ class LossManager():
         else:
             return output
 
-    def get_loss_weights(
-        self,
-        query: list[str] | None=None,
-        precision: int=2
-    ) -> dict[str, float]:
-        '''Returns all of the most recent loss weights as a dict.
-
-        Note: This function uses the last weight value stored in:
-            - `LossManager.schedule.current_value`
-        Since this value is updated immediately after the associated loss has
-        been run, the weight values that this function returns are the ones 
-        which will be applied the next time the loss is run.
-
-        Args:
-            query : List of tags to search for when requesting weights. Only
-                the weights of registered losses which have a tag matching the 
-                query will be returned.
-            precision : Rounding precision of the returned weight values.
-        Returns:
-            dict : The requested weight values, mapped by their loss name.
-        '''
-        fns = self.get_registered_losses(query, strip=True)
-        return {name: round(fns[name].schedule.current_value, precision)
-            for name in fns}
-
     def print_weights(
             self, 
             precision: int=2, 
@@ -374,6 +381,8 @@ class LossManager():
             return None
         else:
             return output
+
+    ### LOSS REGISTRATION ###
 
     def register_loss_fn(
             self,
@@ -418,49 +427,7 @@ class LossManager():
         else:
             raise ValueError(f'Loss function name already in use: {loss_name}')
 
-    def _dump_to_log(self, name: str) -> None:
-        '''Dumps loss values from LMLoss object to loss log.
-
-        Note:
-            If this funtion is called from a LossManager with a
-            self.enable_logging of False, it will print a warning and return
-            immediately.
-
-        Args:
-            name : The name of the loss function to update the logs of.
-        
-        Raises:
-            RuntimeError : If unable to open log file.
-        '''
-        if not self.enable_logging: 
-            warnings.warn(
-                'Call to LossManager._dump_to_log() with '
-                '`enable_logging=False`. Bypassing.')
-            return
-        log_path = self.loss_log
-        try: # Try to get loss_log.json
-            with open(log_path.as_posix(), 'r') as file:
-                log_data = json.loads(file.read())
-        except Exception as e:
-            message = 'Unable to open loss log file: {}'
-            raise RuntimeError(message.format(log_path.as_posix())) from e
-        
-        # Find the requested loss value in the loss log
-        root, history = 'LOSSMANAGER_LOG', 'loss_functions'
-        history_logs = log_data.setdefault(root, {}).setdefault(history, {})
-        log_entry = history_logs.setdefault(name, {'loss': [], 'weights': []})
-        
-        # Update the loss log entries
-        loss_fn = self.loss_fns[name]
-        log_entry['loss'].extend(loss_fn.history.losses)
-        log_entry['weights'].extend(loss_fn.history.weights)
-
-        # Dump the log back to loss_log.json
-        with open(log_path.as_posix(), 'w') as file:
-            json.dump(log_data, file)
-
-        # Clear the LMLoss's LMHistory
-        self.loss_fns[name].history = LMHistory(losses=[], weights=[])
+    ### HISTORY MANAGEMENT ###
 
     def _add_loss_to_history(
             self, 
@@ -537,6 +504,52 @@ class LossManager():
         loss_fn.history = LMHistory([], []) # Clear old loss value
         self._add_loss_to_history(loss_fn, value) # Add new loss values
 
+    ### LOSS HISTORY -> LOG FILE ###
+
+    def _dump_to_log(self, name: str) -> None:
+        '''Dumps loss values from LMLoss object to loss log.
+
+        Note:
+            If this funtion is called from a LossManager with a
+            self.enable_logging of False, it will print a warning and return
+            immediately.
+
+        Args:
+            name : The name of the loss function to update the logs of.
+        
+        Raises:
+            RuntimeError : If unable to open log file.
+        '''
+        if not self.enable_logging: 
+            warnings.warn(
+                'Call to LossManager._dump_to_log() with '
+                '`enable_logging=False`. Bypassing.')
+            return
+        log_path = self.loss_log
+        try: # Try to get loss_log.json
+            with open(log_path.as_posix(), 'r') as file:
+                log_data = json.loads(file.read())
+        except Exception as e:
+            message = 'Unable to open loss log file: {}'
+            raise RuntimeError(message.format(log_path.as_posix())) from e
+        
+        # Find the requested loss value in the loss log
+        root, history = 'LOSSMANAGER_LOG', 'loss_functions'
+        history_logs = log_data.setdefault(root, {}).setdefault(history, {})
+        log_entry = history_logs.setdefault(name, {'loss': [], 'weights': []})
+        
+        # Update the loss log entries
+        loss_fn = self.loss_fns[name]
+        log_entry['loss'].extend(loss_fn.history.losses)
+        log_entry['weights'].extend(loss_fn.history.weights)
+
+        # Dump the log back to loss_log.json
+        with open(log_path.as_posix(), 'w') as file:
+            json.dump(log_data, file)
+
+        # Clear the LMLoss's LMHistory
+        self.loss_fns[name].history = LMHistory(losses=[], weights=[])
+
     def update_loss_log(self, silent: bool=True) -> None:
         '''Exports loss history to loss log.
 
@@ -575,6 +588,8 @@ class LossManager():
                 end = time.perf_counter()
                 print(f'LossManager: Time taken: {end - start:.3f} seconds')
 
+    ### LOSS WEIGHTING ###
+
     def _weight_loss(
             self, 
             loss_entry: LMLoss,
@@ -605,6 +620,8 @@ class LossManager():
                 f'Callable[[Schedule, int], None]')
             raise TypeError(message)
         return loss_value * s.current_value
+
+    ### REGISTERED LOSS EXECUTION ###
 
     def compute_loss_xy(
         self,

@@ -22,7 +22,7 @@ class Transformer():
             max_pixel_value : Maximum pixel value for normalization.
         '''
         self.augs = config.dataloader.augmentations
-        self.crop_size = config.dataloader.crop_size
+        self.crop_size = config.dataloader.load.crop_size
         
         self.mean, self.std = mean, std
         self.max_value = max_pixel_value

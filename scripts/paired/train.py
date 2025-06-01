@@ -23,7 +23,10 @@ if __name__ == "__main__":
         log_losses=args.log_losses)
     cfg = trainer.config
 
-    epoch_count = cfg.train.num_epochs + cfg.train.num_epochs_decay
+    # Build epoch count from generator LR schedule
+    epoch_counts =  cfg.train.generator.learning_rate
+    epoch_count = epoch_counts.epochs + epoch_counts.epochs_decay
+    
     for epoch in range(epoch_count):
         trainer.train_paired( # Train generator and discriminator
             epoch, 

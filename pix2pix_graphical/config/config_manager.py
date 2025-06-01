@@ -10,11 +10,6 @@ GROUP_SCHEMA = {
     'common': config_data.ConfigCommon,
     'dataloader': config_data.ConfigDataloader,
     'train': config_data.ConfigTrain,
-    'loss': config_data.ConfigLoss,
-    'generator': config_data.ConfigGenerator,
-    'discriminator': config_data.ConfigDiscriminator,
-    'optimizer': config_data.ConfigOptimizer,
-    'load': config_data.ConfigLoad,
     'save': config_data.ConfigSave,
     'visualizer': config_data.ConfigVisualizer,
 }

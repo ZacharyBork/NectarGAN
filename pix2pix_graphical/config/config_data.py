@@ -3,12 +3,10 @@ from dataclasses import dataclass
 @dataclass
 class ConfigCommon:
     device: str
-    dataroot: str
+    gpu_ids: list[int]
     output_directory: str
     experiment_name: str
     experiment_version: int
-    direction: str
-    input_nc: int
 
 @dataclass
 class ConfigAugsBoth:
@@ -32,18 +30,49 @@ class ConfigDataLoaderAugmentations:
     output: ConfigAugsOutput
 
 @dataclass
-class ConfigDataloader:
+class ConfigDataloaderLoad:
     load_size: int
     crop_size: int
+    input_nc: int
+    
+@dataclass
+class ConfigDataloader:
+    dataroot: str
+    direction: str
     batch_size: int
     num_workers: int
+    load: ConfigDataloaderLoad
     augmentations: ConfigDataLoaderAugmentations
 
 @dataclass
-class ConfigTrain:
-    num_epochs: int
-    num_epochs_decay: int
-    learning_rate: float
+class ConfigLoad:
+    continue_train: bool
+    load_epoch: int
+
+@dataclass
+class ConfigLearningRate:
+    epochs: int
+    epochs_decay: int
+    initial: float
+    target: float
+
+@dataclass
+class ConfigOptimizer:
+    beta1: float
+
+@dataclass
+class ConfigGenerator:
+    upsample_block_type: str
+    learning_rate: ConfigLearningRate
+    optimizer: ConfigOptimizer
+    
+@dataclass
+class ConfigDiscriminator:
+    n_layers: int
+    base_channels: int
+    max_channels: int
+    learning_rate: ConfigLearningRate
+    optimizer: ConfigOptimizer
 
 @dataclass
 class ConfigLoss:
@@ -54,23 +83,12 @@ class ConfigLoss:
     lambda_vgg: float
 
 @dataclass
-class ConfigGenerator:
-    upsample_block_type: str
-
-@dataclass
-class ConfigDiscriminator:
-    n_layers_d: int
-    base_channels_d: int
-    max_channels_d: int
-
-@dataclass
-class ConfigOptimizer:
-    beta1: float
-
-@dataclass
-class ConfigLoad:
-    continue_train: bool
-    load_epoch: int
+class ConfigTrain:
+    separate_lr_schedules: bool
+    load: ConfigLoad
+    generator: ConfigGenerator
+    discriminator: ConfigDiscriminator
+    loss: ConfigLoss
 
 @dataclass
 class ConfigSave:
@@ -82,21 +100,20 @@ class ConfigSave:
     num_examples: int
 
 @dataclass
-class ConfigVisualizer:
+class ConfigVisdom:
+    enable: bool
+    env_name: str
+    image_size: int
     update_frequency: int
-    enable_visdom: bool
-    visdom_env_name: str
-    visdom_image_size: int
+    
+@dataclass
+class ConfigVisualizer:
+    visdom: ConfigVisdom
 
 @dataclass
 class Config:
     common: ConfigCommon
     dataloader: ConfigDataloader
     train: ConfigTrain
-    loss: ConfigLoss
-    generator: ConfigGenerator
-    discriminator: ConfigDiscriminator
-    optimizer: ConfigOptimizer
-    load: ConfigLoad
     save: ConfigSave
     visualizer: ConfigVisualizer

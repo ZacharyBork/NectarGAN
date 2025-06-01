@@ -18,7 +18,12 @@ class Trainer():
     def __init__(
             self, 
             config: str | PathLike | ConfigManager | None=None,
-            quicksetup: bool=True
+            quicksetup: bool=True,
+            console: dict[str, bool]={
+                'start_epoch': True,
+                'loss_weights': True,
+                'loss_values': True,
+            }
         ) -> None:
         '''Init function for the base Trainer class.
 
@@ -38,6 +43,18 @@ class Trainer():
         self.init_config(config)                # Init config
         self.device = self.config.common.device # Store device for easy lookup
         if quicksetup: self.quicksetup()        # Do quicksetup if applicable
+
+    ### TRAINER QUICKSETUP ###
+
+    def quicksetup(self) -> None:
+        '''Function to quickly perform all init steps for Trainer instance.
+        '''
+        self.build_output_directory()  # Build experiment output directory    
+        self.init_loss_manager()       # Init LossManager
+        self.export_config()           # Export config file
+        self.init_visualizers()        # Init visualizer
+
+    ### INITIALIZATION HELPERS ###
 
     def init_config(
             self, 
@@ -59,15 +76,7 @@ class Trainer():
             case _:
                 x = [type(str), type(PathLike), type(ConfigManager), None]
                 raise ValueError(f'Invalid config type. Valid types are {x}')
-        self.config = self.config_manager.data # Store values for easier access         
-
-    def quicksetup(self) -> None:
-        '''Function to quickly perform all init steps for Trainer instance.
-        '''
-        self.build_output_directory()  # Build experiment output directory    
-        self.init_loss_manager()       # Init LossManager
-        self.export_config()           # Export config file
-        self.init_visualizers()        # Init visualizer
+        self.config = self.config_manager.data # Store values for easier access 
 
     def build_output_directory(self) -> None:
         '''Builds an output directory structure for the experiment.
@@ -86,7 +95,7 @@ class Trainer():
         
         try: 
             experiment_dir.mkdir( # Exists okay=True if loading a checkpoint
-                parents=False, exist_ok=self.config.load.continue_train)
+                parents=False, exist_ok=self.config.train.load.continue_train)
         except FileExistsError as e: 
             if self.config.save.auto_increment_version:
                 try: # If experiment dir exists and auto_increment enabled
@@ -110,30 +119,11 @@ class Trainer():
                 raise FileExistsError(error_message) from e
 
         examples_dir = pathlib.Path(experiment_dir, 'examples')
-        try: examples_dir.mkdir(exist_ok=self.config.load.continue_train)
+        try: examples_dir.mkdir(exist_ok=self.config.train.load.continue_train)
         except Exception as e:
             message = 'Unable to create examples output directory.'
             raise RuntimeError(message) from e
         self.experiment_dir, self.examples_dir =  experiment_dir, examples_dir
-
-    def init_loss_manager(self, override: LossManager | None=None) -> None:
-        '''Initializes a loss manager for the Trainer instance.
-
-        Args:
-            override : A pre-initialized LossManager to assign to the Trainer, 
-                or None (default) to create and assign a new LossManager.
-
-        Raises:
-            AssertationError : If override is not LossManager or None.
-        '''
-        if override is None:
-            self.loss_manager = LossManager( # Init loss manager
-                self.config, self.experiment_dir, enable_logging=self.log_losses) 
-            if self.log_losses: # If loss_logging=True, save initial loss log
-                self.loss_manager.export_base_log() 
-        else: 
-            assert isinstance(override, LossManager)
-            self.loss_manager = override
 
     def export_config(self) -> None:
         '''Exports a versioned config file to the experiment output directory.
@@ -150,9 +140,82 @@ class Trainer():
         '''Initializes output visualizers.
         '''
         vcon = self.config.visualizer # Get visualizer config data
-        if vcon.enable_visdom:        # Init Visdom visualizer
-            self.vis = VisdomVisualizer(env=vcon.visdom_env_name) 
-            self.vis.clear_env()      # Clear Visdom environment   
+        if vcon.visdom.enable:        # Init Visdom visualizer
+            self.vis = VisdomVisualizer(env=vcon.visdom.env_name) 
+            self.vis.clear_env()      # Clear Visdom environment  
+
+    def load_checkpoint(
+            self, 
+            generator: nn.Module, 
+            gen_optimizer: optim.Optimizer,
+            discriminator: nn.Module, 
+            disc_optimizer: optim.Optimizer
+        ) -> None:
+        '''Loads pre-trained model weights to continue training.
+
+        Args:
+            generator : The generator to load the netG weights into.
+            gen_optimizer : The generator's associated optimizer.
+            discriminator : The discriminator to load the netD weights into.
+            disc_optimizer : The discriminator's associated optimizer.
+        '''
+        load_epoch = self.config.train.load.load_epoch
+        if load_epoch == -1: base_name = f'final'
+        else: base_name = f'epoch{load_epoch}'
+
+        output_directory = pathlib.Path(self.config.common.output_directory)
+        experiment_directory = pathlib.Path(
+            output_directory, self.config.common.experiment_name)
+        
+        # Load generator checkpoint
+        checkpoint_gen_path = pathlib.Path(
+            experiment_directory, f'{base_name}_netG.pth.tar')
+        if not checkpoint_gen_path.exists():
+            message = 'Unable to locate generator checkpoint at: {}'
+            raise Exception(message.format(checkpoint_gen_path.as_posix()))
+        
+        # Load discriminator checkpoint
+        checkpoint_disc_path = pathlib.Path(
+            experiment_directory, f'{base_name}_netD.pth.tar')
+        if not checkpoint_disc_path.exists():
+            message = 'Unable to locate discriminator checkpoint at: {}'
+            raise FileNotFoundError(
+                message.format(checkpoint_disc_path.as_posix()))
+        
+        models = [(checkpoint_gen_path, generator, gen_optimizer,
+                  self.config.train.generator.learning_rate.initial), 
+                  (checkpoint_disc_path, discriminator, disc_optimizer,
+                  self.config.train.discriminator.learning_rate.initial)]
+        for path, model, optimizer, lr in models:
+            checkpoint = torch.load(path.as_posix(), map_location=self.device)
+            model.load_state_dict(checkpoint['state_dict'])
+            optimizer.load_state_dict(checkpoint['optimizer'])
+
+            for param_group in optimizer.param_groups:
+                param_group['lr'] = lr
+
+    ### TRAINING COMPONENT BUILDERS ###
+
+    def init_loss_manager(self, override: LossManager | None=None) -> None:
+        '''Initializes a loss manager for the Trainer instance.
+
+        Args:
+            override : A pre-initialized LossManager to assign to the Trainer, 
+                or None (default) to create and assign a new LossManager.
+
+        Raises:
+            AssertationError : If override is not LossManager or None.
+        '''
+        if override is None:
+            self.loss_manager = LossManager( # Init loss manager
+                self.config, 
+                self.experiment_dir, 
+                enable_logging=self.log_losses) 
+            if self.log_losses: # If loss_logging=True, save initial loss log
+                self.loss_manager.export_base_log() 
+        else: 
+            assert isinstance(override, LossManager)
+            self.loss_manager = override
 
     def build_dataloader(
             self, 
@@ -171,7 +234,7 @@ class Trainer():
             torch.utils.data.DataLoader : Dataloader created from the dataset.
         '''
         dataset_path = pathlib.Path(  # Get global sys path to data
-            self.config.common.dataroot, loader_type).resolve()
+            self.config.dataloader.dataroot, loader_type).resolve()
         if not dataset_path.exists(): # Make sure data directory exists
             message = f'Unable to locate dataset at: {dataset_path.as_posix()}'
             raise FileNotFoundError(message)
@@ -196,55 +259,8 @@ class Trainer():
             beta1: Momentum term for optimizer.
         '''
         return optimizer(network.parameters(), lr=lr, betas=(beta1, 0.999))
-    
-    def load_checkpoint(
-            self, 
-            generator: nn.Module, 
-            gen_optimizer: optim.Optimizer,
-            discriminator: nn.Module, 
-            disc_optimizer: optim.Optimizer
-        ) -> None:
-        '''Loads pre-trained model weights to continue training.
 
-        Args:
-            generator : The generator to load the netG weights into.
-            gen_optimizer : The generator's associated optimizer.
-            discriminator : The discriminator to load the netD weights into.
-            disc_optimizer : The discriminator's associated optimizer.
-        '''
-        load_epoch = self.config.load.load_epoch
-        if load_epoch == -1: base_name = f'final'
-        else: base_name = f'epoch{load_epoch}'
-
-        output_directory = pathlib.Path(self.config.common.output_directory)
-        experiment_directory = pathlib.Path(
-            output_directory, self.config.common.experiment_name)
-        
-        # Load generator checkpoint
-        checkpoint_gen_path = pathlib.Path(
-            experiment_directory, f'{base_name}_netG.pth.tar')
-        if not checkpoint_gen_path.exists():
-            message = 'Unable to locate generator checkpoint at: {}'
-            raise Exception(message.format(checkpoint_gen_path.as_posix()))
-        
-        # Load discriminator checkpoint
-        checkpoint_disc_path = pathlib.Path(
-            experiment_directory, f'{base_name}_netD.pth.tar')
-        if not checkpoint_disc_path.exists():
-            message = 'Unable to locate discriminator checkpoint at: {}'
-            raise FileNotFoundError(
-                message.format(checkpoint_disc_path.as_posix()))
-        
-        models = [
-            (checkpoint_gen_path, generator, gen_optimizer), 
-            (checkpoint_disc_path, discriminator, disc_optimizer)]
-        for path, model, optimizer in models:
-            checkpoint = torch.load(path.as_posix(), map_location=self.device)
-            model.load_state_dict(checkpoint['state_dict'])
-            optimizer.load_state_dict(checkpoint['optimizer'])
-
-            for param_group in optimizer.param_groups:
-                param_group['lr'] = self.config.train.learning_rate
+    ### TRAINING CALLBACK ###
 
     def on_train_start(self, **kwargs: Any) -> None:
         '''Train start callback function.
@@ -319,6 +335,8 @@ class Trainer():
         message = 'on_train_end() is not implemented by the child class.'
         raise NotImplementedError(message)
 
+    ### TRAINING LOOP ###
+
     def train_paired(
             self, epoch:int,
             on_train_start: Callable[[], None] | None=None,
@@ -355,8 +373,8 @@ class Trainer():
         '''
         # self.current_epoch is a sort of human-readable current epoch value
         # Basically just epoch+1 but it also accounts for loaded checkpoints
-        if self.config.load.continue_train:
-            self.current_epoch = epoch + 1 + self.config.load.load_epoch
+        if self.config.train.load.continue_train:
+            self.current_epoch = 1 + epoch + self.config.train.load.load_epoch
         else: self.current_epoch = epoch + 1
 
         start_fn = on_train_start or self.on_train_start # Init pre-train fn
@@ -381,6 +399,8 @@ class Trainer():
         end_time = time.perf_counter() # End epoch time
         self.last_epoch_time = end_time-start_time
 
+    ### CONSOLE LOGGING ###
+
     def print_end_of_epoch(self) -> None:
         '''Print function for epoch end.
         
@@ -392,6 +412,8 @@ class Trainer():
             f'(End of epoch {self.current_epoch}) '
             f'Time: {self.last_epoch_time:.2f} seconds')
         print(message, flush=True)
+
+    ### MODEL/EXAMPLE SAVE ###
 
     def export_model_weights(
             self,

@@ -1,19 +1,22 @@
 {
     "config": {
         "common": {
-            "device": "cuda:0",
-            "dataroot": "E:/ML/test_data/pix2pix/datasets/facades",
+            "device": "cuda",
+            "gpu_ids": [0],
             "output_directory": "E:/ML/test_data/pix2pix/output",
             "experiment_name": "facades",
-            "experiment_version": 1,
-            "direction": "BtoA",
-            "input_nc": 3
+            "experiment_version": 1
         },
         "dataloader": {
-            "load_size": 256,
-            "crop_size": 256,
+            "dataroot": "E:/ML/test_data/pix2pix/datasets/facades",
+            "direction": "BtoA",
             "batch_size": 1,
             "num_workers": 4,
+            "load" : {
+                "input_nc": 3,
+                "load_size": 256,
+                "crop_size": 256
+            },
             "augmentations": {
                 "both": {
                     "h_flip_chance": 0.5,
@@ -30,45 +33,60 @@
             }
         },
         "train": {
-            "num_epochs": 5,
-            "num_epochs_decay": 5,
-            "learning_rate": 0.0002
-        },
-        "loss": {
-            "lambda_gan": 1.0,
-            "lambda_l1": 100.0,
-            "lambda_sobel": 0.0,
-            "lambda_laplacian": 0.0,
-            "lambda_vgg": 10.0
-        },
-        "generator": {
-            "upsample_block_type": "Transpose"
-        },
-        "discriminator": {
-            "n_layers_d": 3,
-            "base_channels_d": 64,
-            "max_channels_d": 512
-        },
-        "optimizer": {
-            "beta1": 0.5
-        },
-        "load": {
-            "continue_train": false,
-            "load_epoch": 3
+            "separate_lr_schedules": false,
+            "load": {
+                "continue_train": false,
+                "load_epoch": 3
+            },
+            "generator": {
+                "upsample_block_type": "Transpose",
+                "learning_rate" : {
+                    "epochs": 100,
+                    "epochs_decay": 100,
+                    "initial": 0.0002,
+                    "target": 0.0 
+                },
+                "optimizer": {
+                    "beta1": 0.5
+                }
+            },
+            "discriminator": {
+                "n_layers": 3,
+                "base_channels": 64,
+                "max_channels": 512,
+                "learning_rate": {
+                    "epochs": 100,
+                    "epochs_decay": 100,
+                    "initial": 0.0002,
+                    "target": 0.0
+                },
+                "optimizer": {
+                    "beta1": 0.5
+                }    
+            },
+            "loss": {
+                "lambda_gan": 1.0,
+                "lambda_l1": 100.0,
+                "lambda_sobel": 0.0,
+                "lambda_laplacian": 0.0,
+                "lambda_vgg": 10.0
+            }
         },
         "save": {
-            "save_model": false,
-            "model_save_rate": 5,
+            "save_model": true,
+            "model_save_rate": 20,
             "auto_increment_version": true,
             "save_examples": true,
             "example_save_rate": 1,
             "num_examples": 1
         },
         "visualizer": {
-            "update_frequency": 40,
-            "enable_visdom": true,
-            "visdom_env_name": "main",
-            "visdom_image_size": 400
+            "visdom": {
+                "enable": true,
+                "env_name": "main",
+                "image_size": 400,
+                "update_frequency": 40
+            }
         }
     }
 }
