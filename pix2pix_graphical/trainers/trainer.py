@@ -19,7 +19,7 @@ class Trainer():
     def __init__(
             self, 
             config: str | PathLike | ConfigManager | None=None,
-            quicksetup: bool=True
+            quicksetup: bool=True,
         ) -> None:
         '''Init function for the base Trainer class.
 
@@ -342,8 +342,25 @@ class Trainer():
 
     ### TRAINING LOOP ###
 
+    def _train_paired_core(
+            self, 
+            train_step_fn: Callable[[torch.Tensor, torch.Tensor, int], None],
+            train_step_kwargs: dict[str, Any]
+        ) -> None:
+        '''Paired adversarial training loop.
+        
+        Args:
+            train_step_fn : Train step function, Run once per batch.
+            train_step_kwargs : Optional keyword args for train step function.
+        '''
+        for idx, (x, y) in enumerate(self.train_loader):
+            # Loop through (x, y) of batch[idx] from training dataset
+            x, y = x.to(self.device), y.to(self.device)
+            train_step_fn(x, y, idx, **train_step_kwargs)
+
     def train_paired(
-            self, epoch:int,
+            self, 
+            epoch:int,
             on_epoch_start: Callable[[], None] | None=None,
             train_step: Callable[[torch.Tensor, torch.Tensor, int], None] | 
             None=None,
@@ -389,11 +406,6 @@ class Trainer():
         start_fn = on_epoch_start or self.on_epoch_start # Init pre-train fn
         train_fn = train_step or self.train_step         # Init train step fn
         end_fn = on_epoch_end or self.on_epoch_end       # Init post-train fn
-        
-        def loop(): # Loop through (x, y) of batch[idx] from training dataset
-            for idx, (x, y) in enumerate(self.train_loader):
-                x, y = x.to(self.device), y.to(self.device) # And train model
-                train_fn(x, y, idx, **callback_kwargs.get('train_step', {})) 
 
         start_time = time.perf_counter() # Start epoch time
         
@@ -402,11 +414,11 @@ class Trainer():
         if multithreaded: 
             try:
                 self.vis.start_thread()
-                loop()
+                self._train_paired_core(train_fn, callback_kwargs.get('train_step', {}))
             except KeyboardInterrupt:
                 sys.exit('Interrupt Recieved: Stopping training...')
             finally: self.vis.stop_thread()
-        else: loop()
+        else: self._train_paired_core(train_fn, callback_kwargs.get('train_step', {}))
         
         # Run post-train function
         end_fn(**callback_kwargs.get('on_epoch_end', {})) 

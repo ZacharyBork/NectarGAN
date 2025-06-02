@@ -446,9 +446,10 @@ class Pix2pixTrainer(Trainer):
             **kwargs : Any keyword arguments you would like to pass to the 
                 callback during training.
         '''
-        if kwargs['print_train_start']:
-            print(f'Beginning epoch: {self.current_epoch}')
-            self.loss_manager.print_weights()
+        if 'print_train_start' in kwargs.items():
+            if kwargs['print_train_start']:
+                print(f'Beginning epoch: {self.current_epoch}')
+                self.loss_manager.print_weights()
 
     def train_step(
             self, 

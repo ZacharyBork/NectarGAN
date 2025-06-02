@@ -24,7 +24,7 @@ if __name__ == "__main__":
     cfg = trainer.config
 
     # Build epoch count from generator LR schedule
-    epoch_counts =  cfg.train.generator.learning_rate
+    epoch_counts = cfg.train.generator.learning_rate
     epoch_count = epoch_counts.epochs + epoch_counts.epochs_decay
     
     for epoch in range(epoch_count):
