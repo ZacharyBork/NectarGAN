@@ -1,10 +1,12 @@
 import sys
 import json
 import pathlib
-from typing import Union
+from typing import Union, Any
+from importlib.resources import files
 
 import torch
 import numpy as np
+# import pyqtgraph as qtg
 import PySide6.QtWidgets as QtWidgets
 import PySide6.QtGui as QtGui
 from PySide6.QtUiTools import QUiLoader
@@ -56,6 +58,27 @@ class Interface(QObject):
         # Stores references to frequently used widgets
         self.widgets: dict[str, QtWidgets.QWidget] = {}
 
+    ### CONFIG HANDLING ###
+
+    def _get_config_data(
+            self, 
+            path: pathlib.Path | None=None
+        ) -> dict[str, Any]:
+        if path is None:
+            path = files('pix2pix_graphical.config').joinpath('default.json')
+        else: path = path.as_posix()
+        try:
+            with open(path, 'r') as f:
+                config = json.load(f)
+            return config
+        except Exception as e:
+            message = f'Unable to open config file at: {path.as_posix()}'
+            raise RuntimeError(message) from e
+
+    def _init_from_config(self, config_path: pathlib.Path | None=None) -> None:
+        if config_path == None:
+            config_data = self._get_config_data() # Get default config
+        else: config_data = self._get_config_data(path=config_path)
 
     ### TRAINING ###
 
@@ -68,7 +91,8 @@ class Interface(QObject):
 
         self.train_thread.started.connect(self.worker.run) # Training slot fn
         
-        self.worker.progress.connect(self.report_progress) # Progress bar value
+        self.worker.epoch_progress.connect(self.report_epoch_progress)
+        self.worker.train_progress.connect(self.report_train_progress)
         self.worker.tensors.connect(self._get_tensors)     # XYZ image tensors
         self.worker.log.connect(self.update_log)           # Log strings
         
@@ -95,9 +119,15 @@ class Interface(QObject):
 
     def update_log(self, log_entry: str) -> None:
         self.widgets['output_log'].append(log_entry)
+        if self._get(QtWidgets.QCheckBox, 'autoscroll_log').isChecked():
+            scroll = self.widgets['output_log'].verticalScrollBar()
+            scroll.setValue(scroll.maximum())
 
-    def report_progress(self, value: int) -> None:
-        self.widgets['progress'].setValue(value)
+    def report_epoch_progress(self, value: int) -> None:
+        self.widgets['epoch_progress'].setValue(value)
+
+    def report_train_progress(self, value: int) -> None:
+        self.widgets['train_progress'].setValue(value)
 
     ### UPDATE IMAGES ###
 
@@ -143,7 +173,8 @@ class Interface(QObject):
     def cleanup(self):
         self.widgets['train_start'].setEnabled(True)
         self.widgets['train_stop'].setEnabled(False)
-        self.widgets['progress'].setValue(0)
+        self.widgets['train_progress'].setValue(0)
+        self.widgets['epoch_progress'].setValue(0)
 
     ### INIT HELPERS ###
 
@@ -167,7 +198,17 @@ class Interface(QObject):
         '''
         return self.mainwidget.findChild(type, name)
 
-    def update_spinbox_from_slider(
+    def _set_button_icon(
+            self, 
+            filename: str, 
+            button: QtWidgets.QPushButton
+        ) -> None:
+        root = pathlib.Path(__file__).parent
+        file = pathlib.Path(root, 'resources', 'icons', filename)
+        icon = QtGui.QIcon(file.as_posix())
+        button.setIcon(icon)
+
+    def _update_spinbox_from_slider(
             self,
             spinbox: Union[QtWidgets.QSpinBox, QtWidgets.QDoubleSpinBox], 
             slider: QtWidgets.QSlider, 
@@ -177,26 +218,51 @@ class Interface(QObject):
         '''
         spinbox.setValue(float(slider.value()) * multiplier)
 
-    ### ASSIGN CALLBACK FUNCTIONS ###
-
     def _sliders_to_spinboxes(self) -> None:
         '''Links all spinboxes in the interface to their respective sliders.'''
         sliders_to_link = [
             # (slider, spinbox, multiplier)
-            ('lr_slider', 'learning_rate', 0.0001),
-            ('num_epochs_slider', 'num_epochs', 1.0),
             ('batch_size_slider', 'batch_size', 1.0),
-            ('worker_count_slider', 'worker_count', 1.0),
-            ('beta1_slider', 'beta1', 0.01),
-            ('l1_slider', 'l1', 1.0),
-            ('sobel_slider', 'sobel', 1.0)]
+            ('gen_lr_initial_slider', 'gen_lr_initial', 0.0001),
+            ('gen_lr_target_slider', 'gen_lr_target', 0.0001),
+            ('gen_optim_beta1_slider', 'gen_optim_beta1', 0.01),
+            
+            ('disc_lr_initial_slider', 'disc_lr_initial', 0.0001),
+            ('disc_lr_target_slider', 'disc_lr_target', 0.0001),
+            ('disc_optim_beta1_slider', 'disc_optim_beta1', 0.01),
+            
+            
+            ('lambda_l1_slider', 'lambda_l1', 1.0),
+            ('lambda_sobel_slider', 'lambda_sobel', 1.0),
+            ('lambda_laplacian_slider', 'lambda_laplacian', 1.0),
+            ('lambda_vgg_slider', 'lambda_vgg', 1.0)]
 
         for x, y, z in sliders_to_link:
             slider = self.mainwidget.findChild(QtWidgets.QSlider, x)
             spinbox = self.mainwidget.findChild(QtWidgets.QSpinBox, y)
             if spinbox == None: spinbox = self.mainwidget.findChild(QtWidgets.QDoubleSpinBox, y)
             slider.valueChanged.connect(
-                lambda value, s=spinbox, sl=slider, m=z: self.update_spinbox_from_slider(s, sl, multiplier=m))
+                lambda s=spinbox, sl=slider, m=z: self._update_spinbox_from_slider(s, sl, multiplier=m))
+
+    ### CALLBACKS ###
+
+    def close_experiment_settings(self) -> None:
+        dock = self._get(QtWidgets.QDockWidget, 'experiment_settings')
+        button = self._get(QtWidgets.QPushButton, 'close_experiment_settings')
+        direction = 'left' if dock.isHidden() else 'right'
+        self._set_button_icon(f'caret-line-{direction}-bold.svg', button)
+        dock.setHidden(not dock.isHidden())
+
+    def _split_lr_schedules(self) -> None:
+        gen_box = self._get(QtWidgets.QGroupBox, 'gen_schedule_box')
+        disc_box = self._get(QtWidgets.QGroupBox, 'disc_schedule_box')
+        checkbox = self._get(QtWidgets.QCheckBox, 'separate_lr_schedules')
+        if checkbox.isChecked():
+            gen_box.setTitle('Generator')
+            disc_box.setHidden(False)
+        else:
+            gen_box.setTitle('Schedule')
+            disc_box.setHidden(True)
 
     ### INIT INTERFACE ###
 
@@ -205,7 +271,8 @@ class Interface(QObject):
             'output_log': self._get(QtWidgets.QTextEdit, 'output_log'),
             'train_start': self._get(QtWidgets.QPushButton, 'train_start'),
             'train_stop': self._get(QtWidgets.QPushButton, 'train_stop'),
-            'progress': self._get(QtWidgets.QProgressBar, 'progress'),
+            'epoch_progress': self._get(QtWidgets.QProgressBar, 'epoch_progress'),
+            'train_progress': self._get(QtWidgets.QProgressBar, 'train_progress'),
             'x_label': self._get(QtWidgets.QLabel, 'x_label'),
             'y_label': self._get(QtWidgets.QLabel, 'y_label'),
             'y_fake_label': self._get(QtWidgets.QLabel, 'y_fake_label')}
@@ -218,10 +285,33 @@ class Interface(QObject):
         log.setTextInteractionFlags(Qt.TextInteractionFlag.NoTextInteraction)
 
     def _init_training_controls(self) -> None:
-        self.widgets['progress'].setValue(0)
+        self.widgets['train_progress'].setValue(0)
+        self.widgets['epoch_progress'].setValue(0)
         self.widgets['train_start'].clicked.connect(self.start_train)
         self.widgets['train_stop'].clicked.connect(self.stop_train)
         self.widgets['train_stop'].setEnabled(False)
+
+    def _swap_image_labels(self) -> None:
+        for name in ['x_label', 'y_label', 'y_fake_label']:
+            old_label = self.widgets[name]
+            layout = old_label.parentWidget().layout()
+
+            new_label = ImageLabel(name=name, pixmap=None, parent=self.mainwidget)
+            new_label.setObjectName(name)
+            new_label.setMinimumSize(old_label.minimumSize())
+            new_label.setSizePolicy(old_label.sizePolicy())
+            new_label.setAlignment(old_label.alignment()) 
+
+            layout.replaceWidget(old_label, new_label)
+            old_label.deleteLater()
+            self.widgets[name] = new_label
+
+    def _init_pushbuttons(self) -> None:
+        _button = QtWidgets.QPushButton
+
+        button = self._get(_button, 'close_experiment_settings')
+        self._set_button_icon('caret-line-left-bold.svg', button)
+        button.clicked.connect(self.close_experiment_settings)
 
     def init_ui(self) -> None:
         '''Initialized the interface. Links parameters, sets defaults, etc.'''
@@ -229,31 +319,12 @@ class Interface(QObject):
         self._init_output_log()        # Set some overrides on the output log
         self._sliders_to_spinboxes()   # Link sliders to their spinboxes
         self._init_training_controls() # Link callbacks for training controls
+        self._swap_image_labels()      # Replace QLabels with custom wrappers
 
-        # self.widgets['x_label'] = ImageLabel(name='x_label', pixmap=None, parent=self.mainwidget)
-        # self.widgets['y_label'] = ImageLabel(name='y_label', pixmap=None, parent=self.mainwidget)
-        # self.widgets['y_fake_label'] = ImageLabel(name='y_fake_label', pixmap=None, parent=self.mainwidget)
+        self._get(QtWidgets.QGroupBox, 'disc_schedule_box').setHidden(True)
+        self._get(QtWidgets.QCheckBox, 'separate_lr_schedules').clicked.connect(self._split_lr_schedules)
 
-        for name in ['x_label', 'y_label', 'y_fake_label']:
-            old_label = self.widgets[name]
-            layout = old_label.parentWidget().layout()
-
-            new_label = ImageLabel(name='x_label', pixmap=None, parent=self.mainwidget)
-            new_label.setObjectName('x_label')
-            new_label.setMinimumSize(old_label.minimumSize())
-            new_label.setSizePolicy(old_label.sizePolicy())
-            new_label.setAlignment(old_label.alignment())
-            
-            for i in range(layout.count()):
-                if layout.itemAt(i).widget() is old_label:
-                    layout.removeWidget(old_label)
-                    old_label.setParent(None)
-                    layout.insertWidget(i, new_label)
-                    new_label.setSizePolicy(
-                        QtWidgets.QSizePolicy.Expanding,
-                        QtWidgets.QSizePolicy.Expanding)
-                    new_label.setMinimumSize(10, 10)
-                    self.widgets[name] = new_label
+        self._init_pushbuttons()
 
         self.safe_cleanup.connect(self.cleanup)
 
@@ -271,7 +342,7 @@ class Interface(QObject):
         root = pathlib.Path(__file__).parent
         file = pathlib.Path(root, 'resources', 'base.ui')
         if not file.exists():
-            msg = f'Unable to locate UI file at: {file.resolve().as_posix()}'
+            msg = f'Unable to locate UI file: {file.resolve().as_posix()}'
             raise FileNotFoundError(msg)
         return QFile(file.resolve().as_posix())
 
@@ -284,12 +355,22 @@ class Interface(QObject):
         self.mainwidget = loader.load(file)
         file.close()
         self.init_ui()
-
         self.mainwidget.setWindowTitle('Pix2pix Trainer')
+
+    def _set_stylesheet(self, app: QtWidgets.QApplication) -> None:
+        root = pathlib.Path(__file__).parent
+        file = pathlib.Path(root, 'resources', 'stylesheet.qss')
+        if not file.exists():
+            msg = f'Unable to locate stylesheet: {file.resolve().as_posix()}'
+            raise FileNotFoundError(msg)
+        with open(file.resolve().as_posix(), 'r') as file:
+            stylesheet = file.read()
+            app.setStyleSheet(stylesheet)
 
     def run(self) -> None:
         '''Entrypoint function for `Interface` class. Launches the GUI.'''
         app = QtWidgets.QApplication(sys.argv)
+        # self._set_stylesheet(app=app)
 
         self._init_mainwidget()
         self.mainwidget.show()

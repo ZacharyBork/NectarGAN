@@ -1,0 +1,37 @@
+QWidget {
+    background-color: rgb(50, 50, 50);
+}
+QPushButton {
+    background-color: rgb(50, 50, 50);
+}
+QPushButton::hover {
+    background-color: rgb(50, 50, 50);
+}
+QSlider {
+    background-color: rgb(50, 50, 50);
+}
+QLineEdit {
+    background-color: rgb(50, 50, 50);
+}
+QTextEdit {
+    background-color: rgb(50, 50, 50);
+}
+QSpinBox, QDoubleSpinBox {
+    background-color: rgb(50, 50, 50);
+}
+QCheckBox {
+    background-color: rgb(50, 50, 50);
+}
+QProgressBar {
+    background-color: rgb(50, 50, 50);
+}
+/* QPushButton {
+    background-color: red;
+    border-style: outset;
+    border-width: 2px;
+    border-radius: 10px;
+    border-color: beige;
+    font: bold 14px;
+    min-width: 10em;
+    padding: 6px;
+} */

@@ -449,7 +449,6 @@ class Trainer():
             mod: nn.Module, 
             opt: optim.Optimizer, 
             net: str,
-            capture: bool=False
         ) -> str | None: 
         '''Save a checkpoint for a single network and associated optimizer.
         
@@ -460,12 +459,9 @@ class Trainer():
             mod : The network to save.
             opt : The network's optimizer
             net : The name of the network being saved (e.g G for generator).
-            capture : If False (default), this funtion will print its logging
-                info directly to the console and return False. If True, it will 
-                instead return it as a string.
 
         Returns:
-            str | None : String of log output if capture=True, otherwise None.
+            str : System path of the exported checkpoint file.
         
         Raises:
             RuntimeError : If unable to save checkpoint file.
@@ -479,10 +475,7 @@ class Trainer():
         except Exception as e:
             message = 'Unable to save checkpoint file: {}'
             raise RuntimeError(message.format(output_path.as_posix())) from e
-        
-        message = f'Checkpoint Saved ({net}): {output_path.as_posix()}'
-        if capture: return message
-        else: print(message)
+        return output_path.resolve().as_posix()
 
     def save_xyz_examples(
             self, 

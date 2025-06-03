@@ -8,7 +8,8 @@ from pix2pix_graphical.trainers.pix2pix_trainer import Pix2pixTrainer
 
 class TrainerWorker(QObject, Pix2pixTrainer):
     finished = Signal()
-    progress = Signal(int)
+    epoch_progress = Signal(int)
+    train_progress = Signal(int)
     tensors = Signal(torch.Tensor)
     log = Signal(str)
     cancelled = Signal()
@@ -79,12 +80,14 @@ class TrainerWorker(QObject, Pix2pixTrainer):
                         y_fake.detach().cpu()))
                     self.log.emit(self.loss_manager.print_losses(epoch, idx, capture=True))
 
+                self.epoch_progress.emit(int((idx / len(self.train_loader)) * 100.0))
+
             self.on_epoch_end() 
             
             end_time = time.perf_counter()
             self.last_epoch_time = end_time-start_time
             self.log.emit(self.print_end_of_epoch(capture=True))
-            self.progress.emit(int(((epoch + 1) / self.epoch_count) * 100.0))
+            self.train_progress.emit(int(((epoch + 1) / self.epoch_count) * 100.0))
 
             if epoch == self.epoch_count-1:
                 self.log.emit(self.save_checkpoint(capture=True))

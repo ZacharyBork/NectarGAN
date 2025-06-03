@@ -539,13 +539,17 @@ class Pix2pixTrainer(Trainer):
         output = ''
         match mode.lower():
             case 'g' | 'g': 
-                output += self.export_model_weights(
-                    self.gen, self.opt_gen, mode.upper(), capture=capture)
+                path = self.export_model_weights(
+                    self.gen, self.opt_gen, mode.upper())
+                output = f'Checkpoint Saved ({mode.upper()}): {path}'
             case 'both':
-                output += self.export_model_weights(
-                    self.gen, self.opt_gen, 'G', capture=capture)
-                output += self.export_model_weights(
-                    self.disc, self.opt_disc, 'D', capture=capture)
+                path_g = self.export_model_weights(
+                    self.gen, self.opt_gen, 'G')
+                path_d = self.export_model_weights(
+                    self.disc, self.opt_disc, 'D')
+                output = (
+                    f'Checkpoint Saved (G): {path_g}\n'
+                    f'Checkpoint Saved (D): {path_d}')
             case _: 
                 message = 'Encountered invalid mode while saving checkpoint.'
                 raise ValueError(message)
@@ -559,7 +563,8 @@ class Pix2pixTrainer(Trainer):
         ) -> str | None:
         '''Evaluates model and saves images to example output directory.'''        
         if not silent:
-            message = f'Saving example images: {self.examples_dir.as_posix()}'
-            if capture: return message
-            else: print(message)
-        self.save_xyz_examples(network=self.gen, dataloader=self.val_loader)
+            output = f'Saving example images: {self.examples_dir.as_posix()}'
+            self.save_xyz_examples(network=self.gen, dataloader=self.val_loader)
+            if capture: return output
+            else: print(output)
+        
