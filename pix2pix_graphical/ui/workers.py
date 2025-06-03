@@ -1,12 +1,16 @@
-from PySide6.QtCore import QObject, Signal, Slot
 import time
+from typing import Any
 
-from pix2pix_graphical.config.config_data import Config
+import torch
+from PySide6.QtCore import QObject, Signal, Slot
+
 from pix2pix_graphical.trainers.pix2pix_trainer import Pix2pixTrainer
 
 class TrainerWorker(QObject, Pix2pixTrainer):
     finished = Signal()
     progress = Signal(int)
+    tensors = Signal(torch.Tensor)
+    log = Signal(str)
     cancelled = Signal()
 
     def __init__(self) -> None:
@@ -14,14 +18,35 @@ class TrainerWorker(QObject, Pix2pixTrainer):
             config=None, 
             loss_subspec='extended+vgg',
             log_losses=False)
-        self._is_interrupted = False
+        self._is_interrupted: bool = False
 
     def stop(self):
-        self._is_interrupted = True
+        self._is_interrupted: bool = True
+
+    def train_step(
+            self, 
+            x: torch.Tensor, 
+            y: torch.Tensor, 
+            idx: int,
+            **kwargs: Any
+        ) -> torch.Tensor:
+        with torch.amp.autocast('cuda'): 
+            y_fake = self.gen(x)
+
+        # Get discriminator losses, apply gradients
+        losses_D = self.forward_D(x, y, y_fake)
+        self.backward_D(losses_D['loss_D'])
+        
+        # Get generator losses, apply gradients
+        loss_G = self.forward_G(x, y, y_fake)
+        self.backward_G(loss_G)
+
+        return y_fake
 
     @Slot()
     def run(self):
         self.config.dataloader.num_workers = 0
+        self.config.visualizer.visdom.enable = False
         self.cfg = self.config
 
         epoch_counts = self.cfg.train.generator.learning_rate
@@ -41,63 +66,33 @@ class TrainerWorker(QObject, Pix2pixTrainer):
             self.on_epoch_start() 
             for idx, (x, y) in enumerate(self.train_loader):
                 if self._is_interrupted: 
-                    print('Training stopped')
+                    self.log.emit('Training Canceled. Stopping...')
                     self.cancelled.emit()
                     return
                 x, y = x.to(self.device), y.to(self.device)
-                self.train_step(x, y, idx)
+                y_fake = self.train_step(x, y, idx)
+
+                if idx % self.config.visualizer.visdom.update_frequency == 0:
+                    self.tensors.emit((
+                        x.detach().cpu(), 
+                        y.detach().cpu(), 
+                        y_fake.detach().cpu()))
+                    self.log.emit(self.loss_manager.print_losses(epoch, idx, capture=True))
+
             self.on_epoch_end() 
             
             end_time = time.perf_counter()
             self.last_epoch_time = end_time-start_time
+            self.log.emit(self.print_end_of_epoch(capture=True))
+            self.progress.emit(int(((epoch + 1) / self.epoch_count) * 100.0))
 
-        if epoch == self.epoch_count-1:
-            self.save_checkpoint() # Always save model after final epoch
-        elif self.cfg.save.save_model and (epoch+1) % self.cfg.save.model_save_rate == 0:
-            self.save_checkpoint() # Save intermediate checkpoints
+            if epoch == self.epoch_count-1:
+                self.log.emit(self.save_checkpoint(capture=True))
+            elif self.cfg.save.save_model and (epoch+1) % self.cfg.save.model_save_rate == 0:
+                self.log.emit(self.save_checkpoint(capture=True))
 
-        if (self.cfg.save.save_examples
-            and (epoch+1) % self.cfg.save.example_save_rate == 0):
-            self.save_examples() # Save example images if applicable
+            if (self.cfg.save.save_examples
+                and (epoch+1) % self.cfg.save.example_save_rate == 0):
+                self.log.emit(self.save_examples(capture=True))
 
-        self.print_end_of_epoch()
-        self.progress.emit(int((epoch + 1) / self.epoch_count * 100))
-
-
-
-
-        # self.trainer = Pix2pixTrainer(
-        #     config=None, 
-        #     loss_subspec='extended+vgg',
-        #     log_losses=False)
-        # self.config.dataloader.num_workers = 0
-        # self.cfg = self.config
-
-        # # Build epoch count from generator LR schedule
-        # epoch_counts = self.cfg.train.generator.learning_rate
-        # self.epoch_count = epoch_counts.epochs + epoch_counts.epochs_decay
-
-        # for epoch in range(self.epoch_count):
-        #     if self._is_interrupted:
-        #         self.cancelled.emit()
-        #         return
             
-        #     result = self.trainer._train_paired_QThread(
-        #         epoch, 
-        #         is_interrupted=lambda: self._is_interrupted,
-        #         callback_kwargs={})
-        #     if result == -1:
-        #         self.cancelled.emit()
-        #         return
-            
-        #     if epoch == self.epoch_count-1:
-        #         self.trainer.save_checkpoint() # Always save model after final epoch
-        #     elif self.cfg.save.save_model and (epoch+1) % self.cfg.save.model_save_rate == 0:
-        #         self.trainer.save_checkpoint() # Save intermediate checkpoints
-
-        #     if (self.cfg.save.save_examples
-        #         and (epoch+1) % self.cfg.save.example_save_rate == 0):
-        #         self.trainer.save_examples() # Save example images if applicable
-
-        #     self.trainer.print_end_of_epoch()
-        #     self.progress.emit(int((epoch + 1) / self.epoch_count * 100))

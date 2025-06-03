@@ -26,7 +26,7 @@ class Pix2pixTrainer(Trainer):
             ] = 'basic',
             log_losses: bool=True
         ) -> None:
-        super().__init__(config)
+        super().__init__(config=config, quicksetup=True)
 
         self.extend_loss_spec = 'basic' not in loss_subspec 
         self.vgg_loss_enabled = '+vgg' in loss_subspec 
@@ -189,7 +189,11 @@ class Pix2pixTrainer(Trainer):
             graph_step = self.current_epoch + idx / len(self.train_loader) 
             self.vis.update_loss_graphs(graph_step, losses_G, losses_D)
 
-    def print_end_of_epoch(self, precision: int=8) -> None:
+    def print_end_of_epoch(
+            self, 
+            precision: int=8, 
+            capture: bool=False
+        ) -> str | None:
         '''Prints information at end of epoch.
         
         The base Trainer class implements this function to print epoch index
@@ -200,17 +204,26 @@ class Pix2pixTrainer(Trainer):
         Args:
             precision : Rounding precision of printed learning rates.
         '''
-        super().print_end_of_epoch()
+        output = super().print_end_of_epoch(capture=capture)
+        if output is None: return ''
         
         # Print prev and new generator learning rate
         gen_lr_step = self.gen_lr_scheduler.get_lr()
-        print( f'Learning rate (G): {round(gen_lr_step[0], precision)}'
-               f' => {round(gen_lr_step[1], precision)}')
+        output += (
+            f'\nLearning rate (G): {round(gen_lr_step[0], precision)}'
+            f' => {round(gen_lr_step[1], precision)}'
+        )
         
         # Print prev and new discriminator learning rate
         disc_lr_step = self.disc_lr_scheduler.get_lr()
-        print(f'Learning rate (D): {round(disc_lr_step[0], precision)}'
-              f' => {round(disc_lr_step[1], precision)}')
+        output += (
+            f'\nLearning rate (D): {round(disc_lr_step[0], precision)}'
+            f' => {round(disc_lr_step[1], precision)}'
+        )
+
+        if capture: return output
+        else: print(output)
+
 
     ### DISCRIMINATOR TRAINING ###
 
@@ -505,7 +518,11 @@ class Pix2pixTrainer(Trainer):
         
     ### SAVE MODEL/EXAMPLE ###
 
-    def save_checkpoint(self, mode: Literal['g', 'd', 'both']='both') -> None:
+    def save_checkpoint(
+            self, 
+            mode: Literal['g', 'd', 'both']='both',
+            capture: bool=False
+        ) -> str | None:
         '''Saves a .pth.tar checkpoint file named with the current epoch.
         
         Args:
@@ -513,22 +530,36 @@ class Pix2pixTrainer(Trainer):
                 'g' for only generator,
                 'd' for only discriminator, 
                 'both' (default) for both.
+            capture : If true, this function will return the log strings from
+                `Trainer.export_model_weights()` rather than printing them.
         
         Raises:
             ValueError : If input mode is not valid.
         '''    
+        output = ''
         match mode.lower():
             case 'g' | 'g': 
-                self.export_model_weights(self.gen, self.opt_gen, mode.upper())
+                output += self.export_model_weights(
+                    self.gen, self.opt_gen, mode.upper(), capture=capture)
             case 'both':
-                self.export_model_weights(self.gen, self.opt_gen, 'G')
-                self.export_model_weights(self.disc, self.opt_disc, 'D')
+                output += self.export_model_weights(
+                    self.gen, self.opt_gen, 'G', capture=capture)
+                output += self.export_model_weights(
+                    self.disc, self.opt_disc, 'D', capture=capture)
             case _: 
                 message = 'Encountered invalid mode while saving checkpoint.'
                 raise ValueError(message)
+        if capture: return output
+        else: return None
 
-    def save_examples(self, silent: bool=False) -> None:
+    def save_examples(
+            self, 
+            silent: bool=False, 
+            capture: bool=False
+        ) -> str | None:
         '''Evaluates model and saves images to example output directory.'''        
         if not silent:
-            print(f'Saving example images: {self.examples_dir.as_posix()}')
+            message = f'Saving example images: {self.examples_dir.as_posix()}'
+            if capture: return message
+            else: print(message)
         self.save_xyz_examples(network=self.gen, dataloader=self.val_loader)

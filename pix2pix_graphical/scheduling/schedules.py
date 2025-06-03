@@ -6,9 +6,9 @@ class ScheduleDefs:
         '''Defines a linear loss weight schedule.
 
         Graph:
-            - https://www.desmos.com/calculator/xaponwctch
-            - e1, e2 : start, end epoch
-            - v1, v2 : start, end value
+        - https://www.desmos.com/calculator/xaponwctch
+        - e1, e2 : start, end epoch
+        - v1, v2 : start, end value
 
         Args:
             schedule : Schedule object to use when computing the new weight.
@@ -42,9 +42,9 @@ class ScheduleDefs:
         '''Defines a exponential loss weight schedule.
 
         Graph:
-            - https://www.desmos.com/calculator/adqximccwt
-            - e1, e2 : start, end epoch
-            - v1, v2 : start, end value
+        - https://www.desmos.com/calculator/adqximccwt
+        - e1, e2 : start, end epoch
+        - v1, v2 : start, end value
 
         Args:
             schedule : Schedule object to use when computing the new weight.

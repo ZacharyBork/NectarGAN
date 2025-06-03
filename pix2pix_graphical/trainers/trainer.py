@@ -19,7 +19,7 @@ class Trainer():
     def __init__(
             self, 
             config: str | PathLike | ConfigManager | None=None,
-            quicksetup: bool=True,
+            quicksetup: bool=True
         ) -> None:
         '''Init function for the base Trainer class.
 
@@ -55,7 +55,8 @@ class Trainer():
         self.build_output_directory()  # Build experiment output directory    
         self.init_loss_manager()       # Init LossManager
         self.export_config()           # Export config file
-        self.init_visualizers()        # Init visualizer
+        if self.config.visualizer.visdom.enable:
+            self.init_visdom()         # Init visualizer
 
     ### INITIALIZATION HELPERS ###
 
@@ -139,8 +140,8 @@ class Trainer():
         '''
         self.config_manager.export_config(self.experiment_dir)
 
-    def init_visualizers(self) -> None:
-        '''Initializes output visualizers.
+    def init_visdom(self) -> None:
+        '''Initializes visdom visualization.
         '''
         vcon = self.config.visualizer # Get visualizer config data
         if vcon.visdom.enable:        # Init Visdom visualizer
@@ -428,7 +429,7 @@ class Trainer():
 
     ### CONSOLE LOGGING ###
 
-    def print_end_of_epoch(self) -> None:
+    def print_end_of_epoch(self, capture: bool=False) -> str | None:
         '''Print function for epoch end.
         
         When called from a training script, usually at the end of each epoch,
@@ -438,7 +439,8 @@ class Trainer():
         message = (
             f'(End of epoch {self.current_epoch}) '
             f'Time: {self.last_epoch_time:.2f} seconds')
-        print(message, flush=True)
+        if not capture: print(message, flush=True)
+        else: return message
 
     ### MODEL/EXAMPLE SAVE ###
 
@@ -446,8 +448,9 @@ class Trainer():
             self,
             mod: nn.Module, 
             opt: optim.Optimizer, 
-            net: str
-        ) -> None: 
+            net: str,
+            capture: bool=False
+        ) -> str | None: 
         '''Save a checkpoint for a single network and associated optimizer.
         
         They will be saved to the experiment output directory. File names will 
@@ -457,6 +460,12 @@ class Trainer():
             mod : The network to save.
             opt : The network's optimizer
             net : The name of the network being saved (e.g G for generator).
+            capture : If False (default), this funtion will print its logging
+                info directly to the console and return False. If True, it will 
+                instead return it as a string.
+
+        Returns:
+            str | None : String of log output if capture=True, otherwise None.
         
         Raises:
             RuntimeError : If unable to save checkpoint file.
@@ -466,11 +475,14 @@ class Trainer():
             'optimizer': opt.state_dict()}
         name = f'epoch{str(self.current_epoch)}_net{net}.pth.tar'
         output_path = pathlib.Path(self.experiment_dir, name)
-        print(f'Saving Checkpoint({net}): {output_path.as_posix()}')
         try: torch.save(checkpoint, output_path.as_posix())
         except Exception as e:
             message = 'Unable to save checkpoint file: {}'
             raise RuntimeError(message.format(output_path.as_posix())) from e
+        
+        message = f'Checkpoint Saved ({net}): {output_path.as_posix()}'
+        if capture: return message
+        else: print(message)
 
     def save_xyz_examples(
             self, 

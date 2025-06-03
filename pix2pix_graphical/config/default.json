@@ -82,7 +82,7 @@
         },
         "visualizer": {
             "visdom": {
-                "enable": true,
+                "enable": false,
                 "env_name": "main",
                 "port": 8097,
                 "image_size": 400,

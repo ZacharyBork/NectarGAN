@@ -60,8 +60,8 @@ class Laplacian(torch.nn.Module):
     and exacerbate any already present checkerboard artifacting.
 
     References:
-        - https://www.nv5geospatialsoftware.com/docs/LaplacianFilters.html
-        - https://en.wikipedia.org/wiki/Discrete_Laplace_operator
+    - https://www.nv5geospatialsoftware.com/docs/LaplacianFilters.html
+    - https://en.wikipedia.org/wiki/Discrete_Laplace_operator
     '''
     def __init__(self):
         '''Init for Laplacian loss.
@@ -109,7 +109,7 @@ class VGGPerceptual(nn.Module):
     realism, especially early in training.
         
     Datasets (facades/cityscapes):
-        - https://efrosgans.eecs.berkeley.edu/pix2pix/datasets/
+    - https://efrosgans.eecs.berkeley.edu/pix2pix/datasets/
     '''
     def __init__(self):
         '''Init for VGGPerceptual loss.

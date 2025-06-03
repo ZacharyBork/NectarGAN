@@ -1,7 +1,9 @@
-from PIL import Image
-import numpy as np
 import pathlib
 from os import PathLike
+from PIL import Image
+
+import numpy as np
+import torch
 from torch.utils.data import Dataset
 
 from pix2pix_graphical.config.config_data import Config
@@ -34,7 +36,7 @@ class PairedDataset(Dataset):
         '''
         return len(self.list_files)
     
-    def __getitem__(self, index: int):
+    def __getitem__(self, index: int) -> tuple[torch.Tensor]:
         '''Gets an item from the dataset and applies associated transforms.
         
         Args:
