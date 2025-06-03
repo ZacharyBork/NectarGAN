@@ -13,6 +13,7 @@ from PySide6.QtUiTools import QUiLoader
 from PySide6.QtCore import Qt, QFile, QThread, QObject, Signal, QEvent
 
 from pix2pix_graphical.ui.workers import TrainerWorker
+from pix2pix_graphical.ui.config_helper import ConfigHelper
 
 class ImageLabel(QtWidgets.QLabel):
     def __init__(
@@ -51,6 +52,7 @@ class Interface(QObject):
     def __init__(self) -> None:
         '''Init function for the `Interface` class.'''
         super().__init__()
+        self.config_helper = ConfigHelper()
 
         # Stores pixmaps converted from Tensors returned by worker
         self.pixmaps: list[QtGui.QPixmap] = []
@@ -76,10 +78,18 @@ class Interface(QObject):
             raise RuntimeError(message) from e
 
     def _init_from_config(self, config_path: pathlib.Path | None=None) -> None:
-        if config_path == None:
-            config_data = self._get_config_data() # Get default config
-        else: config_data = self._get_config_data(path=config_path)
+        config_data = self._get_config_data(path=config_path)['config']
+        
+        for ui_name, info in self.config_helper.CONFIG_MAP.items():
+            config_keys, widget_type = info
+            keys = config_keys.split('.')
+            value = config_data
+            for key in keys:
+                value = value[key]
 
+            widget = self._get(widget_type, ui_name)
+            self.config_helper.WIDGET_SETTERS[widget_type](widget, value)
+            
     ### TRAINING ###
 
     def start_train(self) -> None:
@@ -106,6 +116,8 @@ class Interface(QObject):
         self.train_thread.start()
         self.widgets['train_start'].setEnabled(False)
         self.widgets['train_stop'].setEnabled(True)
+        self._get(QtWidgets.QLCDNumber, 'current_epoch').display(1)
+        self._get(QtWidgets.QFrame, 'train_settings').setEnabled(False)
 
     ### GENERAL SIGNAL HANDLERS
 
@@ -117,6 +129,10 @@ class Interface(QObject):
         if hasattr(self, 'worker'):
             self.worker.stop()
 
+    def change_update_frequency(self, value: int) -> None:
+        if hasattr(self, 'worker'):
+            self.worker.change_update_frequency(value)
+
     def update_log(self, log_entry: str) -> None:
         self.widgets['output_log'].append(log_entry)
         if self._get(QtWidgets.QCheckBox, 'autoscroll_log').isChecked():
@@ -127,7 +143,11 @@ class Interface(QObject):
         self.widgets['epoch_progress'].setValue(value)
 
     def report_train_progress(self, value: int) -> None:
-        self.widgets['train_progress'].setValue(value)
+        gen_lr = self.worker.config.train.generator.learning_rate
+        total_epochs = gen_lr.epochs + gen_lr.epochs_decay
+        self.widgets['train_progress'].setValue(
+            int(((value+1) / total_epochs) * 100.0))
+        self._get(QtWidgets.QLCDNumber, 'current_epoch').display(value+2)
 
     ### UPDATE IMAGES ###
 
@@ -175,6 +195,7 @@ class Interface(QObject):
         self.widgets['train_stop'].setEnabled(False)
         self.widgets['train_progress'].setValue(0)
         self.widgets['epoch_progress'].setValue(0)
+        self._get(QtWidgets.QFrame, 'train_settings').setEnabled(True)
 
     ### INIT HELPERS ###
 
@@ -222,6 +243,8 @@ class Interface(QObject):
         '''Links all spinboxes in the interface to their respective sliders.'''
         sliders_to_link = [
             # (slider, spinbox, multiplier)
+            ('update_frequency_slider', 'update_frequency', 1.0),
+
             ('batch_size_slider', 'batch_size', 1.0),
             ('gen_lr_initial_slider', 'gen_lr_initial', 0.0001),
             ('gen_lr_target_slider', 'gen_lr_target', 0.0001),
@@ -230,7 +253,6 @@ class Interface(QObject):
             ('disc_lr_initial_slider', 'disc_lr_initial', 0.0001),
             ('disc_lr_target_slider', 'disc_lr_target', 0.0001),
             ('disc_optim_beta1_slider', 'disc_optim_beta1', 0.01),
-            
             
             ('lambda_l1_slider', 'lambda_l1', 1.0),
             ('lambda_sobel_slider', 'lambda_sobel', 1.0),
@@ -242,7 +264,7 @@ class Interface(QObject):
             spinbox = self.mainwidget.findChild(QtWidgets.QSpinBox, y)
             if spinbox == None: spinbox = self.mainwidget.findChild(QtWidgets.QDoubleSpinBox, y)
             slider.valueChanged.connect(
-                lambda s=spinbox, sl=slider, m=z: self._update_spinbox_from_slider(s, sl, multiplier=m))
+                lambda value, s=spinbox, sl=slider, m=z: self._update_spinbox_from_slider(s, sl, multiplier=m))
 
     ### CALLBACKS ###
 
@@ -320,11 +342,24 @@ class Interface(QObject):
         self._sliders_to_spinboxes()   # Link sliders to their spinboxes
         self._init_training_controls() # Link callbacks for training controls
         self._swap_image_labels()      # Replace QLabels with custom wrappers
+        self._init_pushbuttons()
+
+        
 
         self._get(QtWidgets.QGroupBox, 'disc_schedule_box').setHidden(True)
         self._get(QtWidgets.QCheckBox, 'separate_lr_schedules').clicked.connect(self._split_lr_schedules)
+        update_freq = self._get(QtWidgets.QSpinBox, 'update_frequency')
+        update_freq.valueChanged.connect(lambda x=update_freq.value() : self.change_update_frequency(x))
 
-        self._init_pushbuttons()
+        current_epoch = self._get(QtWidgets.QLCDNumber, 'current_epoch')
+        current_epoch.setSegmentStyle(QtWidgets.QLCDNumber.SegmentStyle.Flat)
+        palette = current_epoch.palette()
+        palette.setColor(QtGui.QPalette.ColorRole.WindowText, QtGui.QColor('black'))
+        current_epoch.setPalette(palette)
+
+
+        self._get(QtWidgets.QPushButton, 'test').clicked.connect(lambda : self._init_from_config(config_path=None))
+
 
         self.safe_cleanup.connect(self.cleanup)
 
@@ -370,7 +405,7 @@ class Interface(QObject):
     def run(self) -> None:
         '''Entrypoint function for `Interface` class. Launches the GUI.'''
         app = QtWidgets.QApplication(sys.argv)
-        # self._set_stylesheet(app=app)
+        self._set_stylesheet(app=app)
 
         self._init_mainwidget()
         self.mainwidget.show()

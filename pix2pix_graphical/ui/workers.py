@@ -20,9 +20,13 @@ class TrainerWorker(QObject, Pix2pixTrainer):
             loss_subspec='extended+vgg',
             log_losses=False)
         self._is_interrupted: bool = False
+        self._update_frequency: int = 50
 
     def stop(self):
         self._is_interrupted: bool = True
+    
+    def change_update_frequency(self, value: int):
+        self._update_frequency = value
 
     def train_step(
             self, 
@@ -73,7 +77,7 @@ class TrainerWorker(QObject, Pix2pixTrainer):
                 x, y = x.to(self.device), y.to(self.device)
                 y_fake = self.train_step(x, y, idx)
 
-                if idx % self.config.visualizer.visdom.update_frequency == 0:
+                if idx % self._update_frequency == 0:
                     self.tensors.emit((
                         x.detach().cpu(), 
                         y.detach().cpu(), 
@@ -87,7 +91,7 @@ class TrainerWorker(QObject, Pix2pixTrainer):
             end_time = time.perf_counter()
             self.last_epoch_time = end_time-start_time
             self.log.emit(self.print_end_of_epoch(capture=True))
-            self.train_progress.emit(int(((epoch + 1) / self.epoch_count) * 100.0))
+            self.train_progress.emit(epoch)
 
             if epoch == self.epoch_count-1:
                 self.log.emit(self.save_checkpoint(capture=True))
