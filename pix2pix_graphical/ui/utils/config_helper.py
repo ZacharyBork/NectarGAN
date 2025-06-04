@@ -1,24 +1,60 @@
-from dataclasses import dataclass, field
-from typing import Callable
+import json
+import pathlib
+from typing import Callable, Any
+from importlib.resources import files
+
 from PySide6.QtWidgets import (
     QWidget, QLineEdit, QSpinBox, QDoubleSpinBox, 
     QComboBox, QCheckBox, QGroupBox)
 
-@dataclass
 class ConfigHelper:
-    SETTERS: dict[
-        type[QWidget], Callable
-    ] = field(default_factory=dict)
+    def __init__(self, mainwidget: QWidget) -> None:
+        self.mainwidget = mainwidget
+        self.config: dict[str, Any] | None = None
 
-    GETTERS: dict[
-        type[QWidget], Callable
-    ] = field(default_factory=dict)
-    
-    CONFIG_MAP: dict[
-        str, tuple[str, type[QWidget]]
-    ] = field(default_factory=dict)
+        SETTERS: dict[type[QWidget], Callable] = {}
+        GETTERS: dict[type[QWidget], Callable] = {}
+        CONFIG_MAP: dict[str, tuple[str, type[QWidget]]] = {}
+        self._build_mappings() # Init SETTERS, GETTERS, and CONFIG_MAP
 
-    def __post_init__(self):
+    def _get_config_data(
+            self, 
+            path: pathlib.Path | None=None
+        ) -> dict[str, Any]:
+        if path is None:
+            path = files('pix2pix_graphical.config').joinpath('default.json')
+        else: path = path.as_posix()
+        try:
+            with open(path, 'r') as f:
+                data = json.load(f)['config']
+            return data
+        except Exception as e:
+            message = f'Unable to open config file at: {path.as_posix()}'
+            raise RuntimeError(message) from e
+
+    def _init_from_config(self, config_path: pathlib.Path | None=None) -> None:
+        self.config = self._get_config_data(config_path)
+        for ui_name, info in self.CONFIG_MAP.items():
+            config_keys, widget_type = info
+            keys = config_keys.split('.')
+            value = self.config
+            for key in keys: value = value[key]
+            
+            widget = self.mainwidget.findChild(widget_type, ui_name)
+            self.SETTERS[widget_type](widget, value)
+
+    def _build_launch_config(self):
+        for ui_name, info in self.CONFIG_MAP.items():
+            config_keys, widget_type = info
+            keys = config_keys.split('.')
+            config_entry = self.config
+            for key in keys[:-1]: config_entry = config_entry[key]
+            
+            widget = self.mainwidget.findChild(widget_type, ui_name)
+            config_entry[keys[-1]] = self.GETTERS[widget_type](widget)
+
+
+    def _build_mappings(self) -> None:
         self.SETTERS = {
             QLineEdit: lambda widget, value : widget.setText(value),
             QSpinBox: lambda widget, value : widget.setValue(value),

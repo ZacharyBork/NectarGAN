@@ -260,7 +260,7 @@ class Ui_MainWindow(object):
         self.scrollArea.setWidgetResizable(True)
         self.scrollAreaWidgetContents = QWidget()
         self.scrollAreaWidgetContents.setObjectName(u"scrollAreaWidgetContents")
-        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 337, 670))
+        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 337, 400))
         self.verticalLayout_11 = QVBoxLayout(self.scrollAreaWidgetContents)
         self.verticalLayout_11.setSpacing(2)
         self.verticalLayout_11.setObjectName(u"verticalLayout_11")
@@ -1001,7 +1001,7 @@ class Ui_MainWindow(object):
         self.scrollArea_3.setWidgetResizable(True)
         self.scrollAreaWidgetContents_3 = QWidget()
         self.scrollAreaWidgetContents_3.setObjectName(u"scrollAreaWidgetContents_3")
-        self.scrollAreaWidgetContents_3.setGeometry(QRect(0, 0, 335, 296))
+        self.scrollAreaWidgetContents_3.setGeometry(QRect(0, 0, 306, 140))
         self.verticalLayout_16 = QVBoxLayout(self.scrollAreaWidgetContents_3)
         self.verticalLayout_16.setObjectName(u"verticalLayout_16")
         self.frame_18 = QFrame(self.scrollAreaWidgetContents_3)
@@ -1113,7 +1113,7 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_16.addWidget(self.frame_18)
 
-        self.verticalSpacer_3 = QSpacerItem(20, 153, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
+        self.verticalSpacer_3 = QSpacerItem(20, 2, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
 
         self.verticalLayout_16.addItem(self.verticalSpacer_3)
 
@@ -1132,7 +1132,7 @@ class Ui_MainWindow(object):
         self.scrollArea_4.setWidgetResizable(True)
         self.scrollAreaWidgetContents_4 = QWidget()
         self.scrollAreaWidgetContents_4.setObjectName(u"scrollAreaWidgetContents_4")
-        self.scrollAreaWidgetContents_4.setGeometry(QRect(0, 0, 335, 296))
+        self.scrollAreaWidgetContents_4.setGeometry(QRect(0, 0, 306, 226))
         self.verticalLayout_17 = QVBoxLayout(self.scrollAreaWidgetContents_4)
         self.verticalLayout_17.setObjectName(u"verticalLayout_17")
         self.groupBox_6 = QGroupBox(self.scrollAreaWidgetContents_4)
@@ -1259,7 +1259,7 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_17.addWidget(self.groupBox)
 
-        self.verticalSpacer_4 = QSpacerItem(20, 67, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
+        self.verticalSpacer_4 = QSpacerItem(20, 111, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
 
         self.verticalLayout_17.addItem(self.verticalSpacer_4)
 
@@ -1278,7 +1278,7 @@ class Ui_MainWindow(object):
         self.scrollArea_5.setWidgetResizable(True)
         self.scrollAreaWidgetContents_5 = QWidget()
         self.scrollAreaWidgetContents_5.setObjectName(u"scrollAreaWidgetContents_5")
-        self.scrollAreaWidgetContents_5.setGeometry(QRect(0, 0, 332, 296))
+        self.scrollAreaWidgetContents_5.setGeometry(QRect(0, 0, 303, 152))
         self.verticalLayout_18 = QVBoxLayout(self.scrollAreaWidgetContents_5)
         self.verticalLayout_18.setObjectName(u"verticalLayout_18")
         self.visdom_enable = QGroupBox(self.scrollAreaWidgetContents_5)
@@ -1342,7 +1342,7 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_18.addWidget(self.visdom_enable)
 
-        self.verticalSpacer_5 = QSpacerItem(20, 141, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
+        self.verticalSpacer_5 = QSpacerItem(20, 185, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
 
         self.verticalLayout_18.addItem(self.verticalSpacer_5)
 
@@ -1704,15 +1704,15 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_32.addWidget(self.performance_monitor_group)
 
-        self.groupBox_7 = QGroupBox(self.frame_24)
-        self.groupBox_7.setObjectName(u"groupBox_7")
-        sizePolicy9.setHeightForWidth(self.groupBox_7.sizePolicy().hasHeightForWidth())
-        self.groupBox_7.setSizePolicy(sizePolicy9)
-        self.verticalLayout_9 = QVBoxLayout(self.groupBox_7)
+        self.output_log_group = QGroupBox(self.frame_24)
+        self.output_log_group.setObjectName(u"output_log_group")
+        sizePolicy9.setHeightForWidth(self.output_log_group.sizePolicy().hasHeightForWidth())
+        self.output_log_group.setSizePolicy(sizePolicy9)
+        self.verticalLayout_9 = QVBoxLayout(self.output_log_group)
         self.verticalLayout_9.setSpacing(2)
         self.verticalLayout_9.setObjectName(u"verticalLayout_9")
         self.verticalLayout_9.setContentsMargins(3, 3, 3, 3)
-        self.log_output_frozen_header = QLabel(self.groupBox_7)
+        self.log_output_frozen_header = QLabel(self.output_log_group)
         self.log_output_frozen_header.setObjectName(u"log_output_frozen_header")
         font5 = QFont()
         font5.setBold(False)
@@ -1722,7 +1722,7 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_9.addWidget(self.log_output_frozen_header)
 
-        self.frame_9 = QFrame(self.groupBox_7)
+        self.frame_9 = QFrame(self.output_log_group)
         self.frame_9.setObjectName(u"frame_9")
         self.frame_9.setFrameShape(QFrame.StyledPanel)
         self.frame_9.setFrameShadow(QFrame.Raised)
@@ -1780,6 +1780,21 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_23.addWidget(self.clear_output_log)
 
+        self.line_7 = QFrame(self.frame_15)
+        self.line_7.setObjectName(u"line_7")
+        self.line_7.setFrameShadow(QFrame.Raised)
+        self.line_7.setFrameShape(QFrame.Shape.HLine)
+
+        self.verticalLayout_23.addWidget(self.line_7)
+
+        self.autoscroll_log = QCheckBox(self.frame_15)
+        self.autoscroll_log.setObjectName(u"autoscroll_log")
+        sizePolicy5.setHeightForWidth(self.autoscroll_log.sizePolicy().hasHeightForWidth())
+        self.autoscroll_log.setSizePolicy(sizePolicy5)
+        self.autoscroll_log.setChecked(True)
+
+        self.verticalLayout_23.addWidget(self.autoscroll_log)
+
         self.verticalSpacer_6 = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
 
         self.verticalLayout_23.addItem(self.verticalSpacer_6)
@@ -1790,42 +1805,8 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_9.addWidget(self.frame_9)
 
-        self.frame_14 = QFrame(self.groupBox_7)
-        self.frame_14.setObjectName(u"frame_14")
-        sizePolicy1.setHeightForWidth(self.frame_14.sizePolicy().hasHeightForWidth())
-        self.frame_14.setSizePolicy(sizePolicy1)
-        self.frame_14.setFrameShape(QFrame.StyledPanel)
-        self.frame_14.setFrameShadow(QFrame.Raised)
-        self.horizontalLayout_8 = QHBoxLayout(self.frame_14)
-        self.horizontalLayout_8.setObjectName(u"horizontalLayout_8")
-        self.horizontalLayout_8.setContentsMargins(0, 0, 0, 0)
-        self.autoscroll_log = QCheckBox(self.frame_14)
-        self.autoscroll_log.setObjectName(u"autoscroll_log")
-        sizePolicy5.setHeightForWidth(self.autoscroll_log.sizePolicy().hasHeightForWidth())
-        self.autoscroll_log.setSizePolicy(sizePolicy5)
-        self.autoscroll_log.setChecked(True)
 
-        self.horizontalLayout_8.addWidget(self.autoscroll_log)
-
-        self.show_epoch_progress = QCheckBox(self.frame_14)
-        self.show_epoch_progress.setObjectName(u"show_epoch_progress")
-        sizePolicy5.setHeightForWidth(self.show_epoch_progress.sizePolicy().hasHeightForWidth())
-        self.show_epoch_progress.setSizePolicy(sizePolicy5)
-        self.show_epoch_progress.setChecked(True)
-
-        self.horizontalLayout_8.addWidget(self.show_epoch_progress)
-
-        self.show_train_progress = QCheckBox(self.frame_14)
-        self.show_train_progress.setObjectName(u"show_train_progress")
-        self.show_train_progress.setChecked(True)
-
-        self.horizontalLayout_8.addWidget(self.show_train_progress)
-
-
-        self.verticalLayout_9.addWidget(self.frame_14)
-
-
-        self.horizontalLayout_32.addWidget(self.groupBox_7)
+        self.horizontalLayout_32.addWidget(self.output_log_group)
 
 
         self.verticalLayout_7.addWidget(self.frame_24)
@@ -2057,16 +2038,14 @@ class Ui_MainWindow(object):
         self.perf_graph_epoch_label.setText("")
         self.performance_graph_reset_framing.setText(QCoreApplication.translate("MainWindow", u"Reset Framing", None))
         self.performance_graph_clear.setText(QCoreApplication.translate("MainWindow", u"Clear Graph", None))
-        self.groupBox_7.setTitle(QCoreApplication.translate("MainWindow", u"Log", None))
+        self.output_log_group.setTitle(QCoreApplication.translate("MainWindow", u"Log", None))
         self.log_output_frozen_header.setText(QCoreApplication.translate("MainWindow", u"* OUTPUT FROZEN *", None))
         self.output_log.setDocumentTitle("")
         self.label_39.setText(QCoreApplication.translate("MainWindow", u"Log Functions", None))
         self.export_output_log.setText(QCoreApplication.translate("MainWindow", u"Export to File", None))
         self.freeze_output_log.setText(QCoreApplication.translate("MainWindow", u"Freeze Ouput", None))
         self.clear_output_log.setText(QCoreApplication.translate("MainWindow", u"Clear", None))
-        self.autoscroll_log.setText(QCoreApplication.translate("MainWindow", u"Scroll Log Automatically", None))
-        self.show_epoch_progress.setText(QCoreApplication.translate("MainWindow", u"Show Current Epoch Progress", None))
-        self.show_train_progress.setText(QCoreApplication.translate("MainWindow", u"Show Train Progress", None))
+        self.autoscroll_log.setText(QCoreApplication.translate("MainWindow", u"Autoscroll", None))
         self.label_45.setText(QCoreApplication.translate("MainWindow", u"Current Epoch Progress", None))
         self.label_46.setText(QCoreApplication.translate("MainWindow", u"Current Train Progress", None))
         self.label_41.setText(QCoreApplication.translate("MainWindow", u"Current Epoch", None))
