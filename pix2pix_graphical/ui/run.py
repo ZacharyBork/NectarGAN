@@ -335,6 +335,21 @@ class Interface(QObject):
         self._set_button_icon('caret-line-left-bold.svg', button)
         button.clicked.connect(self.close_experiment_settings)
 
+    def _init_training_setting(self) -> None:
+        self._get(QtWidgets.QGroupBox, 'disc_schedule_box').setHidden(True)
+        self._get(QtWidgets.QCheckBox, 'separate_lr_schedules').clicked.connect(self._split_lr_schedules)
+
+    def _init_update_frequency(self) -> None:
+        update_freq = self._get(QtWidgets.QSpinBox, 'update_frequency')
+        update_freq.valueChanged.connect(lambda x=update_freq.value() : self.change_update_frequency(x))
+
+    def _init_current_epoch_display(self) -> None:
+        current_epoch = self._get(QtWidgets.QLCDNumber, 'current_epoch')
+        current_epoch.setSegmentStyle(QtWidgets.QLCDNumber.SegmentStyle.Flat)
+        palette = current_epoch.palette()
+        palette.setColor(QtGui.QPalette.ColorRole.WindowText, QtGui.QColor('black'))
+        current_epoch.setPalette(palette)
+
     def init_ui(self) -> None:
         '''Initialized the interface. Links parameters, sets defaults, etc.'''
         self._get_signal_widgets()     # Get commonly used widgets
@@ -343,24 +358,12 @@ class Interface(QObject):
         self._init_training_controls() # Link callbacks for training controls
         self._swap_image_labels()      # Replace QLabels with custom wrappers
         self._init_pushbuttons()
+        self._init_training_setting()
+        self._init_update_frequency()
 
-        
+        # self._get(QtWidgets.QPushButton, 'test').clicked.connect(lambda : self._init_from_config(config_path=None))
 
-        self._get(QtWidgets.QGroupBox, 'disc_schedule_box').setHidden(True)
-        self._get(QtWidgets.QCheckBox, 'separate_lr_schedules').clicked.connect(self._split_lr_schedules)
-        update_freq = self._get(QtWidgets.QSpinBox, 'update_frequency')
-        update_freq.valueChanged.connect(lambda x=update_freq.value() : self.change_update_frequency(x))
-
-        current_epoch = self._get(QtWidgets.QLCDNumber, 'current_epoch')
-        current_epoch.setSegmentStyle(QtWidgets.QLCDNumber.SegmentStyle.Flat)
-        palette = current_epoch.palette()
-        palette.setColor(QtGui.QPalette.ColorRole.WindowText, QtGui.QColor('black'))
-        current_epoch.setPalette(palette)
-
-
-        self._get(QtWidgets.QPushButton, 'test').clicked.connect(lambda : self._init_from_config(config_path=None))
-
-
+        self._init_from_config(config_path=None) # Init from default config
         self.safe_cleanup.connect(self.cleanup)
 
     ### ENTRYPOINT ###

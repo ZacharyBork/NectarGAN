@@ -1,7 +1,7 @@
 import pathlib
 from os import PathLike
 import json
-from typing import Type, TypeVar, Union, Any
+from typing import Type, TypeVar, Any
 from dataclasses import is_dataclass
 
 from pix2pix_graphical.config import config_data
@@ -17,14 +17,45 @@ GROUP_SCHEMA = {
 class ConfigManager():
     def __init__(
             self, 
-            config_filepath: Union[str, PathLike, None]=None
+            input_config: str | PathLike | dict[str, Any] | None=None
         ) -> None:
-        self.raw = self.parse_config_file(config_filepath)
+        if isinstance(input_config, dict):
+            self._validate_config_dict(input_config)
+            self.raw = input_config
+        else: self.raw = self.parse_config_file(input_config)
         self.data = self.load_full_config()
+
+    def _match_keys(
+            self, 
+            jsonA: dict[str, Any], 
+            jsonB: dict[str, Any]
+        ) -> None:
+        '''Performs a simple structure check to validate a config dict.'''
+        def _get_all_keys(data, _keys=None):
+            if _keys is None: keys = []
+            else: keys = _keys
+            for key in data:
+                keys.append(key)
+                if isinstance(data[key], dict):
+                    _get_all_keys(data[key], _keys=keys)
+            return keys
+        keysA = _get_all_keys(jsonA)
+        keysB = _get_all_keys(jsonB)
+        if not keysA == keysB:
+            raise ValueError('Input config dict is invalid.')
+
+    def _validate_config_dict(self, input_data: dict[str, Any]) -> None:
+        assert isinstance(input_data, dict)
+
+        script_root = pathlib.Path(__file__).parent
+        default_config = pathlib.Path(script_root, 'default.json').resolve()
+        with open(default_config.as_posix(), 'r') as file:
+            default_data = json.loads(file.read())['config']  
+        return self._match_keys(jsonA=default_data, jsonB=input_data)
 
     def parse_config_file(
             self, 
-            config_filepath: Union[str, PathLike, None]
+            config_filepath: str | PathLike | None
         ) -> dict:
         '''Loads a JSON config file and returns the raw config data.
         
@@ -54,7 +85,6 @@ class ConfigManager():
 
         with open(config_file.as_posix(), 'r') as file:
             config_data = json.loads(file.read())['config']
-        file.close()
         return config_data
     
     def load_config_section(self, data: dict[str, Any], cls: Type[T]) -> T:
@@ -131,6 +161,3 @@ class ConfigManager():
             raise Exception(message.format(config_path.as_posix())) from e
 
     
-if __name__ == '__main__':
-    config = ConfigManager()
-    print(config.data)

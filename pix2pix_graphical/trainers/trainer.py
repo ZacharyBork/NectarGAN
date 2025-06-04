@@ -3,7 +3,7 @@ import random
 import pathlib
 import time
 from os import PathLike
-from typing import Callable, Any
+from typing import Callable, Any, Union
 
 import torch
 import torch.optim as optim
@@ -18,14 +18,15 @@ from pix2pix_graphical.dataset.paired_dataset import PairedDataset
 class Trainer():
     def __init__(
             self, 
-            config: str | PathLike | ConfigManager | None=None,
+            config: str|PathLike|ConfigManager|dict[str, Any]|None=None,
             quicksetup: bool=True
         ) -> None:
         '''Init function for the base Trainer class.
 
         Args:
             config: Something representing a training config, either a str or
-                os.Pathlike object pointing to a config JSON, or a pre-defined
+                os.Pathlike object pointing to a config JSON, or a Python dict
+                representing the data from a config JSON, or a pre-defined
                 ConfigManager instance, or None (default) to init from the
                 default config located at (/root/config/default.json).
             quicksetup : If enabled (default), the `Trainer` will run a 
@@ -62,17 +63,18 @@ class Trainer():
 
     def init_config(
             self, 
-            config: str | PathLike | ConfigManager | None
+            config: str | PathLike | ConfigManager | dict[str, Any] | None
         ) -> None:
         '''Handles input config types and inits config data accordingly.
 
         Args:
             config : The config to init from. This can be a Pathlike object to 
-                pointing to a config JSON, a ConfigManager instance, or None to 
-                init from the default config (/root/config/default.json)
+                pointing to a config JSON, a dict object representing a config 
+                JSON, a ConfigManager instance, or None to init from the 
+                default config (/root/config/default.json)
         '''
         match config:
-            case str() | PathLike() | None:
+            case str() | PathLike() | dict() | None:
                 # ConfigManager handles logic for: str() | PathLike() | None
                 self.config_manager = ConfigManager(config)
             case ConfigManager():            # If config is a ConfigManager
