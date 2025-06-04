@@ -10,10 +10,12 @@ from pix2pix_graphical.trainers.pix2pix_trainer import Pix2pixTrainer
 class TrainerWorker(QObject, Pix2pixTrainer):
     finished = Signal()
     epoch_progress = Signal(int)
-    train_progress = Signal(int)
+    train_progress = Signal(list)
+    epoch_time = Signal(float)
     tensors = Signal(torch.Tensor)
     log = Signal(str)
     cancelled = Signal()
+    waiting = Signal(int)
 
     def __init__(
             self, 
@@ -25,14 +27,37 @@ class TrainerWorker(QObject, Pix2pixTrainer):
             config=config, 
             loss_subspec=loss_subspec,
             log_losses=log_losses)
+        self._is_paused: bool = False
         self._is_interrupted: bool = False
         self._update_frequency: int = 50
 
+    def pause(self):
+        self.log.emit('Training Paused...')
+        self._is_paused = True
+
+    def unpause(self):
+        self.log.emit('Resuming Training...')
+        self._is_paused = False
+
     def stop(self):
-        self._is_interrupted: bool = True
+        self._is_interrupted = True
     
     def change_update_frequency(self, value: int):
         self._update_frequency = value
+
+    def pause_training(
+            self, 
+            polling_rate: float=0.5,
+            counter_max: int=999,
+        ) -> None:
+        counter = 0
+        while self._is_paused:
+            if self._is_interrupted:
+                self.cancelled.emit()
+                return
+            self.waiting.emit(counter)
+            counter = (counter + 1) % counter_max
+            time.sleep(polling_rate)
 
     def train_step(
             self, 
@@ -63,11 +88,7 @@ class TrainerWorker(QObject, Pix2pixTrainer):
         epoch_counts = self.cfg.train.generator.learning_rate
         self.epoch_count = epoch_counts.epochs + epoch_counts.epochs_decay
 
-        for epoch in range(self.epoch_count):
-            if self._is_interrupted:
-                self.cancelled.emit()
-                return
-            
+        for epoch in range(self.epoch_count):    
             start_time = time.perf_counter()
 
             if self.config.train.load.continue_train:
@@ -80,6 +101,9 @@ class TrainerWorker(QObject, Pix2pixTrainer):
                     self.log.emit('Training Canceled. Stopping...')
                     self.cancelled.emit()
                     return
+                if self._is_paused: self.pause_training()
+
+
                 x, y = x.to(self.device), y.to(self.device)
                 y_fake = self.train_step(x, y, idx)
 
@@ -96,8 +120,10 @@ class TrainerWorker(QObject, Pix2pixTrainer):
             
             end_time = time.perf_counter()
             self.last_epoch_time = end_time-start_time
+            self.train_progress.emit([epoch, self.last_epoch_time])
+            # self.epoch_time.emit(self.last_epoch_time)
             self.log.emit(self.print_end_of_epoch(capture=True))
-            self.train_progress.emit(epoch)
+            
 
             if epoch == self.epoch_count-1:
                 self.log.emit(self.save_checkpoint(capture=True))
@@ -107,5 +133,6 @@ class TrainerWorker(QObject, Pix2pixTrainer):
             if (self.cfg.save.save_examples
                 and (epoch+1) % self.cfg.save.example_save_rate == 0):
                 self.log.emit(self.save_examples(capture=True))
+        self.finished.emit()
 
             

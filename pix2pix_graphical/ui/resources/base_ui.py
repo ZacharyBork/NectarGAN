@@ -28,7 +28,7 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(1134, 750)
+        MainWindow.resize(1639, 925)
         self.actionLoad_From_Config = QAction(MainWindow)
         self.actionLoad_From_Config.setObjectName(u"actionLoad_From_Config")
         self.centralwidget = QWidget(MainWindow)
@@ -166,7 +166,7 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_8.addWidget(self.frame_11)
 
-        self.verticalSpacer = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Preferred)
+        self.verticalSpacer = QSpacerItem(20, 0, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Preferred)
 
         self.verticalLayout_8.addItem(self.verticalSpacer)
 
@@ -224,7 +224,7 @@ class Ui_MainWindow(object):
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(MainWindow)
         self.menubar.setObjectName(u"menubar")
-        self.menubar.setGeometry(QRect(0, 0, 1134, 22))
+        self.menubar.setGeometry(QRect(0, 0, 1639, 22))
         self.menuFile = QMenu(self.menubar)
         self.menuFile.setObjectName(u"menuFile")
         MainWindow.setMenuBar(self.menubar)
@@ -260,7 +260,7 @@ class Ui_MainWindow(object):
         self.scrollArea.setWidgetResizable(True)
         self.scrollAreaWidgetContents = QWidget()
         self.scrollAreaWidgetContents.setObjectName(u"scrollAreaWidgetContents")
-        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 349, 534))
+        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 349, 670))
         self.verticalLayout_11 = QVBoxLayout(self.scrollAreaWidgetContents)
         self.verticalLayout_11.setSpacing(2)
         self.verticalLayout_11.setObjectName(u"verticalLayout_11")
@@ -633,7 +633,7 @@ class Ui_MainWindow(object):
         self.scrollArea_2.setWidgetResizable(True)
         self.scrollAreaWidgetContents_2 = QWidget()
         self.scrollAreaWidgetContents_2.setObjectName(u"scrollAreaWidgetContents_2")
-        self.scrollAreaWidgetContents_2.setGeometry(QRect(0, -180, 318, 618))
+        self.scrollAreaWidgetContents_2.setGeometry(QRect(0, -167, 318, 618))
         self.verticalLayout_15 = QVBoxLayout(self.scrollAreaWidgetContents_2)
         self.verticalLayout_15.setObjectName(u"verticalLayout_15")
         self.continue_train = QGroupBox(self.scrollAreaWidgetContents_2)
@@ -1001,7 +1001,7 @@ class Ui_MainWindow(object):
         self.scrollArea_3.setWidgetResizable(True)
         self.scrollAreaWidgetContents_3 = QWidget()
         self.scrollAreaWidgetContents_3.setObjectName(u"scrollAreaWidgetContents_3")
-        self.scrollAreaWidgetContents_3.setGeometry(QRect(0, 0, 335, 204))
+        self.scrollAreaWidgetContents_3.setGeometry(QRect(0, 0, 335, 340))
         self.verticalLayout_16 = QVBoxLayout(self.scrollAreaWidgetContents_3)
         self.verticalLayout_16.setObjectName(u"verticalLayout_16")
         self.frame_18 = QFrame(self.scrollAreaWidgetContents_3)
@@ -1113,7 +1113,7 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_16.addWidget(self.frame_18)
 
-        self.verticalSpacer_3 = QSpacerItem(20, 61, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
+        self.verticalSpacer_3 = QSpacerItem(20, 197, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
 
         self.verticalLayout_16.addItem(self.verticalSpacer_3)
 
@@ -1132,7 +1132,7 @@ class Ui_MainWindow(object):
         self.scrollArea_4.setWidgetResizable(True)
         self.scrollAreaWidgetContents_4 = QWidget()
         self.scrollAreaWidgetContents_4.setObjectName(u"scrollAreaWidgetContents_4")
-        self.scrollAreaWidgetContents_4.setGeometry(QRect(0, 0, 318, 226))
+        self.scrollAreaWidgetContents_4.setGeometry(QRect(0, 0, 335, 340))
         self.verticalLayout_17 = QVBoxLayout(self.scrollAreaWidgetContents_4)
         self.verticalLayout_17.setObjectName(u"verticalLayout_17")
         self.groupBox_6 = QGroupBox(self.scrollAreaWidgetContents_4)
@@ -1259,7 +1259,7 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_17.addWidget(self.groupBox)
 
-        self.verticalSpacer_4 = QSpacerItem(20, 145, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
+        self.verticalSpacer_4 = QSpacerItem(20, 111, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
 
         self.verticalLayout_17.addItem(self.verticalSpacer_4)
 
@@ -1278,7 +1278,7 @@ class Ui_MainWindow(object):
         self.scrollArea_5.setWidgetResizable(True)
         self.scrollAreaWidgetContents_5 = QWidget()
         self.scrollAreaWidgetContents_5.setObjectName(u"scrollAreaWidgetContents_5")
-        self.scrollAreaWidgetContents_5.setGeometry(QRect(0, 0, 332, 204))
+        self.scrollAreaWidgetContents_5.setGeometry(QRect(0, 0, 332, 340))
         self.verticalLayout_18 = QVBoxLayout(self.scrollAreaWidgetContents_5)
         self.verticalLayout_18.setObjectName(u"verticalLayout_18")
         self.visdom_enable = QGroupBox(self.scrollAreaWidgetContents_5)
@@ -1342,7 +1342,7 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_18.addWidget(self.visdom_enable)
 
-        self.verticalSpacer_5 = QSpacerItem(20, 49, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
+        self.verticalSpacer_5 = QSpacerItem(20, 185, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
 
         self.verticalLayout_18.addItem(self.verticalSpacer_5)
 
@@ -1376,6 +1376,11 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_5.addWidget(self.train_start)
 
+        self.train_pause = QPushButton(self.frame_8)
+        self.train_pause.setObjectName(u"train_pause")
+
+        self.verticalLayout_5.addWidget(self.train_pause)
+
         self.train_stop = QPushButton(self.frame_8)
         self.train_stop.setObjectName(u"train_stop")
 
@@ -1396,6 +1401,7 @@ class Ui_MainWindow(object):
         sizePolicy3.setHeightForWidth(self.dockWidgetContents_2.sizePolicy().hasHeightForWidth())
         self.dockWidgetContents_2.setSizePolicy(sizePolicy3)
         self.verticalLayout_7 = QVBoxLayout(self.dockWidgetContents_2)
+        self.verticalLayout_7.setSpacing(2)
         self.verticalLayout_7.setObjectName(u"verticalLayout_7")
         self.verticalLayout_7.setContentsMargins(2, 2, 2, 2)
         self.frame_24 = QFrame(self.dockWidgetContents_2)
@@ -1408,12 +1414,295 @@ class Ui_MainWindow(object):
         self.frame_24.setFrameShape(QFrame.StyledPanel)
         self.frame_24.setFrameShadow(QFrame.Raised)
         self.horizontalLayout_32 = QHBoxLayout(self.frame_24)
+        self.horizontalLayout_32.setSpacing(2)
         self.horizontalLayout_32.setObjectName(u"horizontalLayout_32")
         self.horizontalLayout_32.setContentsMargins(0, 0, 0, 0)
         self.groupBox_10 = QGroupBox(self.frame_24)
         self.groupBox_10.setObjectName(u"groupBox_10")
+        sizePolicy.setHeightForWidth(self.groupBox_10.sizePolicy().hasHeightForWidth())
+        self.groupBox_10.setSizePolicy(sizePolicy)
+        self.verticalLayout_30 = QVBoxLayout(self.groupBox_10)
+        self.verticalLayout_30.setSpacing(2)
+        self.verticalLayout_30.setObjectName(u"verticalLayout_30")
+        self.verticalLayout_30.setContentsMargins(3, 3, 3, 3)
+        self.frame_36 = QFrame(self.groupBox_10)
+        self.frame_36.setObjectName(u"frame_36")
+        self.frame_36.setFrameShape(QFrame.StyledPanel)
+        self.frame_36.setFrameShadow(QFrame.Raised)
+        self.horizontalLayout_36 = QHBoxLayout(self.frame_36)
+        self.horizontalLayout_36.setObjectName(u"horizontalLayout_36")
+        self.horizontalLayout_36.setContentsMargins(0, 0, 0, 0)
+        self.label_55 = QLabel(self.frame_36)
+        self.label_55.setObjectName(u"label_55")
+        sizePolicy.setHeightForWidth(self.label_55.sizePolicy().hasHeightForWidth())
+        self.label_55.setSizePolicy(sizePolicy)
+        font4 = QFont()
+        font4.setBold(True)
+        self.label_55.setFont(font4)
+
+        self.horizontalLayout_36.addWidget(self.label_55)
+
+        self.line_10 = QFrame(self.frame_36)
+        self.line_10.setObjectName(u"line_10")
+        self.line_10.setFrameShadow(QFrame.Raised)
+        self.line_10.setFrameShape(QFrame.Shape.HLine)
+
+        self.horizontalLayout_36.addWidget(self.line_10)
+
+
+        self.verticalLayout_30.addWidget(self.frame_36)
+
+        self.frame_37 = QFrame(self.groupBox_10)
+        self.frame_37.setObjectName(u"frame_37")
+        sizePolicy1.setHeightForWidth(self.frame_37.sizePolicy().hasHeightForWidth())
+        self.frame_37.setSizePolicy(sizePolicy1)
+        self.frame_37.setFrameShape(QFrame.StyledPanel)
+        self.frame_37.setFrameShadow(QFrame.Raised)
+        self.formLayout_19 = QFormLayout(self.frame_37)
+        self.formLayout_19.setObjectName(u"formLayout_19")
+        self.formLayout_19.setHorizontalSpacing(6)
+        self.formLayout_19.setVerticalSpacing(2)
+        self.formLayout_19.setContentsMargins(0, 0, 0, 0)
+        self.label_56 = QLabel(self.frame_37)
+        self.label_56.setObjectName(u"label_56")
+
+        self.formLayout_19.setWidget(0, QFormLayout.ItemRole.LabelRole, self.label_56)
+
+        self.performance_epoch_fastest_2 = QLabel(self.frame_37)
+        self.performance_epoch_fastest_2.setObjectName(u"performance_epoch_fastest_2")
+
+        self.formLayout_19.setWidget(0, QFormLayout.ItemRole.FieldRole, self.performance_epoch_fastest_2)
+
+
+        self.verticalLayout_30.addWidget(self.frame_37)
+
+        self.frame_34 = QFrame(self.groupBox_10)
+        self.frame_34.setObjectName(u"frame_34")
+        self.frame_34.setFrameShape(QFrame.StyledPanel)
+        self.frame_34.setFrameShadow(QFrame.Raised)
+        self.horizontalLayout_34 = QHBoxLayout(self.frame_34)
+        self.horizontalLayout_34.setObjectName(u"horizontalLayout_34")
+        self.horizontalLayout_34.setContentsMargins(0, 0, 0, 0)
+        self.label_48 = QLabel(self.frame_34)
+        self.label_48.setObjectName(u"label_48")
+        sizePolicy.setHeightForWidth(self.label_48.sizePolicy().hasHeightForWidth())
+        self.label_48.setSizePolicy(sizePolicy)
+        self.label_48.setFont(font4)
+
+        self.horizontalLayout_34.addWidget(self.label_48)
+
+        self.line_8 = QFrame(self.frame_34)
+        self.line_8.setObjectName(u"line_8")
+        self.line_8.setFrameShadow(QFrame.Raised)
+        self.line_8.setFrameShape(QFrame.Shape.HLine)
+
+        self.horizontalLayout_34.addWidget(self.line_8)
+
+
+        self.verticalLayout_30.addWidget(self.frame_34)
+
+        self.frame_30 = QFrame(self.groupBox_10)
+        self.frame_30.setObjectName(u"frame_30")
+        sizePolicy1.setHeightForWidth(self.frame_30.sizePolicy().hasHeightForWidth())
+        self.frame_30.setSizePolicy(sizePolicy1)
+        self.frame_30.setFrameShape(QFrame.StyledPanel)
+        self.frame_30.setFrameShadow(QFrame.Raised)
+        self.formLayout_17 = QFormLayout(self.frame_30)
+        self.formLayout_17.setObjectName(u"formLayout_17")
+        self.formLayout_17.setHorizontalSpacing(6)
+        self.formLayout_17.setVerticalSpacing(2)
+        self.formLayout_17.setContentsMargins(0, 0, 0, 0)
+        self.label_47 = QLabel(self.frame_30)
+        self.label_47.setObjectName(u"label_47")
+
+        self.formLayout_17.setWidget(0, QFormLayout.ItemRole.LabelRole, self.label_47)
+
+        self.performance_epoch_fastest = QLabel(self.frame_30)
+        self.performance_epoch_fastest.setObjectName(u"performance_epoch_fastest")
+
+        self.formLayout_17.setWidget(0, QFormLayout.ItemRole.FieldRole, self.performance_epoch_fastest)
+
+        self.label_50 = QLabel(self.frame_30)
+        self.label_50.setObjectName(u"label_50")
+
+        self.formLayout_17.setWidget(1, QFormLayout.ItemRole.LabelRole, self.label_50)
+
+        self.performance_epoch_slowest = QLabel(self.frame_30)
+        self.performance_epoch_slowest.setObjectName(u"performance_epoch_slowest")
+
+        self.formLayout_17.setWidget(1, QFormLayout.ItemRole.FieldRole, self.performance_epoch_slowest)
+
+        self.label_51 = QLabel(self.frame_30)
+        self.label_51.setObjectName(u"label_51")
+
+        self.formLayout_17.setWidget(2, QFormLayout.ItemRole.LabelRole, self.label_51)
+
+        self.performance_epoch_average = QLabel(self.frame_30)
+        self.performance_epoch_average.setObjectName(u"performance_epoch_average")
+
+        self.formLayout_17.setWidget(2, QFormLayout.ItemRole.FieldRole, self.performance_epoch_average)
+
+
+        self.verticalLayout_30.addWidget(self.frame_30)
+
+        self.frame_35 = QFrame(self.groupBox_10)
+        self.frame_35.setObjectName(u"frame_35")
+        self.frame_35.setFrameShape(QFrame.StyledPanel)
+        self.frame_35.setFrameShadow(QFrame.Raised)
+        self.horizontalLayout_35 = QHBoxLayout(self.frame_35)
+        self.horizontalLayout_35.setObjectName(u"horizontalLayout_35")
+        self.horizontalLayout_35.setContentsMargins(0, 0, 0, 0)
+        self.label_49 = QLabel(self.frame_35)
+        self.label_49.setObjectName(u"label_49")
+        sizePolicy.setHeightForWidth(self.label_49.sizePolicy().hasHeightForWidth())
+        self.label_49.setSizePolicy(sizePolicy)
+        self.label_49.setFont(font4)
+
+        self.horizontalLayout_35.addWidget(self.label_49)
+
+        self.line_9 = QFrame(self.frame_35)
+        self.line_9.setObjectName(u"line_9")
+        self.line_9.setFrameShadow(QFrame.Raised)
+        self.line_9.setFrameShape(QFrame.Shape.HLine)
+
+        self.horizontalLayout_35.addWidget(self.line_9)
+
+
+        self.verticalLayout_30.addWidget(self.frame_35)
+
+        self.frame_32 = QFrame(self.groupBox_10)
+        self.frame_32.setObjectName(u"frame_32")
+        sizePolicy1.setHeightForWidth(self.frame_32.sizePolicy().hasHeightForWidth())
+        self.frame_32.setSizePolicy(sizePolicy1)
+        self.frame_32.setFrameShape(QFrame.StyledPanel)
+        self.frame_32.setFrameShadow(QFrame.Raised)
+        self.formLayout_18 = QFormLayout(self.frame_32)
+        self.formLayout_18.setObjectName(u"formLayout_18")
+        self.formLayout_18.setHorizontalSpacing(6)
+        self.formLayout_18.setVerticalSpacing(2)
+        self.formLayout_18.setContentsMargins(0, 0, 0, 0)
+        self.label_52 = QLabel(self.frame_32)
+        self.label_52.setObjectName(u"label_52")
+
+        self.formLayout_18.setWidget(0, QFormLayout.ItemRole.LabelRole, self.label_52)
+
+        self.performance_iter_fastest = QLabel(self.frame_32)
+        self.performance_iter_fastest.setObjectName(u"performance_iter_fastest")
+
+        self.formLayout_18.setWidget(0, QFormLayout.ItemRole.FieldRole, self.performance_iter_fastest)
+
+        self.label_53 = QLabel(self.frame_32)
+        self.label_53.setObjectName(u"label_53")
+
+        self.formLayout_18.setWidget(1, QFormLayout.ItemRole.LabelRole, self.label_53)
+
+        self.performance_iter_slowest = QLabel(self.frame_32)
+        self.performance_iter_slowest.setObjectName(u"performance_iter_slowest")
+
+        self.formLayout_18.setWidget(1, QFormLayout.ItemRole.FieldRole, self.performance_iter_slowest)
+
+        self.label_54 = QLabel(self.frame_32)
+        self.label_54.setObjectName(u"label_54")
+
+        self.formLayout_18.setWidget(2, QFormLayout.ItemRole.LabelRole, self.label_54)
+
+        self.performance_iter_average = QLabel(self.frame_32)
+        self.performance_iter_average.setObjectName(u"performance_iter_average")
+
+        self.formLayout_18.setWidget(2, QFormLayout.ItemRole.FieldRole, self.performance_iter_average)
+
+
+        self.verticalLayout_30.addWidget(self.frame_32)
+
+        self.verticalSpacer_7 = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
+
+        self.verticalLayout_30.addItem(self.verticalSpacer_7)
+
 
         self.horizontalLayout_32.addWidget(self.groupBox_10)
+
+        self.performance_monitor_group = QGroupBox(self.frame_24)
+        self.performance_monitor_group.setObjectName(u"performance_monitor_group")
+        self.verticalLayout_26 = QVBoxLayout(self.performance_monitor_group)
+        self.verticalLayout_26.setSpacing(0)
+        self.verticalLayout_26.setObjectName(u"verticalLayout_26")
+        self.verticalLayout_26.setContentsMargins(3, 3, 3, 3)
+        self.frame_33 = QFrame(self.performance_monitor_group)
+        self.frame_33.setObjectName(u"frame_33")
+        self.frame_33.setFrameShape(QFrame.StyledPanel)
+        self.frame_33.setFrameShadow(QFrame.Raised)
+        self.verticalLayout_29 = QVBoxLayout(self.frame_33)
+        self.verticalLayout_29.setSpacing(2)
+        self.verticalLayout_29.setObjectName(u"verticalLayout_29")
+        self.verticalLayout_29.setContentsMargins(0, 0, 0, 0)
+        self.frame_27 = QFrame(self.frame_33)
+        self.frame_27.setObjectName(u"frame_27")
+        self.frame_27.setFrameShape(QFrame.StyledPanel)
+        self.frame_27.setFrameShadow(QFrame.Raised)
+        self.horizontalLayout_37 = QHBoxLayout(self.frame_27)
+        self.horizontalLayout_37.setSpacing(2)
+        self.horizontalLayout_37.setObjectName(u"horizontalLayout_37")
+        self.horizontalLayout_37.setContentsMargins(0, 0, 0, 0)
+        self.perf_graph_time_label = QLabel(self.frame_27)
+        self.perf_graph_time_label.setObjectName(u"perf_graph_time_label")
+        sizePolicy.setHeightForWidth(self.perf_graph_time_label.sizePolicy().hasHeightForWidth())
+        self.perf_graph_time_label.setSizePolicy(sizePolicy)
+        self.perf_graph_time_label.setAlignment(Qt.AlignCenter)
+
+        self.horizontalLayout_37.addWidget(self.perf_graph_time_label)
+
+        self.perf_graph_layout_frame = QFrame(self.frame_27)
+        self.perf_graph_layout_frame.setObjectName(u"perf_graph_layout_frame")
+        self.perf_graph_layout_frame.setFrameShape(QFrame.StyledPanel)
+        self.perf_graph_layout_frame.setFrameShadow(QFrame.Raised)
+        self.performance_graph_layout = QVBoxLayout(self.perf_graph_layout_frame)
+        self.performance_graph_layout.setObjectName(u"performance_graph_layout")
+        self.performance_graph_layout.setContentsMargins(0, 0, 0, 0)
+
+        self.horizontalLayout_37.addWidget(self.perf_graph_layout_frame)
+
+
+        self.verticalLayout_29.addWidget(self.frame_27)
+
+        self.perf_graph_epoch_label = QLabel(self.frame_33)
+        self.perf_graph_epoch_label.setObjectName(u"perf_graph_epoch_label")
+        sizePolicy1.setHeightForWidth(self.perf_graph_epoch_label.sizePolicy().hasHeightForWidth())
+        self.perf_graph_epoch_label.setSizePolicy(sizePolicy1)
+        self.perf_graph_epoch_label.setAlignment(Qt.AlignCenter)
+
+        self.verticalLayout_29.addWidget(self.perf_graph_epoch_label)
+
+
+        self.verticalLayout_26.addWidget(self.frame_33)
+
+        self.frame_26 = QFrame(self.performance_monitor_group)
+        self.frame_26.setObjectName(u"frame_26")
+        sizePolicy1.setHeightForWidth(self.frame_26.sizePolicy().hasHeightForWidth())
+        self.frame_26.setSizePolicy(sizePolicy1)
+        self.frame_26.setFrameShape(QFrame.Box)
+        self.frame_26.setFrameShadow(QFrame.Raised)
+        self.horizontalLayout_33 = QHBoxLayout(self.frame_26)
+        self.horizontalLayout_33.setObjectName(u"horizontalLayout_33")
+        self.horizontalLayout_33.setContentsMargins(2, 2, 2, 2)
+        self.performance_graph_reset_framing = QPushButton(self.frame_26)
+        self.performance_graph_reset_framing.setObjectName(u"performance_graph_reset_framing")
+
+        self.horizontalLayout_33.addWidget(self.performance_graph_reset_framing)
+
+        self.performance_graph_clear = QPushButton(self.frame_26)
+        self.performance_graph_clear.setObjectName(u"performance_graph_clear")
+
+        self.horizontalLayout_33.addWidget(self.performance_graph_clear)
+
+        self.horizontalSpacer_6 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+
+        self.horizontalLayout_33.addItem(self.horizontalSpacer_6)
+
+
+        self.verticalLayout_26.addWidget(self.frame_26)
+
+
+        self.horizontalLayout_32.addWidget(self.performance_monitor_group)
 
         self.groupBox_7 = QGroupBox(self.frame_24)
         self.groupBox_7.setObjectName(u"groupBox_7")
@@ -1535,69 +1824,104 @@ class Ui_MainWindow(object):
         self.frame_10.setObjectName(u"frame_10")
         sizePolicy1.setHeightForWidth(self.frame_10.sizePolicy().hasHeightForWidth())
         self.frame_10.setSizePolicy(sizePolicy1)
-        self.frame_10.setFrameShape(QFrame.StyledPanel)
-        self.frame_10.setFrameShadow(QFrame.Raised)
+        self.frame_10.setFrameShape(QFrame.Box)
+        self.frame_10.setFrameShadow(QFrame.Sunken)
         self.horizontalLayout_12 = QHBoxLayout(self.frame_10)
         self.horizontalLayout_12.setObjectName(u"horizontalLayout_12")
-        self.horizontalLayout_12.setContentsMargins(3, 3, 3, 3)
-        self.test = QPushButton(self.frame_10)
-        self.test.setObjectName(u"test")
-
-        self.horizontalLayout_12.addWidget(self.test)
-
-        self.epoch_progress = QProgressBar(self.frame_10)
-        self.epoch_progress.setObjectName(u"epoch_progress")
+        self.horizontalLayout_12.setContentsMargins(0, 0, 0, 0)
+        self.frame_28 = QFrame(self.frame_10)
+        self.frame_28.setObjectName(u"frame_28")
         sizePolicy11 = QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
         sizePolicy11.setHorizontalStretch(2)
         sizePolicy11.setVerticalStretch(0)
-        sizePolicy11.setHeightForWidth(self.epoch_progress.sizePolicy().hasHeightForWidth())
-        self.epoch_progress.setSizePolicy(sizePolicy11)
+        sizePolicy11.setHeightForWidth(self.frame_28.sizePolicy().hasHeightForWidth())
+        self.frame_28.setSizePolicy(sizePolicy11)
+        self.frame_28.setFrameShape(QFrame.StyledPanel)
+        self.frame_28.setFrameShadow(QFrame.Raised)
+        self.verticalLayout_27 = QVBoxLayout(self.frame_28)
+        self.verticalLayout_27.setSpacing(1)
+        self.verticalLayout_27.setObjectName(u"verticalLayout_27")
+        self.verticalLayout_27.setContentsMargins(0, 0, 0, 0)
+        self.epoch_progress = QProgressBar(self.frame_28)
+        self.epoch_progress.setObjectName(u"epoch_progress")
+        sizePolicy6.setHeightForWidth(self.epoch_progress.sizePolicy().hasHeightForWidth())
+        self.epoch_progress.setSizePolicy(sizePolicy6)
         self.epoch_progress.setValue(0)
         self.epoch_progress.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
         self.epoch_progress.setOrientation(Qt.Horizontal)
         self.epoch_progress.setInvertedAppearance(False)
         self.epoch_progress.setTextDirection(QProgressBar.TopToBottom)
 
-        self.horizontalLayout_12.addWidget(self.epoch_progress)
+        self.verticalLayout_27.addWidget(self.epoch_progress)
 
-        self.train_progress = QProgressBar(self.frame_10)
-        self.train_progress.setObjectName(u"train_progress")
+        self.label_45 = QLabel(self.frame_28)
+        self.label_45.setObjectName(u"label_45")
+        font5 = QFont()
+        font5.setPointSize(7)
+        self.label_45.setFont(font5)
+        self.label_45.setAlignment(Qt.AlignCenter)
+
+        self.verticalLayout_27.addWidget(self.label_45)
+
+
+        self.horizontalLayout_12.addWidget(self.frame_28)
+
+        self.frame_29 = QFrame(self.frame_10)
+        self.frame_29.setObjectName(u"frame_29")
         sizePolicy12 = QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
         sizePolicy12.setHorizontalStretch(5)
         sizePolicy12.setVerticalStretch(0)
-        sizePolicy12.setHeightForWidth(self.train_progress.sizePolicy().hasHeightForWidth())
-        self.train_progress.setSizePolicy(sizePolicy12)
+        sizePolicy12.setHeightForWidth(self.frame_29.sizePolicy().hasHeightForWidth())
+        self.frame_29.setSizePolicy(sizePolicy12)
+        self.frame_29.setFrameShape(QFrame.StyledPanel)
+        self.frame_29.setFrameShadow(QFrame.Raised)
+        self.verticalLayout_28 = QVBoxLayout(self.frame_29)
+        self.verticalLayout_28.setSpacing(1)
+        self.verticalLayout_28.setObjectName(u"verticalLayout_28")
+        self.verticalLayout_28.setContentsMargins(0, 0, 0, 0)
+        self.train_progress = QProgressBar(self.frame_29)
+        self.train_progress.setObjectName(u"train_progress")
+        sizePolicy6.setHeightForWidth(self.train_progress.sizePolicy().hasHeightForWidth())
+        self.train_progress.setSizePolicy(sizePolicy6)
         self.train_progress.setValue(0)
         self.train_progress.setAlignment(Qt.AlignBottom|Qt.AlignRight|Qt.AlignTrailing)
 
-        self.horizontalLayout_12.addWidget(self.train_progress)
+        self.verticalLayout_28.addWidget(self.train_progress)
+
+        self.label_46 = QLabel(self.frame_29)
+        self.label_46.setObjectName(u"label_46")
+        self.label_46.setFont(font5)
+        self.label_46.setAlignment(Qt.AlignCenter)
+
+        self.verticalLayout_28.addWidget(self.label_46)
+
+
+        self.horizontalLayout_12.addWidget(self.frame_29)
 
         self.frame_22 = QFrame(self.frame_10)
         self.frame_22.setObjectName(u"frame_22")
-        self.frame_22.setFrameShape(QFrame.StyledPanel)
-        self.frame_22.setFrameShadow(QFrame.Raised)
-        self.formLayout_15 = QFormLayout(self.frame_22)
-        self.formLayout_15.setObjectName(u"formLayout_15")
-        self.formLayout_15.setContentsMargins(0, 0, 0, 0)
-        self.label_41 = QLabel(self.frame_22)
-        self.label_41.setObjectName(u"label_41")
-        font4 = QFont()
-        font4.setPointSize(12)
-        font4.setBold(False)
-        font4.setItalic(False)
-        font4.setStrikeOut(False)
-        self.label_41.setFont(font4)
-        self.label_41.setScaledContents(False)
-        self.label_41.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
-
-        self.formLayout_15.setWidget(0, QFormLayout.ItemRole.LabelRole, self.label_41)
-
+        self.frame_22.setFrameShape(QFrame.Panel)
+        self.frame_22.setFrameShadow(QFrame.Sunken)
+        self.verticalLayout_31 = QVBoxLayout(self.frame_22)
+        self.verticalLayout_31.setSpacing(1)
+        self.verticalLayout_31.setObjectName(u"verticalLayout_31")
+        self.verticalLayout_31.setContentsMargins(2, 2, 2, 2)
         self.current_epoch = QLCDNumber(self.frame_22)
         self.current_epoch.setObjectName(u"current_epoch")
         self.current_epoch.setFrameShadow(QFrame.Raised)
         self.current_epoch.setSegmentStyle(QLCDNumber.Filled)
 
-        self.formLayout_15.setWidget(0, QFormLayout.ItemRole.FieldRole, self.current_epoch)
+        self.verticalLayout_31.addWidget(self.current_epoch)
+
+        self.label_41 = QLabel(self.frame_22)
+        self.label_41.setObjectName(u"label_41")
+        font6 = QFont()
+        font6.setPointSize(7)
+        font6.setBold(True)
+        self.label_41.setFont(font6)
+        self.label_41.setAlignment(Qt.AlignCenter)
+
+        self.verticalLayout_31.addWidget(self.label_41)
 
 
         self.horizontalLayout_12.addWidget(self.frame_22)
@@ -1614,7 +1938,7 @@ class Ui_MainWindow(object):
         self.retranslateUi(MainWindow)
 
         self.direction.setCurrentIndex(-1)
-        self.tabWidget_2.setCurrentIndex(3)
+        self.tabWidget_2.setCurrentIndex(0)
 
 
         QMetaObject.connectSlotsByName(MainWindow)
@@ -1697,9 +2021,32 @@ class Ui_MainWindow(object):
         self.visdom_env_name.setText(QCoreApplication.translate("MainWindow", u"main", None))
         self.tabWidget_2.setTabText(self.tabWidget_2.indexOf(self.tab_2), QCoreApplication.translate("MainWindow", u"Visdom", None))
         self.train_start.setText(QCoreApplication.translate("MainWindow", u"Begin Training", None))
+        self.train_pause.setText(QCoreApplication.translate("MainWindow", u"Pause Training", None))
         self.train_stop.setText(QCoreApplication.translate("MainWindow", u"Stop Training", None))
         self.dockWidget_2.setWindowTitle(QCoreApplication.translate("MainWindow", u"\u2191 Performance Monitor / Output Log", None))
-        self.groupBox_10.setTitle(QCoreApplication.translate("MainWindow", u"Performance Monitor", None))
+        self.groupBox_10.setTitle(QCoreApplication.translate("MainWindow", u"Times", None))
+        self.label_55.setText(QCoreApplication.translate("MainWindow", u"Train", None))
+        self.label_56.setText(QCoreApplication.translate("MainWindow", u"Since Start:", None))
+        self.performance_epoch_fastest_2.setText(QCoreApplication.translate("MainWindow", u"00.000", None))
+        self.label_48.setText(QCoreApplication.translate("MainWindow", u"Epoch", None))
+        self.label_47.setText(QCoreApplication.translate("MainWindow", u"Fastest:", None))
+        self.performance_epoch_fastest.setText(QCoreApplication.translate("MainWindow", u"00.000", None))
+        self.label_50.setText(QCoreApplication.translate("MainWindow", u"Slowest:", None))
+        self.performance_epoch_slowest.setText(QCoreApplication.translate("MainWindow", u"00.000", None))
+        self.label_51.setText(QCoreApplication.translate("MainWindow", u"Average:", None))
+        self.performance_epoch_average.setText(QCoreApplication.translate("MainWindow", u"00.000", None))
+        self.label_49.setText(QCoreApplication.translate("MainWindow", u"Iteration", None))
+        self.label_52.setText(QCoreApplication.translate("MainWindow", u"Fastest:", None))
+        self.performance_iter_fastest.setText(QCoreApplication.translate("MainWindow", u"00.000", None))
+        self.label_53.setText(QCoreApplication.translate("MainWindow", u"Slowest:", None))
+        self.performance_iter_slowest.setText(QCoreApplication.translate("MainWindow", u"00.000", None))
+        self.label_54.setText(QCoreApplication.translate("MainWindow", u"Average:", None))
+        self.performance_iter_average.setText(QCoreApplication.translate("MainWindow", u"00.000", None))
+        self.performance_monitor_group.setTitle(QCoreApplication.translate("MainWindow", u"Performance Monitor", None))
+        self.perf_graph_time_label.setText("")
+        self.perf_graph_epoch_label.setText("")
+        self.performance_graph_reset_framing.setText(QCoreApplication.translate("MainWindow", u"Reset Framing", None))
+        self.performance_graph_clear.setText(QCoreApplication.translate("MainWindow", u"Clear Graph", None))
         self.groupBox_7.setTitle(QCoreApplication.translate("MainWindow", u"Log", None))
         self.output_log.setDocumentTitle("")
         self.label_39.setText(QCoreApplication.translate("MainWindow", u"Log Functions", None))
@@ -1709,7 +2056,8 @@ class Ui_MainWindow(object):
         self.autoscroll_log.setText(QCoreApplication.translate("MainWindow", u"Scroll Log Automatically", None))
         self.show_epoch_progress.setText(QCoreApplication.translate("MainWindow", u"Show Current Epoch Progress", None))
         self.show_train_progress.setText(QCoreApplication.translate("MainWindow", u"Show Train Progress", None))
-        self.test.setText(QCoreApplication.translate("MainWindow", u"test", None))
-        self.label_41.setText(QCoreApplication.translate("MainWindow", u"Epoch", None))
+        self.label_45.setText(QCoreApplication.translate("MainWindow", u"Current Epoch Progress", None))
+        self.label_46.setText(QCoreApplication.translate("MainWindow", u"Current Train Progress", None))
+        self.label_41.setText(QCoreApplication.translate("MainWindow", u"Current Epoch", None))
     # retranslateUi
 

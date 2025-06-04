@@ -6,14 +6,14 @@ from importlib.resources import files
 
 import torch
 import numpy as np
-# import pyqtgraph as qtg
+import pyqtgraph as pg
 import PySide6.QtWidgets as QtWidgets
 import PySide6.QtGui as QtGui
 from PySide6.QtUiTools import QUiLoader
 from PySide6.QtCore import Qt, QFile, QThread, QObject, Signal, QEvent
 
-from pix2pix_graphical.ui.workers import TrainerWorker
-from pix2pix_graphical.ui.config_helper import ConfigHelper
+from pix2pix_graphical.ui.workers.pix2pix_trainerworker import TrainerWorker
+from pix2pix_graphical.ui.utils.config_helper import ConfigHelper
 
 class ImageLabel(QtWidgets.QLabel):
     def __init__(
@@ -45,6 +45,92 @@ class ImageLabel(QtWidgets.QLabel):
                 self.size(), Qt.KeepAspectRatio, Qt.SmoothTransformation)
             self.setPixmap(scaled)
 
+class Graph(QtWidgets.QWidget):
+    def __init__(
+            self, 
+            title: str,
+            left_label: tuple[str] | None=None, # (label, units)
+            right_label: tuple[str] | None=None,
+            bottom_label: tuple[str] | None=None,
+            top_label: tuple[str] | None=None,
+            line_color: tuple[int]=(255, 255, 255),
+            line_width: int=1,
+            show_grid:bool=True,
+            grid_alpha: float=0.3 
+        ) -> None:
+        super().__init__()
+
+        self.x_data, self.y_data = [], [] # Store X, Y graph data
+        self.ymax = 1.0  # Default Y max
+        self.xmax = 10.0 # Default X max
+
+        self.setWindowTitle(title)
+        self.init_plot()
+        self.reframe_graph()
+        if show_grid: self.plot_widget.showGrid(True, True, alpha=grid_alpha)
+        self.build_labels(left_label, right_label, bottom_label, top_label)
+        self.init_line(line_color, line_width)
+        
+    def init_plot(self) -> None:
+        layout = QtWidgets.QVBoxLayout(self)
+        pg.setConfigOption('background', 'w')
+        pg.setConfigOption('foreground', 'k')
+        self.plot_widget = pg.PlotWidget()
+        layout.addWidget(self.plot_widget)
+
+    def build_labels(
+            self,
+            left_label: tuple[str] | None,
+            right_label: tuple[str] | None,
+            bottom_label: tuple[str] | None,
+            top_label: tuple[str] | None,
+        ) -> None:
+        if not left_label is None:
+            self.plot_widget.setLabel(
+                'left', left_label[0], units=left_label[1])
+        if not right_label is None:
+            self.plot_widget.setLabel(
+                'right', right_label[0], units=right_label[1])
+        if not bottom_label is None:
+            self.plot_widget.setLabel(
+                'bottom', bottom_label[0], units=bottom_label[1])
+        if not top_label is None:
+            self.plot_widget.setLabel(
+                'top', top_label[0], units=top_label[1])
+
+    def init_line(self, line_color: tuple[int], line_width: int) -> None:
+        pen = pg.mkPen(
+            color=line_color, 
+            width=line_width, 
+            style=Qt.PenStyle.SolidLine)
+        self.plot_data_item = self.plot_widget.plot([], [], pen=pen) 
+
+    def update_graph(self, x: float, y: float) -> None:
+        self.x_data.append(x)
+        if x > self.xmax:
+            self.x_max = x
+            self.plot_widget.setXRange(0.0, self.x_max)
+        self.y_data.append(y)
+        if y > self.ymax:
+            self.ymax = y
+            self.plot_widget.setYRange(0.0, self.ymax)
+        self.plot_data_item.setData(self.x_data, self.y_data)
+
+    def reset_graph(self) -> None:
+        self.x_data.clear()
+        self.y_data.clear()
+        self.plot_data_item.setData(self.x_data, self.y_data)
+        self.reframe_graph()
+
+    def reframe_graph(self, min_x: float=10.0, min_y: float=1.0) -> None:
+        if len(self.x_data) == 0: self.xmax = min_x
+        else: self.xmax = max(min_x, list(sorted(self.x_data))[-1])
+        self.plot_widget.setXRange(1.0, self.xmax)
+        
+        if len(self.y_data) == 0: self.ymax = min_y
+        else: self.ymax = max(min_y, list(sorted(self.y_data))[-1])
+        self.plot_widget.setYRange(0.0, self.ymax)
+
 class Interface(QObject):
     ### INTERFACE SIGNALS ###
     safe_cleanup = Signal() # Worker shutdown signal
@@ -59,6 +145,8 @@ class Interface(QObject):
 
         # Stores references to frequently used widgets
         self.widgets: dict[str, QtWidgets.QWidget] = {}
+
+        self.status_msg_length = 2000
 
     ### CONFIG HANDLING ###
 
@@ -104,7 +192,6 @@ class Interface(QObject):
         '''Creates a QThread and starts a pix2pix training loop inside of it. 
         '''
         self._build_launch_config()
-        # print(self._get(QtWidgets.QComboBox, 'direction').currentText())
         
         self.train_thread = QThread()
         self.worker = TrainerWorker(config=self.train_config)
@@ -116,6 +203,7 @@ class Interface(QObject):
         self.worker.train_progress.connect(self.report_train_progress)
         self.worker.tensors.connect(self._get_tensors)     # XYZ image tensors
         self.worker.log.connect(self.update_log)           # Log strings
+        self.worker.waiting.connect(self.trainer_waiting)
         
         self.worker.finished.connect(self.train_thread.quit)  # Cancel Handler
         self.worker.cancelled.connect(self.train_thread.quit) # Cancel Handler
@@ -125,10 +213,15 @@ class Interface(QObject):
         self.worker.cancelled.connect(self.safe_cleanup.emit)
 
         self.train_thread.start()
-        self.widgets['train_start'].setEnabled(False)
+        self.widgets['train_start'].setHidden(True)
         self.widgets['train_stop'].setEnabled(True)
         self._get(QtWidgets.QLCDNumber, 'current_epoch').display(1)
         self._get(QtWidgets.QFrame, 'train_settings').setEnabled(False)
+        self._get(QtWidgets.QPushButton, 'train_pause').setHidden(False)
+
+        self._get(
+            QtWidgets.QStatusBar, 'statusbar'
+        ).showMessage('Beginning Training...', self.status_msg_length)
 
     ### GENERAL SIGNAL HANDLERS
 
@@ -139,6 +232,26 @@ class Interface(QObject):
     def stop_train(self) -> None:
         if hasattr(self, 'worker'):
             self.worker.stop()
+            self._get(
+                QtWidgets.QStatusBar, 'statusbar'
+            ).showMessage('Training Stopped', self.status_msg_length)
+
+    def pause_train(self) -> None:
+        if hasattr(self, 'worker'):
+            if self.worker._is_paused:
+                self.worker.unpause()
+                self._get(QtWidgets.QStatusBar, 'statusbar').clearMessage()
+                self._get(
+                    QtWidgets.QStatusBar, 'statusbar'
+                ).showMessage('Training Resumed', self.status_msg_length)
+                self._get(QtWidgets.QPushButton, 'train_pause').setText('Pause Training')
+            else:
+                self.worker.pause()
+                self._get(QtWidgets.QPushButton, 'train_pause').setText('Resume Training')
+
+    def trainer_waiting(self, counter: int) -> None:
+        message = 'Waiting' + '.' * (counter % 4)
+        self._get(QtWidgets.QStatusBar, 'statusbar').showMessage(message)
 
     def change_update_frequency(self, value: int) -> None:
         if hasattr(self, 'worker'):
@@ -153,13 +266,19 @@ class Interface(QObject):
     def report_epoch_progress(self, value: int) -> None:
         self.widgets['epoch_progress'].setValue(value)
 
-    def report_train_progress(self, value: int) -> None:
+    def report_train_progress(self, progress: tuple[int, float]) -> None:
         gen_lr = self.worker.config.train.generator.learning_rate
         total_epochs = gen_lr.epochs + gen_lr.epochs_decay
-        self.widgets['train_progress'].setValue(
-            int(((value+1) / total_epochs) * 100.0))
-        self._get(QtWidgets.QLCDNumber, 'current_epoch').display(value+2)
-
+        
+        self.last_epoch = progress[0] + 1
+        self.train_progress = self.last_epoch / total_epochs
+        
+        self.widgets['train_progress'].setValue(int(self.train_progress*100.0))
+        
+        self._get(QtWidgets.QLCDNumber, 'current_epoch').display(self.last_epoch+1)
+        
+        self.graphs['performance'].update_graph(self.last_epoch, progress[1])
+        
     ### UPDATE IMAGES ###
 
     def _show_xyz_images(self) -> None:
@@ -202,11 +321,13 @@ class Interface(QObject):
     ### CLEANUP ###
 
     def cleanup(self):
-        self.widgets['train_start'].setEnabled(True)
+        self.widgets['train_start'].setHidden(False)
         self.widgets['train_stop'].setEnabled(False)
         self.widgets['train_progress'].setValue(0)
         self.widgets['epoch_progress'].setValue(0)
         self._get(QtWidgets.QFrame, 'train_settings').setEnabled(True)
+        self._get(QtWidgets.QPushButton, 'train_pause').setHidden(True)
+        self.graphs['performance'].reset_graph()
 
     ### INIT HELPERS ###
 
@@ -360,6 +481,19 @@ class Interface(QObject):
         palette = current_epoch.palette()
         palette.setColor(QtGui.QPalette.ColorRole.WindowText, QtGui.QColor('black'))
         current_epoch.setPalette(palette)
+    
+    def _init_graphs(self) -> None:
+        performance = Graph(
+            title='performance',
+            line_color=(255, 100, 100),
+            line_width=2)
+        layout = self.mainwidget.findChild(QtWidgets.QVBoxLayout, 'performance_graph_layout')
+        layout.addWidget(performance)
+        performance.show()
+        performance.update_graph(0.0, 0.0)
+        self.graphs = {
+            'performance': performance
+        }
 
     def init_ui(self) -> None:
         '''Initialized the interface. Links parameters, sets defaults, etc.'''
@@ -371,8 +505,34 @@ class Interface(QObject):
         self._init_pushbuttons()
         self._init_training_setting()
         self._init_update_frequency()
+        
 
-        # self._get(QtWidgets.QPushButton, 'test').clicked.connect(lambda : self._init_from_config(config_path=None))
+        root = pathlib.Path(__file__).parent
+        file = pathlib.Path(root, 'resources', 'icons', 'performance_graph_time_label.svg')
+        transform = QtGui.QTransform()
+        transform.rotate(270)
+        self._get(QtWidgets.QLabel, 'perf_graph_time_label').setPixmap(
+            QtGui.QPixmap(file.as_posix()).scaledToHeight(10).transformed(transform))
+        
+        file = pathlib.Path(root, 'resources', 'icons', 'performance_graph_epoch_label.svg')
+        self._get(QtWidgets.QLabel, 'perf_graph_epoch_label').setPixmap(
+            QtGui.QPixmap(file.as_posix()).scaledToHeight(10))
+        
+
+
+        self._init_graphs()
+
+
+
+        self._get(
+            QtWidgets.QPushButton, 'performance_graph_reset_framing'
+        ).clicked.connect(lambda : self.graphs['performance'].reframe_graph())
+        self._get(
+            QtWidgets.QPushButton, 'performance_graph_clear'
+        ).clicked.connect(lambda : self.graphs['performance'].reset_graph())
+
+        self._get(QtWidgets.QPushButton, 'train_pause').setHidden(True)
+        self._get(QtWidgets.QPushButton, 'train_pause').clicked.connect(self.pause_train)
 
         self._get(QtWidgets.QComboBox, 'direction').addItems(['AtoB', 'BtoA'])
         self._init_from_config(config_path=None) # Init from default config
