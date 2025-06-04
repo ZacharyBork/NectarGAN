@@ -260,7 +260,7 @@ class Ui_MainWindow(object):
         self.scrollArea.setWidgetResizable(True)
         self.scrollAreaWidgetContents = QWidget()
         self.scrollAreaWidgetContents.setObjectName(u"scrollAreaWidgetContents")
-        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 349, 670))
+        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 337, 670))
         self.verticalLayout_11 = QVBoxLayout(self.scrollAreaWidgetContents)
         self.verticalLayout_11.setSpacing(2)
         self.verticalLayout_11.setObjectName(u"verticalLayout_11")
@@ -633,7 +633,7 @@ class Ui_MainWindow(object):
         self.scrollArea_2.setWidgetResizable(True)
         self.scrollAreaWidgetContents_2 = QWidget()
         self.scrollAreaWidgetContents_2.setObjectName(u"scrollAreaWidgetContents_2")
-        self.scrollAreaWidgetContents_2.setGeometry(QRect(0, -167, 318, 618))
+        self.scrollAreaWidgetContents_2.setGeometry(QRect(0, -167, 306, 618))
         self.verticalLayout_15 = QVBoxLayout(self.scrollAreaWidgetContents_2)
         self.verticalLayout_15.setObjectName(u"verticalLayout_15")
         self.continue_train = QGroupBox(self.scrollAreaWidgetContents_2)
@@ -1001,7 +1001,7 @@ class Ui_MainWindow(object):
         self.scrollArea_3.setWidgetResizable(True)
         self.scrollAreaWidgetContents_3 = QWidget()
         self.scrollAreaWidgetContents_3.setObjectName(u"scrollAreaWidgetContents_3")
-        self.scrollAreaWidgetContents_3.setGeometry(QRect(0, 0, 335, 340))
+        self.scrollAreaWidgetContents_3.setGeometry(QRect(0, 0, 335, 296))
         self.verticalLayout_16 = QVBoxLayout(self.scrollAreaWidgetContents_3)
         self.verticalLayout_16.setObjectName(u"verticalLayout_16")
         self.frame_18 = QFrame(self.scrollAreaWidgetContents_3)
@@ -1113,7 +1113,7 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_16.addWidget(self.frame_18)
 
-        self.verticalSpacer_3 = QSpacerItem(20, 197, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
+        self.verticalSpacer_3 = QSpacerItem(20, 153, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
 
         self.verticalLayout_16.addItem(self.verticalSpacer_3)
 
@@ -1132,7 +1132,7 @@ class Ui_MainWindow(object):
         self.scrollArea_4.setWidgetResizable(True)
         self.scrollAreaWidgetContents_4 = QWidget()
         self.scrollAreaWidgetContents_4.setObjectName(u"scrollAreaWidgetContents_4")
-        self.scrollAreaWidgetContents_4.setGeometry(QRect(0, 0, 335, 340))
+        self.scrollAreaWidgetContents_4.setGeometry(QRect(0, 0, 335, 296))
         self.verticalLayout_17 = QVBoxLayout(self.scrollAreaWidgetContents_4)
         self.verticalLayout_17.setObjectName(u"verticalLayout_17")
         self.groupBox_6 = QGroupBox(self.scrollAreaWidgetContents_4)
@@ -1259,7 +1259,7 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_17.addWidget(self.groupBox)
 
-        self.verticalSpacer_4 = QSpacerItem(20, 111, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
+        self.verticalSpacer_4 = QSpacerItem(20, 67, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
 
         self.verticalLayout_17.addItem(self.verticalSpacer_4)
 
@@ -1278,7 +1278,7 @@ class Ui_MainWindow(object):
         self.scrollArea_5.setWidgetResizable(True)
         self.scrollAreaWidgetContents_5 = QWidget()
         self.scrollAreaWidgetContents_5.setObjectName(u"scrollAreaWidgetContents_5")
-        self.scrollAreaWidgetContents_5.setGeometry(QRect(0, 0, 332, 340))
+        self.scrollAreaWidgetContents_5.setGeometry(QRect(0, 0, 332, 296))
         self.verticalLayout_18 = QVBoxLayout(self.scrollAreaWidgetContents_5)
         self.verticalLayout_18.setObjectName(u"verticalLayout_18")
         self.visdom_enable = QGroupBox(self.scrollAreaWidgetContents_5)
@@ -1342,7 +1342,7 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_18.addWidget(self.visdom_enable)
 
-        self.verticalSpacer_5 = QSpacerItem(20, 185, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
+        self.verticalSpacer_5 = QSpacerItem(20, 141, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
 
         self.verticalLayout_18.addItem(self.verticalSpacer_5)
 
@@ -1712,6 +1712,16 @@ class Ui_MainWindow(object):
         self.verticalLayout_9.setSpacing(2)
         self.verticalLayout_9.setObjectName(u"verticalLayout_9")
         self.verticalLayout_9.setContentsMargins(3, 3, 3, 3)
+        self.log_output_frozen_header = QLabel(self.groupBox_7)
+        self.log_output_frozen_header.setObjectName(u"log_output_frozen_header")
+        font5 = QFont()
+        font5.setBold(False)
+        font5.setItalic(True)
+        self.log_output_frozen_header.setFont(font5)
+        self.log_output_frozen_header.setAlignment(Qt.AlignCenter)
+
+        self.verticalLayout_9.addWidget(self.log_output_frozen_header)
+
         self.frame_9 = QFrame(self.groupBox_7)
         self.frame_9.setObjectName(u"frame_9")
         self.frame_9.setFrameShape(QFrame.StyledPanel)
@@ -1760,10 +1770,10 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_23.addWidget(self.export_output_log)
 
-        self.pushButton = QPushButton(self.frame_15)
-        self.pushButton.setObjectName(u"pushButton")
+        self.freeze_output_log = QPushButton(self.frame_15)
+        self.freeze_output_log.setObjectName(u"freeze_output_log")
 
-        self.verticalLayout_23.addWidget(self.pushButton)
+        self.verticalLayout_23.addWidget(self.freeze_output_log)
 
         self.clear_output_log = QPushButton(self.frame_15)
         self.clear_output_log.setObjectName(u"clear_output_log")
@@ -1856,9 +1866,9 @@ class Ui_MainWindow(object):
 
         self.label_45 = QLabel(self.frame_28)
         self.label_45.setObjectName(u"label_45")
-        font5 = QFont()
-        font5.setPointSize(7)
-        self.label_45.setFont(font5)
+        font6 = QFont()
+        font6.setPointSize(7)
+        self.label_45.setFont(font6)
         self.label_45.setAlignment(Qt.AlignCenter)
 
         self.verticalLayout_27.addWidget(self.label_45)
@@ -1890,7 +1900,7 @@ class Ui_MainWindow(object):
 
         self.label_46 = QLabel(self.frame_29)
         self.label_46.setObjectName(u"label_46")
-        self.label_46.setFont(font5)
+        self.label_46.setFont(font6)
         self.label_46.setAlignment(Qt.AlignCenter)
 
         self.verticalLayout_28.addWidget(self.label_46)
@@ -1915,10 +1925,10 @@ class Ui_MainWindow(object):
 
         self.label_41 = QLabel(self.frame_22)
         self.label_41.setObjectName(u"label_41")
-        font6 = QFont()
-        font6.setPointSize(7)
-        font6.setBold(True)
-        self.label_41.setFont(font6)
+        font7 = QFont()
+        font7.setPointSize(7)
+        font7.setBold(True)
+        self.label_41.setFont(font7)
         self.label_41.setAlignment(Qt.AlignCenter)
 
         self.verticalLayout_31.addWidget(self.label_41)
@@ -2048,10 +2058,11 @@ class Ui_MainWindow(object):
         self.performance_graph_reset_framing.setText(QCoreApplication.translate("MainWindow", u"Reset Framing", None))
         self.performance_graph_clear.setText(QCoreApplication.translate("MainWindow", u"Clear Graph", None))
         self.groupBox_7.setTitle(QCoreApplication.translate("MainWindow", u"Log", None))
+        self.log_output_frozen_header.setText(QCoreApplication.translate("MainWindow", u"* OUTPUT FROZEN *", None))
         self.output_log.setDocumentTitle("")
         self.label_39.setText(QCoreApplication.translate("MainWindow", u"Log Functions", None))
         self.export_output_log.setText(QCoreApplication.translate("MainWindow", u"Export to File", None))
-        self.pushButton.setText(QCoreApplication.translate("MainWindow", u"Freeze Ouput", None))
+        self.freeze_output_log.setText(QCoreApplication.translate("MainWindow", u"Freeze Ouput", None))
         self.clear_output_log.setText(QCoreApplication.translate("MainWindow", u"Clear", None))
         self.autoscroll_log.setText(QCoreApplication.translate("MainWindow", u"Scroll Log Automatically", None))
         self.show_epoch_progress.setText(QCoreApplication.translate("MainWindow", u"Show Current Epoch Progress", None))

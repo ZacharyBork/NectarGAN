@@ -146,7 +146,8 @@ class Interface(QObject):
         # Stores references to frequently used widgets
         self.widgets: dict[str, QtWidgets.QWidget] = {}
 
-        self.status_msg_length = 2000
+        self.status_msg_length: int = 2000
+        self.log_frozen: bool = False
 
     ### CONFIG HANDLING ###
 
@@ -191,6 +192,8 @@ class Interface(QObject):
     def start_train(self) -> None:
         '''Creates a QThread and starts a pix2pix training loop inside of it. 
         '''
+        self.graphs['performance'].reset_graph()
+        self.graphs['performance'].update_graph(0.0, 0.0)
         self._build_launch_config()
         
         self.train_thread = QThread()
@@ -258,10 +261,11 @@ class Interface(QObject):
             self.worker.change_update_frequency(value)
 
     def update_log(self, log_entry: str) -> None:
-        self.widgets['output_log'].append(log_entry)
-        if self._get(QtWidgets.QCheckBox, 'autoscroll_log').isChecked():
-            scroll = self.widgets['output_log'].verticalScrollBar()
-            scroll.setValue(scroll.maximum())
+        if not self.log_frozen:
+            self.widgets['output_log'].append(log_entry)
+            if self._get(QtWidgets.QCheckBox, 'autoscroll_log').isChecked():
+                scroll = self.widgets['output_log'].verticalScrollBar()
+                scroll.setValue(scroll.maximum())
 
     def report_epoch_progress(self, value: int) -> None:
         self.widgets['epoch_progress'].setValue(value)
@@ -327,7 +331,6 @@ class Interface(QObject):
         self.widgets['epoch_progress'].setValue(0)
         self._get(QtWidgets.QFrame, 'train_settings').setEnabled(True)
         self._get(QtWidgets.QPushButton, 'train_pause').setHidden(True)
-        self.graphs['performance'].reset_graph()
 
     ### INIT HELPERS ###
 
@@ -495,6 +498,61 @@ class Interface(QObject):
             'performance': performance
         }
 
+    def _freeze_output_log(self) -> None:
+        if not self.log_frozen: self.widgets['output_log'].append('Output log frozen...')
+        else: self.widgets['output_log'].append('Log unfrozen, resuming output...')
+        self._get(QtWidgets.QLabel, 'log_output_frozen_header').setHidden(self.log_frozen)
+        self.log_frozen = not self.log_frozen
+        
+    def _clear_output_log(self) -> None:
+        if len(self.widgets['output_log'].toPlainText()) > 0:
+            message = (
+                f'This will clear all data from the output log.\n'
+                f'This action cannot be undone.\n\n'
+                f'Are you sure you want to proceed?')
+            confirm = QtWidgets.QMessageBox.question(
+                self.mainwidget, 'Warning', message,
+                QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
+            if confirm == QtWidgets.QMessageBox.Yes: 
+                self.widgets['output_log'].clear()
+                message = 'Output Log Cleared...'
+                self._get(QtWidgets.QStatusBar, 'statusbar').showMessage(message, self.status_msg_length)
+            else: self._get(QtWidgets.QStatusBar, 'statusbar').showMessage('Canceled...', self.status_msg_length)
+        else: 
+            message = 'Output log empty...'
+            self._get(QtWidgets.QStatusBar, 'statusbar').showMessage(message, self.status_msg_length)
+
+    def _export_output_log(self) -> None:
+        log_string = self.widgets['output_log'].toPlainText()
+        if len(log_string) > 0:
+            message = (
+                f'This will export the current log to a .txt file in the '
+                f'experiment directory.\n\nPress Yes to continue.')
+            confirm = QtWidgets.QMessageBox.question(
+                self.mainwidget, 'Please confirm', message,
+                QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
+            
+            if confirm == QtWidgets.QMessageBox.Yes:
+                exp_dir = self.worker.experiment_dir
+                if not exp_dir is None and pathlib.Path(exp_dir).exists(): 
+                    output_dir = pathlib.Path(exp_dir)
+                else: 
+                    message = (
+                        f'No current experiement directory. Please begin'
+                        f' training before outputting log to file.')
+                    raise ValueError(message)
+                
+                log_file = pathlib.Path(output_dir, 'output_log_dump.txt')
+                with open(log_file.as_posix(), 'w') as file:
+                    file.write(log_string)
+                
+                message = f'Log Saved: {log_file.as_posix()}'
+                self._get(QtWidgets.QStatusBar, 'statusbar').showMessage(message, self.status_msg_length)
+            else: self._get(QtWidgets.QStatusBar, 'statusbar').showMessage('Canceled...', self.status_msg_length)
+        else: 
+            message = 'Output log empty, nothing to export...'
+            self._get(QtWidgets.QStatusBar, 'statusbar').showMessage(message, self.status_msg_length)
+
     def init_ui(self) -> None:
         '''Initialized the interface. Links parameters, sets defaults, etc.'''
         self._get_signal_widgets()     # Get commonly used widgets
@@ -519,10 +577,14 @@ class Interface(QObject):
             QtGui.QPixmap(file.as_posix()).scaledToHeight(10))
         
 
+        self._get(QtWidgets.QLabel, 'log_output_frozen_header').setHidden(True)
+        self._get(QtWidgets.QPushButton, 'freeze_output_log').clicked.connect(self._freeze_output_log)
+        self._get(QtWidgets.QPushButton, 'clear_output_log').clicked.connect(self._clear_output_log)
+        self._get(QtWidgets.QPushButton, 'export_output_log').clicked.connect(self._export_output_log)
 
         self._init_graphs()
 
-
+        
 
         self._get(
             QtWidgets.QPushButton, 'performance_graph_reset_framing'

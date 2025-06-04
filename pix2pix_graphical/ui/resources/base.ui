@@ -481,7 +481,7 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>349</width>
+             <width>337</width>
              <height>670</height>
             </rect>
            </property>
@@ -1172,7 +1172,7 @@
                     <rect>
                      <x>0</x>
                      <y>-167</y>
-                     <width>318</width>
+                     <width>306</width>
                      <height>618</height>
                     </rect>
                    </property>
@@ -1853,7 +1853,7 @@
                      <x>0</x>
                      <y>0</y>
                      <width>335</width>
-                     <height>340</height>
+                     <height>296</height>
                     </rect>
                    </property>
                    <layout class="QVBoxLayout" name="verticalLayout_16">
@@ -2022,7 +2022,7 @@
                       <property name="sizeHint" stdset="0">
                        <size>
                         <width>20</width>
-                        <height>197</height>
+                        <height>153</height>
                        </size>
                       </property>
                      </spacer>
@@ -2061,7 +2061,7 @@
                      <x>0</x>
                      <y>0</y>
                      <width>335</width>
-                     <height>340</height>
+                     <height>296</height>
                     </rect>
                    </property>
                    <layout class="QVBoxLayout" name="verticalLayout_17">
@@ -2287,7 +2287,7 @@
                       <property name="sizeHint" stdset="0">
                        <size>
                         <width>20</width>
-                        <height>111</height>
+                        <height>67</height>
                        </size>
                       </property>
                      </spacer>
@@ -2326,7 +2326,7 @@
                      <x>0</x>
                      <y>0</y>
                      <width>332</width>
-                     <height>340</height>
+                     <height>296</height>
                     </rect>
                    </property>
                    <layout class="QVBoxLayout" name="verticalLayout_18">
@@ -2445,7 +2445,7 @@
                       <property name="sizeHint" stdset="0">
                        <size>
                         <width>20</width>
-                        <height>185</height>
+                        <height>141</height>
                        </size>
                       </property>
                      </spacer>
@@ -3215,6 +3215,22 @@
             <number>3</number>
            </property>
            <item>
+            <widget class="QLabel" name="log_output_frozen_header">
+             <property name="font">
+              <font>
+               <italic>true</italic>
+               <bold>false</bold>
+              </font>
+             </property>
+             <property name="text">
+              <string>* OUTPUT FROZEN *</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item>
             <widget class="QFrame" name="frame_9">
              <property name="frameShape">
               <enum>QFrame::StyledPanel</enum>
@@ -3312,7 +3328,7 @@
                   </widget>
                  </item>
                  <item>
-                  <widget class="QPushButton" name="pushButton">
+                  <widget class="QPushButton" name="freeze_output_log">
                    <property name="text">
                     <string>Freeze Ouput</string>
                    </property>
