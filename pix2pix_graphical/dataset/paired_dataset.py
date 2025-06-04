@@ -49,14 +49,16 @@ class PairedDataset(Dataset):
             self.list_files[index].as_posix()
         ).resize((self.load_size*2, self.load_size)))
 
-        if self.config.dataloader.direction == 'AtoB':
+        direction = self.config.dataloader.direction
+        if direction == 'AtoB':
             input_image = image[:, :self.load_size, :]
             target_image = image[:, self.load_size:, :]
         elif self.config.dataloader.direction == 'BtoA':
             input_image = image[:, self.load_size:, :] 
             target_image = image[:, :self.load_size, :]
         else: 
-            message = 'Invalid direction. Valid directions are AtoB and BtoA'
+            message = (f'Invalid direction{direction}\n'
+                       f'Valid directions are AtoB and BtoA')
             raise RuntimeError(message)
 
         return self.xform.apply_transforms(input_image, target_image)

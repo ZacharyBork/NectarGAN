@@ -71,32 +71,43 @@ class Interface(QObject):
         else: path = path.as_posix()
         try:
             with open(path, 'r') as f:
-                config = json.load(f)
-            return config
+                config = json.load(f)['config']
         except Exception as e:
             message = f'Unable to open config file at: {path.as_posix()}'
             raise RuntimeError(message) from e
+        return config
 
     def _init_from_config(self, config_path: pathlib.Path | None=None) -> None:
-        config_data = self._get_config_data(path=config_path)['config']
-        
+        self.train_config = self._get_config_data(config_path)
         for ui_name, info in self.config_helper.CONFIG_MAP.items():
             config_keys, widget_type = info
             keys = config_keys.split('.')
-            value = config_data
-            for key in keys:
-                value = value[key]
-
-            widget = self._get(widget_type, ui_name)
-            self.config_helper.WIDGET_SETTERS[widget_type](widget, value)
+            value = self.train_config
+            for key in keys: value = value[key]
             
+            widget = self._get(widget_type, ui_name)
+            self.config_helper.SETTERS[widget_type](widget, value)
+
+    def _build_launch_config(self):
+        for ui_name, info in self.config_helper.CONFIG_MAP.items():
+            config_keys, widget_type = info
+            keys = config_keys.split('.')
+            config_entry = self.train_config
+            for key in keys[:-1]: config_entry = config_entry[key]
+            
+            widget = self._get(widget_type, ui_name)
+            config_entry[keys[-1]] = self.config_helper.GETTERS[widget_type](widget)
+
     ### TRAINING ###
 
     def start_train(self) -> None:
         '''Creates a QThread and starts a pix2pix training loop inside of it. 
         '''
+        self._build_launch_config()
+        # print(self._get(QtWidgets.QComboBox, 'direction').currentText())
+        
         self.train_thread = QThread()
-        self.worker = TrainerWorker()
+        self.worker = TrainerWorker(config=self.train_config)
         self.worker.moveToThread(self.train_thread)
 
         self.train_thread.started.connect(self.worker.run) # Training slot fn
@@ -363,6 +374,7 @@ class Interface(QObject):
 
         # self._get(QtWidgets.QPushButton, 'test').clicked.connect(lambda : self._init_from_config(config_path=None))
 
+        self._get(QtWidgets.QComboBox, 'direction').addItems(['AtoB', 'BtoA'])
         self._init_from_config(config_path=None) # Init from default config
         self.safe_cleanup.connect(self.cleanup)
 

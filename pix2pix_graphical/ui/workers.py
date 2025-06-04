@@ -1,5 +1,6 @@
 import time
 from typing import Any
+from os import PathLike
 
 import torch
 from PySide6.QtCore import QObject, Signal, Slot
@@ -14,11 +15,16 @@ class TrainerWorker(QObject, Pix2pixTrainer):
     log = Signal(str)
     cancelled = Signal()
 
-    def __init__(self) -> None:
+    def __init__(
+            self, 
+            config: PathLike | dict[str, Any] | None,
+            loss_subspec: str='extended+vgg',
+            log_losses: bool=False
+        ) -> None:
         super().__init__(
-            config=None, 
-            loss_subspec='extended+vgg',
-            log_losses=False)
+            config=config, 
+            loss_subspec=loss_subspec,
+            log_losses=log_losses)
         self._is_interrupted: bool = False
         self._update_frequency: int = 50
 

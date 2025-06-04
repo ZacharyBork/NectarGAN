@@ -42,6 +42,7 @@ class ConfigManager():
         keysA = _get_all_keys(jsonA)
         keysB = _get_all_keys(jsonB)
         if not keysA == keysB:
+            print(keysB)
             raise ValueError('Input config dict is invalid.')
 
     def _validate_config_dict(self, input_data: dict[str, Any]) -> None:
@@ -50,7 +51,7 @@ class ConfigManager():
         script_root = pathlib.Path(__file__).parent
         default_config = pathlib.Path(script_root, 'default.json').resolve()
         with open(default_config.as_posix(), 'r') as file:
-            default_data = json.loads(file.read())['config']  
+            default_data = json.loads(file.read())['config']
         return self._match_keys(jsonA=default_data, jsonB=input_data)
 
     def parse_config_file(

@@ -6,7 +6,11 @@ from PySide6.QtWidgets import (
 
 @dataclass
 class ConfigHelper:
-    WIDGET_SETTERS: dict[
+    SETTERS: dict[
+        type[QWidget], Callable
+    ] = field(default_factory=dict)
+
+    GETTERS: dict[
         type[QWidget], Callable
     ] = field(default_factory=dict)
     
@@ -15,13 +19,21 @@ class ConfigHelper:
     ] = field(default_factory=dict)
 
     def __post_init__(self):
-        self.WIDGET_SETTERS = {
-        QLineEdit: lambda widget, value : widget.setText(value),
-        QSpinBox: lambda widget, value : widget.setValue(value),
-        QDoubleSpinBox: lambda widget, value : widget.setValue(value),
-        QComboBox: lambda widget, value : widget.setCurrentText(value),
-        QCheckBox: lambda widget, value : widget.setChecked(value),
-        QGroupBox: lambda widget, value : widget.setChecked(value)}
+        self.SETTERS = {
+            QLineEdit: lambda widget, value : widget.setText(value),
+            QSpinBox: lambda widget, value : widget.setValue(value),
+            QDoubleSpinBox: lambda widget, value : widget.setValue(value),
+            QComboBox: lambda widget, value : widget.setCurrentText(value),
+            QCheckBox: lambda widget, value : widget.setChecked(value),
+            QGroupBox: lambda widget, value : widget.setChecked(value)}
+        
+        self.GETTERS = { 
+            QLineEdit: lambda widget : widget.text(),
+            QSpinBox: lambda widget : widget.value(),
+            QDoubleSpinBox: lambda widget : widget.value(),
+            QComboBox: lambda widget : widget.currentText(),
+            QCheckBox: lambda widget : widget.isChecked(),
+            QGroupBox: lambda widget : widget.isChecked()}
 
         self.CONFIG_MAP = {
             # Experiment
