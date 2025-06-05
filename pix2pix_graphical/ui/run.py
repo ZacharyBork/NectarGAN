@@ -5,13 +5,17 @@ from typing import Union
 import PySide6.QtWidgets as QtWidgets
 import PySide6.QtGui as QtGui
 from PySide6.QtUiTools import QUiLoader
-from PySide6.QtCore import QFile, QObject, Signal
+from PySide6.QtCore import Qt, QFile, QObject, QEvent
+
+import pix2pix_graphical.ui.utils.common as utils
 
 from pix2pix_graphical.ui.utils.config_helper import ConfigHelper
 from pix2pix_graphical.ui.utils.trainer_helper import TrainerHelper
 from pix2pix_graphical.ui.utils.log import OutputLog
 from pix2pix_graphical.ui.utils.imagelabel import ImageLabel
 from pix2pix_graphical.ui.utils.graphing import Graph
+from pix2pix_graphical.ui.utils.settings_dock import SettingsDock
+
 
 class Interface(QObject):    
     def __init__(self) -> None:
@@ -45,15 +49,15 @@ class Interface(QObject):
         '''
         return self.mainwidget.findChild(type, name)
 
-    def _set_button_icon(
-            self, 
-            filename: str, 
-            button: QtWidgets.QPushButton
-        ) -> None:
-        root = pathlib.Path(__file__).parent
-        file = pathlib.Path(root, 'resources', 'icons', filename)
-        icon = QtGui.QIcon(file.as_posix())
-        button.setIcon(icon)
+    # def _set_button_icon(
+    #         self, 
+    #         filename: str, 
+    #         button: QtWidgets.QPushButton
+    #     ) -> None:
+    #     root = pathlib.Path(__file__).parent
+    #     file = pathlib.Path(root, 'resources', 'icons', filename)
+    #     icon = QtGui.QIcon(file.as_posix())
+    #     button.setIcon(icon)
 
     def _update_spinbox_from_slider(
             self,
@@ -94,22 +98,22 @@ class Interface(QObject):
 
     ### CALLBACKS ###
 
-    def close_experiment_settings(self) -> None:
-        dock = self._get(QtWidgets.QDockWidget, 'experiment_settings')
+    def _close_settings_dock(self) -> None:
+        dock = self._get(QtWidgets.QDockWidget, 'settings_dock')
         button = self._get(QtWidgets.QPushButton, 'close_experiment_settings')
         direction = 'left' if dock.isHidden() else 'right'
-        self._set_button_icon(f'caret-line-{direction}-bold.svg', button)
+        utils.set_button_icon(f'caret-line-{direction}-bold.svg', button)
         dock.setHidden(not dock.isHidden())
 
     def _split_lr_schedules(self) -> None:
-        gen_box = self._get(QtWidgets.QGroupBox, 'gen_schedule_box')
-        disc_box = self._get(QtWidgets.QGroupBox, 'disc_schedule_box')
+        # gen_box = self._get(QtWidgets.QGroupBox, 'gen_schedule_box')
+        disc_box = self._get(QtWidgets.QFrame, 'disc_schedule_box')
         checkbox = self._get(QtWidgets.QCheckBox, 'separate_lr_schedules')
         if checkbox.isChecked():
-            gen_box.setTitle('Generator')
+            # gen_box.setTitle('Generator')
             disc_box.setHidden(False)
         else:
-            gen_box.setTitle('Schedule')
+            # gen_box.setTitle('Schedule')
             disc_box.setHidden(True)
 
     ### INIT INTERFACE ###
@@ -153,11 +157,11 @@ class Interface(QObject):
         _button = QtWidgets.QPushButton
 
         button = self._get(_button, 'close_experiment_settings')
-        self._set_button_icon('caret-line-left-bold.svg', button)
-        button.clicked.connect(self.close_experiment_settings)
+        utils.set_button_icon('caret-line-left-bold.svg', button)
+        button.clicked.connect(self._close_settings_dock)
 
     def _init_training_setting(self) -> None:
-        self._get(QtWidgets.QGroupBox, 'disc_schedule_box').setHidden(True)
+        self._get(QtWidgets.QFrame, 'disc_schedule_box').setHidden(True)
         self._get(QtWidgets.QCheckBox, 'separate_lr_schedules').clicked.connect(self._split_lr_schedules)
 
     def _init_update_frequency(self) -> None:
@@ -194,6 +198,13 @@ class Interface(QObject):
         self._init_pushbuttons()
         self._init_training_setting()
         self._init_update_frequency()
+
+        
+        self.settings_dock.init()
+        
+
+
+        self._get(QtWidgets.QPushButton, 'reload_stylesheet').clicked.connect(self._set_stylesheet)
         
 
         root = pathlib.Path(__file__).parent
@@ -231,7 +242,7 @@ class Interface(QObject):
             FileNotFoundError : If unable to locate UI file.
         '''
         root = pathlib.Path(__file__).parent
-        file = pathlib.Path(root, 'resources', 'base.ui')
+        file = pathlib.Path(root, 'resources', 'test.ui')
         if not file.exists():
             msg = f'Unable to locate UI file: {file.resolve().as_posix()}'
             raise FileNotFoundError(msg)
@@ -247,7 +258,7 @@ class Interface(QObject):
         file.close()
         self.mainwidget.setWindowTitle('Pix2pix Trainer')
 
-    def _set_stylesheet(self, app: QtWidgets.QApplication) -> None:
+    def _set_stylesheet(self) -> None:
         root = pathlib.Path(__file__).parent
         file = pathlib.Path(root, 'resources', 'stylesheet.qss')
         if not file.exists():
@@ -255,12 +266,12 @@ class Interface(QObject):
             raise FileNotFoundError(msg)
         with open(file.resolve().as_posix(), 'r') as file:
             stylesheet = file.read()
-            app.setStyleSheet(stylesheet)
+            self.app.setStyleSheet(stylesheet)
 
     def run(self) -> None:
         '''Entrypoint function for `Interface` class. Launches the GUI.'''
-        app = QtWidgets.QApplication(sys.argv)
-        self._set_stylesheet(app=app)
+        self.app = QtWidgets.QApplication(sys.argv)
+        self._set_stylesheet()
 
         self._init_mainwidget()
         self._build_graphs()
@@ -273,9 +284,10 @@ class Interface(QObject):
             mainwidget=self.mainwidget,
             confighelper=self.confighelper,
             log=self.log, status_msg_length=self.status_msg_length)
+        self.settings_dock = SettingsDock(mainwidget=self.mainwidget)
 
         self.init_ui()
         self.mainwidget.show()
 
-        sys.exit(app.exec())
+        sys.exit(self.app.exec())
 

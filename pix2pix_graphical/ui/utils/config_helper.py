@@ -5,7 +5,7 @@ from importlib.resources import files
 
 from PySide6.QtWidgets import (
     QWidget, QLineEdit, QSpinBox, QDoubleSpinBox, 
-    QComboBox, QCheckBox, QGroupBox)
+    QAbstractSpinBox, QComboBox, QCheckBox, QGroupBox)
 
 class ConfigHelper:
     def __init__(self, mainwidget: QWidget) -> None:
@@ -43,7 +43,21 @@ class ConfigHelper:
             widget = self.mainwidget.findChild(widget_type, ui_name)
             self.SETTERS[widget_type](widget, value)
 
+    def _overwrite_disc_lr(self) -> None:
+        names = [
+            ('_epochs', QSpinBox), 
+            ('_epochs_decay', QSpinBox), 
+            ('_lr_initial', QDoubleSpinBox), 
+            ('_lr_target', QDoubleSpinBox)]        
+        for x, type in names:
+            gen, disc = 'gen', 'disc'
+            value = self.mainwidget.findChild(type, f'{gen}{x}').value()
+            self.mainwidget.findChild(type, f'{disc}{x}').setValue(value)
+
     def _build_launch_config(self):
+        split = self.mainwidget.findChild(
+            QCheckBox, 'separate_lr_schedules').isChecked()
+        if not split: self._overwrite_disc_lr()
         for ui_name, info in self.CONFIG_MAP.items():
             config_keys, widget_type = info
             keys = config_keys.split('.')

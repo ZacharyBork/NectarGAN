@@ -1,38 +1,169 @@
 /*
+background-color: red;
+border-style: outset;
+border-width: 2px;
+border-radius: 10px;
+border-color: beige;
+font: bold 14px;
+min-width: 10em;
+padding: 6px;
+*/
+
+/*---------- BASE ----------*/
+
 QWidget {
+    background-color: rgb(35, 35, 35);
+}
+
+/*---------- FRAMES ----------*/
+
+QFrame#train_settings {
+    border: 1px solid #ff3b3b3f;
+    background-color: #ff3b3b3f;
+    border-top-right-radius: 10px;
+}
+QFrame#train_settings QWidget {
+    background-color: #ff3b3b3f;
+}
+
+
+QFrame#train_functions_frame {
+    background-color: #ff3b3b3f;
+}
+
+QFrame#settings_btns_frame {
     background-color: rgb(50, 50, 50);
 }
-QPushButton {
+
+QFrame#settings_btns_frame QFrame {
     background-color: rgb(50, 50, 50);
+}
+
+/*---------- BUTTONS ----------*/
+QPushButton {
+    background-color: rgb(40, 40, 40);
 }
 QPushButton::hover {
-    background-color: rgb(50, 50, 50);
+    background-color: rgb(70, 70, 70);
 }
+QPushButton::checked {
+    background-color: rgb(255, 158, 31);
+}
+
+QPushButton#browse_dataset {
+    background-color: rgb(150, 20, 70);
+    border: none;
+    color: white;
+    qproperty-flat: true;
+}
+
+QPushButton#close_experiment_settings {
+    background-color: rgb(50, 50, 50);
+    border: 1px ridge rgb(35, 35, 35);
+}
+QPushButton::hover#close_experiment_settings {
+    background-color: rgb(60, 60, 60);
+}
+QPushButton::pressed#close_experiment_settings {
+    background-color: rgb(70, 70, 70);
+}
+
+QPushButton#experiment_settings_btn {
+    border: 1px solid rgb(255, 158, 31);
+    border-radius: 10px;
+}
+QPushButton::checked#experiment_settings_btn { border: none; }
+QPushButton#experiment_settings_label {
+    color: rgb(255, 158, 31);
+    background-color: none;
+}
+
+QPushButton#dataset_settings_btn {
+    border: 1px solid rgb(31, 184, 255);
+    border-radius: 10px;
+}
+QPushButton::checked#dataset_settings_btn { border: none; }
+QPushButton#dataset_settings_label {
+    color: rgb(31, 184, 255);
+    background-color: none;
+}
+
+QPushButton#training_settings_btn {
+    border: 1px solid rgb(187, 73, 197);
+    border-radius: 10px;
+}
+QPushButton::checked#training_settings_btn { border: none; }
+QPushButton#training_settings_label {
+    color: rgb(187, 73, 197);
+    background-color: none;
+}
+
+QPushButton#testing_settings_btn {
+    border: 1px solid rgb(137, 209, 44);
+    border-radius: 10px;
+}
+QPushButton::checked#testing_settings_btn { border: none; }
+QPushButton#testing_settings_label {
+    color: rgb(137, 209, 44);
+    background-color: none;
+}
+
+QPushButton#utils_settings_btn {
+    border: 1px solid rgb(212, 202, 53);
+    border-radius: 10px;
+}
+QPushButton::checked#utils_settings_btn { border: none; }
+QPushButton#utils_settings_label {
+    color: rgb(212, 202, 53);
+    background-color: none;
+}
+
+/*---------- LABELS ----------*/
+
+QLabel {
+    color: rgb(200, 200, 200);
+}
+
+QLabel#experiment_section_header {
+    background-color: rgb(40, 40, 40);
+    color: rgb(200, 200, 200);
+}
+
+/*---------- SLIDERS ----------*/
+
 QSlider {
     background-color: rgb(50, 50, 50);
 }
+
+/*---------- LINE EDITS ----------*/
+
 QLineEdit {
-    background-color: rgb(50, 50, 50);
+    background-color: rgb(200, 200, 200);
+    color: rgb(200, 200, 200);
+    border: 1px solid rgb(80, 80, 80);
+    border-radius: 5;
 }
+
+/*---------- TEXT EDITS ----------*/
+
 QTextEdit {
     background-color: rgb(50, 50, 50);
 }
+
+/*---------- SPINBOXES ----------*/
+
 QSpinBox, QDoubleSpinBox {
     background-color: rgb(50, 50, 50);
 }
+
+/*---------- CHECKBOXES ----------*/
+
 QCheckBox {
     background-color: rgb(50, 50, 50);
 }
+
+/*---------- PROGRESS BARS ----------*/
+
 QProgressBar {
     background-color: rgb(50, 50, 50);
 }
-QPushButton {
-    background-color: red;
-    border-style: outset;
-    border-width: 2px;
-    border-radius: 10px;
-    border-color: beige;
-    font: bold 14px;
-    min-width: 10em;
-    padding: 6px;
-} */
