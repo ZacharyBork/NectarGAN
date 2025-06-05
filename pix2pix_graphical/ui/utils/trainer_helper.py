@@ -1,3 +1,5 @@
+from typing import Literal
+
 from torch import Tensor
 import numpy as np
 
@@ -39,6 +41,7 @@ class TrainerHelper(QObject):
     ### INIT HELPERS ###
 
     def _get_widgets(self) -> None:
+        '''Get widgets accessed frequently by this class.'''
         self.statusbar = self.mainwidget.findChild(QStatusBar, 'statusbar')
         self.train_settings_grp = self.mainwidget.findChild(QFrame, 'train_settings')
         self.perf_graph = self.mainwidget.findChild(Graph, 'performance_graph')
@@ -51,23 +54,57 @@ class TrainerHelper(QObject):
         self.train_stop_btn = self.mainwidget.findChild(QPushButton, 'train_stop')
         self.train_pause_btn = self.mainwidget.findChild(QPushButton, 'train_pause')
 
-    ### SIGNAL HANDLERS ###
+    ### SEND SIGNALS ###
 
-    def change_update_frequency(self, value: int) -> None:
+    def _change_update_frequency(self, value: int) -> None:
+        '''Sends a signal to the worker to change its update signal frequency.
+        '''
         if hasattr(self, 'worker'):
             self.worker.change_update_frequency(value)
 
-    def update_log(self, log_entry: str) -> None:
+    ### RECEIVE SIGNALS ###
+
+    def trainer_waiting(self, pulse: int) -> None:
+        '''Recieves and processes a trainer waiting signal.
+        
+        When the trainer worker is paused, it will send a pulse signal every
+        .5 seconds. This function takes that signal and uses it for a fun
+        little waiting animation.
+
+        Args:
+            pulse : Signal from the worker.
+        '''
+        message = 'Waiting' + '.' * (pulse % 4)
+        self.statusbar.showMessage(message)
+
+    def _update_log(self, log_entry: str) -> None:
+        '''Updates output log with training data.
+        
+        Args:
+            log_entry : The entry to append to the log.
+        '''
         if not self.log.output_frozen:
             self.log.write_entry(log_entry)
             if self.mainwidget.findChild(QCheckBox, 'autoscroll_log').isChecked():
                 scroll = self.log.log_widget.verticalScrollBar()
                 scroll.setValue(scroll.maximum())
 
-    def report_epoch_progress(self, value: int) -> None:
-        self.progress_bar_epoch.setValue(value)
+    def _report_epoch_progress(self, iter: int) -> None:
+        '''Reports training progress through the current epoch.
+        
+        Args:
+            iter : The iteration of the current epoch when the signal is sent.
+        '''
+        self.progress_bar_epoch.setValue(iter)
 
-    def report_train_progress(self, progress: tuple[int, float]) -> None:
+    def _report_train_progress(self, progress: tuple[int, float]) -> None:
+        '''Reports epoch index and time at the end of each epoch.
+        
+        Args:
+            progress : The int value is the index of the just completed epoch.
+                The float value is the time, in seconds, which that epoch took
+                to complete. 
+        '''
         gen_lr = self.worker.config.train.generator.learning_rate
         total_epochs = gen_lr.epochs + gen_lr.epochs_decay
         
@@ -117,6 +154,40 @@ class TrainerHelper(QObject):
             self.pixmaps.append(QPixmap.fromImage(qimage))
         self._show_xyz_images()
 
+    ### UI STATES ###
+    def _set_ui_state(
+            self, 
+            state: Literal['train_start', 'train_paused', 'train_end']
+        ) -> None:
+        '''Sets various things in the main interface based on worker state.
+        
+        The function inits some UI values and sets train control button
+        visibility. It also disables the training settings panel on train_start
+        and re-enables it on train_end.
+
+        Args:
+            state : The current state, decides what to set the values to.
+        '''
+        state_values = {
+            'train_start': [
+                True, True, 0, 0, 1, False, False, 'Beginning Training'], 
+            'train_paused': [], 
+            'train_end': [
+                False, False, 0, 0, 0, True, True, 'Training Complete']
+        }
+        def _set_state(x: list):
+            self.train_start_btn.setHidden(x[0])
+            self.train_stop_btn.setEnabled(x[1])
+            self.progress_bar_train.setValue(x[2])
+            self.progress_bar_epoch.setValue(x[3])
+            self.current_epoch_display.display(x[4])
+            self.train_settings_grp.setEnabled(x[5])
+            self.train_pause_btn.setHidden(x[6])
+        match state:
+            case 'train_start' | 'train_end': _set_state(state_values[state])
+            case 'train_paused':
+                raise NotImplementedError(f'State {state} not implemented.')        
+
     ### TRAIN ###
 
     def start_train(self) -> None:
@@ -126,42 +197,39 @@ class TrainerHelper(QObject):
         self.perf_graph.update_graph(0.0, 0.0)
         self.confighelper._build_launch_config()
         
-        self.train_thread = QThread()
-        self.worker = TrainerWorker(config=self.confighelper.config)
+        t = self.train_thread = QThread()
+        w = self.worker = TrainerWorker(config=self.confighelper.config)
         self.worker.moveToThread(self.train_thread)
 
-        self.safe_cleanup.connect(self.cleanup)
+        self.safe_cleanup.connect(lambda : self._set_ui_state(state='train_end'))
 
         self.train_thread.started.connect(self.worker.run) # Training slot fn
         
-        self.worker.epoch_progress.connect(self.report_epoch_progress)
-        self.worker.train_progress.connect(self.report_train_progress)
-        self.worker.tensors.connect(self._get_tensors)     # XYZ image tensors
-        self.worker.log.connect(self.update_log)           # Log strings
-        self.worker.waiting.connect(self.trainer_waiting)
+        w.epoch_progress.connect(self._report_epoch_progress)
+        w.train_progress.connect(self._report_train_progress)
+        w.tensors.connect(self._get_tensors)     # XYZ image tensors
+        w.log.connect(self._update_log)          # Log strings
+        w.waiting.connect(self.trainer_waiting)  # Trainer paused pulse
         
-        self.worker.finished.connect(self.train_thread.quit)  # Cancel Handler
-        self.worker.cancelled.connect(self.train_thread.quit) # Cancel Handler
+        w.finished.connect(self.train_thread.quit)  # Kill thread if finished,
+        w.cancelled.connect(self.train_thread.quit) # or if canceled.
+        w.finished.connect(self.safe_cleanup.emit)  # Also request safe cleanup
+        w.cancelled.connect(self.safe_cleanup.emit) # for both signals.
 
-        self.train_thread.finished.connect(self.train_thread.deleteLater)
-        self.worker.finished.connect(self.safe_cleanup.emit)
-        self.worker.cancelled.connect(self.safe_cleanup.emit)
+        # deletelater on train_thread when train finishes
+        t.finished.connect(self.train_thread.deleteLater)
+        t.start() # Spin up train thread
 
-        self.train_thread.start()
-        self.train_start_btn.setHidden(True)
-        self.train_stop_btn.setEnabled(True)
-        self.current_epoch_display.display(1)
-        self.train_settings_grp.setEnabled(False)
-        self.mainwidget.findChild(QPushButton, 'train_pause').setHidden(False)
-
-        self.statusbar.showMessage('Beginning Training...', self.status_msg_length)
+        self._set_ui_state(state='train_start')
 
     def stop_train(self) -> None:
+        '''Sends a signal to the worker telling it to stop training.'''
         if hasattr(self, 'worker'):
             self.worker.stop()
             self.statusbar.showMessage('Training Stopped', self.status_msg_length)
 
     def pause_train(self) -> None:
+        '''Sends a signal to the worker telling it to pause training.'''
         if hasattr(self, 'worker'):
             if self.worker._is_paused:
                 self.worker.unpause()
@@ -172,17 +240,4 @@ class TrainerHelper(QObject):
                 self.worker.pause()
                 self.mainwidget.findChild(QPushButton, 'train_pause').setText('Resume Training')
 
-    def trainer_waiting(self, counter: int) -> None:
-        message = 'Waiting' + '.' * (counter % 4)
-        self.statusbar.showMessage(message)
 
-    ### CLEANUP ###
-    
-    def cleanup(self):
-        self.train_start_btn.setHidden(False)
-        self.train_stop_btn.setEnabled(False)
-        self.progress_bar_train.setValue(0)
-        self.progress_bar_epoch.setValue(0)
-        self.current_epoch_display.display(0)
-        self.train_settings_grp.setEnabled(True)
-        self.train_pause_btn.setHidden(True)
