@@ -35,6 +35,7 @@ class TrainerHelper(QObject):
 
         self.worker: TrainerWorker | None = None
         self.pixmaps: list[QPixmap] = []
+        self.last_epoch: int=0
 
         self._get_widgets()
 
@@ -89,13 +90,14 @@ class TrainerHelper(QObject):
                 scroll = self.log.log_widget.verticalScrollBar()
                 scroll.setValue(scroll.maximum())
 
-    def _report_epoch_progress(self, iter: int) -> None:
+    def _report_epoch_progress(self, progress: float) -> None:
         '''Reports training progress through the current epoch.
         
         Args:
-            iter : The iteration of the current epoch when the signal is sent.
+            progress : [0, 1] progress through the current epoch.
         '''
-        self.progress_bar_epoch.setValue(iter)
+        self.current_epoch_progress = progress
+        self.progress_bar_epoch.setValue(progress * 100.0)
 
     def _report_train_progress(self, progress: tuple[int, float]) -> None:
         '''Reports epoch index and time at the end of each epoch.
@@ -113,7 +115,9 @@ class TrainerHelper(QObject):
         
         self.progress_bar_train.setValue(int(self.train_progress*100.0))
         self.current_epoch_display.display(self.last_epoch+1)
-        self.perf_graph.update_graph(self.last_epoch, progress[1])
+
+        self.perf_graph.set_step(self.last_epoch)
+        self.perf_graph.update_plot('epoch_time', progress[1])
 
     ### TRAIN PROGRESS IMAGES ###
 
@@ -153,6 +157,20 @@ class TrainerHelper(QObject):
                 QImage.Format_RGB888)
             self.pixmaps.append(QPixmap.fromImage(qimage))
         self._show_xyz_images()
+
+    ### LOSSES ###
+
+    def _get_losses(self, losses: dict[str, float]) -> None:
+        loss_g_graph = self.mainwidget.findChild(Graph, 'loss_g_graph')
+        loss_d_graph = self.mainwidget.findChild(Graph, 'loss_d_graph')
+        losses_g = ['G_GAN', 'G_L1', 'G_SOBEL', 'G_LAP', 'G_VGG']
+        losses_d = ['D_real', 'D_fake']
+
+        step = 1.0 + self.current_epoch_progress + float(self.last_epoch)
+
+        # loss_g_graph.update_graph(step, losses['G_L1'])
+        # loss_d_graph.update_graph(step, losses['D_fake'])
+
 
     ### UI STATES ###
     def _set_ui_state(
@@ -194,7 +212,8 @@ class TrainerHelper(QObject):
         '''Creates a QThread and starts a pix2pix training loop inside of it. 
         '''
         self.perf_graph.reset_graph()
-        self.perf_graph.update_graph(0.0, 0.0)
+        self.perf_graph.set_step(0.0)
+        self.perf_graph.update_plot('epoch_time', 0.0)
         self.confighelper._build_launch_config()
         
         t = self.train_thread = QThread()
@@ -208,6 +227,7 @@ class TrainerHelper(QObject):
         w.epoch_progress.connect(self._report_epoch_progress)
         w.train_progress.connect(self._report_train_progress)
         w.tensors.connect(self._get_tensors)     # XYZ image tensors
+        w.losses.connect(self._get_losses)     # XYZ image tensors
         w.log.connect(self._update_log)          # Log strings
         w.waiting.connect(self.trainer_waiting)  # Trainer paused pulse
         

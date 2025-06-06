@@ -1,3 +1,5 @@
+from typing import Literal, Any
+
 from PySide6.QtWidgets import QWidget, QVBoxLayout
 from PySide6.QtCore import Qt
 import pyqtgraph as pg
@@ -5,85 +7,94 @@ import pyqtgraph as pg
 class Graph(QWidget):
     def __init__(
             self, 
-            title: str,
-            left_label: tuple[str] | None=None, # (label, units)
-            right_label: tuple[str] | None=None,
-            bottom_label: tuple[str] | None=None,
-            top_label: tuple[str] | None=None,
-            line_color: tuple[int]=(255, 255, 255),
-            line_width: int=1,
-            show_grid:bool=True,
-            grid_alpha: float=0.3 
+            window_title: str,
+            bg_color: tuple[float]=(50, 50, 50),
+            fg_color: tuple[float]=(0, 0, 0),
+            show_grid: tuple[bool]=(True, True),
+            grid_alpha: float=0.3,
+            xmax: float=10.0,
+            ymax: float=1.0
         ) -> None:
         super().__init__()
-
-        self.x_data, self.y_data = [], [] # Store X, Y graph data
-        self.ymax = 1.0  # Default Y max
-        self.xmax = 10.0 # Default X max
-
-        self.setWindowTitle(title)
-        self.init_plot()
-        self.reframe_graph()
-        if show_grid: self.plot_widget.showGrid(True, True, alpha=grid_alpha)
-        self.build_labels(left_label, right_label, bottom_label, top_label)
-        self.init_line(line_color, line_width)
+        # Stores data for lines belonging to the graph
+        self.lines: dict[str, dict[str, Any]] = {}
+        self.steps: list[float]=[]
         
-    def init_plot(self) -> None:
-        layout = QVBoxLayout(self)
-        pg.setConfigOption('background', 'w')
-        pg.setConfigOption('foreground', 'k')
-        self.plot_widget = pg.PlotWidget()
-        layout.addWidget(self.plot_widget)
+        self.xmax = xmax # Default X max
+        self.ymax = ymax # Default Y max
+        
 
-    def build_labels(
-            self,
-            left_label: tuple[str] | None,
-            right_label: tuple[str] | None,
-            bottom_label: tuple[str] | None,
-            top_label: tuple[str] | None,
+        self.setWindowTitle(window_title)
+        self._init_plot(bg_color, fg_color, show_grid, grid_alpha)
+        self.reframe_graph()
+   
+    def _init_plot(
+            self, 
+            bg_color: tuple[float], 
+            fg_color: tuple[float],
+            show_grid: tuple[bool],
+            grid_alpha: float
         ) -> None:
-        if not left_label is None:
-            self.plot_widget.setLabel(
-                'left', left_label[0], units=left_label[1])
-        if not right_label is None:
-            self.plot_widget.setLabel(
-                'right', right_label[0], units=right_label[1])
-        if not bottom_label is None:
-            self.plot_widget.setLabel(
-                'bottom', bottom_label[0], units=bottom_label[1])
-        if not top_label is None:
-            self.plot_widget.setLabel(
-                'top', top_label[0], units=top_label[1])
+        layout = QVBoxLayout(self)
+        pg.setConfigOption('background', bg_color)
+        pg.setConfigOption('foreground', fg_color)
+        self.graph = pg.PlotWidget()
+        self.graph.showGrid(show_grid[0], show_grid[1], alpha=grid_alpha)
+        layout.addWidget(self.graph)
 
-    def init_line(self, line_color: tuple[int], line_width: int) -> None:
-        pen = pg.mkPen(
-            color=line_color, 
-            width=line_width, 
-            style=Qt.PenStyle.SolidLine)
-        self.plot_data_item = self.plot_widget.plot([], [], pen=pen) 
+    def add_label(
+            self, 
+            label: str, 
+            units: str='', 
+            location: Literal['left', 'right', 'top', 'bottom']='left'
+        ) -> None:
+        try: self.graph.setLabel(location, label, units=units)
+        except Exception as e:
+            raise RuntimeError('Unable to set plot label.') from e
 
-    def update_graph(self, x: float, y: float) -> None:
-        self.x_data.append(x)
-        if x > self.xmax:
-            self.x_max = x
-            self.plot_widget.setXRange(0.0, self.x_max)
-        self.y_data.append(y)
-        if y > self.ymax:
-            self.ymax = y
-            self.plot_widget.setYRange(0.0, self.ymax)
-        self.plot_data_item.setData(self.x_data, self.y_data)
+    def add_line(
+            self, 
+            name: str, 
+            width: int=1, 
+            color: tuple[int]=(255, 255, 255)
+        ) -> None:
+        if name in self.lines.keys():
+            msg = (f'Invalid line name: {name}. '
+                   f'A line with this name already exists')
+            raise KeyError(msg)
+        pen = pg.mkPen(color=color, width=width, style=Qt.PenStyle.SolidLine)
+        plot = self.graph.plot([], [], pen=pen)
+        self.lines[name] = { 'values': [], 'plot': plot }
+
+    def set_step(self, step: float) -> None:
+        self.steps.append(step)
+        if step > self.xmax:
+            self.xmax = step
+            self.graph.setXRange(1.0, self.xmax)
+
+    def update_plot(self, name: str, value: str) -> None:
+        line = self.lines[name]
+        line['values'].append(value)
+        if value > self.ymax:
+            self.ymax = value
+            self.graph.setYRange(0.0, self.ymax)
+        line['plot'].setData(self.steps, line['values'])
 
     def reset_graph(self) -> None:
-        self.x_data.clear()
-        self.y_data.clear()
-        self.plot_data_item.setData(self.x_data, self.y_data)
+        self.steps = []
+        for line in self.lines.values(): 
+            line['values'] = []
+            line['plot'].setData([], [])
         self.reframe_graph()
 
     def reframe_graph(self, min_x: float=10.0, min_y: float=1.0) -> None:
-        if len(self.x_data) == 0: self.xmax = min_x
-        else: self.xmax = max(min_x, list(sorted(self.x_data))[-1])
-        self.plot_widget.setXRange(1.0, self.xmax)
-        
-        if len(self.y_data) == 0: self.ymax = min_y
-        else: self.ymax = max(min_y, list(sorted(self.y_data))[-1])
-        self.plot_widget.setYRange(0.0, self.ymax)
+        if len(self.steps) == 0: self.xmax = min_x
+        else: self.xmax = max(min_x, self.steps[-1])
+        self.graph.setXRange(1.0, self.xmax)
+
+        _ymax = 0.0
+        for line in self.lines.values():
+            if len(line['values']) > 0:
+                _ymax = max(_ymax, list(sorted(line['values']))[-1])
+        self.ymax = max(min_y, _ymax)
+        self.graph.setYRange(0.0, self.ymax)

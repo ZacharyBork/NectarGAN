@@ -49,16 +49,6 @@ class Interface(QObject):
         '''
         return self.mainwidget.findChild(type, name)
 
-    # def _set_button_icon(
-    #         self, 
-    #         filename: str, 
-    #         button: QtWidgets.QPushButton
-    #     ) -> None:
-    #     root = pathlib.Path(__file__).parent
-    #     file = pathlib.Path(root, 'resources', 'icons', filename)
-    #     icon = QtGui.QIcon(file.as_posix())
-    #     button.setIcon(icon)
-
     def _update_spinbox_from_slider(
             self,
             spinbox: Union[QtWidgets.QSpinBox, QtWidgets.QDoubleSpinBox], 
@@ -176,18 +166,51 @@ class Interface(QObject):
         current_epoch.setPalette(palette)
     
     def _build_graphs(self) -> None:
-        performance = Graph(
-            title='performance',
-            line_color=(255, 100, 100),
-            line_width=2)
+        # Performance graph
+        # performance = Graph(
+        #     title='performance',
+        #     line_color=(255, 100, 100),
+        #     line_width=2)
+        performance = Graph(window_title='performance')
+        performance.add_line(name='epoch_time', color=(255, 0, 0))
         performance.setObjectName('performance_graph')
         layout = self.mainwidget.findChild(QtWidgets.QVBoxLayout, 'performance_graph_layout')
         layout.addWidget(performance)
-        performance.show()
-        performance.update_graph(0.0, 0.0)
+        # performance.update_graph(0.0, 0.0)
+
+        # # Loss Graphs
+        # loss_g = Graph(
+        #     title='Generator Loss',
+        #     line_color=(100, 255, 100),
+        #     line_width=2)
+        # loss_g.setObjectName('loss_g_graph')
+
+        # layout = self.mainwidget.findChild(QtWidgets.QVBoxLayout, 'loss_g_graph_layout')
+        # layout.addWidget(loss_g)
+
+        # loss_d = Graph(
+        #     title='Disriminator Loss',
+        #     line_color=(100, 100, 255),
+        #     line_width=2)
+        # loss_d.setObjectName('loss_d_graph')
+        # loss_d.setBaseSize(100, 100)
+
+        # layout = self.mainwidget.findChild(QtWidgets.QVBoxLayout, 'loss_d_graph_layout')
+        # layout.addWidget(loss_d)
+        
         self.graphs = {
-            'performance': performance
+            'performance': performance,
+            # 'loss_g': loss_g,
+            # 'loss_d': loss_d
         }
+
+    def _set_context_dock_visibility(self) -> None:
+        dock = self._get(QtWidgets.QDockWidget, 'context_settings_dock')
+        open_dock = self._get(QtWidgets.QPushButton, 'open_context_settings')
+
+        prefix = 'Show' if dock.isVisible() else 'Hide'
+        open_dock.setText(f'{prefix} Visualizer Settings')
+        dock.setVisible(not dock.isVisible())
 
     def init_ui(self) -> None:
         '''Initialized the interface. Links parameters, sets defaults, etc.'''
@@ -201,7 +224,11 @@ class Interface(QObject):
 
         
         self.settings_dock.init()
-        
+
+        dock = self._get(QtWidgets.QDockWidget, 'context_settings_dock')
+        open_dock = self._get(QtWidgets.QPushButton, 'open_context_settings')
+        dock.setVisible(False)
+        open_dock.clicked.connect(self._set_context_dock_visibility)
 
 
         self._get(QtWidgets.QPushButton, 'reload_stylesheet').clicked.connect(self._set_stylesheet)

@@ -9,10 +9,11 @@ from pix2pix_graphical.trainers.pix2pix_trainer import Pix2pixTrainer
 
 class TrainerWorker(QObject, Pix2pixTrainer):
     finished = Signal()
-    epoch_progress = Signal(int)
+    epoch_progress = Signal(float)
     train_progress = Signal(list)
     epoch_time = Signal(float)
     tensors = Signal(torch.Tensor)
+    losses = Signal(dict)
     log = Signal(str)
     cancelled = Signal()
     waiting = Signal(int)
@@ -107,14 +108,16 @@ class TrainerWorker(QObject, Pix2pixTrainer):
                 x, y = x.to(self.device), y.to(self.device)
                 y_fake = self.train_step(x, y, idx)
 
+
+                self.epoch_progress.emit((idx / len(self.train_loader)))
                 if idx % self._update_frequency == 0:
                     self.tensors.emit((
                         x.detach().cpu(), 
                         y.detach().cpu(), 
                         y_fake.detach().cpu()))
+                    self.losses.emit(self.loss_manager.get_loss_values(precision=4))
                     self.log.emit(self.loss_manager.print_losses(epoch, idx, capture=True))
-
-                self.epoch_progress.emit(int((idx / len(self.train_loader)) * 100.0))
+                
 
             self.on_epoch_end() 
             
