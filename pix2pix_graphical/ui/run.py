@@ -156,7 +156,7 @@ class Interface(QObject):
 
     def _init_update_frequency(self) -> None:
         update_freq = self._get(QtWidgets.QSpinBox, 'update_frequency')
-        update_freq.valueChanged.connect(lambda x=update_freq.value() : self.trainerhelper.change_update_frequency(x))
+        update_freq.valueChanged.connect(lambda x=update_freq.value() : self.trainerhelper._change_update_frequency(x))
 
     def _init_current_epoch_display(self) -> None:
         current_epoch = self._get(QtWidgets.QLCDNumber, 'current_epoch')
@@ -166,42 +166,34 @@ class Interface(QObject):
         current_epoch.setPalette(palette)
     
     def _build_graphs(self) -> None:
-        # Performance graph
-        # performance = Graph(
-        #     title='performance',
-        #     line_color=(255, 100, 100),
-        #     line_width=2)
         performance = Graph(window_title='performance')
         performance.add_line(name='epoch_time', color=(255, 0, 0))
         performance.setObjectName('performance_graph')
         layout = self.mainwidget.findChild(QtWidgets.QVBoxLayout, 'performance_graph_layout')
         layout.addWidget(performance)
-        # performance.update_graph(0.0, 0.0)
 
-        # # Loss Graphs
-        # loss_g = Graph(
-        #     title='Generator Loss',
-        #     line_color=(100, 255, 100),
-        #     line_width=2)
-        # loss_g.setObjectName('loss_g_graph')
 
-        # layout = self.mainwidget.findChild(QtWidgets.QVBoxLayout, 'loss_g_graph_layout')
-        # layout.addWidget(loss_g)
+        loss_g = Graph(window_title='loss_g')
+        loss_g.add_line(name='G_GAN', color=(255, 0, 0))
+        loss_g.add_line(name='G_L1', color=(0, 255, 0))
+        loss_g.add_line(name='G_SOBEL', color=(0, 0, 255))
+        loss_g.add_line(name='G_LAP', color=(255, 255, 0))
+        loss_g.add_line(name='G_VGG', color=(255, 0, 255))
+        loss_g.setObjectName('loss_g_graph')
+        layout = self.mainwidget.findChild(QtWidgets.QVBoxLayout, 'loss_g_graph_layout')
+        layout.addWidget(loss_g)
 
-        # loss_d = Graph(
-        #     title='Disriminator Loss',
-        #     line_color=(100, 100, 255),
-        #     line_width=2)
-        # loss_d.setObjectName('loss_d_graph')
-        # loss_d.setBaseSize(100, 100)
-
-        # layout = self.mainwidget.findChild(QtWidgets.QVBoxLayout, 'loss_d_graph_layout')
-        # layout.addWidget(loss_d)
+        loss_d = Graph(window_title='loss_d')
+        loss_d.add_line(name='D_real', color=(0, 255, 0))
+        loss_d.add_line(name='D_fake', color=(255, 0, 0))
+        loss_d.setObjectName('loss_d_graph')
+        layout = self.mainwidget.findChild(QtWidgets.QVBoxLayout, 'loss_d_graph_layout')
+        layout.addWidget(loss_d)
         
         self.graphs = {
             'performance': performance,
-            # 'loss_g': loss_g,
-            # 'loss_d': loss_d
+            'loss_g': loss_g,
+            'loss_d': loss_d
         }
 
     def _set_context_dock_visibility(self) -> None:
@@ -211,6 +203,12 @@ class Interface(QObject):
         prefix = 'Show' if dock.isVisible() else 'Hide'
         open_dock.setText(f'{prefix} Visualizer Settings')
         dock.setVisible(not dock.isVisible())
+
+    def _set_graph_line_visibility(self, value: bool, name: str) -> None:
+        if name in ['D_real', 'D_fake']: graph = self._get(Graph, 'loss_d_graph')
+        else: graph = self._get(Graph, 'loss_g_graph')
+        graph.set_line_visibility(name, value)
+        graph.update_plot(name, value=None)
 
     def init_ui(self) -> None:
         '''Initialized the interface. Links parameters, sets defaults, etc.'''
@@ -232,6 +230,10 @@ class Interface(QObject):
 
 
         self._get(QtWidgets.QPushButton, 'reload_stylesheet').clicked.connect(self._set_stylesheet)
+
+        for name in ['G_GAN', 'G_L1', 'G_SOBEL', 'G_LAP', 'G_VGG', 'D_real', 'D_fake']:
+            checkbox = self._get(QtWidgets.QCheckBox, f'graph_{name}')
+            checkbox.clicked.connect(lambda value, i=name : self._set_graph_line_visibility(value, i))
         
 
         root = pathlib.Path(__file__).parent
@@ -283,7 +285,7 @@ class Interface(QObject):
         file.open(QFile.ReadOnly)
         self.mainwidget = loader.load(file)
         file.close()
-        self.mainwidget.setWindowTitle('Pix2pix Trainer')
+        self.mainwidget.setWindowTitle('NectarGAN Toolbox')
 
     def _set_stylesheet(self) -> None:
         root = pathlib.Path(__file__).parent

@@ -209,6 +209,12 @@
                 <enum>Qt::Vertical</enum>
                </property>
                <widget class="QFrame" name="frame_4">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Ignored">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
                 <property name="frameShape">
                  <enum>QFrame::StyledPanel</enum>
                 </property>
@@ -487,6 +493,93 @@
                        </layout>
                       </widget>
                      </item>
+                     <item>
+                      <widget class="QFrame" name="frame_51">
+                       <property name="frameShape">
+                        <enum>QFrame::StyledPanel</enum>
+                       </property>
+                       <property name="frameShadow">
+                        <enum>QFrame::Raised</enum>
+                       </property>
+                       <layout class="QHBoxLayout" name="horizontalLayout_30">
+                        <property name="leftMargin">
+                         <number>0</number>
+                        </property>
+                        <property name="topMargin">
+                         <number>0</number>
+                        </property>
+                        <property name="rightMargin">
+                         <number>0</number>
+                        </property>
+                        <property name="bottomMargin">
+                         <number>0</number>
+                        </property>
+                        <item>
+                         <widget class="QCheckBox" name="graph_G_GAN">
+                          <property name="text">
+                           <string>G_GAN</string>
+                          </property>
+                          <property name="checked">
+                           <bool>true</bool>
+                          </property>
+                         </widget>
+                        </item>
+                        <item>
+                         <widget class="QCheckBox" name="graph_G_L1">
+                          <property name="text">
+                           <string>G_L1</string>
+                          </property>
+                          <property name="checked">
+                           <bool>true</bool>
+                          </property>
+                         </widget>
+                        </item>
+                        <item>
+                         <widget class="QCheckBox" name="graph_G_SOBEL">
+                          <property name="text">
+                           <string>G_SOBEL</string>
+                          </property>
+                          <property name="checked">
+                           <bool>true</bool>
+                          </property>
+                         </widget>
+                        </item>
+                        <item>
+                         <widget class="QCheckBox" name="graph_G_LAP">
+                          <property name="text">
+                           <string>G_LAPLACIAN</string>
+                          </property>
+                          <property name="checked">
+                           <bool>true</bool>
+                          </property>
+                         </widget>
+                        </item>
+                        <item>
+                         <widget class="QCheckBox" name="graph_G_VGG">
+                          <property name="text">
+                           <string>G_VGG</string>
+                          </property>
+                          <property name="checked">
+                           <bool>true</bool>
+                          </property>
+                         </widget>
+                        </item>
+                        <item>
+                         <spacer name="horizontalSpacer_14">
+                          <property name="orientation">
+                           <enum>Qt::Horizontal</enum>
+                          </property>
+                          <property name="sizeHint" stdset="0">
+                           <size>
+                            <width>40</width>
+                            <height>20</height>
+                           </size>
+                          </property>
+                         </spacer>
+                        </item>
+                       </layout>
+                      </widget>
+                     </item>
                     </layout>
                    </widget>
                    <widget class="QFrame" name="frame_47">
@@ -551,6 +644,63 @@
                         <property name="bottomMargin">
                          <number>0</number>
                         </property>
+                       </layout>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QFrame" name="frame_52">
+                       <property name="frameShape">
+                        <enum>QFrame::StyledPanel</enum>
+                       </property>
+                       <property name="frameShadow">
+                        <enum>QFrame::Raised</enum>
+                       </property>
+                       <layout class="QHBoxLayout" name="horizontalLayout_51">
+                        <property name="leftMargin">
+                         <number>0</number>
+                        </property>
+                        <property name="topMargin">
+                         <number>0</number>
+                        </property>
+                        <property name="rightMargin">
+                         <number>0</number>
+                        </property>
+                        <property name="bottomMargin">
+                         <number>0</number>
+                        </property>
+                        <item>
+                         <widget class="QCheckBox" name="graph_D_real">
+                          <property name="text">
+                           <string>D_real</string>
+                          </property>
+                          <property name="checked">
+                           <bool>true</bool>
+                          </property>
+                         </widget>
+                        </item>
+                        <item>
+                         <widget class="QCheckBox" name="graph_D_fake">
+                          <property name="text">
+                           <string>D_fake</string>
+                          </property>
+                          <property name="checked">
+                           <bool>true</bool>
+                          </property>
+                         </widget>
+                        </item>
+                        <item>
+                         <spacer name="horizontalSpacer_15">
+                          <property name="orientation">
+                           <enum>Qt::Horizontal</enum>
+                          </property>
+                          <property name="sizeHint" stdset="0">
+                           <size>
+                            <width>40</width>
+                            <height>20</height>
+                           </size>
+                          </property>
+                         </spacer>
+                        </item>
                        </layout>
                       </widget>
                      </item>
@@ -2730,7 +2880,7 @@
               </font>
              </property>
              <property name="text">
-              <string>NectarGAN Visual Trainer</string>
+              <string>NectarGAN Toolbox</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignCenter</set>
@@ -3057,7 +3207,7 @@
                     <x>0</x>
                     <y>0</y>
                     <width>331</width>
-                    <height>126</height>
+                    <height>544</height>
                    </rect>
                   </property>
                   <layout class="QVBoxLayout" name="verticalLayout_10">
@@ -3428,8 +3578,8 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>127</width>
-                    <height>157</height>
+                    <width>331</width>
+                    <height>544</height>
                    </rect>
                   </property>
                   <layout class="QVBoxLayout" name="verticalLayout_20">
@@ -3561,22 +3711,22 @@
                            <rect>
                             <x>0</x>
                             <y>0</y>
-                            <width>138</width>
-                            <height>264</height>
+                            <width>323</width>
+                            <height>457</height>
                            </rect>
                           </property>
                           <layout class="QVBoxLayout" name="verticalLayout_15">
                            <property name="leftMargin">
-                            <number>0</number>
+                            <number>6</number>
                            </property>
                            <property name="topMargin">
-                            <number>0</number>
+                            <number>6</number>
                            </property>
                            <property name="rightMargin">
-                            <number>0</number>
+                            <number>6</number>
                            </property>
                            <property name="bottomMargin">
-                            <number>0</number>
+                            <number>6</number>
                            </property>
                            <item>
                             <widget class="QFrame" name="frame_31">
@@ -4074,11 +4224,23 @@
                            <rect>
                             <x>0</x>
                             <y>0</y>
-                            <width>191</width>
-                            <height>310</height>
+                            <width>323</width>
+                            <height>457</height>
                            </rect>
                           </property>
                           <layout class="QVBoxLayout" name="verticalLayout_36">
+                           <property name="leftMargin">
+                            <number>6</number>
+                           </property>
+                           <property name="topMargin">
+                            <number>6</number>
+                           </property>
+                           <property name="rightMargin">
+                            <number>6</number>
+                           </property>
+                           <property name="bottomMargin">
+                            <number>6</number>
+                           </property>
                            <item>
                             <widget class="QCheckBox" name="separate_lr_schedules">
                              <property name="text">
@@ -4606,11 +4768,23 @@
                            <rect>
                             <x>0</x>
                             <y>0</y>
-                            <width>149</width>
-                            <height>140</height>
+                            <width>323</width>
+                            <height>457</height>
                            </rect>
                           </property>
                           <layout class="QVBoxLayout" name="verticalLayout_16">
+                           <property name="leftMargin">
+                            <number>6</number>
+                           </property>
+                           <property name="topMargin">
+                            <number>6</number>
+                           </property>
+                           <property name="rightMargin">
+                            <number>6</number>
+                           </property>
+                           <property name="bottomMargin">
+                            <number>6</number>
+                           </property>
                            <item>
                             <widget class="QFrame" name="frame_25">
                              <property name="frameShape">
@@ -4814,11 +4988,23 @@
                            <rect>
                             <x>0</x>
                             <y>0</y>
-                            <width>186</width>
-                            <height>226</height>
+                            <width>323</width>
+                            <height>457</height>
                            </rect>
                           </property>
                           <layout class="QVBoxLayout" name="verticalLayout_18">
+                           <property name="leftMargin">
+                            <number>2</number>
+                           </property>
+                           <property name="topMargin">
+                            <number>2</number>
+                           </property>
+                           <property name="rightMargin">
+                            <number>2</number>
+                           </property>
+                           <property name="bottomMargin">
+                            <number>2</number>
+                           </property>
                            <item>
                             <widget class="QGroupBox" name="groupBox_6">
                              <property name="title">
@@ -4826,16 +5012,16 @@
                              </property>
                              <layout class="QVBoxLayout" name="verticalLayout_24">
                               <property name="leftMargin">
-                               <number>9</number>
+                               <number>4</number>
                               </property>
                               <property name="topMargin">
-                               <number>9</number>
+                               <number>4</number>
                               </property>
                               <property name="rightMargin">
-                               <number>9</number>
+                               <number>4</number>
                               </property>
                               <property name="bottomMargin">
-                               <number>9</number>
+                               <number>4</number>
                               </property>
                               <item>
                                <widget class="QFrame" name="frame_48">
@@ -4952,6 +5138,18 @@
                               <string>Save Example Images</string>
                              </property>
                              <layout class="QFormLayout" name="formLayout_6">
+                              <property name="leftMargin">
+                               <number>4</number>
+                              </property>
+                              <property name="topMargin">
+                               <number>4</number>
+                              </property>
+                              <property name="rightMargin">
+                               <number>4</number>
+                              </property>
+                              <property name="bottomMargin">
+                               <number>4</number>
+                              </property>
                               <item row="0" column="0">
                                <widget class="QLabel" name="label_25">
                                 <property name="text">
@@ -5079,11 +5277,23 @@
                            <rect>
                             <x>0</x>
                             <y>0</y>
-                            <width>195</width>
-                            <height>152</height>
+                            <width>320</width>
+                            <height>457</height>
                            </rect>
                           </property>
                           <layout class="QVBoxLayout" name="verticalLayout_21">
+                           <property name="leftMargin">
+                            <number>2</number>
+                           </property>
+                           <property name="topMargin">
+                            <number>2</number>
+                           </property>
+                           <property name="rightMargin">
+                            <number>2</number>
+                           </property>
+                           <property name="bottomMargin">
+                            <number>2</number>
+                           </property>
                            <item>
                             <widget class="QGroupBox" name="visdom_enable">
                              <property name="sizePolicy">
@@ -5103,16 +5313,16 @@
                              </property>
                              <layout class="QFormLayout" name="formLayout_9">
                               <property name="leftMargin">
-                               <number>2</number>
+                               <number>4</number>
                               </property>
                               <property name="topMargin">
-                               <number>2</number>
+                               <number>4</number>
                               </property>
                               <property name="rightMargin">
-                               <number>2</number>
+                               <number>4</number>
                               </property>
                               <property name="bottomMargin">
-                               <number>2</number>
+                               <number>4</number>
                               </property>
                               <item row="0" column="0">
                                <widget class="QLabel" name="label_28">
@@ -5218,7 +5428,206 @@
                </item>
               </layout>
              </widget>
-             <widget class="QWidget" name="page"/>
+             <widget class="QWidget" name="testing_page">
+              <layout class="QVBoxLayout" name="verticalLayout_43">
+               <property name="leftMargin">
+                <number>0</number>
+               </property>
+               <property name="topMargin">
+                <number>0</number>
+               </property>
+               <property name="rightMargin">
+                <number>0</number>
+               </property>
+               <property name="bottomMargin">
+                <number>0</number>
+               </property>
+               <item>
+                <widget class="QScrollArea" name="scrollArea_10">
+                 <property name="widgetResizable">
+                  <bool>true</bool>
+                 </property>
+                 <widget class="QWidget" name="scrollAreaWidgetContents_2">
+                  <property name="geometry">
+                   <rect>
+                    <x>0</x>
+                    <y>0</y>
+                    <width>331</width>
+                    <height>544</height>
+                   </rect>
+                  </property>
+                  <layout class="QVBoxLayout" name="verticalLayout_44">
+                   <item>
+                    <widget class="QLabel" name="label_23">
+                     <property name="font">
+                      <font>
+                       <pointsize>16</pointsize>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>Testing</string>
+                     </property>
+                     <property name="alignment">
+                      <set>Qt::AlignCenter</set>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </widget>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+             <widget class="QWidget" name="review_page">
+              <layout class="QVBoxLayout" name="verticalLayout_45">
+               <property name="leftMargin">
+                <number>0</number>
+               </property>
+               <property name="topMargin">
+                <number>0</number>
+               </property>
+               <property name="rightMargin">
+                <number>0</number>
+               </property>
+               <property name="bottomMargin">
+                <number>0</number>
+               </property>
+               <item>
+                <widget class="QScrollArea" name="scrollArea_11">
+                 <property name="widgetResizable">
+                  <bool>true</bool>
+                 </property>
+                 <widget class="QWidget" name="scrollAreaWidgetContents_3">
+                  <property name="geometry">
+                   <rect>
+                    <x>0</x>
+                    <y>0</y>
+                    <width>331</width>
+                    <height>544</height>
+                   </rect>
+                  </property>
+                  <layout class="QVBoxLayout" name="verticalLayout_46">
+                   <item>
+                    <widget class="QLabel" name="label_40">
+                     <property name="font">
+                      <font>
+                       <pointsize>16</pointsize>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>Review</string>
+                     </property>
+                     <property name="alignment">
+                      <set>Qt::AlignCenter</set>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </widget>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+             <widget class="QWidget" name="utilities_page">
+              <layout class="QVBoxLayout" name="verticalLayout_47">
+               <property name="leftMargin">
+                <number>0</number>
+               </property>
+               <property name="topMargin">
+                <number>0</number>
+               </property>
+               <property name="rightMargin">
+                <number>0</number>
+               </property>
+               <property name="bottomMargin">
+                <number>0</number>
+               </property>
+               <item>
+                <widget class="QScrollArea" name="scrollArea_12">
+                 <property name="widgetResizable">
+                  <bool>true</bool>
+                 </property>
+                 <widget class="QWidget" name="scrollAreaWidgetContents_9">
+                  <property name="geometry">
+                   <rect>
+                    <x>0</x>
+                    <y>0</y>
+                    <width>331</width>
+                    <height>544</height>
+                   </rect>
+                  </property>
+                  <layout class="QVBoxLayout" name="verticalLayout_48">
+                   <item>
+                    <widget class="QLabel" name="label_66">
+                     <property name="font">
+                      <font>
+                       <pointsize>16</pointsize>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>Utilities</string>
+                     </property>
+                     <property name="alignment">
+                      <set>Qt::AlignCenter</set>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </widget>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+             <widget class="QWidget" name="settings_page">
+              <layout class="QVBoxLayout" name="verticalLayout_49">
+               <property name="leftMargin">
+                <number>0</number>
+               </property>
+               <property name="topMargin">
+                <number>0</number>
+               </property>
+               <property name="rightMargin">
+                <number>0</number>
+               </property>
+               <property name="bottomMargin">
+                <number>0</number>
+               </property>
+               <item>
+                <widget class="QScrollArea" name="scrollArea_13">
+                 <property name="widgetResizable">
+                  <bool>true</bool>
+                 </property>
+                 <widget class="QWidget" name="scrollAreaWidgetContents_10">
+                  <property name="geometry">
+                   <rect>
+                    <x>0</x>
+                    <y>0</y>
+                    <width>331</width>
+                    <height>544</height>
+                   </rect>
+                  </property>
+                  <layout class="QVBoxLayout" name="verticalLayout_50">
+                   <item>
+                    <widget class="QLabel" name="label_67">
+                     <property name="font">
+                      <font>
+                       <pointsize>16</pointsize>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>Settings</string>
+                     </property>
+                     <property name="alignment">
+                      <set>Qt::AlignCenter</set>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </widget>
+                </widget>
+               </item>
+              </layout>
+             </widget>
             </widget>
            </item>
           </layout>

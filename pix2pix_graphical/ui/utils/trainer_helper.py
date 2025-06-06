@@ -45,7 +45,10 @@ class TrainerHelper(QObject):
         '''Get widgets accessed frequently by this class.'''
         self.statusbar = self.mainwidget.findChild(QStatusBar, 'statusbar')
         self.train_settings_grp = self.mainwidget.findChild(QFrame, 'train_settings')
+
         self.perf_graph = self.mainwidget.findChild(Graph, 'performance_graph')
+        self.loss_g_graph = self.mainwidget.findChild(Graph, 'loss_g_graph')
+        self.loss_d_graph = self.mainwidget.findChild(Graph, 'loss_d_graph')
         
         self.progress_bar_train = self.mainwidget.findChild(QProgressBar, 'train_progress')
         self.progress_bar_epoch = self.mainwidget.findChild(QProgressBar, 'epoch_progress')
@@ -167,10 +170,14 @@ class TrainerHelper(QObject):
         losses_d = ['D_real', 'D_fake']
 
         step = 1.0 + self.current_epoch_progress + float(self.last_epoch)
+        loss_g_graph.set_step(step)
+        loss_d_graph.set_step(step)
 
-        # loss_g_graph.update_graph(step, losses['G_L1'])
-        # loss_d_graph.update_graph(step, losses['D_fake'])
-
+        for name in losses_g:
+            loss_g_graph.update_plot(name, losses[name])
+            
+        for name in losses_d:
+            loss_d_graph.update_plot(name, losses[name])
 
     ### UI STATES ###
     def _set_ui_state(
@@ -211,6 +218,8 @@ class TrainerHelper(QObject):
     def start_train(self) -> None:
         '''Creates a QThread and starts a pix2pix training loop inside of it. 
         '''
+        self.loss_g_graph.reset_graph()
+        self.loss_d_graph.reset_graph()
         self.perf_graph.reset_graph()
         self.perf_graph.set_step(0.0)
         self.perf_graph.update_plot('epoch_time', 0.0)

@@ -20,6 +20,43 @@ QSplitter::handle {
     color: rgb(80, 80, 80);
 }
 
+/*---------- TAB WIDGETS ----------*/
+
+QTabWidget {
+    background-color: rgb(35, 35, 35);
+    color: rgb(200, 200, 200);
+    
+}
+QTabWidget::pane {
+    background-color: rgb(50, 50, 50);
+    border: 1px ridge rgb(50, 50, 50);
+    padding: 3px;
+}
+/* QTabWidget::tabbar {
+    background-color: rgb(35, 35, 35);
+} */
+
+QTabBar {
+    background-color: rgb(50, 50, 50);
+    color: rgb(200, 200, 200);
+}
+QTabBar::tab {
+    background-color: rgb(50, 50, 50);
+    border: 1px solid rgb(50, 50, 50);
+    padding: 5px;
+}
+QTabBar::tab:selected {
+    background-color: rgb(60, 60, 60);
+    border: 1px ridge rgb(50, 50, 50);
+}
+
+/* QTabBar::tab {
+    background-color: rgb(35, 35, 35);
+}
+QTabBar::tab {
+    background-color: rgb(35, 35, 35);
+} */
+
 /*---------- FRAMES ----------*/
 
 QFrame#train_settings {
@@ -55,6 +92,17 @@ QFrame#settings_btns_frame QFrame {
 
 QGroupBox {
     color: rgb(200, 200, 200);
+    border: 1px solid rgb(200, 200, 200);
+    border-radius: 3px;
+    margin-top: 2ex;
+    padding: 3;
+}
+QGroupBox::title {
+    subcontrol-origin: margin;
+    subcontrol-position: top left;
+    padding: 1 3px;
+    border: 1px solid rgb(200, 200, 200);
+    border-radius: 3px;
 }
 
 /*---------- DOCKS ----------*/
@@ -67,7 +115,7 @@ QDockWidget {
 QPushButton {
     background-color: rgb(40, 40, 40);
     color: rgb(200, 200, 200);
-    /* border-radius: 3; */
+    padding: 1px 1px 1px 1px;
 }
 QPushButton::hover {
     background-color: rgb(70, 70, 70);
@@ -98,7 +146,8 @@ QPushButton#experiment_settings_btn {
     border: 1px solid rgb(255, 158, 31);
     border-radius: 10px;
 }
-QPushButton::checked#experiment_settings_btn { border: none; background-color: rgb(255, 158, 31); }
+QPushButton::checked#experiment_settings_btn { 
+    border: none; background-color: rgb(255, 158, 31); }
 QPushButton#experiment_settings_label {
     color: rgb(255, 158, 31);
     background-color: none;
@@ -108,7 +157,8 @@ QPushButton#dataset_settings_btn {
     border: 1px solid rgb(31, 184, 255);
     border-radius: 10px;
 }
-QPushButton::checked#dataset_settings_btn { border: none; background-color: rgb(31, 184, 255); }
+QPushButton::checked#dataset_settings_btn { 
+    border: none; background-color: rgb(31, 184, 255); }
 QPushButton#dataset_settings_label {
     color: rgb(31, 184, 255);
     background-color: none;
@@ -118,7 +168,8 @@ QPushButton#training_settings_btn {
     border: 1px solid rgb(187, 73, 197);
     border-radius: 10px;
 }
-QPushButton::checked#training_settings_btn { border: none; background-color: rgb(187, 73, 197); }
+QPushButton::checked#training_settings_btn { 
+    border: none; background-color: rgb(187, 73, 197); }
 QPushButton#training_settings_label {
     color: rgb(187, 73, 197);
     background-color: none;
@@ -128,7 +179,8 @@ QPushButton#testing_settings_btn {
     border: 1px solid rgb(137, 209, 44);
     border-radius: 10px;
 }
-QPushButton::checked#testing_settings_btn { border: none; background-color: rgb(137, 209, 44); }
+QPushButton::checked#testing_settings_btn { 
+    border: none; background-color: rgb(137, 209, 44); }
 QPushButton#testing_settings_label {
     color: rgb(137, 209, 44);
     background-color: none;
@@ -138,7 +190,8 @@ QPushButton#review_settings_btn {
     border: 1px solid rgb(110, 243, 199);
     border-radius: 10px;
 }
-QPushButton::checked#review_settings_btn { border: none; background-color: rgb(110, 243, 199); }
+QPushButton::checked#review_settings_btn { 
+    border: none; background-color: rgb(110, 243, 199); }
 QPushButton#review_settings_label {
     color: rgb(110, 243, 199);
     background-color: none;
@@ -148,7 +201,8 @@ QPushButton#utils_settings_btn {
     border: 1px solid rgb(212, 202, 53);
     border-radius: 10px;
 }
-QPushButton::checked#utils_settings_btn { border: none; background-color: rgb(212, 202, 53); }
+QPushButton::checked#utils_settings_btn { 
+    border: none; background-color: rgb(212, 202, 53); }
 QPushButton#utils_settings_label {
     color: rgb(212, 202, 53);
     background-color: none;
@@ -158,7 +212,8 @@ QPushButton#settings_settings_btn {
     border: 1px solid rgb(196, 75, 71);
     border-radius: 10px;
 }
-QPushButton::checked#settings_settings_btn { border: none; background-color: rgb(196, 75, 71); }
+QPushButton::checked#settings_settings_btn { 
+    border: none; background-color: rgb(196, 75, 71); }
 QPushButton#settings_settings_label {
     color: rgb(196, 75, 71);
     background-color: none;
@@ -187,12 +242,29 @@ QLabel#creator_tag {
 QSlider {
     background-color: rgb(50, 50, 50);
 }
+QSlider::groove:horizontal {
+    border: 1px solid #999999;
+    height: 3px; 
+    background: qlineargradient(
+        x1:0, y1:0, x2:0, y2:1, stop:0 #B1B1B1, stop:1 rgb(50, 50, 50));
+    margin: 2px 0;
+}
+
+QSlider::handle:horizontal {
+    background: qlineargradient(
+        x1:0, y1:0, x2:1, y2:1, stop:0 #b4b4b4, stop:1 #8f8f8f);
+    border: 1px solid #5c5c5c;
+    width: 8px;
+    margin: -12px 0;
+    border-radius: 3px;
+}
 
 /*---------- LINE EDITS ----------*/
 
 QLineEdit {
     color: rgb(200, 200, 200);
-    border: 1px solid rgb(80, 80, 80);
+    padding: 1px 1px 1px 1px;
+    border: 1px solid rgb(140, 140, 140);
     border-radius: 5;
 }
 
@@ -201,13 +273,30 @@ QLineEdit {
 QTextEdit {
     background-color: rgb(25, 25, 25);
     color: rgb(200, 200, 200);
-
 }
 
 /*---------- SPINBOXES ----------*/
 
 QSpinBox, QDoubleSpinBox {
     background-color: rgb(50, 50, 50);
+    color: rgb(200, 200, 200);
+    padding: 1px 1px 1px 1px;
+    border: 1px solid rgb(140, 140, 140);
+    border-bottom-left-radius: 5px;
+    border-top-left-radius: 5px;
+}
+
+/*---------- SPINBOXES ----------*/
+
+QComboBox {
+    background-color: rgb(50, 50, 50);
+    color: rgb(200, 200, 200);
+    padding: 2px 2px 2px 2px;
+    border: 1px solid rgb(140, 140, 140);
+    border-top-left-radius: 5px;
+}
+QComboBox QAbstractItemView {
+    color: rgb(200, 200, 200);
 }
 
 /*---------- CHECKBOXES ----------*/
@@ -219,9 +308,14 @@ QCheckBox {
 
 /*---------- PROGRESS BARS ----------*/
 
-QProgressBar {
-    background-color: rgb(50, 50, 50);
+QProgressBar{ 
+    border: 1px solid rgb(80, 80, 80);
+    color: rgb(200, 200, 200);
+    text-align: center; 
 }
-QProgressBar {
-    background-color: rgb(50, 50, 50);
+QProgressBar#train_progress::chunk {
+    background-color: rgb(137, 209, 44);
+}
+QProgressBar#epoch_progress::chunk {
+    background-color: rgb(196, 75, 71);
 }

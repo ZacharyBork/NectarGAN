@@ -23,7 +23,6 @@ class Graph(QWidget):
         self.xmax = xmax # Default X max
         self.ymax = ymax # Default Y max
         
-
         self.setWindowTitle(window_title)
         self._init_plot(bg_color, fg_color, show_grid, grid_alpha)
         self.reframe_graph()
@@ -64,7 +63,26 @@ class Graph(QWidget):
             raise KeyError(msg)
         pen = pg.mkPen(color=color, width=width, style=Qt.PenStyle.SolidLine)
         plot = self.graph.plot([], [], pen=pen)
-        self.lines[name] = { 'values': [], 'plot': plot }
+        self.lines[name] = { 'values': [], 'plot': plot, 'visible': True }
+
+    def set_line_visibility(
+            self, 
+            name: str, 
+            visible: bool=True
+        ) -> None:
+        try: self.lines[name]['visible'] = visible        
+        except Exception as e:
+            raise KeyError(f'Invalid line name: {name}') from e
+        self.update_graph()
+        
+    def set_exclusive_line_visibility(self, name: str) -> None:
+        try: 
+            for _name, line in self.lines.items():
+                if name == _name: line['visible'] = True 
+                else: line['visible'] = False 
+        except Exception as e:
+            raise KeyError(f'Invalid line name: {name}') from e
+        self.update_graph()
 
     def set_step(self, step: float) -> None:
         self.steps.append(step)
@@ -72,13 +90,21 @@ class Graph(QWidget):
             self.xmax = step
             self.graph.setXRange(1.0, self.xmax)
 
-    def update_plot(self, name: str, value: str) -> None:
+    def update_plot(self, name: str, value: float | None=None) -> None:
         line = self.lines[name]
-        line['values'].append(value)
-        if value > self.ymax:
-            self.ymax = value
-            self.graph.setYRange(0.0, self.ymax)
-        line['plot'].setData(self.steps, line['values'])
+        if not value is None: 
+            line['values'].append(value)
+            if line['visible']:
+                if value > self.ymax:
+                    self.ymax = value
+                    self.graph.setYRange(0.0, self.ymax)
+                line['plot'].setData(self.steps, line['values'])
+            else: line['plot'].setData([], [])
+
+    def update_graph(self) -> None:
+        if not len(self.lines) == 0:
+            for line in self.lines:
+                self.update_plot(line, value=None)
 
     def reset_graph(self) -> None:
         self.steps = []
@@ -94,7 +120,7 @@ class Graph(QWidget):
 
         _ymax = 0.0
         for line in self.lines.values():
-            if len(line['values']) > 0:
+            if len(line['values']) > 0 and line['visible']:
                 _ymax = max(_ymax, list(sorted(line['values']))[-1])
         self.ymax = max(min_y, _ymax)
         self.graph.setYRange(0.0, self.ymax)

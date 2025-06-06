@@ -88,7 +88,7 @@ class SettingsDock(QObject):
             if event.type() == QEvent.Enter:
                 self._animate_nav_panel(expand=True)
                 self._swap_btn_label_visibility('show')
-                self.title_tag.setText('NectarGAN Visual Trainer')
+                self.title_tag.setText('NectarGAN Toolbox')
                 self.creator_tag.setText('Created by Zachary Bork')
             elif event.type() == QEvent.Leave:
                 self._animate_nav_panel(expand=False)
