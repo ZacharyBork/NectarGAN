@@ -21,7 +21,6 @@ class Graph(QWidget):
         super().__init__()
         # Stores data for lines belonging to the graph
         self.lines: dict[str, dict[str, Any]] = {}
-        self.steps: list[float]=[]
         
         self.xmax = xmax # Default X max
         self.ymax = ymax # Default Y max
@@ -139,7 +138,8 @@ class Graph(QWidget):
         plot = self.graph.plot([], [], pen=pen)
         toggle = self._add_line_vis_checkbox(name=name, color=color)
         self.lines[name] = { # Store line data
-            'values': [], 'plot': plot, 'visible': True, 'toggle': toggle }
+            'values': [], 'steps':[], 'plot': plot,
+            'visible': True, 'toggle': toggle }
 
     def set_line_visibility(
             self, 
@@ -160,43 +160,58 @@ class Graph(QWidget):
             raise KeyError(f'Invalid line name: {name}') from e
         self.update_graph()
 
-    def set_step(self, step: float) -> None:
-        self.steps.append(step)
-        if step > self.xmax:
-            self.xmax = step
-            self.graph.setXRange(1.0, self.xmax)
+    def update_plot(
+            self, 
+            name: str, 
+            value: float | None=None,
+            step: float | None=None
+        ) -> None:
+        if (value is None) != (step is None):
+            raise ValueError('`value` and `step` must both be float or None.')
 
-    def update_plot(self, name: str, value: float | None=None) -> None:
         line = self.lines[name]
         if not value is None: 
             line['values'].append(value)
             if value > self.ymax:
                 self.ymax = value
                 self.graph.setYRange(0.0, self.ymax)
-        if line['visible']: line['plot'].setData(self.steps, line['values'])
+        if not step is None: 
+            line['steps'].append(step)
+            if step > self.xmax:
+                self.xmax = step
+                self.graph.setXRange(0.0, self.xmax)
+        
+        if line['visible']: line['plot'].setData(line['steps'], line['values'])
         else: line['plot'].setData([], [])
 
     def update_graph(self) -> None:
         if not len(self.lines) == 0:
             for line in self.lines:
-                self.update_plot(line, value=None)
+                self.update_plot(line, value=None, step=None)
 
     def reset_graph(self) -> None:
-        self.steps.clear()# = []
         for line in self.lines.values(): 
-            line['values'] = []
-            # line['plot'].setData([], [])
+            line['values'].clear()
+            line['steps'].clear()
         self.update_graph()
         self.reframe_graph()
 
-    def reframe_graph(self, min_x: float=10.0, min_y: float=1.0) -> None:
-        if len(self.steps) == 0: self.xmax = min_x
-        else: self.xmax = max(min_x, self.steps[-1])
-        self.graph.setXRange(1.0, self.xmax)
-
-        _ymax = 0.0
+    def get_max_values(self) -> tuple[float]:
+        _xmax = _ymax = 0.0
         for line in self.lines.values():
-            if len(line['values']) > 0 and line['visible']:
+            if not line['visible']: continue
+            if len(line['steps']) > 0:
+                _xmax = max(_xmax, list(sorted(line['steps']))[-1])
+            if len(line['values']) > 0:
                 _ymax = max(_ymax, list(sorted(line['values']))[-1])
-        self.ymax = max(min_y, _ymax)
+        return _xmax, _ymax
+
+    def reframe_graph(self, min_x: float=10.0, min_y: float=1.0) -> None:
+        _xmax, _ymax = self.get_max_values()
+
+        self.xmax = max(min_x, _xmax)
+        self.graph.setXRange(1.0, self.xmax)
+        
+        self.ymax = max(min_y, _ymax)        
         self.graph.setYRange(0.0, self.ymax)
+        

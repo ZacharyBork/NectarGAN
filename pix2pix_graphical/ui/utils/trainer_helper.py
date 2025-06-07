@@ -29,9 +29,12 @@ class TrainerHelper(QObject):
         ) -> None:
         super().__init__()
         self.mainwidget = mainwidget
+        self.find = self.mainwidget.findChild
+        
         self.confighelper = confighelper
         self.log = log
         self.status_msg_length = status_msg_length
+
 
         self.worker: TrainerWorker | None = None
         self.pixmaps: list[QPixmap] = []
@@ -47,27 +50,27 @@ class TrainerHelper(QObject):
 
     def _get_widgets(self) -> None:
         '''Get widgets accessed frequently by this class.'''
-        self.statusbar = self.mainwidget.findChild(QStatusBar, 'statusbar')
-        self.train_settings_grp = self.mainwidget.findChild(QFrame, 'train_settings')
+        self.statusbar = self.find(QStatusBar, 'statusbar')
+        self.train_settings_grp = self.find(QFrame, 'train_settings')
 
-        self.perf_graph = self.mainwidget.findChild(Graph, 'performance_graph')
-        self.loss_g_graph = self.mainwidget.findChild(Graph, 'loss_g_graph')
-        self.loss_d_graph = self.mainwidget.findChild(Graph, 'loss_d_graph')
+        self.perf_graph = self.find(Graph, 'performance_graph')
+        self.loss_g_graph = self.find(Graph, 'loss_g_graph')
+        self.loss_d_graph = self.find(Graph, 'loss_d_graph')
         
-        self.progress_bar_train = self.mainwidget.findChild(QProgressBar, 'train_progress')
-        self.progress_bar_epoch = self.mainwidget.findChild(QProgressBar, 'epoch_progress')
-        self.current_epoch_display = self.mainwidget.findChild(QLCDNumber, 'current_epoch')
+        self.progress_bar_train = self.find(QProgressBar, 'train_progress')
+        self.progress_bar_epoch = self.find(QProgressBar, 'epoch_progress')
+        self.current_epoch_display = self.find(QLCDNumber, 'current_epoch')
 
-        self.train_start_btn = self.mainwidget.findChild(QPushButton, 'train_start')
-        self.train_stop_btn = self.mainwidget.findChild(QPushButton, 'train_stop')
-        self.train_pause_btn = self.mainwidget.findChild(QPushButton, 'train_pause')
+        self.train_start_btn = self.find(QPushButton, 'train_start')
+        self.train_stop_btn = self.find(QPushButton, 'train_stop')
+        self.train_pause_btn = self.find(QPushButton, 'train_pause')
 
     ### SEND SIGNALS ###
 
     def _change_update_frequency(self, value: int) -> None:
         '''Sends a signal to the worker to change its update signal frequency.
         '''
-        if hasattr(self, 'worker'):
+        if not self.worker is None:
             self.worker.change_update_frequency(value)
 
     ### RECEIVE SIGNALS ###
@@ -93,7 +96,7 @@ class TrainerHelper(QObject):
         '''
         if not self.log.output_frozen:
             self.log.write_entry(log_entry)
-            if self.mainwidget.findChild(QCheckBox, 'autoscroll_log').isChecked():
+            if self.find(QCheckBox, 'autoscroll_log').isChecked():
                 scroll = self.log.log_widget.verticalScrollBar()
                 scroll.setValue(scroll.maximum())
 
@@ -104,23 +107,22 @@ class TrainerHelper(QObject):
             progress : [0, 1] progress through the current epoch.
         '''
         self.iter_timer.set_time()
-        self.mainwidget.findChild(
-            QLabel, 'performance_iter_fastest'
-        ).setText(self.iter_timer.get_time('fastest'))
-        self.mainwidget.findChild(
-            QLabel, 'performance_iter_slowest'
-        ).setText(self.iter_timer.get_time('slowest'))
-        self.mainwidget.findChild(
-            QLabel, 'performance_iter_average'
-        ).setText(self.iter_timer.get_time('average'))
+        self.find(QLabel, 'performance_iter_fastest').setText(
+            self.iter_timer.get_time('fastest'))
+        self.find(QLabel, 'performance_iter_slowest').setText(
+            self.iter_timer.get_time('slowest'))
+        self.find(QLabel, 'performance_iter_average').setText(
+            self.iter_timer.get_time('average'))
         
         self.train_timer.set_time()
-        self.mainwidget.findChild(
-            QLabel, 'performance_time_total'
-        ).setText(self.train_timer.get_time('total'))
+        self.find(QLabel, 'performance_time_total').setText(
+            self.train_timer.get_time('total'))
 
         self.current_epoch_progress = progress
         self.progress_bar_epoch.setValue(progress * 100.0)
+
+        # step = 1.0 + self.current_epoch_progress + float(self.last_epoch)
+        # self.perf_graph.update_plot('iter_time', self.iter_timer.elapsed, step)
 
     def _report_train_progress(self, progress: tuple[int, float]) -> None:
         '''Reports epoch index and time at the end of each epoch.
@@ -131,15 +133,12 @@ class TrainerHelper(QObject):
                 to complete. 
         '''
         self.epoch_timer.set_time()
-        self.mainwidget.findChild(
-            QLabel, 'performance_epoch_fastest'
-        ).setText(self.epoch_timer.get_time('fastest'))
-        self.mainwidget.findChild(
-            QLabel, 'performance_epoch_slowest'
-        ).setText(self.epoch_timer.get_time('slowest'))
-        self.mainwidget.findChild(
-            QLabel, 'performance_epoch_average'
-        ).setText(self.epoch_timer.get_time('average'))
+        self.find(QLabel, 'performance_epoch_fastest').setText(
+            self.epoch_timer.get_time('fastest'))
+        self.find(QLabel, 'performance_epoch_slowest').setText(
+            self.epoch_timer.get_time('slowest'))
+        self.find(QLabel, 'performance_epoch_average').setText(
+            self.epoch_timer.get_time('average'))
 
         gen_lr = self.worker.config.train.generator.learning_rate
         total_epochs = gen_lr.epochs + gen_lr.epochs_decay
@@ -150,8 +149,7 @@ class TrainerHelper(QObject):
         self.progress_bar_train.setValue(int(self.train_progress*100.0))
         self.current_epoch_display.display(self.last_epoch+1)
 
-        self.perf_graph.set_step(self.last_epoch)
-        self.perf_graph.update_plot('epoch_time', progress[1])
+        self.perf_graph.update_plot('epoch_time', progress[1], self.last_epoch)
 
     ### TRAIN PROGRESS IMAGES ###
 
@@ -162,12 +160,9 @@ class TrainerHelper(QObject):
         of the Tensor -> nparray -> QImage -> QPixmap pipeline in that function
         and displays it to the UI.
         '''
-        self.mainwidget.findChild(
-            ImageLabel, 'x_label').set_pixmap(self.pixmaps[0])
-        self.mainwidget.findChild(
-            ImageLabel, 'y_label').set_pixmap(self.pixmaps[1])
-        self.mainwidget.findChild(
-            ImageLabel, 'y_fake_label').set_pixmap(self.pixmaps[2])
+        self.find(ImageLabel, 'x_label').set_pixmap(self.pixmaps[0])
+        self.find(ImageLabel, 'y_label').set_pixmap(self.pixmaps[1])
+        self.find(ImageLabel, 'y_fake_label').set_pixmap(self.pixmaps[2])
 
     def _get_tensors(self, tensors: tuple[Tensor]) -> None:
         '''Signal handler for retrieving and processing tensors from worker.
@@ -189,29 +184,23 @@ class TrainerHelper(QObject):
 
             h, w = np_image.shape[:2]
             np_image = np.ascontiguousarray(np_image)
-            qimage = QImage(
-                np_image.data, w, h, 
-                QImage.Format_RGB888)
+            qimage = QImage(np_image.data, w, h, QImage.Format_RGB888)
             self.pixmaps.append(QPixmap.fromImage(qimage))
         self._show_xyz_images()
 
     ### LOSSES ###
 
     def _get_losses(self, losses: dict[str, float]) -> None:
-        loss_g_graph = self.mainwidget.findChild(Graph, 'loss_g_graph')
-        loss_d_graph = self.mainwidget.findChild(Graph, 'loss_d_graph')
+        loss_g_graph = self.find(Graph, 'loss_g_graph')
+        loss_d_graph = self.find(Graph, 'loss_d_graph')
         losses_g = ['G_GAN', 'G_L1', 'G_SOBEL', 'G_LAP', 'G_VGG']
         losses_d = ['D_real', 'D_fake']
 
         step = 1.0 + self.current_epoch_progress + float(self.last_epoch)
-        loss_g_graph.set_step(step)
-        loss_d_graph.set_step(step)
-
-        for name in losses_g:
-            loss_g_graph.update_plot(name, losses[name])
-            
-        for name in losses_d:
-            loss_d_graph.update_plot(name, losses[name])
+        for name in losses_g: 
+            loss_g_graph.update_plot(name, losses[name], step)
+        for name in losses_d: 
+            loss_d_graph.update_plot(name, losses[name], step)
 
     ### UI STATES ###
     def _set_ui_state(
@@ -240,7 +229,7 @@ class TrainerHelper(QObject):
             self.progress_bar_train.setValue(x[2])
             self.progress_bar_epoch.setValue(x[3])
             self.current_epoch_display.display(x[4])
-            self.train_settings_grp.setEnabled(x[5])
+            # self.train_settings_grp.setEnabled(x[5])
             self.train_pause_btn.setHidden(x[6])
         match state:
             case 'train_start' | 'train_end': _set_state(state_values[state])
@@ -262,8 +251,8 @@ class TrainerHelper(QObject):
         self.loss_g_graph.reset_graph()
         self.loss_d_graph.reset_graph()
         self.perf_graph.reset_graph()
-        self.perf_graph.set_step(0.0)
-        self.perf_graph.update_plot('epoch_time', 0.0)
+        self.perf_graph.update_plot('epoch_time', 0.0, 0.0)
+        self.perf_graph.update_plot('iter_time', 0.0, 0.0)
         self.confighelper._build_launch_config()
         
         t = self.train_thread = QThread()
@@ -277,10 +266,10 @@ class TrainerHelper(QObject):
         
         w.epoch_progress.connect(self._report_epoch_progress)
         w.train_progress.connect(self._report_train_progress)
-        w.tensors.connect(self._get_tensors)     # XYZ image tensors
-        w.losses.connect(self._get_losses)     # XYZ image tensors
-        w.log.connect(self._update_log)          # Log strings
-        w.waiting.connect(self.trainer_waiting)  # Trainer paused pulse
+        w.tensors.connect(self._get_tensors)        # XYZ image tensors
+        w.losses.connect(self._get_losses)          # Loss values
+        w.log.connect(self._update_log)             # Log strings
+        w.waiting.connect(self.trainer_waiting)     # Trainer paused pulse
         
         w.finished.connect(self.train_thread.quit)  # Kill thread if finished,
         w.cancelled.connect(self.train_thread.quit) # or if canceled.
@@ -311,11 +300,9 @@ class TrainerHelper(QObject):
                 self.statusbar.clearMessage()
                 self.statusbar.showMessage(
                     'Training Resumed', self.status_msg_length)
-                self.mainwidget.findChild(
-                    QPushButton, 'train_pause').setText('Pause Training')
+                self.find(QPushButton, 'train_pause').setText('Pause Training')
             else:
                 self.worker.pause()
-                self.mainwidget.findChild(
-                    QPushButton, 'train_pause').setText('Resume Training')
+                self.find(QPushButton, 'train_pause').setText('Resume Training')
 
 

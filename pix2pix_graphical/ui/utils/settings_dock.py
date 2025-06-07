@@ -24,12 +24,52 @@ class SettingsDock(QObject):
 
     def _get_widgets(self) -> None:
         self.dock = self.find(QDockWidget, 'settings_dock')
+        self.central_pages = self.find(QStackedWidget, 'centralwidget_pages')
         self.main_icon = self.find(QLabel, 'settings_dock_main_icon')
         self.section_header = self.find(QLabel, 'settings_section_header')
         self.section_icon = self.find(QLabel, 'settings_section_header_icon')
         self.btns_frame = self.find(QFrame, 'settings_btns_frame')
         self.title_tag = self.find(QLabel, 'title_tag')
         self.creator_tag = self.find(QLabel, 'creator_tag')
+
+    ### STATES ###
+
+    # self.find(QPushButton, 'experiment_settings_btn')
+    # self.find(QPushButton, 'experiment_settings_label')
+    
+    # self.find(QPushButton, 'dataset_settings_btn')
+    # self.find(QPushButton, 'dataset_settings_label')
+    
+    # self.find(QPushButton, 'training_settings_btn')
+    # self.find(QPushButton, 'training_settings_label')
+    
+    # self.find(QPushButton, 'testing_settings_btn')
+    # self.find(QPushButton, 'testing_settings_label')
+    
+    # self.find(QPushButton, 'review_settings_btn')
+    # self.find(QPushButton, 'review_settings_label')
+    
+    # self.find(QPushButton, 'utilities_settings_btn')
+    # self.find(QPushButton, 'utilities_settings_label')
+
+    # self.find(QPushButton, 'settings_settings_btn')
+    # self.find(QPushButton, 'settings_settings_label')
+
+    # .setEnabled()
+
+    def set_state(self, state: Literal['init', 'training']) -> None:
+        match state:
+            case 'init':
+                self.find(QWidget, 'dataset_page').setEnabled(False)
+                self.find(QWidget, 'training_page').setEnabled(False)
+                self.find(QWidget, 'testing_page').setEnabled(False)
+                self.find(QWidget, 'review_page').setEnabled(False)
+            case 'training':
+                self.find(QWidget, 'experiment_page').setEnabled(False)
+                self.find(QWidget, 'dataset_page').setEnabled(False)
+                self.find(QWidget, 'testing_page').setEnabled(False)
+                self.find(QWidget, 'review_page').setEnabled(False)
+                self.find(QWidget, 'utilities_page').setEnabled(False)
 
     ### CALLBACKS ###
 
@@ -51,6 +91,12 @@ class SettingsDock(QObject):
         stack = self.find(QStackedWidget, 'settings_pages')
         try: stack.setCurrentIndex(index)
         except: pass
+        match index:
+            case 0 | 1 | 2:
+                self.central_pages.setCurrentIndex(0)
+            case 3 | 4 | 5:
+                self.central_pages.setCurrentIndex(index-2)
+            case _: pass
 
     def _set_main_icon(self, size: tuple[int]) -> None:
         main_icon_pixmap = QPixmap(utils.get_icon_file('drop.svg')).scaled(
@@ -106,6 +152,8 @@ class SettingsDock(QObject):
         self.btns_frame.setMouseTracking(True)
         self._init_navbar_expansion()
         self._set_section_icons()
+
+        # self.set_state('init')
 
         for i, name in enumerate(self.button_names):
             button = self.find(QPushButton, f'{name}_settings_btn')

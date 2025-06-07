@@ -39,6 +39,16 @@ class Interface(QObject):
         '''
         spinbox.setValue(float(slider.value()) * multiplier)
 
+    def _update_slider_from_spinbox(
+            self,
+            slider: QtWidgets.QSlider, 
+            spinbox: Union[QtWidgets.QSpinBox, QtWidgets.QDoubleSpinBox], 
+            multiplier: float=1.0
+        ) -> None:
+        value = float(spinbox.value()) * multiplier
+        value = max(spinbox.minimum(), min(spinbox.value(), spinbox.maximum))
+        slider.setValue(value)
+
     def _sliders_to_spinboxes(self) -> None:
         '''Links all spinboxes in the interface to their respective sliders.'''
         sliders_to_link = [
@@ -46,6 +56,11 @@ class Interface(QObject):
             ('update_frequency_slider', 'update_frequency', 1.0),
 
             ('batch_size_slider', 'batch_size', 1.0),
+            ('h_flip_chance_slider', 'h_flip_chance', 1.0),
+            ('v_flip_chance_slider', 'v_flip_chance', 1.0),
+            ('rot90_chance_slider', 'rot90_chance', 1.0),
+            ('colorjitter_chance_slider', 'colorjitter_chance', 1.0),
+
             ('gen_lr_initial_slider', 'gen_lr_initial', 0.0001),
             ('gen_lr_target_slider', 'gen_lr_target', 0.0001),
             ('gen_optim_beta1_slider', 'gen_optim_beta1', 0.01),
@@ -63,8 +78,10 @@ class Interface(QObject):
             slider = self.mainwidget.findChild(QtWidgets.QSlider, x)
             spinbox = self.mainwidget.findChild(QtWidgets.QSpinBox, y)
             if spinbox == None: spinbox = self.mainwidget.findChild(QtWidgets.QDoubleSpinBox, y)
-            slider.valueChanged.connect(
+            slider.sliderMoved.connect(
                 lambda value, s=spinbox, sl=slider, m=z: self._update_spinbox_from_slider(s, sl, multiplier=m))
+            spinbox.valueChanged.connect(
+                lambda value, s=spinbox, sl=slider, m=z: self._update_spinbox_from_slider(sl, s, multiplier=1/m))
 
     ### CALLBACKS ###
 
@@ -148,6 +165,7 @@ class Interface(QObject):
     def _build_graphs(self) -> None:
         performance = Graph(window_title='performance')
         performance.add_line(name='epoch_time', color=(255, 0, 0))
+        performance.add_line(name='iter_time', color=(0, 255, 0))
         performance.setObjectName('performance_graph')
         layout = self.mainwidget.findChild(QtWidgets.QVBoxLayout, 'performance_graph_layout')
         layout.addWidget(performance)
@@ -201,9 +219,9 @@ class Interface(QObject):
         
         self.settings_dock.init()
 
+        self.find(QtWidgets.QStackedWidget, 'centralwidget_pages').setCurrentIndex(0)
         splitter = self.find(QtWidgets.QSplitter, 'visualizer_splitter')
         splitter.setSizes([1000 - 250, 250])
-
 
         self.find(QtWidgets.QPushButton, 'reload_stylesheet').clicked.connect(self._set_stylesheet)
         self.mainwidget.setWindowFlag(Qt.WindowType.WindowStaysOnTopHint, True)
