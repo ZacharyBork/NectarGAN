@@ -7,7 +7,7 @@ from PySide6.QtCore import QObject, QThread, Signal
 from PySide6.QtGui import QImage, QPixmap
 from PySide6.QtWidgets import (
     QWidget, QLCDNumber, QFrame, QPushButton, 
-    QStatusBar, QCheckBox, QProgressBar, QLabel)
+    QStatusBar, QCheckBox, QProgressBar, QLabel, QStackedWidget)
 
 from pix2pix_graphical.ui.utils.config_helper import ConfigHelper
 from pix2pix_graphical.ui.utils.log import OutputLog
@@ -232,7 +232,10 @@ class TrainerHelper(QObject):
             # self.train_settings_grp.setEnabled(x[5])
             self.train_pause_btn.setHidden(x[6])
         match state:
-            case 'train_start' | 'train_end': _set_state(state_values[state])
+            case 'train_start':
+                _set_state(state_values[state])
+            case 'train_end':
+                _set_state(state_values[state])
             case 'train_paused':
                 raise NotImplementedError(f'State {state} not implemented.')        
 
@@ -241,6 +244,9 @@ class TrainerHelper(QObject):
     def start_train(self) -> None:
         '''Creates a QThread and starts a pix2pix training loop inside of it. 
         '''
+        self._set_ui_state(state='train_start')
+        self.find(QStackedWidget, 'train_page_state_swap').setCurrentIndex(1)
+
         self.last_epoch = 0
         self.current_epoch_progress = 0.0
 
@@ -283,11 +289,12 @@ class TrainerHelper(QObject):
         self.iter_timer.set_time()
         self.train_timer.set_time()
 
-        self._set_ui_state(state='train_start')
+        
 
     def stop_train(self) -> None:
         '''Sends a signal to the worker telling it to stop training.'''
         if hasattr(self, 'worker'):
+            self.find(QStackedWidget, 'train_page_state_swap').setCurrentIndex(0)
             self.worker.stop()
             self.statusbar.showMessage(
                 'Training Stopped', self.status_msg_length)

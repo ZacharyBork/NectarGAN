@@ -105,6 +105,14 @@ class Interface(QObject):
 
     ### INIT INTERFACE ###
 
+    def _start_train(self) -> None:
+        self.trainerhelper.start_train()
+        self.settings_dock.set_state('training')
+
+    def _stop_train(self) -> None:
+        self.trainerhelper.stop_train()
+        self.settings_dock.set_state('init')
+
     def _get_signal_widgets(self) -> None:
         self.widgets = {
             'train_start': self.find(QtWidgets.QPushButton, 'train_start'),
@@ -118,8 +126,8 @@ class Interface(QObject):
     def _init_training_controls(self) -> None:
         self.widgets['train_progress'].setValue(0)
         self.widgets['epoch_progress'].setValue(0)
-        self.widgets['train_start'].clicked.connect(self.trainerhelper.start_train)
-        self.widgets['train_stop'].clicked.connect(self.trainerhelper.stop_train)
+        self.widgets['train_start'].clicked.connect(self._start_train)
+        self.widgets['train_stop'].clicked.connect(self._stop_train)
         self.widgets['train_stop'].setEnabled(False)
 
         self.find(QtWidgets.QPushButton, 'train_pause').setHidden(True)
@@ -220,6 +228,8 @@ class Interface(QObject):
         self.settings_dock.init()
 
         self.find(QtWidgets.QStackedWidget, 'centralwidget_pages').setCurrentIndex(0)
+        self.find(QtWidgets.QStackedWidget, 'settings_pages').setCurrentIndex(0)
+        self.find(QtWidgets.QStackedWidget, 'train_page_state_swap').setCurrentIndex(0)
         splitter = self.find(QtWidgets.QSplitter, 'visualizer_splitter')
         splitter.setSizes([1000 - 250, 250])
 
@@ -301,11 +311,12 @@ class Interface(QObject):
             mainwidget=self.mainwidget,
             status_msg_length=self.status_msg_length)
         self.confighelper = ConfigHelper(mainwidget=self.mainwidget)
+        self.settings_dock = SettingsDock(mainwidget=self.mainwidget)
         self.trainerhelper = TrainerHelper(
             mainwidget=self.mainwidget,
             confighelper=self.confighelper,
             log=self.log, status_msg_length=self.status_msg_length)
-        self.settings_dock = SettingsDock(mainwidget=self.mainwidget)
+        
 
         self.init_ui()
         self.mainwidget.show()

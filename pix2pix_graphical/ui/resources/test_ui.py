@@ -2093,13 +2093,21 @@ class Ui_MainWindow(object):
         self.verticalLayout_22.setSpacing(0)
         self.verticalLayout_22.setObjectName(u"verticalLayout_22")
         self.verticalLayout_22.setContentsMargins(0, 0, 0, 0)
-        self.scrollArea_3 = QScrollArea(self.training_page)
+        self.train_page_state_swap = QStackedWidget(self.training_page)
+        self.train_page_state_swap.setObjectName(u"train_page_state_swap")
+        self.train_page_state_unlocked = QWidget()
+        self.train_page_state_unlocked.setObjectName(u"train_page_state_unlocked")
+        self.verticalLayout_55 = QVBoxLayout(self.train_page_state_unlocked)
+        self.verticalLayout_55.setSpacing(0)
+        self.verticalLayout_55.setObjectName(u"verticalLayout_55")
+        self.verticalLayout_55.setContentsMargins(0, 0, 0, 0)
+        self.scrollArea_3 = QScrollArea(self.train_page_state_unlocked)
         self.scrollArea_3.setObjectName(u"scrollArea_3")
         self.scrollArea_3.setFrameShadow(QFrame.Raised)
         self.scrollArea_3.setWidgetResizable(True)
         self.training_settings_container_ = QWidget()
         self.training_settings_container_.setObjectName(u"training_settings_container_")
-        self.training_settings_container_.setGeometry(QRect(0, 0, 331, 636))
+        self.training_settings_container_.setGeometry(QRect(0, 0, 331, 529))
         self.verticalLayout_20 = QVBoxLayout(self.training_settings_container_)
         self.verticalLayout_20.setSpacing(0)
         self.verticalLayout_20.setObjectName(u"verticalLayout_20")
@@ -2161,7 +2169,7 @@ class Ui_MainWindow(object):
         self.scrollArea_4.setWidgetResizable(True)
         self.generator_tab = QWidget()
         self.generator_tab.setObjectName(u"generator_tab")
-        self.generator_tab.setGeometry(QRect(0, 0, 321, 419))
+        self.generator_tab.setGeometry(QRect(0, 0, 321, 425))
         self.verticalLayout_15 = QVBoxLayout(self.generator_tab)
         self.verticalLayout_15.setObjectName(u"verticalLayout_15")
         self.verticalLayout_15.setContentsMargins(6, 6, 6, 6)
@@ -2400,7 +2408,7 @@ class Ui_MainWindow(object):
         self.scrollArea_6.setWidgetResizable(True)
         self.discriminator_tab = QWidget()
         self.discriminator_tab.setObjectName(u"discriminator_tab")
-        self.discriminator_tab.setGeometry(QRect(0, 0, 321, 419))
+        self.discriminator_tab.setGeometry(QRect(0, 0, 321, 425))
         self.verticalLayout_36 = QVBoxLayout(self.discriminator_tab)
         self.verticalLayout_36.setObjectName(u"verticalLayout_36")
         self.verticalLayout_36.setContentsMargins(6, 6, 6, 6)
@@ -2654,7 +2662,7 @@ class Ui_MainWindow(object):
         self.scrollArea_5.setWidgetResizable(True)
         self.loss_tab = QWidget()
         self.loss_tab.setObjectName(u"loss_tab")
-        self.loss_tab.setGeometry(QRect(0, 0, 321, 419))
+        self.loss_tab.setGeometry(QRect(0, 0, 321, 425))
         self.verticalLayout_16 = QVBoxLayout(self.loss_tab)
         self.verticalLayout_16.setObjectName(u"verticalLayout_16")
         self.verticalLayout_16.setContentsMargins(6, 6, 6, 6)
@@ -2787,7 +2795,7 @@ class Ui_MainWindow(object):
         self.scrollArea_7.setWidgetResizable(True)
         self.saving_tab = QWidget()
         self.saving_tab.setObjectName(u"saving_tab")
-        self.saving_tab.setGeometry(QRect(0, 0, 321, 419))
+        self.saving_tab.setGeometry(QRect(0, 0, 321, 425))
         self.verticalLayout_18 = QVBoxLayout(self.saving_tab)
         self.verticalLayout_18.setObjectName(u"verticalLayout_18")
         self.verticalLayout_18.setContentsMargins(2, 2, 2, 2)
@@ -2936,7 +2944,7 @@ class Ui_MainWindow(object):
         self.scrollArea_8.setWidgetResizable(True)
         self.visdom_tab = QWidget()
         self.visdom_tab.setObjectName(u"visdom_tab")
-        self.visdom_tab.setGeometry(QRect(0, 0, 321, 419))
+        self.visdom_tab.setGeometry(QRect(0, 0, 321, 425))
         self.verticalLayout_21 = QVBoxLayout(self.visdom_tab)
         self.verticalLayout_21.setObjectName(u"verticalLayout_21")
         self.verticalLayout_21.setContentsMargins(2, 2, 2, 2)
@@ -3013,7 +3021,34 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_54.addWidget(self.tabWidget_2)
 
-        self.train_functions_frame = QFrame(self.training_settings_container)
+
+        self.verticalLayout_20.addWidget(self.training_settings_container)
+
+        self.scrollArea_3.setWidget(self.training_settings_container_)
+
+        self.verticalLayout_55.addWidget(self.scrollArea_3)
+
+        self.train_page_state_swap.addWidget(self.train_page_state_unlocked)
+        self.train_page_state_locked = QWidget()
+        self.train_page_state_locked.setObjectName(u"train_page_state_locked")
+        self.verticalLayout_56 = QVBoxLayout(self.train_page_state_locked)
+        self.verticalLayout_56.setObjectName(u"verticalLayout_56")
+        self.verticalLayout_56.setContentsMargins(0, 0, 0, 0)
+        self.train_page_locked_label = QLabel(self.train_page_state_locked)
+        self.train_page_locked_label.setObjectName(u"train_page_locked_label")
+        font14 = QFont()
+        font14.setPointSize(12)
+        font14.setBold(True)
+        self.train_page_locked_label.setFont(font14)
+        self.train_page_locked_label.setAlignment(Qt.AlignCenter)
+
+        self.verticalLayout_56.addWidget(self.train_page_locked_label)
+
+        self.train_page_state_swap.addWidget(self.train_page_state_locked)
+
+        self.verticalLayout_22.addWidget(self.train_page_state_swap)
+
+        self.train_functions_frame = QFrame(self.training_page)
         self.train_functions_frame.setObjectName(u"train_functions_frame")
         sizePolicy2.setHeightForWidth(self.train_functions_frame.sizePolicy().hasHeightForWidth())
         self.train_functions_frame.setSizePolicy(sizePolicy2)
@@ -3039,14 +3074,7 @@ class Ui_MainWindow(object):
         self.verticalLayout_33.addWidget(self.train_stop)
 
 
-        self.verticalLayout_54.addWidget(self.train_functions_frame)
-
-
-        self.verticalLayout_20.addWidget(self.training_settings_container)
-
-        self.scrollArea_3.setWidget(self.training_settings_container_)
-
-        self.verticalLayout_22.addWidget(self.scrollArea_3)
+        self.verticalLayout_22.addWidget(self.train_functions_frame)
 
         self.settings_pages.addWidget(self.training_page)
         self.testing_page = QWidget()
@@ -3228,8 +3256,8 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
 
-        self.centralwidget_pages.setCurrentIndex(0)
-        self.settings_pages.setCurrentIndex(0)
+        self.centralwidget_pages.setCurrentIndex(3)
+        self.settings_pages.setCurrentIndex(2)
         self.direction.setCurrentIndex(-1)
         self.tabWidget_2.setCurrentIndex(0)
 
@@ -3432,6 +3460,7 @@ class Ui_MainWindow(object):
         self.label_65.setText(QCoreApplication.translate("MainWindow", u"Update Frequency", None))
         self.visdom_env_name.setText(QCoreApplication.translate("MainWindow", u"main", None))
         self.tabWidget_2.setTabText(self.tabWidget_2.indexOf(self._visdom_tab), QCoreApplication.translate("MainWindow", u"Visdom", None))
+        self.train_page_locked_label.setText(QCoreApplication.translate("MainWindow", u"_TRAIN_PAGE_LOCKED_", None))
         self.train_start.setText(QCoreApplication.translate("MainWindow", u"Begin Training", None))
         self.train_pause.setText(QCoreApplication.translate("MainWindow", u"Pause Training", None))
         self.train_stop.setText(QCoreApplication.translate("MainWindow", u"Stop Training", None))

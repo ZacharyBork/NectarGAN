@@ -1,10 +1,11 @@
 import pathlib
+from os import PathLike
 from importlib.resources import files
 
 from PySide6.QtWidgets import QPushButton
 from PySide6.QtGui import QIcon
 
-def get_icon_file(filename: str) -> str:
+def get_icon_file(filename: str) -> PathLike:
     try: 
         _root = 'pix2pix_graphical.ui.resources.icons'
         _path = files(_root).joinpath(filename)

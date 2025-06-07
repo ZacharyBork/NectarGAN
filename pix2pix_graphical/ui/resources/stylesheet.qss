@@ -156,8 +156,12 @@ QPushButton#experiment_settings_btn {
     background-color: rgb(40, 40, 40); border: 1px solid rgb(255, 158, 31); border-radius: 10px;}
 QPushButton::checked#experiment_settings_btn { 
     border: none; background-color: rgb(255, 158, 31); }
+QPushButton::disabled#experiment_settings_btn { 
+    border: none; background-color: rgb(60, 60, 60); }
 QPushButton#experiment_settings_label {
     color: rgb(255, 158, 31); background-color: none;}
+QPushButton::disabled#experiment_settings_label { 
+    color: rgb(80, 80, 80); }
 
 QPushButton#dataset_settings_btn {
     background-color: rgb(40, 40, 40); border: 1px solid rgb(31, 184, 255); border-radius: 10px;}
@@ -207,15 +211,23 @@ QPushButton#utils_settings_btn {
     background-color: rgb(40, 40, 40); border: 1px solid rgb(212, 202, 53); border-radius: 10px;}
 QPushButton::checked#utils_settings_btn { 
     border: none; background-color: rgb(212, 202, 53); }
+QPushButton::disabled#utils_settings_btn { 
+    border: none; background-color: rgb(60, 60, 60); }
 QPushButton#utils_settings_label {
     color: rgb(212, 202, 53); background-color: none;}
+QPushButton::disabled#utils_settings_label { 
+    color: rgb(80, 80, 80); }
 
 QPushButton#settings_settings_btn {
     background-color: rgb(40, 40, 40); border: 1px solid rgb(196, 75, 71); border-radius: 10px;}
 QPushButton::checked#settings_settings_btn { 
     border: none; background-color: rgb(196, 75, 71); }
+QPushButton::disabled#settings_settings_btn { 
+    border: none; background-color: rgb(60, 60, 60); }
 QPushButton#settings_settings_label {
     color: rgb(196, 75, 71); background-color: none;}
+QPushButton::disabled#settings_settings_label { 
+    color: rgb(80, 80, 80); }
 
 /*---------- LABELS ----------*/
 

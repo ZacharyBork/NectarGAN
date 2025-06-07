@@ -1,6 +1,7 @@
 from typing import Literal
 
-from PySide6.QtCore import Qt, QEvent, QObject, QPropertyAnimation, QEasingCurve
+from PySide6.QtCore import (
+    Qt, QEvent, QObject, QPropertyAnimation, QEasingCurve)
 from PySide6.QtGui import QPixmap, QTransform
 from PySide6.QtWidgets import (
     QWidget, QDockWidget, QLabel, QFrame, QPushButton, 
@@ -34,42 +35,30 @@ class SettingsDock(QObject):
 
     ### STATES ###
 
-    # self.find(QPushButton, 'experiment_settings_btn')
-    # self.find(QPushButton, 'experiment_settings_label')
-    
-    # self.find(QPushButton, 'dataset_settings_btn')
-    # self.find(QPushButton, 'dataset_settings_label')
-    
-    # self.find(QPushButton, 'training_settings_btn')
-    # self.find(QPushButton, 'training_settings_label')
-    
-    # self.find(QPushButton, 'testing_settings_btn')
-    # self.find(QPushButton, 'testing_settings_label')
-    
-    # self.find(QPushButton, 'review_settings_btn')
-    # self.find(QPushButton, 'review_settings_label')
-    
-    # self.find(QPushButton, 'utilities_settings_btn')
-    # self.find(QPushButton, 'utilities_settings_label')
+    def _set_navbutton_state(self, name: str, enabled: bool) -> None:
+        button = self.find(QPushButton, f'{name}_settings_btn')
+        label = self.find(QPushButton, f'{name}_settings_label')
 
-    # self.find(QPushButton, 'settings_settings_btn')
-    # self.find(QPushButton, 'settings_settings_label')
+        icon_name = self.button_icons[self.button_names.index(name)]
+        if not enabled: icon_name = f'{icon_name}_gray'
+        utils.set_button_icon(f'{icon_name}.svg', button)
+        button.setEnabled(enabled)
+        label.setEnabled(enabled)
 
-    # .setEnabled()
+    def _set_all_navbutton_states(self, state: bool) -> None:
+        for name in self.button_names:
+            self._set_navbutton_state(name, state)
 
     def set_state(self, state: Literal['init', 'training']) -> None:
         match state:
             case 'init':
-                self.find(QWidget, 'dataset_page').setEnabled(False)
-                self.find(QWidget, 'training_page').setEnabled(False)
-                self.find(QWidget, 'testing_page').setEnabled(False)
-                self.find(QWidget, 'review_page').setEnabled(False)
+                self._set_all_navbutton_states(True)
             case 'training':
-                self.find(QWidget, 'experiment_page').setEnabled(False)
-                self.find(QWidget, 'dataset_page').setEnabled(False)
-                self.find(QWidget, 'testing_page').setEnabled(False)
-                self.find(QWidget, 'review_page').setEnabled(False)
-                self.find(QWidget, 'utilities_page').setEnabled(False)
+                self._set_navbutton_state('experiment', False)
+                self._set_navbutton_state('dataset', False)
+                self._set_navbutton_state('testing', False)
+                self._set_navbutton_state('review', False)
+                self._set_navbutton_state('utils', False)
 
     ### CALLBACKS ###
 
@@ -153,7 +142,7 @@ class SettingsDock(QObject):
         self._init_navbar_expansion()
         self._set_section_icons()
 
-        # self.set_state('init')
+        self.set_state('init')
 
         for i, name in enumerate(self.button_names):
             button = self.find(QPushButton, f'{name}_settings_btn')
