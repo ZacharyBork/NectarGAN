@@ -29,26 +29,6 @@ class Interface(QObject):
 
     ### INIT HELPERS ###
 
-    def _get(
-            self, 
-            type: QtWidgets.QWidget,
-            name: str
-        ) -> QtWidgets.QWidget:
-        '''Gets a child widget of self.mainwidget by type and name.
-
-        This wrapper function exists is so that I don't need to write 
-        self.mainwidget.findChild all over the place. This isn't much better
-        but it's not quite as awful to look at.
-
-        Args:
-            type : The type of the QWidget you want to access.
-            name : The name of the QWidget you want to access.
-
-        Returns:
-            QWidget : The requested widget.
-        '''
-        return self.mainwidget.findChild(type, name)
-
     def _update_spinbox_from_slider(
             self,
             spinbox: Union[QtWidgets.QSpinBox, QtWidgets.QDoubleSpinBox], 
@@ -89,16 +69,16 @@ class Interface(QObject):
     ### CALLBACKS ###
 
     def _close_settings_dock(self) -> None:
-        dock = self._get(QtWidgets.QDockWidget, 'settings_dock')
-        button = self._get(QtWidgets.QPushButton, 'close_experiment_settings')
+        dock = self.find(QtWidgets.QDockWidget, 'settings_dock')
+        button = self.find(QtWidgets.QPushButton, 'close_experiment_settings')
         direction = 'left' if dock.isHidden() else 'right'
         utils.set_button_icon(f'caret-line-{direction}-bold.svg', button)
         dock.setHidden(not dock.isHidden())
 
     def _split_lr_schedules(self) -> None:
-        # gen_box = self._get(QtWidgets.QGroupBox, 'gen_schedule_box')
-        disc_box = self._get(QtWidgets.QFrame, 'disc_schedule_box')
-        checkbox = self._get(QtWidgets.QCheckBox, 'separate_lr_schedules')
+        # gen_box = self.find(QtWidgets.QGroupBox, 'gen_schedule_box')
+        disc_box = self.find(QtWidgets.QFrame, 'disc_schedule_box')
+        checkbox = self.find(QtWidgets.QCheckBox, 'separate_lr_schedules')
         if checkbox.isChecked():
             # gen_box.setTitle('Generator')
             disc_box.setHidden(False)
@@ -110,13 +90,13 @@ class Interface(QObject):
 
     def _get_signal_widgets(self) -> None:
         self.widgets = {
-            'train_start': self._get(QtWidgets.QPushButton, 'train_start'),
-            'train_stop': self._get(QtWidgets.QPushButton, 'train_stop'),
-            'epoch_progress': self._get(QtWidgets.QProgressBar, 'epoch_progress'),
-            'train_progress': self._get(QtWidgets.QProgressBar, 'train_progress'),
-            'x_label': self._get(QtWidgets.QLabel, 'x_label'),
-            'y_label': self._get(QtWidgets.QLabel, 'y_label'),
-            'y_fake_label': self._get(QtWidgets.QLabel, 'y_fake_label')}
+            'train_start': self.find(QtWidgets.QPushButton, 'train_start'),
+            'train_stop': self.find(QtWidgets.QPushButton, 'train_stop'),
+            'epoch_progress': self.find(QtWidgets.QProgressBar, 'epoch_progress'),
+            'train_progress': self.find(QtWidgets.QProgressBar, 'train_progress'),
+            'x_label': self.find(QtWidgets.QLabel, 'x_label'),
+            'y_label': self.find(QtWidgets.QLabel, 'y_label'),
+            'y_fake_label': self.find(QtWidgets.QLabel, 'y_fake_label')}
 
     def _init_training_controls(self) -> None:
         self.widgets['train_progress'].setValue(0)
@@ -125,8 +105,8 @@ class Interface(QObject):
         self.widgets['train_stop'].clicked.connect(self.trainerhelper.stop_train)
         self.widgets['train_stop'].setEnabled(False)
 
-        self._get(QtWidgets.QPushButton, 'train_pause').setHidden(True)
-        self._get(QtWidgets.QPushButton, 'train_pause').clicked.connect(self.trainerhelper.pause_train)
+        self.find(QtWidgets.QPushButton, 'train_pause').setHidden(True)
+        self.find(QtWidgets.QPushButton, 'train_pause').clicked.connect(self.trainerhelper.pause_train)
 
     def _swap_image_labels(self) -> None:
         for name in ['x_label', 'y_label', 'y_fake_label']:
@@ -146,20 +126,20 @@ class Interface(QObject):
     def _init_pushbuttons(self) -> None:
         _button = QtWidgets.QPushButton
 
-        button = self._get(_button, 'close_experiment_settings')
+        button = self.find(_button, 'close_experiment_settings')
         utils.set_button_icon('caret-line-left-bold.svg', button)
         button.clicked.connect(self._close_settings_dock)
 
     def _init_training_setting(self) -> None:
-        self._get(QtWidgets.QFrame, 'disc_schedule_box').setHidden(True)
-        self._get(QtWidgets.QCheckBox, 'separate_lr_schedules').clicked.connect(self._split_lr_schedules)
+        self.find(QtWidgets.QFrame, 'disc_schedule_box').setHidden(True)
+        self.find(QtWidgets.QCheckBox, 'separate_lr_schedules').clicked.connect(self._split_lr_schedules)
 
     def _init_update_frequency(self) -> None:
-        update_freq = self._get(QtWidgets.QSpinBox, 'update_frequency')
+        update_freq = self.find(QtWidgets.QSpinBox, 'update_frequency')
         update_freq.valueChanged.connect(lambda x=update_freq.value() : self.trainerhelper._change_update_frequency(x))
 
     def _init_current_epoch_display(self) -> None:
-        current_epoch = self._get(QtWidgets.QLCDNumber, 'current_epoch')
+        current_epoch = self.find(QtWidgets.QLCDNumber, 'current_epoch')
         current_epoch.setSegmentStyle(QtWidgets.QLCDNumber.SegmentStyle.Flat)
         palette = current_epoch.palette()
         palette.setColor(QtGui.QPalette.ColorRole.WindowText, QtGui.QColor('black'))
@@ -173,7 +153,7 @@ class Interface(QObject):
         layout.addWidget(performance)
 
 
-        loss_g = Graph(window_title='loss_g')
+        loss_g = Graph(window_title='loss_g', bottom_label='Epoch')
         loss_g.add_line(name='G_GAN', color=(255, 0, 0))
         loss_g.add_line(name='G_L1', color=(0, 255, 0))
         loss_g.add_line(name='G_SOBEL', color=(0, 0, 255))
@@ -183,7 +163,7 @@ class Interface(QObject):
         layout = self.mainwidget.findChild(QtWidgets.QVBoxLayout, 'loss_g_graph_layout')
         layout.addWidget(loss_g)
 
-        loss_d = Graph(window_title='loss_d')
+        loss_d = Graph(window_title='loss_d', bottom_label='Epoch')
         loss_d.add_line(name='D_real', color=(0, 255, 0))
         loss_d.add_line(name='D_fake', color=(255, 0, 0))
         loss_d.setObjectName('loss_d_graph')
@@ -197,18 +177,16 @@ class Interface(QObject):
         }
 
     def _set_context_dock_visibility(self) -> None:
-        dock = self._get(QtWidgets.QDockWidget, 'context_settings_dock')
-        open_dock = self._get(QtWidgets.QPushButton, 'open_context_settings')
+        dock = self.find(QtWidgets.QDockWidget, 'context_settings_dock')
+        open_dock = self.find(QtWidgets.QPushButton, 'open_context_settings')
 
         prefix = 'Show' if dock.isVisible() else 'Hide'
         open_dock.setText(f'{prefix} Visualizer Settings')
         dock.setVisible(not dock.isVisible())
 
-    def _set_graph_line_visibility(self, value: bool, name: str) -> None:
-        if name in ['D_real', 'D_fake']: graph = self._get(Graph, 'loss_d_graph')
-        else: graph = self._get(Graph, 'loss_g_graph')
-        graph.set_line_visibility(name, value)
-        graph.update_plot(name, value=None)
+    def _set_always_on_top(self, enabled: bool) -> None:
+        self.mainwidget.setWindowFlag(Qt.WindowType.WindowStaysOnTopHint, enabled)
+        self.mainwidget.show()
 
     def init_ui(self) -> None:
         '''Initialized the interface. Links parameters, sets defaults, etc.'''
@@ -223,38 +201,33 @@ class Interface(QObject):
         
         self.settings_dock.init()
 
-        dock = self._get(QtWidgets.QDockWidget, 'context_settings_dock')
-        open_dock = self._get(QtWidgets.QPushButton, 'open_context_settings')
-        dock.setVisible(False)
-        open_dock.clicked.connect(self._set_context_dock_visibility)
+        splitter = self.find(QtWidgets.QSplitter, 'visualizer_splitter')
+        splitter.setSizes([1000 - 250, 250])
 
 
-        self._get(QtWidgets.QPushButton, 'reload_stylesheet').clicked.connect(self._set_stylesheet)
-
-        for name in ['G_GAN', 'G_L1', 'G_SOBEL', 'G_LAP', 'G_VGG', 'D_real', 'D_fake']:
-            checkbox = self._get(QtWidgets.QCheckBox, f'graph_{name}')
-            checkbox.clicked.connect(lambda value, i=name : self._set_graph_line_visibility(value, i))
-        
+        self.find(QtWidgets.QPushButton, 'reload_stylesheet').clicked.connect(self._set_stylesheet)
+        self.mainwidget.setWindowFlag(Qt.WindowType.WindowStaysOnTopHint, True)
+        self.find(QtWidgets.QCheckBox, 'always_on_top').clicked.connect(lambda x : self._set_always_on_top(x))
 
         root = pathlib.Path(__file__).parent
         file = pathlib.Path(root, 'resources', 'icons', 'performance_graph_time_label.svg')
         transform = QtGui.QTransform()
         transform.rotate(270)
-        self._get(QtWidgets.QLabel, 'perf_graph_time_label').setPixmap(
+        self.find(QtWidgets.QLabel, 'perf_graph_time_label').setPixmap(
             QtGui.QPixmap(file.as_posix()).scaledToHeight(10).transformed(transform))
         
         file = pathlib.Path(root, 'resources', 'icons', 'performance_graph_epoch_label.svg')
-        self._get(QtWidgets.QLabel, 'perf_graph_epoch_label').setPixmap(
+        self.find(QtWidgets.QLabel, 'perf_graph_epoch_label').setPixmap(
             QtGui.QPixmap(file.as_posix()).scaledToHeight(10))
 
-        self._get(
+        self.find(
             QtWidgets.QPushButton, 'performance_graph_reset_framing'
         ).clicked.connect(lambda : self.graphs['performance'].reframe_graph())
-        self._get(
+        self.find(
             QtWidgets.QPushButton, 'performance_graph_clear'
         ).clicked.connect(lambda : self.graphs['performance'].reset_graph())
 
-        self._get(QtWidgets.QComboBox, 'direction').addItems(['AtoB', 'BtoA'])
+        self.find(QtWidgets.QComboBox, 'direction').addItems(['AtoB', 'BtoA'])
         
         self.confighelper._init_from_config(config_path=None) # Init from default config
         
@@ -303,6 +276,7 @@ class Interface(QObject):
         self._set_stylesheet()
 
         self._init_mainwidget()
+        self.find = self.mainwidget.findChild
         self._build_graphs()
 
         self.log = OutputLog(

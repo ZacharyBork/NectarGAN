@@ -85,12 +85,12 @@ class SettingsDock(QObject):
 
     def eventFilter(self, watched: QObject, event: QEvent) -> bool:
         if watched == getattr(self, 'btns_frame', None):
-            if event.type() == QEvent.Enter:
+            if event.type() == QEvent.Type.Enter:
                 self._animate_nav_panel(expand=True)
                 self._swap_btn_label_visibility('show')
                 self.title_tag.setText('NectarGAN Toolbox')
                 self.creator_tag.setText('Created by Zachary Bork')
-            elif event.type() == QEvent.Leave:
+            elif event.type() == QEvent.Type.Leave:
                 self._animate_nav_panel(expand=False)
                 self._swap_btn_label_visibility('hide')
                 self.title_tag.setText('')

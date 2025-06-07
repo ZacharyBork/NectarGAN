@@ -1,13 +1,16 @@
 from typing import Literal, Any
 
-from PySide6.QtWidgets import QWidget, QVBoxLayout
-from PySide6.QtCore import Qt
 import pyqtgraph as pg
+from PySide6.QtGui import QColor
+from PySide6.QtCore import Qt, QEvent
+from PySide6.QtWidgets import (  
+    QWidget, QFrame, QVBoxLayout, QHBoxLayout, QCheckBox, QLabel)
 
 class Graph(QWidget):
     def __init__(
             self, 
             window_title: str,
+            bottom_label: str='',
             bg_color: tuple[float]=(50, 50, 50),
             fg_color: tuple[float]=(0, 0, 0),
             show_grid: tuple[bool]=(True, True),
@@ -24,22 +27,79 @@ class Graph(QWidget):
         self.ymax = ymax # Default Y max
         
         self.setWindowTitle(window_title)
-        self._init_plot(bg_color, fg_color, show_grid, grid_alpha)
+        self._init_base_layout()
+        self._build_layout()
+        self._init_graph(
+            bg_color, fg_color, show_grid, grid_alpha, bottom_label)
         self.reframe_graph()
+
+        self._set_toggle_visibility(visible=False)
+        self._init_hover_event()
+
+    def _init_base_layout(self) -> None:
+        self.base_layout = QHBoxLayout(self)
+        self.base_layout.setContentsMargins(0, 0, 0, 0)
+        
+        self.container = QHBoxLayout()
+        self.container.setSpacing(0)
+        self.container.setContentsMargins(0, 0, 0, 0)
+        
+        self.base_frame = QFrame()
+        self.base_frame.setLayout(self.container)
+        self.base_layout.addWidget(self.base_frame)
+
+    def _init_hover_event(self) -> None:
+        self.base_frame.installEventFilter(self)
+
+    def _set_toggle_visibility(self, visible: bool) -> None:
+        self.toggle_box.setVisible(visible)
+
+    def eventFilter(self, watched: QWidget, event: QEvent) -> bool:
+        if watched == getattr(self, 'base_frame', None):
+            if event.type() == QEvent.Type.Enter:
+                self._set_toggle_visibility(visible=True)
+            elif event.type() == QEvent.Type.Leave:
+                self._set_toggle_visibility(visible=False)
+        return super().eventFilter(watched, event)
+
+    def _build_layout(self) -> None:
+        self.graph_box = QFrame()
+        self.graph_layout = QVBoxLayout()
+        self.graph_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.graph_layout.setSpacing(4)
+        self.graph_box.setLayout(self.graph_layout)
+        self.graph_box.setContentsMargins(0, 0, 0, 0)
+        
+        self.toggle_box = QFrame()
+        self.toggle_box.setFrameShape(QFrame.Shape.Panel)
+        self.toggle_box.setFrameShadow(QFrame.Shadow.Sunken)
+        self.toggle_layout = QVBoxLayout()
+        self.toggle_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
+        self.toggle_layout.setSpacing(2)
+        self.toggle_box.setLayout(self.toggle_layout)
+        self.toggle_box.setContentsMargins(2, 2, 2, 2)
+
+        self.container.addWidget(self.toggle_box)
+        self.container.addWidget(self.graph_box)
    
-    def _init_plot(
+    def _init_graph(
             self, 
             bg_color: tuple[float], 
             fg_color: tuple[float],
             show_grid: tuple[bool],
-            grid_alpha: float
+            grid_alpha: float,
+            bottom_label: str
         ) -> None:
-        layout = QVBoxLayout(self)
         pg.setConfigOption('background', bg_color)
         pg.setConfigOption('foreground', fg_color)
         self.graph = pg.PlotWidget()
         self.graph.showGrid(show_grid[0], show_grid[1], alpha=grid_alpha)
-        layout.addWidget(self.graph)
+        self.graph_layout.addWidget(self.graph)
+        if not bottom_label == '':
+            _bottom_label = QLabel(bottom_label)
+            _bottom_label.setAlignment(Qt.AlignmentFlag.AlignHCenter)
+            _bottom_label.setStyleSheet('QLabel { font-size: 12px; }')
+            self.graph_layout.addWidget(_bottom_label)
 
     def add_label(
             self, 
@@ -50,6 +110,18 @@ class Graph(QWidget):
         try: self.graph.setLabel(location, label, units=units)
         except Exception as e:
             raise RuntimeError('Unable to set plot label.') from e
+        
+    def _add_line_vis_checkbox(self, name: str, color: tuple[int]) -> None:
+        toggle = QCheckBox(name) # Build vis toggle checkbox
+        text_color = QColor(color[0], color[1], color[2])
+        toggle.setStyleSheet(f'QCheckBox {{ color: {text_color.name()}; }}')
+
+        toggle.setChecked(True)  # Start checked, all lines visible
+        toggle.clicked.connect(  # Connect to line vis function
+            lambda value, i=name : self.set_line_visibility(i, value))
+        self.toggle_layout.addWidget(toggle) # Add to toggles layout
+
+        return toggle
 
     def add_line(
             self, 
@@ -57,13 +129,17 @@ class Graph(QWidget):
             width: int=1, 
             color: tuple[int]=(255, 255, 255)
         ) -> None:
+        # Validate name
         if name in self.lines.keys():
             msg = (f'Invalid line name: {name}. '
                    f'A line with this name already exists')
             raise KeyError(msg)
+        # Build plot
         pen = pg.mkPen(color=color, width=width, style=Qt.PenStyle.SolidLine)
         plot = self.graph.plot([], [], pen=pen)
-        self.lines[name] = { 'values': [], 'plot': plot, 'visible': True }
+        toggle = self._add_line_vis_checkbox(name=name, color=color)
+        self.lines[name] = { # Store line data
+            'values': [], 'plot': plot, 'visible': True, 'toggle': toggle }
 
     def set_line_visibility(
             self, 
@@ -94,12 +170,11 @@ class Graph(QWidget):
         line = self.lines[name]
         if not value is None: 
             line['values'].append(value)
-            if line['visible']:
-                if value > self.ymax:
-                    self.ymax = value
-                    self.graph.setYRange(0.0, self.ymax)
-                line['plot'].setData(self.steps, line['values'])
-            else: line['plot'].setData([], [])
+            if value > self.ymax:
+                self.ymax = value
+                self.graph.setYRange(0.0, self.ymax)
+        if line['visible']: line['plot'].setData(self.steps, line['values'])
+        else: line['plot'].setData([], [])
 
     def update_graph(self) -> None:
         if not len(self.lines) == 0:
