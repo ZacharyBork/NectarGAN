@@ -5,7 +5,7 @@ from importlib.resources import files
 
 from PySide6.QtWidgets import (
     QWidget, QLineEdit, QSpinBox, QDoubleSpinBox, 
-    QAbstractSpinBox, QComboBox, QCheckBox, QGroupBox)
+    QComboBox, QCheckBox, QGroupBox)
 
 class ConfigHelper:
     def __init__(self, mainwidget: QWidget) -> None:

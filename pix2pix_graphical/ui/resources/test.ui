@@ -270,7 +270,7 @@
                  <item>
                   <widget class="QFrame" name="frame_11">
                    <property name="sizePolicy">
-                    <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+                    <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                      <horstretch>0</horstretch>
                      <verstretch>0</verstretch>
                     </sizepolicy>
@@ -642,16 +642,16 @@
             <number>2</number>
            </property>
            <property name="leftMargin">
-            <number>3</number>
+            <number>6</number>
            </property>
            <property name="topMargin">
-            <number>3</number>
+            <number>6</number>
            </property>
            <property name="rightMargin">
-            <number>3</number>
+            <number>6</number>
            </property>
            <property name="bottomMargin">
-            <number>3</number>
+            <number>6</number>
            </property>
            <item>
             <widget class="QFrame" name="frame_36">
@@ -738,6 +738,13 @@
               <property name="bottomMargin">
                <number>0</number>
               </property>
+              <item row="0" column="1">
+               <widget class="QLabel" name="performance_time_total">
+                <property name="text">
+                 <string>00:00:00.000</string>
+                </property>
+               </widget>
+              </item>
               <item row="0" column="0">
                <widget class="QLabel" name="label_56">
                 <property name="sizePolicy">
@@ -747,14 +754,7 @@
                  </sizepolicy>
                 </property>
                 <property name="text">
-                 <string>Since Start:</string>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="1">
-               <widget class="QLabel" name="performance_epoch_fastest_2">
-                <property name="text">
-                 <string>00.000</string>
+                 <string>Total:      </string>
                 </property>
                </widget>
               </item>
@@ -862,7 +862,7 @@
               <item row="0" column="1">
                <widget class="QLabel" name="performance_epoch_fastest">
                 <property name="text">
-                 <string>00.000</string>
+                 <string>00:00:00.000</string>
                 </property>
                </widget>
               </item>
@@ -882,7 +882,7 @@
               <item row="1" column="1">
                <widget class="QLabel" name="performance_epoch_slowest">
                 <property name="text">
-                 <string>00.000</string>
+                 <string>00:00:00.000</string>
                 </property>
                </widget>
               </item>
@@ -902,7 +902,7 @@
               <item row="2" column="1">
                <widget class="QLabel" name="performance_epoch_average">
                 <property name="text">
-                 <string>00.000</string>
+                 <string>00:00:00.000</string>
                 </property>
                </widget>
               </item>
@@ -1010,7 +1010,7 @@
               <item row="0" column="1">
                <widget class="QLabel" name="performance_iter_fastest">
                 <property name="text">
-                 <string>00.000</string>
+                 <string>00:00:00.000</string>
                 </property>
                </widget>
               </item>
@@ -1030,7 +1030,7 @@
               <item row="1" column="1">
                <widget class="QLabel" name="performance_iter_slowest">
                 <property name="text">
-                 <string>00.000</string>
+                 <string>00:00:00.000</string>
                 </property>
                </widget>
               </item>
@@ -1050,7 +1050,7 @@
               <item row="2" column="1">
                <widget class="QLabel" name="performance_iter_average">
                 <property name="text">
-                 <string>00.000</string>
+                 <string>00:00:00.000</string>
                 </property>
                </widget>
               </item>
@@ -2818,7 +2818,7 @@
            <item>
             <widget class="QStackedWidget" name="settings_pages">
              <property name="currentIndex">
-              <number>0</number>
+              <number>6</number>
              </property>
              <widget class="QWidget" name="experiment_page">
               <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -5489,6 +5489,44 @@
                          </widget>
                         </item>
                        </layout>
+                      </item>
+                      <item>
+                       <widget class="QFrame" name="frame_20">
+                        <property name="frameShape">
+                         <enum>QFrame::StyledPanel</enum>
+                        </property>
+                        <property name="frameShadow">
+                         <enum>QFrame::Raised</enum>
+                        </property>
+                        <layout class="QHBoxLayout" name="horizontalLayout_21">
+                         <property name="leftMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="topMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="rightMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="bottomMargin">
+                          <number>0</number>
+                         </property>
+                         <item>
+                          <widget class="QLabel" name="label_67">
+                           <property name="text">
+                            <string>Set Accent Color</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item>
+                          <widget class="QPushButton" name="set_accent_color">
+                           <property name="text">
+                            <string>Set Accent Color</string>
+                           </property>
+                          </widget>
+                         </item>
+                        </layout>
+                       </widget>
                       </item>
                       <item>
                        <spacer name="verticalSpacer_13">

@@ -1,14 +1,3 @@
-/*
-background-color: red;
-border-style: outset;
-border-width: 2px;
-border-radius: 10px;
-border-color: beige;
-font: bold 14px;
-min-width: 10em;
-padding: 6px;
-*/
-
 /*---------- BASE ----------*/
 
 QWidget {
@@ -16,8 +5,8 @@ QWidget {
 }
 
 QSplitter::handle {
-    background-color: rgb(80, 80, 80);
-    color: rgb(80, 80, 80);
+    background-color: rgb(50, 50, 50);
+    border: 1px ridge rgb(35, 35, 35);
 }
 
 /*---------- TAB WIDGETS ----------*/
@@ -224,6 +213,15 @@ QPushButton#settings_settings_label {
 
 QLabel {
     color: rgb(200, 200, 200);
+}
+QLabel#x_label {
+    background-color: rgb(50, 50, 50);
+}
+QLabel#y_label {
+    background-color: rgb(50, 50, 50);
+}
+QLabel#y_fake_label {
+    background-color: rgb(50, 50, 50);
 }
 
 QLabel#experiment_section_header {

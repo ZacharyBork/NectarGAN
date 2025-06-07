@@ -5,7 +5,7 @@ from typing import Union
 import PySide6.QtWidgets as QtWidgets
 import PySide6.QtGui as QtGui
 from PySide6.QtUiTools import QUiLoader
-from PySide6.QtCore import Qt, QFile, QObject, QEvent
+from PySide6.QtCore import Qt, QFile, QObject
 
 import pix2pix_graphical.ui.utils.common as utils
 

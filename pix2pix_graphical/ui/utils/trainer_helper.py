@@ -1,21 +1,21 @@
 from typing import Literal
 
-from torch import Tensor
 import numpy as np
+from torch import Tensor
 
 from PySide6.QtCore import QObject, QThread, Signal
 from PySide6.QtGui import QImage, QPixmap
 from PySide6.QtWidgets import (
     QWidget, QLCDNumber, QFrame, QPushButton, 
-    QStatusBar, QCheckBox, QProgressBar
-)
+    QStatusBar, QCheckBox, QProgressBar, QLabel)
 
 from pix2pix_graphical.ui.utils.config_helper import ConfigHelper
 from pix2pix_graphical.ui.utils.log import OutputLog
 from pix2pix_graphical.ui.utils.graphing import Graph
 from pix2pix_graphical.ui.utils.imagelabel import ImageLabel
+from pix2pix_graphical.ui.utils.signal_timer import SignalTimer
 from pix2pix_graphical.ui.workers.pix2pix_trainerworker import TrainerWorker
-
+  
 class TrainerHelper(QObject):
     ### SIGNALS ###
     safe_cleanup = Signal() # Worker shutdown signal
@@ -36,6 +36,10 @@ class TrainerHelper(QObject):
         self.worker: TrainerWorker | None = None
         self.pixmaps: list[QPixmap] = []
         self.last_epoch: int=0
+
+        self.epoch_timer = SignalTimer()
+        self.iter_timer = SignalTimer()
+        self.train_timer = SignalTimer()
 
         self._get_widgets()
 
@@ -99,6 +103,22 @@ class TrainerHelper(QObject):
         Args:
             progress : [0, 1] progress through the current epoch.
         '''
+        self.iter_timer.set_time()
+        self.mainwidget.findChild(
+            QLabel, 'performance_iter_fastest'
+        ).setText(self.iter_timer.get_time('fastest'))
+        self.mainwidget.findChild(
+            QLabel, 'performance_iter_slowest'
+        ).setText(self.iter_timer.get_time('slowest'))
+        self.mainwidget.findChild(
+            QLabel, 'performance_iter_average'
+        ).setText(self.iter_timer.get_time('average'))
+        
+        self.train_timer.set_time()
+        self.mainwidget.findChild(
+            QLabel, 'performance_time_total'
+        ).setText(self.train_timer.get_time('total'))
+
         self.current_epoch_progress = progress
         self.progress_bar_epoch.setValue(progress * 100.0)
 
@@ -110,6 +130,17 @@ class TrainerHelper(QObject):
                 The float value is the time, in seconds, which that epoch took
                 to complete. 
         '''
+        self.epoch_timer.set_time()
+        self.mainwidget.findChild(
+            QLabel, 'performance_epoch_fastest'
+        ).setText(self.epoch_timer.get_time('fastest'))
+        self.mainwidget.findChild(
+            QLabel, 'performance_epoch_slowest'
+        ).setText(self.epoch_timer.get_time('slowest'))
+        self.mainwidget.findChild(
+            QLabel, 'performance_epoch_average'
+        ).setText(self.epoch_timer.get_time('average'))
+
         gen_lr = self.worker.config.train.generator.learning_rate
         total_epochs = gen_lr.epochs + gen_lr.epochs_decay
         
@@ -131,9 +162,12 @@ class TrainerHelper(QObject):
         of the Tensor -> nparray -> QImage -> QPixmap pipeline in that function
         and displays it to the UI.
         '''
-        self.mainwidget.findChild(ImageLabel, 'x_label').set_pixmap(self.pixmaps[0])
-        self.mainwidget.findChild(ImageLabel, 'y_label').set_pixmap(self.pixmaps[1])
-        self.mainwidget.findChild(ImageLabel, 'y_fake_label').set_pixmap(self.pixmaps[2])
+        self.mainwidget.findChild(
+            ImageLabel, 'x_label').set_pixmap(self.pixmaps[0])
+        self.mainwidget.findChild(
+            ImageLabel, 'y_label').set_pixmap(self.pixmaps[1])
+        self.mainwidget.findChild(
+            ImageLabel, 'y_fake_label').set_pixmap(self.pixmaps[2])
 
     def _get_tensors(self, tensors: tuple[Tensor]) -> None:
         '''Signal handler for retrieving and processing tensors from worker.
@@ -218,6 +252,13 @@ class TrainerHelper(QObject):
     def start_train(self) -> None:
         '''Creates a QThread and starts a pix2pix training loop inside of it. 
         '''
+        self.last_epoch = 0
+        self.current_epoch_progress = 0.0
+
+        self.epoch_timer = SignalTimer()
+        self.iter_timer = SignalTimer()
+        self.train_timer = SignalTimer()
+        
         self.loss_g_graph.reset_graph()
         self.loss_d_graph.reset_graph()
         self.perf_graph.reset_graph()
@@ -229,7 +270,8 @@ class TrainerHelper(QObject):
         w = self.worker = TrainerWorker(config=self.confighelper.config)
         self.worker.moveToThread(self.train_thread)
 
-        self.safe_cleanup.connect(lambda : self._set_ui_state(state='train_end'))
+        self.safe_cleanup.connect(
+            lambda : self._set_ui_state(state='train_end'))
 
         self.train_thread.started.connect(self.worker.run) # Training slot fn
         
@@ -248,6 +290,9 @@ class TrainerHelper(QObject):
         # deletelater on train_thread when train finishes
         t.finished.connect(self.train_thread.deleteLater)
         t.start() # Spin up train thread
+        self.epoch_timer.set_time()
+        self.iter_timer.set_time()
+        self.train_timer.set_time()
 
         self._set_ui_state(state='train_start')
 
@@ -255,7 +300,8 @@ class TrainerHelper(QObject):
         '''Sends a signal to the worker telling it to stop training.'''
         if hasattr(self, 'worker'):
             self.worker.stop()
-            self.statusbar.showMessage('Training Stopped', self.status_msg_length)
+            self.statusbar.showMessage(
+                'Training Stopped', self.status_msg_length)
 
     def pause_train(self) -> None:
         '''Sends a signal to the worker telling it to pause training.'''
@@ -263,10 +309,13 @@ class TrainerHelper(QObject):
             if self.worker._is_paused:
                 self.worker.unpause()
                 self.statusbar.clearMessage()
-                self.statusbar.showMessage('Training Resumed', self.status_msg_length)
-                self.mainwidget.findChild(QPushButton, 'train_pause').setText('Pause Training')
+                self.statusbar.showMessage(
+                    'Training Resumed', self.status_msg_length)
+                self.mainwidget.findChild(
+                    QPushButton, 'train_pause').setText('Pause Training')
             else:
                 self.worker.pause()
-                self.mainwidget.findChild(QPushButton, 'train_pause').setText('Resume Training')
+                self.mainwidget.findChild(
+                    QPushButton, 'train_pause').setText('Resume Training')
 
 

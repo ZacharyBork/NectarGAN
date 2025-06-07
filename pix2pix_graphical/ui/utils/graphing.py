@@ -182,10 +182,11 @@ class Graph(QWidget):
                 self.update_plot(line, value=None)
 
     def reset_graph(self) -> None:
-        self.steps = []
+        self.steps.clear()# = []
         for line in self.lines.values(): 
             line['values'] = []
-            line['plot'].setData([], [])
+            # line['plot'].setData([], [])
+        self.update_graph()
         self.reframe_graph()
 
     def reframe_graph(self, min_x: float=10.0, min_y: float=1.0) -> None:
