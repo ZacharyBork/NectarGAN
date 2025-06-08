@@ -1637,7 +1637,7 @@ class Ui_MainWindow(object):
         self.scrollArea_2.setWidgetResizable(True)
         self.dataloader_settings_container = QWidget()
         self.dataloader_settings_container.setObjectName(u"dataloader_settings_container")
-        self.dataloader_settings_container.setGeometry(QRect(0, 0, 419, 520))
+        self.dataloader_settings_container.setGeometry(QRect(0, 0, 419, 921))
         self.verticalLayout_10 = QVBoxLayout(self.dataloader_settings_container)
         self.verticalLayout_10.setObjectName(u"verticalLayout_10")
         self.verticalLayout_10.setContentsMargins(0, 0, 0, 0)
@@ -3086,6 +3086,7 @@ class Ui_MainWindow(object):
         self.testing_page = QWidget()
         self.testing_page.setObjectName(u"testing_page")
         self.verticalLayout_43 = QVBoxLayout(self.testing_page)
+        self.verticalLayout_43.setSpacing(3)
         self.verticalLayout_43.setObjectName(u"verticalLayout_43")
         self.verticalLayout_43.setContentsMargins(0, 0, 0, 0)
         self.scrollArea_10 = QScrollArea(self.testing_page)
@@ -3093,19 +3094,189 @@ class Ui_MainWindow(object):
         self.scrollArea_10.setWidgetResizable(True)
         self.testing_settings_container = QWidget()
         self.testing_settings_container.setObjectName(u"testing_settings_container")
-        self.testing_settings_container.setGeometry(QRect(0, 0, 98, 46))
+        self.testing_settings_container.setGeometry(QRect(0, 0, 419, 879))
         self.verticalLayout_44 = QVBoxLayout(self.testing_settings_container)
         self.verticalLayout_44.setObjectName(u"verticalLayout_44")
-        self.label_23 = QLabel(self.testing_settings_container)
-        self.label_23.setObjectName(u"label_23")
-        self.label_23.setFont(font8)
-        self.label_23.setAlignment(Qt.AlignCenter)
+        self.verticalLayout_44.setContentsMargins(0, 0, 0, 0)
+        self.frame_38 = QFrame(self.testing_settings_container)
+        self.frame_38.setObjectName(u"frame_38")
+        self.frame_38.setFrameShape(QFrame.StyledPanel)
+        self.frame_38.setFrameShadow(QFrame.Raised)
+        self.verticalLayout_41 = QVBoxLayout(self.frame_38)
+        self.verticalLayout_41.setObjectName(u"verticalLayout_41")
+        self.verticalLayout_41.setContentsMargins(3, 3, 3, 3)
+        self.test_override_experiment_path = QCheckBox(self.frame_38)
+        self.test_override_experiment_path.setObjectName(u"test_override_experiment_path")
 
-        self.verticalLayout_44.addWidget(self.label_23)
+        self.verticalLayout_41.addWidget(self.test_override_experiment_path)
+
+        self.frame_45 = QFrame(self.frame_38)
+        self.frame_45.setObjectName(u"frame_45")
+        self.frame_45.setFrameShape(QFrame.StyledPanel)
+        self.frame_45.setFrameShadow(QFrame.Raised)
+        self.formLayout_23 = QFormLayout(self.frame_45)
+        self.formLayout_23.setObjectName(u"formLayout_23")
+        self.label_23 = QLabel(self.frame_45)
+        self.label_23.setObjectName(u"label_23")
+
+        self.formLayout_23.setWidget(0, QFormLayout.ItemRole.LabelRole, self.label_23)
+
+        self.horizontalLayout_39 = QHBoxLayout()
+        self.horizontalLayout_39.setObjectName(u"horizontalLayout_39")
+        self.test_experiment_path = QLineEdit(self.frame_45)
+        self.test_experiment_path.setObjectName(u"test_experiment_path")
+
+        self.horizontalLayout_39.addWidget(self.test_experiment_path)
+
+        self.test_browse_experiment = QPushButton(self.frame_45)
+        self.test_browse_experiment.setObjectName(u"test_browse_experiment")
+
+        self.horizontalLayout_39.addWidget(self.test_browse_experiment)
+
+
+        self.formLayout_23.setLayout(0, QFormLayout.ItemRole.FieldRole, self.horizontalLayout_39)
+
+
+        self.verticalLayout_41.addWidget(self.frame_45)
+
+        self.test_override_dataset = QCheckBox(self.frame_38)
+        self.test_override_dataset.setObjectName(u"test_override_dataset")
+
+        self.verticalLayout_41.addWidget(self.test_override_dataset)
+
+        self.frame_78 = QFrame(self.frame_38)
+        self.frame_78.setObjectName(u"frame_78")
+        self.frame_78.setFrameShape(QFrame.StyledPanel)
+        self.frame_78.setFrameShadow(QFrame.Raised)
+        self.formLayout_26 = QFormLayout(self.frame_78)
+        self.formLayout_26.setObjectName(u"formLayout_26")
+        self.label_91 = QLabel(self.frame_78)
+        self.label_91.setObjectName(u"label_91")
+
+        self.formLayout_26.setWidget(0, QFormLayout.ItemRole.LabelRole, self.label_91)
+
+        self.horizontalLayout_64 = QHBoxLayout()
+        self.horizontalLayout_64.setObjectName(u"horizontalLayout_64")
+        self.test_dataset_path = QLineEdit(self.frame_78)
+        self.test_dataset_path.setObjectName(u"test_dataset_path")
+
+        self.horizontalLayout_64.addWidget(self.test_dataset_path)
+
+        self.test_browse_dataset = QPushButton(self.frame_78)
+        self.test_browse_dataset.setObjectName(u"test_browse_dataset")
+
+        self.horizontalLayout_64.addWidget(self.test_browse_dataset)
+
+
+        self.formLayout_26.setLayout(0, QFormLayout.ItemRole.FieldRole, self.horizontalLayout_64)
+
+
+        self.verticalLayout_41.addWidget(self.frame_78)
+
+        self.frame_68 = QFrame(self.frame_38)
+        self.frame_68.setObjectName(u"frame_68")
+        self.frame_68.setFrameShape(QFrame.StyledPanel)
+        self.frame_68.setFrameShadow(QFrame.Raised)
+        self.formLayout_25 = QFormLayout(self.frame_68)
+        self.formLayout_25.setObjectName(u"formLayout_25")
+        self.label_58 = QLabel(self.frame_68)
+        self.label_58.setObjectName(u"label_58")
+
+        self.formLayout_25.setWidget(0, QFormLayout.ItemRole.LabelRole, self.label_58)
+
+        self.horizontalLayout_45 = QHBoxLayout()
+        self.horizontalLayout_45.setObjectName(u"horizontalLayout_45")
+        self.test_iterations_slider = QSlider(self.frame_68)
+        self.test_iterations_slider.setObjectName(u"test_iterations_slider")
+        self.test_iterations_slider.setOrientation(Qt.Horizontal)
+
+        self.horizontalLayout_45.addWidget(self.test_iterations_slider)
+
+        self.test_iterations = QSpinBox(self.frame_68)
+        self.test_iterations.setObjectName(u"test_iterations")
+
+        self.horizontalLayout_45.addWidget(self.test_iterations)
+
+
+        self.formLayout_25.setLayout(0, QFormLayout.ItemRole.FieldRole, self.horizontalLayout_45)
+
+
+        self.verticalLayout_41.addWidget(self.frame_68)
+
+        self.frame_50 = QFrame(self.frame_38)
+        self.frame_50.setObjectName(u"frame_50")
+        self.frame_50.setFrameShape(QFrame.StyledPanel)
+        self.frame_50.setFrameShadow(QFrame.Raised)
+        self.formLayout_24 = QFormLayout(self.frame_50)
+        self.formLayout_24.setObjectName(u"formLayout_24")
+        self.label_64 = QLabel(self.frame_50)
+        self.label_64.setObjectName(u"label_64")
+
+        self.formLayout_24.setWidget(0, QFormLayout.ItemRole.LabelRole, self.label_64)
+
+        self.test_do_l1 = QCheckBox(self.frame_50)
+        self.test_do_l1.setObjectName(u"test_do_l1")
+        sizePolicy16 = QSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Preferred)
+        sizePolicy16.setHorizontalStretch(0)
+        sizePolicy16.setVerticalStretch(0)
+        sizePolicy16.setHeightForWidth(self.test_do_l1.sizePolicy().hasHeightForWidth())
+        self.test_do_l1.setSizePolicy(sizePolicy16)
+
+        self.formLayout_24.setWidget(0, QFormLayout.ItemRole.FieldRole, self.test_do_l1)
+
+        self.label_89 = QLabel(self.frame_50)
+        self.label_89.setObjectName(u"label_89")
+
+        self.formLayout_24.setWidget(1, QFormLayout.ItemRole.LabelRole, self.label_89)
+
+        self.label_90 = QLabel(self.frame_50)
+        self.label_90.setObjectName(u"label_90")
+
+        self.formLayout_24.setWidget(2, QFormLayout.ItemRole.LabelRole, self.label_90)
+
+        self.test_do_sobel = QCheckBox(self.frame_50)
+        self.test_do_sobel.setObjectName(u"test_do_sobel")
+        sizePolicy16.setHeightForWidth(self.test_do_sobel.sizePolicy().hasHeightForWidth())
+        self.test_do_sobel.setSizePolicy(sizePolicy16)
+
+        self.formLayout_24.setWidget(1, QFormLayout.ItemRole.FieldRole, self.test_do_sobel)
+
+        self.test_do_laplacian = QCheckBox(self.frame_50)
+        self.test_do_laplacian.setObjectName(u"test_do_laplacian")
+        sizePolicy16.setHeightForWidth(self.test_do_laplacian.sizePolicy().hasHeightForWidth())
+        self.test_do_laplacian.setSizePolicy(sizePolicy16)
+
+        self.formLayout_24.setWidget(2, QFormLayout.ItemRole.FieldRole, self.test_do_laplacian)
+
+
+        self.verticalLayout_41.addWidget(self.frame_50)
+
+        self.verticalSpacer = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
+
+        self.verticalLayout_41.addItem(self.verticalSpacer)
+
+
+        self.verticalLayout_44.addWidget(self.frame_38)
 
         self.scrollArea_10.setWidget(self.testing_settings_container)
 
         self.verticalLayout_43.addWidget(self.scrollArea_10)
+
+        self.frame_79 = QFrame(self.testing_page)
+        self.frame_79.setObjectName(u"frame_79")
+        self.frame_79.setFrameShape(QFrame.Panel)
+        self.frame_79.setFrameShadow(QFrame.Sunken)
+        self.frame_79.setLineWidth(2)
+        self.verticalLayout_57 = QVBoxLayout(self.frame_79)
+        self.verticalLayout_57.setObjectName(u"verticalLayout_57")
+        self.verticalLayout_57.setContentsMargins(3, 3, 3, 3)
+        self.test_start = QPushButton(self.frame_79)
+        self.test_start.setObjectName(u"test_start")
+
+        self.verticalLayout_57.addWidget(self.test_start)
+
+
+        self.verticalLayout_43.addWidget(self.frame_79)
 
         self.settings_pages.addWidget(self.testing_page)
         self.review_page = QWidget()
@@ -3118,7 +3289,7 @@ class Ui_MainWindow(object):
         self.scrollArea_11.setWidgetResizable(True)
         self.review_settings_container = QWidget()
         self.review_settings_container.setObjectName(u"review_settings_container")
-        self.review_settings_container.setGeometry(QRect(0, 0, 98, 46))
+        self.review_settings_container.setGeometry(QRect(0, 0, 82, 46))
         self.verticalLayout_46 = QVBoxLayout(self.review_settings_container)
         self.verticalLayout_46.setObjectName(u"verticalLayout_46")
         self.label_40 = QLabel(self.review_settings_container)
@@ -3143,7 +3314,7 @@ class Ui_MainWindow(object):
         self.scrollArea_12.setWidgetResizable(True)
         self.utilities_settings_container = QWidget()
         self.utilities_settings_container.setObjectName(u"utilities_settings_container")
-        self.utilities_settings_container.setGeometry(QRect(0, 0, 98, 46))
+        self.utilities_settings_container.setGeometry(QRect(0, 0, 86, 46))
         self.verticalLayout_48 = QVBoxLayout(self.utilities_settings_container)
         self.verticalLayout_48.setObjectName(u"verticalLayout_48")
         self.label_66 = QLabel(self.utilities_settings_container)
@@ -3262,8 +3433,8 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
 
-        self.centralwidget_pages.setCurrentIndex(3)
-        self.settings_pages.setCurrentIndex(2)
+        self.centralwidget_pages.setCurrentIndex(1)
+        self.settings_pages.setCurrentIndex(3)
         self.direction.setCurrentIndex(-1)
         self.tabWidget_2.setCurrentIndex(0)
 
@@ -3470,7 +3641,20 @@ class Ui_MainWindow(object):
         self.train_start.setText(QCoreApplication.translate("MainWindow", u"Begin Training", None))
         self.train_pause.setText(QCoreApplication.translate("MainWindow", u"Pause Training", None))
         self.train_stop.setText(QCoreApplication.translate("MainWindow", u"Stop Training", None))
-        self.label_23.setText(QCoreApplication.translate("MainWindow", u"Testing", None))
+        self.test_override_experiment_path.setText(QCoreApplication.translate("MainWindow", u"Override Experiment Settings", None))
+        self.label_23.setText(QCoreApplication.translate("MainWindow", u"Experiment Path", None))
+        self.test_browse_experiment.setText(QCoreApplication.translate("MainWindow", u"Browse", None))
+        self.test_override_dataset.setText(QCoreApplication.translate("MainWindow", u"Override Dataset Settings", None))
+        self.label_91.setText(QCoreApplication.translate("MainWindow", u"Dataset Path", None))
+        self.test_browse_dataset.setText(QCoreApplication.translate("MainWindow", u"Browse", None))
+        self.label_58.setText(QCoreApplication.translate("MainWindow", u"Iterations", None))
+        self.label_64.setText(QCoreApplication.translate("MainWindow", u"L1", None))
+        self.test_do_l1.setText("")
+        self.label_89.setText(QCoreApplication.translate("MainWindow", u"Sobel", None))
+        self.label_90.setText(QCoreApplication.translate("MainWindow", u"Laplacian", None))
+        self.test_do_sobel.setText("")
+        self.test_do_laplacian.setText("")
+        self.test_start.setText(QCoreApplication.translate("MainWindow", u"Begin Test", None))
         self.label_40.setText(QCoreApplication.translate("MainWindow", u"Review", None))
         self.label_66.setText(QCoreApplication.translate("MainWindow", u"Utilities", None))
         self.always_on_top.setText(QCoreApplication.translate("MainWindow", u"Always on Top", None))

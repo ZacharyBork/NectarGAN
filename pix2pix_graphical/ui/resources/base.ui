@@ -93,7 +93,7 @@
        <item>
         <widget class="QStackedWidget" name="centralwidget_pages">
          <property name="currentIndex">
-          <number>3</number>
+          <number>1</number>
          </property>
          <widget class="QWidget" name="central_train_page">
           <layout class="QVBoxLayout" name="verticalLayout_25">
@@ -2958,7 +2958,7 @@
            <item>
             <widget class="QStackedWidget" name="settings_pages">
              <property name="currentIndex">
-              <number>2</number>
+              <number>3</number>
              </property>
              <widget class="QWidget" name="experiment_page">
               <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -3588,7 +3588,7 @@
                     <x>0</x>
                     <y>0</y>
                     <width>419</width>
-                    <height>520</height>
+                    <height>921</height>
                    </rect>
                   </property>
                   <layout class="QVBoxLayout" name="verticalLayout_10">
@@ -6422,6 +6422,9 @@
              </widget>
              <widget class="QWidget" name="testing_page">
               <layout class="QVBoxLayout" name="verticalLayout_43">
+               <property name="spacing">
+                <number>3</number>
+               </property>
                <property name="leftMargin">
                 <number>0</number>
                </property>
@@ -6444,28 +6447,281 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>98</width>
-                    <height>46</height>
+                    <width>419</width>
+                    <height>879</height>
                    </rect>
                   </property>
                   <layout class="QVBoxLayout" name="verticalLayout_44">
+                   <property name="leftMargin">
+                    <number>0</number>
+                   </property>
+                   <property name="topMargin">
+                    <number>0</number>
+                   </property>
+                   <property name="rightMargin">
+                    <number>0</number>
+                   </property>
+                   <property name="bottomMargin">
+                    <number>0</number>
+                   </property>
                    <item>
-                    <widget class="QLabel" name="label_23">
-                     <property name="font">
-                      <font>
-                       <pointsize>16</pointsize>
-                      </font>
+                    <widget class="QFrame" name="frame_38">
+                     <property name="frameShape">
+                      <enum>QFrame::StyledPanel</enum>
                      </property>
-                     <property name="text">
-                      <string>Testing</string>
+                     <property name="frameShadow">
+                      <enum>QFrame::Raised</enum>
                      </property>
-                     <property name="alignment">
-                      <set>Qt::AlignCenter</set>
-                     </property>
+                     <layout class="QVBoxLayout" name="verticalLayout_41">
+                      <property name="leftMargin">
+                       <number>3</number>
+                      </property>
+                      <property name="topMargin">
+                       <number>3</number>
+                      </property>
+                      <property name="rightMargin">
+                       <number>3</number>
+                      </property>
+                      <property name="bottomMargin">
+                       <number>3</number>
+                      </property>
+                      <item>
+                       <widget class="QCheckBox" name="test_override_experiment_path">
+                        <property name="text">
+                         <string>Override Experiment Settings</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QFrame" name="frame_45">
+                        <property name="frameShape">
+                         <enum>QFrame::StyledPanel</enum>
+                        </property>
+                        <property name="frameShadow">
+                         <enum>QFrame::Raised</enum>
+                        </property>
+                        <layout class="QFormLayout" name="formLayout_23">
+                         <item row="0" column="0">
+                          <widget class="QLabel" name="label_23">
+                           <property name="text">
+                            <string>Experiment Path</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="0" column="1">
+                          <layout class="QHBoxLayout" name="horizontalLayout_39">
+                           <item>
+                            <widget class="QLineEdit" name="test_experiment_path"/>
+                           </item>
+                           <item>
+                            <widget class="QPushButton" name="test_browse_experiment">
+                             <property name="text">
+                              <string>Browse</string>
+                             </property>
+                            </widget>
+                           </item>
+                          </layout>
+                         </item>
+                        </layout>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QCheckBox" name="test_override_dataset">
+                        <property name="text">
+                         <string>Override Dataset Settings</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QFrame" name="frame_78">
+                        <property name="frameShape">
+                         <enum>QFrame::StyledPanel</enum>
+                        </property>
+                        <property name="frameShadow">
+                         <enum>QFrame::Raised</enum>
+                        </property>
+                        <layout class="QFormLayout" name="formLayout_26">
+                         <item row="0" column="0">
+                          <widget class="QLabel" name="label_91">
+                           <property name="text">
+                            <string>Dataset Path</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="0" column="1">
+                          <layout class="QHBoxLayout" name="horizontalLayout_64">
+                           <item>
+                            <widget class="QLineEdit" name="test_dataset_path"/>
+                           </item>
+                           <item>
+                            <widget class="QPushButton" name="test_browse_dataset">
+                             <property name="text">
+                              <string>Browse</string>
+                             </property>
+                            </widget>
+                           </item>
+                          </layout>
+                         </item>
+                        </layout>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QFrame" name="frame_68">
+                        <property name="frameShape">
+                         <enum>QFrame::StyledPanel</enum>
+                        </property>
+                        <property name="frameShadow">
+                         <enum>QFrame::Raised</enum>
+                        </property>
+                        <layout class="QFormLayout" name="formLayout_25">
+                         <item row="0" column="0">
+                          <widget class="QLabel" name="label_58">
+                           <property name="text">
+                            <string>Iterations</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="0" column="1">
+                          <layout class="QHBoxLayout" name="horizontalLayout_45">
+                           <item>
+                            <widget class="QSlider" name="test_iterations_slider">
+                             <property name="orientation">
+                              <enum>Qt::Horizontal</enum>
+                             </property>
+                            </widget>
+                           </item>
+                           <item>
+                            <widget class="QSpinBox" name="test_iterations"/>
+                           </item>
+                          </layout>
+                         </item>
+                        </layout>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QFrame" name="frame_50">
+                        <property name="frameShape">
+                         <enum>QFrame::StyledPanel</enum>
+                        </property>
+                        <property name="frameShadow">
+                         <enum>QFrame::Raised</enum>
+                        </property>
+                        <layout class="QFormLayout" name="formLayout_24">
+                         <item row="0" column="0">
+                          <widget class="QLabel" name="label_64">
+                           <property name="text">
+                            <string>L1</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="0" column="1">
+                          <widget class="QCheckBox" name="test_do_l1">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="text">
+                            <string/>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="1" column="0">
+                          <widget class="QLabel" name="label_89">
+                           <property name="text">
+                            <string>Sobel</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="2" column="0">
+                          <widget class="QLabel" name="label_90">
+                           <property name="text">
+                            <string>Laplacian</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="1" column="1">
+                          <widget class="QCheckBox" name="test_do_sobel">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="text">
+                            <string/>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="2" column="1">
+                          <widget class="QCheckBox" name="test_do_laplacian">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="text">
+                            <string/>
+                           </property>
+                          </widget>
+                         </item>
+                        </layout>
+                       </widget>
+                      </item>
+                      <item>
+                       <spacer name="verticalSpacer">
+                        <property name="orientation">
+                         <enum>Qt::Vertical</enum>
+                        </property>
+                        <property name="sizeHint" stdset="0">
+                         <size>
+                          <width>20</width>
+                          <height>40</height>
+                         </size>
+                        </property>
+                       </spacer>
+                      </item>
+                     </layout>
                     </widget>
                    </item>
                   </layout>
                  </widget>
+                </widget>
+               </item>
+               <item>
+                <widget class="QFrame" name="frame_79">
+                 <property name="frameShape">
+                  <enum>QFrame::Panel</enum>
+                 </property>
+                 <property name="frameShadow">
+                  <enum>QFrame::Sunken</enum>
+                 </property>
+                 <property name="lineWidth">
+                  <number>2</number>
+                 </property>
+                 <layout class="QVBoxLayout" name="verticalLayout_57">
+                  <property name="leftMargin">
+                   <number>3</number>
+                  </property>
+                  <property name="topMargin">
+                   <number>3</number>
+                  </property>
+                  <property name="rightMargin">
+                   <number>3</number>
+                  </property>
+                  <property name="bottomMargin">
+                   <number>3</number>
+                  </property>
+                  <item>
+                   <widget class="QPushButton" name="test_start">
+                    <property name="text">
+                     <string>Begin Test</string>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
                 </widget>
                </item>
               </layout>
@@ -6494,7 +6750,7 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>98</width>
+                    <width>82</width>
                     <height>46</height>
                    </rect>
                   </property>
@@ -6544,7 +6800,7 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>98</width>
+                    <width>86</width>
                     <height>46</height>
                    </rect>
                   </property>

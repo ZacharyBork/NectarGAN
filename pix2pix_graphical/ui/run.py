@@ -9,12 +9,13 @@ from PySide6.QtCore import Qt, QFile, QObject
 
 import pix2pix_graphical.ui.utils.common as utils
 
-from pix2pix_graphical.ui.utils.config_helper import ConfigHelper
-from pix2pix_graphical.ui.utils.trainer_helper import TrainerHelper
-from pix2pix_graphical.ui.utils.log import OutputLog
-from pix2pix_graphical.ui.utils.imagelabel import ImageLabel
-from pix2pix_graphical.ui.utils.graphing import Graph
-from pix2pix_graphical.ui.utils.settings_dock import SettingsDock
+from pix2pix_graphical.ui.helpers.config_helper import ConfigHelper
+from pix2pix_graphical.ui.helpers.trainer_helper import TrainerHelper
+from pix2pix_graphical.ui.helpers.tester_helper import TesterHelper
+from pix2pix_graphical.ui.components.log import OutputLog
+from pix2pix_graphical.ui.widgets.imagelabel import ImageLabel
+from pix2pix_graphical.ui.widgets.graph import Graph
+from pix2pix_graphical.ui.components.settings_dock import SettingsDock
 
 
 class Interface(QObject):    
@@ -255,6 +256,15 @@ class Interface(QObject):
         ).clicked.connect(lambda : self.graphs['performance'].reset_graph())
 
         self.find(QtWidgets.QComboBox, 'direction').addItems(['AtoB', 'BtoA'])
+
+
+        # TESTING
+        self.find(QtWidgets.QPushButton, 'test_start').clicked.connect(self.testerhelper.start_test)
+
+
+
+
+
         
         self.confighelper._init_from_config(config_path=None) # Init from default config
         
@@ -317,6 +327,7 @@ class Interface(QObject):
             mainwidget=self.mainwidget,
             confighelper=self.confighelper,
             log=self.log, status_msg_length=self.status_msg_length)
+        self.testerhelper = TesterHelper(mainwidget=self.mainwidget)
         
 
         self.init_ui()

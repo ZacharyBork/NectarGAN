@@ -9,10 +9,10 @@ from PySide6.QtWidgets import (
     QWidget, QLCDNumber, QFrame, QPushButton, 
     QStatusBar, QCheckBox, QProgressBar, QLabel, QStackedWidget)
 
-from pix2pix_graphical.ui.utils.config_helper import ConfigHelper
-from pix2pix_graphical.ui.utils.log import OutputLog
-from pix2pix_graphical.ui.utils.graphing import Graph
-from pix2pix_graphical.ui.utils.imagelabel import ImageLabel
+from pix2pix_graphical.ui.helpers.config_helper import ConfigHelper
+from pix2pix_graphical.ui.components.log import OutputLog
+from pix2pix_graphical.ui.widgets.graph import Graph
+from pix2pix_graphical.ui.widgets.imagelabel import ImageLabel
 from pix2pix_graphical.ui.utils.signal_timer import SignalTimer
 from pix2pix_graphical.ui.workers.pix2pix_trainerworker import TrainerWorker
   
