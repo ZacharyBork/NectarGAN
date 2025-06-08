@@ -179,7 +179,7 @@ class Graph(QWidget):
             line['steps'].append(step)
             if step > self.xmax:
                 self.xmax = step
-                self.graph.setXRange(0.0, self.xmax)
+                self.graph.setXRange(1.0, self.xmax)
         
         if line['visible']: line['plot'].setData(line['steps'], line['values'])
         else: line['plot'].setData([], [])

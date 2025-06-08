@@ -1,8 +1,9 @@
 from typing import Literal
+from importlib.resources import files
 
 from PySide6.QtCore import (
-    Qt, QEvent, QObject, QPropertyAnimation, QEasingCurve)
-from PySide6.QtGui import QPixmap, QTransform
+    Qt, QSize, QEvent, QObject, QPropertyAnimation, QEasingCurve)
+from PySide6.QtGui import QPixmap, QTransform, QMovie
 from PySide6.QtWidgets import (
     QWidget, QDockWidget, QLabel, QFrame, QPushButton, 
     QDockWidget, QStackedWidget)
@@ -33,6 +34,19 @@ class SettingsDock(QObject):
         self.title_tag = self.find(QLabel, 'title_tag')
         self.creator_tag = self.find(QLabel, 'creator_tag')
 
+    def _init_training_animation(self) -> None:
+        animation_filepath = files(
+            'pix2pix_graphical.ui.resources.gifs').joinpath('train_lock.gif')
+
+        self.train_lock_anim = QMovie(str(animation_filepath))
+        self.train_lock_label = self.find(QLabel, 'train_page_locked_label')
+        self.train_lock_label.setMovie(self.train_lock_anim)
+
+        width = self.find(QWidget, 'train_page_state_locked').width() * 0.5
+        self.train_lock_anim.setScaledSize(QSize(width, width*2))
+        self.train_lock_anim.setCacheMode(QMovie.CacheMode.CacheAll)
+        self.train_lock_anim.setSpeed(100)
+
     ### STATES ###
 
     def _set_navbutton_state(self, name: str, enabled: bool) -> None:
@@ -53,12 +67,14 @@ class SettingsDock(QObject):
         match state:
             case 'init':
                 self._set_all_navbutton_states(True)
+                self.train_lock_anim.stop()
             case 'training':
                 self._set_navbutton_state('experiment', False)
                 self._set_navbutton_state('dataset', False)
                 self._set_navbutton_state('testing', False)
                 self._set_navbutton_state('review', False)
                 self._set_navbutton_state('utils', False)
+                self.train_lock_anim.start()
 
     ### CALLBACKS ###
 
@@ -142,6 +158,7 @@ class SettingsDock(QObject):
         self._init_navbar_expansion()
         self._set_section_icons()
 
+        self._init_training_animation()
         self.set_state('init')
 
         for i, name in enumerate(self.button_names):

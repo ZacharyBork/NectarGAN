@@ -141,6 +141,35 @@ QPushButton::checked {
     background-color: rgb(255, 158, 31);
 }
 
+QPushButton#train_start {
+    background-color: rgb(50, 150, 50);
+    color: rgb(35, 35, 35);
+    padding: 3px 1px 3px 1px;
+    border: 1px solid rgb(50, 200, 50);
+    border-radius: 12px;
+}
+QPushButton::hover#train_start {background-color: rgb(50, 200, 50);}
+QPushButton::pressed#train_start {background-color: rgb(200, 200, 200);}
+QPushButton#train_stop {
+    background-color: rgb(150, 50, 50);
+    color: rgb(35, 35, 35);
+    padding: 3px 1px 3px 1px;
+    border: 1px solid rgb(255, 50, 50);
+    border-radius: 12px;
+}
+QPushButton::hover#train_stop {background-color: rgb(200, 50, 50);}
+QPushButton::pressed#train_stop {background-color: rgb(200, 200, 200);}
+QPushButton#train_pause {
+    background-color: rgb(150, 150, 50);
+    color: rgb(35, 35, 35);
+    padding: 3px 1px 3px 1px;
+    border: 1px solid rgb(200, 200, 50);
+    border-radius: 12px;
+}
+QPushButton::hover#train_pause {background-color: rgb(200, 200, 50);}
+QPushButton::pressed#train_pause {background-color: rgb(200, 200, 200);}
+
+
 QPushButton#close_experiment_settings {
     background-color: rgb(50, 50, 50);
     border: 1px ridge rgb(35, 35, 35);

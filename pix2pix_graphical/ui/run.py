@@ -128,7 +128,7 @@ class Interface(QObject):
         self.widgets['epoch_progress'].setValue(0)
         self.widgets['train_start'].clicked.connect(self._start_train)
         self.widgets['train_stop'].clicked.connect(self._stop_train)
-        self.widgets['train_stop'].setEnabled(False)
+        self.widgets['train_stop'].setHidden(True)
 
         self.find(QtWidgets.QPushButton, 'train_pause').setHidden(True)
         self.find(QtWidgets.QPushButton, 'train_pause').clicked.connect(self.trainerhelper.pause_train)
@@ -173,7 +173,6 @@ class Interface(QObject):
     def _build_graphs(self) -> None:
         performance = Graph(window_title='performance')
         performance.add_line(name='epoch_time', color=(255, 0, 0))
-        performance.add_line(name='iter_time', color=(0, 255, 0))
         performance.setObjectName('performance_graph')
         layout = self.mainwidget.findChild(QtWidgets.QVBoxLayout, 'performance_graph_layout')
         layout.addWidget(performance)
@@ -259,6 +258,8 @@ class Interface(QObject):
         
         self.confighelper._init_from_config(config_path=None) # Init from default config
         
+        self.trainerhelper.safe_cleanup.connect(lambda : self.settings_dock.set_state('init'))
+
 
     ### ENTRYPOINT ###
 
@@ -272,7 +273,7 @@ class Interface(QObject):
             FileNotFoundError : If unable to locate UI file.
         '''
         root = pathlib.Path(__file__).parent
-        file = pathlib.Path(root, 'resources', 'test.ui')
+        file = pathlib.Path(root, 'resources', 'base.ui')
         if not file.exists():
             msg = f'Unable to locate UI file: {file.resolve().as_posix()}'
             raise FileNotFoundError(msg)
