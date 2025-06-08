@@ -172,12 +172,12 @@ class Graph(QWidget):
         line = self.lines[name]
         if not value is None: 
             line['values'].append(value)
-            if value > self.ymax:
+            if value > self.ymax and line['visible']:
                 self.ymax = value
                 self.graph.setYRange(0.0, self.ymax)
         if not step is None: 
             line['steps'].append(step)
-            if step > self.xmax:
+            if step > self.xmax and line['visible']:
                 self.xmax = step
                 self.graph.setXRange(1.0, self.xmax)
         
@@ -188,6 +188,7 @@ class Graph(QWidget):
         if not len(self.lines) == 0:
             for line in self.lines:
                 self.update_plot(line, value=None, step=None)
+        self.reframe_graph()
 
     def reset_graph(self) -> None:
         for line in self.lines.values(): 

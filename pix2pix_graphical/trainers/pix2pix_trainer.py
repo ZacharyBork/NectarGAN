@@ -40,9 +40,11 @@ class Pix2pixTrainer(Trainer):
 
         self._init_losses(loss_subspec) # Init loss functions
         
-        if self.config.train.load.continue_train:
-            self.load_checkpoint(  # Load checkpoint if enabled
-                self.gen, self.opt_gen, self.disc, self.opt_disc)
+        if self.config.train.load.continue_train: # Load checkpoint if enabled
+            self.load_checkpoint('G', self.gen, self.opt_gen, 
+                self.config.train.generator.learning_rate.initial)
+            self.load_checkpoint('D', self.disc, self.opt_disc, 
+                self.config.train.discriminator.learning_rate.initial)
 
     ### INITIALIZATION ###
 

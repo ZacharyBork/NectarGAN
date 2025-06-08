@@ -3,7 +3,7 @@ import random
 import pathlib
 import time
 from os import PathLike
-from typing import Callable, Any, Union
+from typing import Callable, Any, Literal
 
 import torch
 import torch.optim as optim
@@ -153,54 +153,37 @@ class Trainer():
             self.vis.clear_env()      # Clear Visdom environment  
 
     def load_checkpoint(
-            self, 
-            generator: nn.Module, 
-            gen_optimizer: optim.Optimizer,
-            discriminator: nn.Module, 
-            disc_optimizer: optim.Optimizer
+            self,
+            net_type: Literal['G', 'g', 'D', 'd'],
+            network: nn.Module,
+            optimizer: optim.Optimizer | None=None,
+            learning_rate: float | None=None
         ) -> None:
         '''Loads pre-trained model weights to continue training.
 
         Args:
-            generator : The generator to load the netG weights into.
-            gen_optimizer : The generator's associated optimizer.
-            discriminator : The discriminator to load the netD weights into.
-            disc_optimizer : The discriminator's associated optimizer.
+            net_type : Type of network to load weights for (i.e. 'G', 'D')
+            network : The network to load the weights into.
+            optimizer : The network's associated optimizer, or none to only
+                load network checkpoint.
+            learning_rate : The learning rate to load the network with.
         '''
         load_epoch = self.config.train.load.load_epoch
-        if load_epoch == -1: base_name = f'final'
-        else: base_name = f'epoch{load_epoch}'
+        base_name = f'epoch{load_epoch}'
 
-        output_directory = pathlib.Path(self.config.common.output_directory)
-        experiment_directory = pathlib.Path(
-            output_directory, self.config.common.experiment_name)
+        # Load checkpoint
+        checkpoint_path = pathlib.Path(
+            self.experiment_dir, f'{base_name}_net{net_type.upper()}.pth.tar')
+        if not checkpoint_path.exists():
+            message = 'Unable to locate checkpoint at: {}'
+            raise Exception(message.format(checkpoint_path.as_posix()))
         
-        # Load generator checkpoint
-        checkpoint_gen_path = pathlib.Path(
-            experiment_directory, f'{base_name}_netG.pth.tar')
-        if not checkpoint_gen_path.exists():
-            message = 'Unable to locate generator checkpoint at: {}'
-            raise Exception(message.format(checkpoint_gen_path.as_posix()))
-        
-        # Load discriminator checkpoint
-        checkpoint_disc_path = pathlib.Path(
-            experiment_directory, f'{base_name}_netD.pth.tar')
-        if not checkpoint_disc_path.exists():
-            message = 'Unable to locate discriminator checkpoint at: {}'
-            raise FileNotFoundError(
-                message.format(checkpoint_disc_path.as_posix()))
-        
-        models = [(checkpoint_gen_path, generator, gen_optimizer,
-                  self.config.train.generator.learning_rate.initial), 
-                  (checkpoint_disc_path, discriminator, disc_optimizer,
-                  self.config.train.discriminator.learning_rate.initial)]
-        for path, model, optimizer, lr in models:
-            checkpoint = torch.load(path.as_posix(), map_location=self.device)
-            model.load_state_dict(checkpoint['state_dict'])
+        checkpoint = torch.load(checkpoint_path.as_posix(), map_location=self.device)
+        network.load_state_dict(checkpoint['state_dict'])
+        if not optimizer is None:
             optimizer.load_state_dict(checkpoint['optimizer'])
-
             for param_group in optimizer.param_groups:
-                param_group['lr'] = lr
+                param_group['lr'] = learning_rate
 
     ### TRAINING COMPONENT BUILDERS ###
 

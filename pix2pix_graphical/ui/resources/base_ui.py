@@ -2138,6 +2138,7 @@ class Ui_MainWindow(object):
         self.load_epoch = QSpinBox(self.continue_train)
         self.load_epoch.setObjectName(u"load_epoch")
         self.load_epoch.setMinimum(1)
+        self.load_epoch.setMaximum(999999)
 
         self.horizontalLayout_16.addWidget(self.load_epoch)
 
