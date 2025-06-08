@@ -36,7 +36,7 @@
             "separate_lr_schedules": false,
             "load": {
                 "continue_train": false,
-                "load_epoch": 3
+                "load_epoch": 200
             },
             "generator": {
                 "upsample_block_type": "Transpose",
