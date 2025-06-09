@@ -1,3 +1,4 @@
+import pathlib
 from typing import Any
 from os import PathLike
 
@@ -6,17 +7,26 @@ from PySide6.QtCore import QObject, Signal, Slot
 from pix2pix_graphical.testers.tester import Tester
 
 class TesterWorker(QObject, Tester):
-    finished = Signal()
+    finished = Signal(pathlib.Path)
+    progress = Signal(int)
 
     def __init__(
             self, 
-            config: PathLike | dict[str, Any] | None=None
+            config: PathLike | dict[str, Any] | None,
+            image_count: int
         ) -> None:
         super().__init__(config=config)
+        self.image_count = image_count
 
     @Slot()
-    def run(self):
-        self.run_test(image_count=30, silent=True)
-
-        self.finished.emit()
+    def run(self) -> None:
+        self.build_test_output_directory()
+        self.export_base_test_log()
+        self.init_loss_functions()
+        
+        indices = self.build_lookup_indices(self.image_count)
+        for i, idx in enumerate(indices):
+            self._test_step(i=i, idx=idx)
+            self.progress.emit(i+1)
+        self.finished.emit(self.output_dir)
 

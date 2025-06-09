@@ -305,14 +305,32 @@ class Ui_MainWindow(object):
         self.verticalLayout_52.setSpacing(0)
         self.verticalLayout_52.setObjectName(u"verticalLayout_52")
         self.verticalLayout_52.setContentsMargins(0, 0, 0, 0)
-        self.label_80 = QLabel(self.central_test_page)
-        self.label_80.setObjectName(u"label_80")
-        font3 = QFont()
-        font3.setPointSize(32)
-        self.label_80.setFont(font3)
-        self.label_80.setAlignment(Qt.AlignCenter)
+        self.scrollArea_9 = QScrollArea(self.central_test_page)
+        self.scrollArea_9.setObjectName(u"scrollArea_9")
+        self.scrollArea_9.setFrameShape(QFrame.Box)
+        self.scrollArea_9.setFrameShadow(QFrame.Sunken)
+        self.scrollArea_9.setLineWidth(3)
+        self.scrollArea_9.setWidgetResizable(True)
+        self.scrollAreaWidgetContents = QWidget()
+        self.scrollAreaWidgetContents.setObjectName(u"scrollAreaWidgetContents")
+        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 1377, 1031))
+        self.verticalLayout_58 = QVBoxLayout(self.scrollAreaWidgetContents)
+        self.verticalLayout_58.setObjectName(u"verticalLayout_58")
+        self.verticalLayout_58.setContentsMargins(3, 3, 3, 3)
+        self.test_image_frame = QFrame(self.scrollAreaWidgetContents)
+        self.test_image_frame.setObjectName(u"test_image_frame")
+        self.test_image_frame.setFrameShape(QFrame.StyledPanel)
+        self.test_image_frame.setFrameShadow(QFrame.Raised)
+        self.test_image_layout = QVBoxLayout(self.test_image_frame)
+        self.test_image_layout.setSpacing(0)
+        self.test_image_layout.setObjectName(u"test_image_layout")
+        self.test_image_layout.setContentsMargins(0, 0, 0, 0)
 
-        self.verticalLayout_52.addWidget(self.label_80)
+        self.verticalLayout_58.addWidget(self.test_image_frame)
+
+        self.scrollArea_9.setWidget(self.scrollAreaWidgetContents)
+
+        self.verticalLayout_52.addWidget(self.scrollArea_9)
 
         self.centralwidget_pages.addWidget(self.central_test_page)
         self.central_review_page = QWidget()
@@ -323,6 +341,8 @@ class Ui_MainWindow(object):
         self.verticalLayout_53.setContentsMargins(0, 0, 0, 0)
         self.label_81 = QLabel(self.central_review_page)
         self.label_81.setObjectName(u"label_81")
+        font3 = QFont()
+        font3.setPointSize(32)
         self.label_81.setFont(font3)
         self.label_81.setAlignment(Qt.AlignCenter)
 
@@ -3094,7 +3114,7 @@ class Ui_MainWindow(object):
         self.scrollArea_10.setWidgetResizable(True)
         self.testing_settings_container = QWidget()
         self.testing_settings_container.setObjectName(u"testing_settings_container")
-        self.testing_settings_container.setGeometry(QRect(0, 0, 419, 879))
+        self.testing_settings_container.setGeometry(QRect(0, 0, 419, 852))
         self.verticalLayout_44 = QVBoxLayout(self.testing_settings_container)
         self.verticalLayout_44.setObjectName(u"verticalLayout_44")
         self.verticalLayout_44.setContentsMargins(0, 0, 0, 0)
@@ -3182,23 +3202,54 @@ class Ui_MainWindow(object):
         self.label_58 = QLabel(self.frame_68)
         self.label_58.setObjectName(u"label_58")
 
-        self.formLayout_25.setWidget(0, QFormLayout.ItemRole.LabelRole, self.label_58)
+        self.formLayout_25.setWidget(1, QFormLayout.ItemRole.LabelRole, self.label_58)
 
         self.horizontalLayout_45 = QHBoxLayout()
         self.horizontalLayout_45.setObjectName(u"horizontalLayout_45")
         self.test_iterations_slider = QSlider(self.frame_68)
         self.test_iterations_slider.setObjectName(u"test_iterations_slider")
+        self.test_iterations_slider.setMinimum(1)
+        self.test_iterations_slider.setMaximum(999)
+        self.test_iterations_slider.setValue(10)
         self.test_iterations_slider.setOrientation(Qt.Horizontal)
 
         self.horizontalLayout_45.addWidget(self.test_iterations_slider)
 
         self.test_iterations = QSpinBox(self.frame_68)
         self.test_iterations.setObjectName(u"test_iterations")
+        self.test_iterations.setMinimum(1)
+        self.test_iterations.setMaximum(99999)
+        self.test_iterations.setSingleStep(5)
+        self.test_iterations.setValue(10)
 
         self.horizontalLayout_45.addWidget(self.test_iterations)
 
 
-        self.formLayout_25.setLayout(0, QFormLayout.ItemRole.FieldRole, self.horizontalLayout_45)
+        self.formLayout_25.setLayout(1, QFormLayout.ItemRole.FieldRole, self.horizontalLayout_45)
+
+        self.label_92 = QLabel(self.frame_68)
+        self.label_92.setObjectName(u"label_92")
+
+        self.formLayout_25.setWidget(0, QFormLayout.ItemRole.LabelRole, self.label_92)
+
+        self.horizontalLayout_65 = QHBoxLayout()
+        self.horizontalLayout_65.setObjectName(u"horizontalLayout_65")
+        self.test_load_epoch = QSpinBox(self.frame_68)
+        self.test_load_epoch.setObjectName(u"test_load_epoch")
+        self.test_load_epoch.setMinimum(1)
+        self.test_load_epoch.setMaximum(999999)
+
+        self.horizontalLayout_65.addWidget(self.test_load_epoch)
+
+        self.test_get_most_recent = QPushButton(self.frame_68)
+        self.test_get_most_recent.setObjectName(u"test_get_most_recent")
+        sizePolicy7.setHeightForWidth(self.test_get_most_recent.sizePolicy().hasHeightForWidth())
+        self.test_get_most_recent.setSizePolicy(sizePolicy7)
+
+        self.horizontalLayout_65.addWidget(self.test_get_most_recent)
+
+
+        self.formLayout_25.setLayout(0, QFormLayout.ItemRole.FieldRole, self.horizontalLayout_65)
 
 
         self.verticalLayout_41.addWidget(self.frame_68)
@@ -3274,6 +3325,14 @@ class Ui_MainWindow(object):
         self.test_start.setObjectName(u"test_start")
 
         self.verticalLayout_57.addWidget(self.test_start)
+
+        self.test_progress_label = QLabel(self.frame_79)
+        self.test_progress_label.setObjectName(u"test_progress_label")
+        sizePolicy1.setHeightForWidth(self.test_progress_label.sizePolicy().hasHeightForWidth())
+        self.test_progress_label.setSizePolicy(sizePolicy1)
+        self.test_progress_label.setAlignment(Qt.AlignCenter)
+
+        self.verticalLayout_57.addWidget(self.test_progress_label)
 
 
         self.verticalLayout_43.addWidget(self.frame_79)
@@ -3458,7 +3517,6 @@ class Ui_MainWindow(object):
         self.y_label.setText("")
         self.label_6.setText(QCoreApplication.translate("MainWindow", u"Generator Loss", None))
         self.label_22.setText(QCoreApplication.translate("MainWindow", u"Disciminator Loss", None))
-        self.label_80.setText(QCoreApplication.translate("MainWindow", u"Testing", None))
         self.label_81.setText(QCoreApplication.translate("MainWindow", u"Review", None))
         self.label_79.setText(QCoreApplication.translate("MainWindow", u"Utilities", None))
         self.utility_dock.setWindowTitle(QCoreApplication.translate("MainWindow", u"Lift for performance monitor / output log", None))
@@ -3648,6 +3706,8 @@ class Ui_MainWindow(object):
         self.label_91.setText(QCoreApplication.translate("MainWindow", u"Dataset Path", None))
         self.test_browse_dataset.setText(QCoreApplication.translate("MainWindow", u"Browse", None))
         self.label_58.setText(QCoreApplication.translate("MainWindow", u"Iterations", None))
+        self.label_92.setText(QCoreApplication.translate("MainWindow", u"Load Epoch", None))
+        self.test_get_most_recent.setText(QCoreApplication.translate("MainWindow", u"Most Recent", None))
         self.label_64.setText(QCoreApplication.translate("MainWindow", u"L1", None))
         self.test_do_l1.setText("")
         self.label_89.setText(QCoreApplication.translate("MainWindow", u"Sobel", None))
@@ -3655,6 +3715,7 @@ class Ui_MainWindow(object):
         self.test_do_sobel.setText("")
         self.test_do_laplacian.setText("")
         self.test_start.setText(QCoreApplication.translate("MainWindow", u"Begin Test", None))
+        self.test_progress_label.setText("")
         self.label_40.setText(QCoreApplication.translate("MainWindow", u"Review", None))
         self.label_66.setText(QCoreApplication.translate("MainWindow", u"Utilities", None))
         self.always_on_top.setText(QCoreApplication.translate("MainWindow", u"Always on Top", None))

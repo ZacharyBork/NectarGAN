@@ -187,6 +187,17 @@ QPushButton::hover#train_pause {
 QPushButton::pressed#train_pause {
     background-color: rgb(200, 200, 200); border-color: rgb(200, 200, 200);}
 
+QPushButton#test_start {
+    background-color: rgb(50, 150, 50);
+    color: rgb(35, 35, 35);
+    padding: 2px 2px 2px 2px;
+    border: 2px outset rgb(50, 100, 50);
+    border-radius: 12px;
+}
+QPushButton::hover#test_start {
+    background-color: rgb(50, 200, 50); border-color: rgb(50, 150, 50);}
+QPushButton::pressed#test_start {
+    background-color: rgb(200, 200, 200); border-color: rgb(200, 200, 200);}
 
 QPushButton#close_experiment_settings {
     background-color: rgb(50, 50, 50);
@@ -287,6 +298,7 @@ QPushButton::disabled#settings_settings_label {
 
 QLabel {
     color: rgb(200, 200, 200);
+    border: none;
 }
 QLabel#x_label {
     background-color: rgb(50, 50, 50);

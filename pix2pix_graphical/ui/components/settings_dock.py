@@ -97,9 +97,7 @@ class SettingsDock(QObject):
         try: stack.setCurrentIndex(index)
         except: pass
         match index:
-            case 0 | 1 | 2:
-                self.central_pages.setCurrentIndex(0)
-            case 3 | 4 | 5:
+            case 2 | 3 | 4 | 5:
                 self.central_pages.setCurrentIndex(index-2)
             case _: pass
 

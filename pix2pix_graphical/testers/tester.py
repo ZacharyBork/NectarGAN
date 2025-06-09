@@ -157,7 +157,7 @@ class Tester(Trainer):
             x: torch.Tensor, 
             y: torch.Tensor,
             y_fake: torch.Tensor
-        ) -> None:
+        ) -> list[str]:
         '''Exports [x, y, y_fake] images to the test output directory.
         
         Args:
@@ -165,12 +165,19 @@ class Tester(Trainer):
             x : The real input image tensor.
             y : The ground truth output tensor.
             y_fake : The generated fake output tensor.
+        
+        Returns:
+            list[str] : List containing the system paths of the exported files
+                as strings. They are in the order [x, y, y_fake].
         '''
         imgs = [(x, 'A_real'), (y, 'B_real'), (y_fake, 'B_fake')]
+        paths = []
         for img, id in imgs:
             filename = f'{index+1}_{id}.png'
             output_path = pathlib.Path(self.output_dir, filename)
             save_image(img * 0.5 + 0.5, output_path.as_posix())
+            paths.append(output_path.as_posix())
+        return paths
 
     def run_losses(
             self, 
@@ -211,6 +218,29 @@ class Tester(Trainer):
             list[int] : The list of indices.
         '''
         return random.sample(range(len(self.test_data)), count)
+    
+    def _test_step(self, i: int, idx: int) -> None:
+        data = self.test_data[idx]
+        x, y, y_fake = self.run_inference(data[0], data[1]).values()
+        image_paths = self.save_test_images(index=i, x=x, y=y, y_fake=y_fake)
+
+        losses = self.run_losses(y=y, y_fake=y_fake)
+        image_path = self.get_current_image_path(index=idx)
+        log_entry = {
+            'iteration': i+1,
+            'test_data_path': image_path,
+            'output': {
+                'x': image_paths[0],
+                'y': image_paths[1],
+                'y_fake': image_paths[2]
+            },
+            'losses': {
+                'L1': losses['L1'],
+                'SOBEL': losses['SOBEL'],
+                'LAPLACIAN': losses['LAPLACIAN']
+            } 
+        }
+        self._write_log_entry(entry=log_entry)
 
     def run_test(
             self, 
@@ -232,21 +262,4 @@ class Tester(Trainer):
         indices = self.build_lookup_indices(image_count)
         for i, idx in enumerate(indices):
             if not silent: print(f'Running test iteration {i+1}', flush=True)
-
-            data = self.test_data[i]
-            x, y, y_fake = self.run_inference(data[0], data[1]).values()
-            self.save_test_images(index=i, x=x, y=y, y_fake=y_fake)
-
-            losses = self.run_losses(y=y, y_fake=y_fake)
-            image_path = self.get_current_image_path(index=idx)
-            log_entry = {
-                'iteration': idx,
-                'test_data_path': image_path,
-                'losses': {
-                    'L1': losses['L1'],
-                    'SOBEL': losses['SOBEL'],
-                    'LAPLACIAN': losses['LAPLACIAN']
-                } 
-            }
-            self._write_log_entry(entry=log_entry)
-        
+            self._test_step(i=i, idx=idx)

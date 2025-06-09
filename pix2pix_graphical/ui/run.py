@@ -327,7 +327,8 @@ class Interface(QObject):
             mainwidget=self.mainwidget,
             confighelper=self.confighelper,
             log=self.log, status_msg_length=self.status_msg_length)
-        self.testerhelper = TesterHelper(mainwidget=self.mainwidget)
+        self.testerhelper = TesterHelper(
+            mainwidget=self.mainwidget, log=self.log)
         
 
         self.init_ui()
