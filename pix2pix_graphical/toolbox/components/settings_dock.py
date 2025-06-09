@@ -8,7 +8,7 @@ from PySide6.QtWidgets import (
     QWidget, QDockWidget, QLabel, QFrame, QPushButton, 
     QDockWidget, QStackedWidget)
 
-import pix2pix_graphical.ui.utils.common as utils
+import pix2pix_graphical.toolbox.utils.common as utils
 
 class SettingsDock(QObject):
     def __init__(self, mainwidget: QWidget):
@@ -36,7 +36,7 @@ class SettingsDock(QObject):
 
     def _init_training_animation(self) -> None:
         animation_filepath = files(
-            'pix2pix_graphical.ui.resources.gifs').joinpath('train_lock.gif')
+            'pix2pix_graphical.toolbox.resources.gifs').joinpath('train_lock.gif')
 
         self.train_lock_anim = QMovie(str(animation_filepath))
         self.train_lock_label = self.find(QLabel, 'train_page_locked_label')

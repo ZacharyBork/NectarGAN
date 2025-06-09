@@ -23,7 +23,8 @@ class SignalTimer():
             if self.slowest is None or self.elapsed > self.slowest: 
                 self.slowest = self.elapsed
             if self.fastest is None or self.elapsed < self.fastest: 
-                self.fastest = self.elapsed
+                # Stops the iter timer from reading fastest = 0.0
+                if self.elapsed > 0.0: self.fastest = self.elapsed
         self.previous = current
 
     def get_time(
