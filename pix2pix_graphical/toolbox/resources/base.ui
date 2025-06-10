@@ -10,6 +10,12 @@
     <height>1140</height>
    </rect>
   </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
@@ -611,7 +617,7 @@
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>1377</width>
+                <width>1364</width>
                 <height>997</height>
                </rect>
               </property>
@@ -3201,7 +3207,7 @@
            <item>
             <widget class="QStackedWidget" name="settings_pages">
              <property name="currentIndex">
-              <number>0</number>
+              <number>1</number>
              </property>
              <widget class="QWidget" name="experiment_page">
               <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -3233,8 +3239,8 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>419</width>
-                    <height>921</height>
+                    <width>432</width>
+                    <height>878</height>
                    </rect>
                   </property>
                   <layout class="QVBoxLayout" name="verticalLayout_11">
@@ -3254,14 +3260,14 @@
                     <number>3</number>
                    </property>
                    <item>
-                    <widget class="QFrame" name="frame_76">
+                    <widget class="QFrame" name="frame_87">
                      <property name="frameShape">
                       <enum>QFrame::StyledPanel</enum>
                      </property>
                      <property name="frameShadow">
                       <enum>QFrame::Raised</enum>
                      </property>
-                     <layout class="QHBoxLayout" name="horizontalLayout_63">
+                     <layout class="QHBoxLayout" name="horizontalLayout_76">
                       <property name="leftMargin">
                        <number>0</number>
                       </property>
@@ -3275,7 +3281,17 @@
                        <number>0</number>
                       </property>
                       <item>
-                       <widget class="QLabel" name="label_88">
+                       <widget class="Line" name="line_34">
+                        <property name="frameShadow">
+                         <enum>QFrame::Raised</enum>
+                        </property>
+                        <property name="orientation">
+                         <enum>Qt::Horizontal</enum>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QLabel" name="label_104">
                         <property name="sizePolicy">
                          <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
                           <horstretch>0</horstretch>
@@ -3284,7 +3300,7 @@
                         </property>
                         <property name="font">
                          <font>
-                          <pointsize>11</pointsize>
+                          <pointsize>14</pointsize>
                          </font>
                         </property>
                         <property name="frameShape">
@@ -3299,7 +3315,7 @@
                        </widget>
                       </item>
                       <item>
-                       <widget class="Line" name="line_21">
+                       <widget class="Line" name="line_35">
                         <property name="frameShadow">
                          <enum>QFrame::Raised</enum>
                         </property>
@@ -3385,21 +3401,14 @@
                     </widget>
                    </item>
                    <item>
-                    <widget class="QPushButton" name="init_from_last_train">
-                     <property name="text">
-                      <string>Initialize settings from most recent train</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <widget class="QFrame" name="frame_70">
+                    <widget class="QFrame" name="frame_88">
                      <property name="frameShape">
                       <enum>QFrame::StyledPanel</enum>
                      </property>
                      <property name="frameShadow">
                       <enum>QFrame::Raised</enum>
                      </property>
-                     <layout class="QHBoxLayout" name="horizontalLayout_59">
+                     <layout class="QHBoxLayout" name="horizontalLayout_77">
                       <property name="leftMargin">
                        <number>0</number>
                       </property>
@@ -3413,7 +3422,17 @@
                        <number>0</number>
                       </property>
                       <item>
-                       <widget class="QLabel" name="label_83">
+                       <widget class="Line" name="line_36">
+                        <property name="frameShadow">
+                         <enum>QFrame::Raised</enum>
+                        </property>
+                        <property name="orientation">
+                         <enum>Qt::Horizontal</enum>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QLabel" name="label_105">
                         <property name="sizePolicy">
                          <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
                           <horstretch>0</horstretch>
@@ -3422,7 +3441,7 @@
                         </property>
                         <property name="font">
                          <font>
-                          <pointsize>11</pointsize>
+                          <pointsize>14</pointsize>
                          </font>
                         </property>
                         <property name="frameShape">
@@ -3437,7 +3456,7 @@
                        </widget>
                       </item>
                       <item>
-                       <widget class="Line" name="line_20">
+                       <widget class="Line" name="line_37">
                         <property name="frameShadow">
                          <enum>QFrame::Raised</enum>
                         </property>
@@ -3484,14 +3503,14 @@
                     </widget>
                    </item>
                    <item>
-                    <widget class="QFrame" name="frame_69">
+                    <widget class="QFrame" name="frame_86">
                      <property name="frameShape">
                       <enum>QFrame::StyledPanel</enum>
                      </property>
                      <property name="frameShadow">
                       <enum>QFrame::Raised</enum>
                      </property>
-                     <layout class="QHBoxLayout" name="horizontalLayout_58">
+                     <layout class="QHBoxLayout" name="horizontalLayout_75">
                       <property name="leftMargin">
                        <number>0</number>
                       </property>
@@ -3505,7 +3524,17 @@
                        <number>0</number>
                       </property>
                       <item>
-                       <widget class="QLabel" name="label_82">
+                       <widget class="Line" name="line_33">
+                        <property name="frameShadow">
+                         <enum>QFrame::Raised</enum>
+                        </property>
+                        <property name="orientation">
+                         <enum>Qt::Horizontal</enum>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QLabel" name="label_103">
                         <property name="sizePolicy">
                          <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
                           <horstretch>0</horstretch>
@@ -3514,7 +3543,7 @@
                         </property>
                         <property name="font">
                          <font>
-                          <pointsize>11</pointsize>
+                          <pointsize>14</pointsize>
                          </font>
                         </property>
                         <property name="frameShape">
@@ -3529,7 +3558,7 @@
                        </widget>
                       </item>
                       <item>
-                       <widget class="Line" name="line_19">
+                       <widget class="Line" name="line_29">
                         <property name="frameShadow">
                          <enum>QFrame::Raised</enum>
                         </property>
@@ -3798,6 +3827,37 @@
                  </widget>
                 </widget>
                </item>
+               <item>
+                <widget class="QFrame" name="frame_50">
+                 <property name="frameShape">
+                  <enum>QFrame::Panel</enum>
+                 </property>
+                 <property name="frameShadow">
+                  <enum>QFrame::Sunken</enum>
+                 </property>
+                 <layout class="QVBoxLayout" name="verticalLayout_59">
+                  <property name="leftMargin">
+                   <number>3</number>
+                  </property>
+                  <property name="topMargin">
+                   <number>3</number>
+                  </property>
+                  <property name="rightMargin">
+                   <number>3</number>
+                  </property>
+                  <property name="bottomMargin">
+                   <number>3</number>
+                  </property>
+                  <item>
+                   <widget class="QPushButton" name="init_from_last_train">
+                    <property name="text">
+                     <string>Initialize settings from most recent train</string>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </widget>
+               </item>
               </layout>
              </widget>
              <widget class="QWidget" name="dataset_page">
@@ -3830,7 +3890,7 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>419</width>
+                    <width>432</width>
                     <height>921</height>
                    </rect>
                   </property>
@@ -3848,19 +3908,71 @@
                     <number>0</number>
                    </property>
                    <item>
-                    <widget class="QLabel" name="label_77">
-                     <property name="font">
-                      <font>
-                       <pointsize>14</pointsize>
-                       <underline>false</underline>
-                      </font>
+                    <widget class="QFrame" name="frame_84">
+                     <property name="frameShape">
+                      <enum>QFrame::StyledPanel</enum>
                      </property>
-                     <property name="text">
-                      <string>Files</string>
+                     <property name="frameShadow">
+                      <enum>QFrame::Raised</enum>
                      </property>
-                     <property name="alignment">
-                      <set>Qt::AlignCenter</set>
-                     </property>
+                     <layout class="QHBoxLayout" name="horizontalLayout_73">
+                      <property name="leftMargin">
+                       <number>0</number>
+                      </property>
+                      <property name="topMargin">
+                       <number>0</number>
+                      </property>
+                      <property name="rightMargin">
+                       <number>0</number>
+                      </property>
+                      <property name="bottomMargin">
+                       <number>0</number>
+                      </property>
+                      <item>
+                       <widget class="Line" name="line_31">
+                        <property name="frameShadow">
+                         <enum>QFrame::Raised</enum>
+                        </property>
+                        <property name="orientation">
+                         <enum>Qt::Horizontal</enum>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QLabel" name="label_101">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="font">
+                         <font>
+                          <pointsize>14</pointsize>
+                         </font>
+                        </property>
+                        <property name="frameShape">
+                         <enum>QFrame::NoFrame</enum>
+                        </property>
+                        <property name="frameShadow">
+                         <enum>QFrame::Raised</enum>
+                        </property>
+                        <property name="text">
+                         <string>Dataset Files</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="Line" name="line_27">
+                        <property name="frameShadow">
+                         <enum>QFrame::Raised</enum>
+                        </property>
+                        <property name="orientation">
+                         <enum>Qt::Horizontal</enum>
+                        </property>
+                       </widget>
+                      </item>
+                     </layout>
                     </widget>
                    </item>
                    <item>
@@ -4083,19 +4195,71 @@
                     </widget>
                    </item>
                    <item>
-                    <widget class="QLabel" name="label_78">
-                     <property name="font">
-                      <font>
-                       <pointsize>14</pointsize>
-                       <underline>false</underline>
-                      </font>
+                    <widget class="QFrame" name="frame_78">
+                     <property name="frameShape">
+                      <enum>QFrame::StyledPanel</enum>
                      </property>
-                     <property name="text">
-                      <string>Loading</string>
+                     <property name="frameShadow">
+                      <enum>QFrame::Raised</enum>
                      </property>
-                     <property name="alignment">
-                      <set>Qt::AlignCenter</set>
-                     </property>
+                     <layout class="QHBoxLayout" name="horizontalLayout_68">
+                      <property name="leftMargin">
+                       <number>0</number>
+                      </property>
+                      <property name="topMargin">
+                       <number>0</number>
+                      </property>
+                      <property name="rightMargin">
+                       <number>0</number>
+                      </property>
+                      <property name="bottomMargin">
+                       <number>0</number>
+                      </property>
+                      <item>
+                       <widget class="Line" name="line_30">
+                        <property name="frameShadow">
+                         <enum>QFrame::Raised</enum>
+                        </property>
+                        <property name="orientation">
+                         <enum>Qt::Horizontal</enum>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QLabel" name="label_95">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="font">
+                         <font>
+                          <pointsize>14</pointsize>
+                         </font>
+                        </property>
+                        <property name="frameShape">
+                         <enum>QFrame::NoFrame</enum>
+                        </property>
+                        <property name="frameShadow">
+                         <enum>QFrame::Raised</enum>
+                        </property>
+                        <property name="text">
+                         <string>Loading</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="Line" name="line_22">
+                        <property name="frameShadow">
+                         <enum>QFrame::Raised</enum>
+                        </property>
+                        <property name="orientation">
+                         <enum>Qt::Horizontal</enum>
+                        </property>
+                       </widget>
+                      </item>
+                     </layout>
                     </widget>
                    </item>
                    <item>
@@ -4189,116 +4353,23 @@
                     </widget>
                    </item>
                    <item>
-                    <widget class="QLabel" name="label_76">
-                     <property name="font">
-                      <font>
-                       <pointsize>14</pointsize>
-                       <underline>false</underline>
-                      </font>
-                     </property>
-                     <property name="text">
+                    <widget class="QGroupBox" name="groupBox_2">
+                     <property name="title">
                       <string>Augmentations</string>
                      </property>
-                     <property name="alignment">
-                      <set>Qt::AlignCenter</set>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <widget class="QFrame" name="frame_52">
-                     <property name="frameShape">
-                      <enum>QFrame::StyledPanel</enum>
-                     </property>
-                     <property name="frameShadow">
-                      <enum>QFrame::Raised</enum>
-                     </property>
-                     <layout class="QHBoxLayout" name="horizontalLayout_51">
-                      <property name="leftMargin">
-                       <number>0</number>
-                      </property>
-                      <property name="topMargin">
-                       <number>0</number>
-                      </property>
-                      <property name="rightMargin">
-                       <number>0</number>
-                      </property>
-                      <property name="bottomMargin">
-                       <number>0</number>
+                     <layout class="QVBoxLayout" name="verticalLayout_60">
+                      <property name="spacing">
+                       <number>3</number>
                       </property>
                       <item>
-                       <widget class="QLabel" name="label_69">
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
-                          <horstretch>0</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
-                        </property>
-                        <property name="font">
-                         <font>
-                          <pointsize>12</pointsize>
-                         </font>
-                        </property>
-                        <property name="text">
-                         <string>Input</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item>
-                       <widget class="Line" name="line_4">
-                        <property name="frameShadow">
-                         <enum>QFrame::Raised</enum>
-                        </property>
-                        <property name="orientation">
-                         <enum>Qt::Horizontal</enum>
-                        </property>
-                       </widget>
-                      </item>
-                     </layout>
-                    </widget>
-                   </item>
-                   <item>
-                    <widget class="QFrame" name="frame_65">
-                     <property name="frameShape">
-                      <enum>QFrame::StyledPanel</enum>
-                     </property>
-                     <property name="frameShadow">
-                      <enum>QFrame::Raised</enum>
-                     </property>
-                     <layout class="QFormLayout" name="formLayout_20">
-                      <property name="horizontalSpacing">
-                       <number>6</number>
-                      </property>
-                      <property name="verticalSpacing">
-                       <number>6</number>
-                      </property>
-                      <property name="leftMargin">
-                       <number>0</number>
-                      </property>
-                      <property name="topMargin">
-                       <number>0</number>
-                      </property>
-                      <property name="rightMargin">
-                       <number>0</number>
-                      </property>
-                      <property name="bottomMargin">
-                       <number>0</number>
-                      </property>
-                      <item row="0" column="0">
-                       <widget class="QLabel" name="label_74">
-                        <property name="text">
-                         <string>Colorjitter</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="0" column="1">
-                       <widget class="QFrame" name="frame_66">
+                       <widget class="QFrame" name="frame_52">
                         <property name="frameShape">
                          <enum>QFrame::StyledPanel</enum>
                         </property>
                         <property name="frameShadow">
                          <enum>QFrame::Raised</enum>
                         </property>
-                        <layout class="QHBoxLayout" name="horizontalLayout_56">
+                        <layout class="QHBoxLayout" name="horizontalLayout_51">
                          <property name="leftMargin">
                           <number>0</number>
                          </property>
@@ -4312,50 +4383,189 @@
                           <number>0</number>
                          </property>
                          <item>
-                          <widget class="QSlider" name="colorjitter_chance_slider">
-                           <property name="maximum">
-                            <number>100</number>
+                          <widget class="QLabel" name="label_69">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
                            </property>
-                           <property name="orientation">
-                            <enum>Qt::Horizontal</enum>
+                           <property name="font">
+                            <font>
+                             <pointsize>12</pointsize>
+                            </font>
                            </property>
-                           <property name="tickPosition">
-                            <enum>QSlider::NoTicks</enum>
-                           </property>
-                           <property name="tickInterval">
-                            <number>10</number>
+                           <property name="text">
+                            <string>Input</string>
                            </property>
                           </widget>
                          </item>
                          <item>
-                          <widget class="QDoubleSpinBox" name="colorjitter_chance">
-                           <property name="suffix">
-                            <string>%</string>
+                          <widget class="Line" name="line_4">
+                           <property name="frameShadow">
+                            <enum>QFrame::Raised</enum>
                            </property>
-                           <property name="decimals">
-                            <number>1</number>
+                           <property name="orientation">
+                            <enum>Qt::Horizontal</enum>
                            </property>
                           </widget>
                          </item>
                         </layout>
                        </widget>
                       </item>
-                      <item row="1" column="0">
-                       <widget class="QLabel" name="label_75">
-                        <property name="text">
-                         <string>Colorjitter Range</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="1" column="1">
-                       <widget class="QFrame" name="frame_67">
+                      <item>
+                       <widget class="QFrame" name="frame_65">
                         <property name="frameShape">
                          <enum>QFrame::StyledPanel</enum>
                         </property>
                         <property name="frameShadow">
                          <enum>QFrame::Raised</enum>
                         </property>
-                        <layout class="QHBoxLayout" name="horizontalLayout_57">
+                        <layout class="QFormLayout" name="formLayout_20">
+                         <property name="horizontalSpacing">
+                          <number>6</number>
+                         </property>
+                         <property name="verticalSpacing">
+                          <number>6</number>
+                         </property>
+                         <property name="leftMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="topMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="rightMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="bottomMargin">
+                          <number>0</number>
+                         </property>
+                         <item row="0" column="0">
+                          <widget class="QLabel" name="label_74">
+                           <property name="text">
+                            <string>Colorjitter</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="0" column="1">
+                          <widget class="QFrame" name="frame_66">
+                           <property name="frameShape">
+                            <enum>QFrame::StyledPanel</enum>
+                           </property>
+                           <property name="frameShadow">
+                            <enum>QFrame::Raised</enum>
+                           </property>
+                           <layout class="QHBoxLayout" name="horizontalLayout_56">
+                            <property name="leftMargin">
+                             <number>0</number>
+                            </property>
+                            <property name="topMargin">
+                             <number>0</number>
+                            </property>
+                            <property name="rightMargin">
+                             <number>0</number>
+                            </property>
+                            <property name="bottomMargin">
+                             <number>0</number>
+                            </property>
+                            <item>
+                             <widget class="QSlider" name="colorjitter_chance_slider">
+                              <property name="maximum">
+                               <number>100</number>
+                              </property>
+                              <property name="orientation">
+                               <enum>Qt::Horizontal</enum>
+                              </property>
+                              <property name="tickPosition">
+                               <enum>QSlider::NoTicks</enum>
+                              </property>
+                              <property name="tickInterval">
+                               <number>10</number>
+                              </property>
+                             </widget>
+                            </item>
+                            <item>
+                             <widget class="QDoubleSpinBox" name="colorjitter_chance">
+                              <property name="suffix">
+                               <string>%</string>
+                              </property>
+                              <property name="decimals">
+                               <number>1</number>
+                              </property>
+                             </widget>
+                            </item>
+                           </layout>
+                          </widget>
+                         </item>
+                         <item row="1" column="0">
+                          <widget class="QLabel" name="label_75">
+                           <property name="text">
+                            <string>Colorjitter Range</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="1" column="1">
+                          <widget class="QFrame" name="frame_67">
+                           <property name="frameShape">
+                            <enum>QFrame::StyledPanel</enum>
+                           </property>
+                           <property name="frameShadow">
+                            <enum>QFrame::Raised</enum>
+                           </property>
+                           <layout class="QHBoxLayout" name="horizontalLayout_57">
+                            <property name="leftMargin">
+                             <number>0</number>
+                            </property>
+                            <property name="topMargin">
+                             <number>0</number>
+                            </property>
+                            <property name="rightMargin">
+                             <number>0</number>
+                            </property>
+                            <property name="bottomMargin">
+                             <number>0</number>
+                            </property>
+                            <item>
+                             <widget class="QDoubleSpinBox" name="colorjitter_brightness_0">
+                              <property name="maximum">
+                               <double>2.500000000000000</double>
+                              </property>
+                              <property name="singleStep">
+                               <double>0.050000000000000</double>
+                              </property>
+                              <property name="value">
+                               <double>0.800000000000000</double>
+                              </property>
+                             </widget>
+                            </item>
+                            <item>
+                             <widget class="QDoubleSpinBox" name="colorjitter_brightness_1">
+                              <property name="maximum">
+                               <double>2.500000000000000</double>
+                              </property>
+                              <property name="singleStep">
+                               <double>0.050000000000000</double>
+                              </property>
+                              <property name="value">
+                               <double>1.200000000000000</double>
+                              </property>
+                             </widget>
+                            </item>
+                           </layout>
+                          </widget>
+                         </item>
+                        </layout>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QFrame" name="frame_60">
+                        <property name="frameShape">
+                         <enum>QFrame::StyledPanel</enum>
+                        </property>
+                        <property name="frameShadow">
+                         <enum>QFrame::Raised</enum>
+                        </property>
+                        <layout class="QHBoxLayout" name="horizontalLayout_52">
                          <property name="leftMargin">
                           <number>0</number>
                          </property>
@@ -4369,184 +4579,45 @@
                           <number>0</number>
                          </property>
                          <item>
-                          <widget class="QDoubleSpinBox" name="colorjitter_brightness_0">
-                           <property name="maximum">
-                            <double>2.500000000000000</double>
+                          <widget class="QLabel" name="label_70">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
                            </property>
-                           <property name="singleStep">
-                            <double>0.050000000000000</double>
+                           <property name="font">
+                            <font>
+                             <pointsize>12</pointsize>
+                            </font>
                            </property>
-                           <property name="value">
-                            <double>0.800000000000000</double>
+                           <property name="text">
+                            <string>Target</string>
                            </property>
                           </widget>
                          </item>
                          <item>
-                          <widget class="QDoubleSpinBox" name="colorjitter_brightness_1">
-                           <property name="maximum">
-                            <double>2.500000000000000</double>
+                          <widget class="Line" name="line_6">
+                           <property name="frameShadow">
+                            <enum>QFrame::Raised</enum>
                            </property>
-                           <property name="singleStep">
-                            <double>0.050000000000000</double>
-                           </property>
-                           <property name="value">
-                            <double>1.200000000000000</double>
+                           <property name="orientation">
+                            <enum>Qt::Horizontal</enum>
                            </property>
                           </widget>
                          </item>
                         </layout>
                        </widget>
                       </item>
-                     </layout>
-                    </widget>
-                   </item>
-                   <item>
-                    <widget class="QFrame" name="frame_60">
-                     <property name="frameShape">
-                      <enum>QFrame::StyledPanel</enum>
-                     </property>
-                     <property name="frameShadow">
-                      <enum>QFrame::Raised</enum>
-                     </property>
-                     <layout class="QHBoxLayout" name="horizontalLayout_52">
-                      <property name="leftMargin">
-                       <number>0</number>
-                      </property>
-                      <property name="topMargin">
-                       <number>0</number>
-                      </property>
-                      <property name="rightMargin">
-                       <number>0</number>
-                      </property>
-                      <property name="bottomMargin">
-                       <number>0</number>
-                      </property>
                       <item>
-                       <widget class="QLabel" name="label_70">
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
-                          <horstretch>0</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
-                        </property>
-                        <property name="font">
-                         <font>
-                          <pointsize>12</pointsize>
-                         </font>
-                        </property>
-                        <property name="text">
-                         <string>Target</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item>
-                       <widget class="Line" name="line_6">
-                        <property name="frameShadow">
-                         <enum>QFrame::Raised</enum>
-                        </property>
-                        <property name="orientation">
-                         <enum>Qt::Horizontal</enum>
-                        </property>
-                       </widget>
-                      </item>
-                     </layout>
-                    </widget>
-                   </item>
-                   <item>
-                    <widget class="QFrame" name="frame_51">
-                     <property name="frameShape">
-                      <enum>QFrame::StyledPanel</enum>
-                     </property>
-                     <property name="frameShadow">
-                      <enum>QFrame::Raised</enum>
-                     </property>
-                     <layout class="QHBoxLayout" name="horizontalLayout_30">
-                      <property name="leftMargin">
-                       <number>0</number>
-                      </property>
-                      <property name="topMargin">
-                       <number>0</number>
-                      </property>
-                      <property name="rightMargin">
-                       <number>0</number>
-                      </property>
-                      <property name="bottomMargin">
-                       <number>0</number>
-                      </property>
-                      <item>
-                       <widget class="QLabel" name="label_68">
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
-                          <horstretch>0</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
-                        </property>
-                        <property name="font">
-                         <font>
-                          <pointsize>12</pointsize>
-                         </font>
-                        </property>
-                        <property name="text">
-                         <string>Both</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item>
-                       <widget class="Line" name="line_3">
-                        <property name="frameShadow">
-                         <enum>QFrame::Raised</enum>
-                        </property>
-                        <property name="orientation">
-                         <enum>Qt::Horizontal</enum>
-                        </property>
-                       </widget>
-                      </item>
-                     </layout>
-                    </widget>
-                   </item>
-                   <item>
-                    <widget class="QFrame" name="frame_61">
-                     <property name="frameShape">
-                      <enum>QFrame::StyledPanel</enum>
-                     </property>
-                     <property name="frameShadow">
-                      <enum>QFrame::Raised</enum>
-                     </property>
-                     <layout class="QFormLayout" name="formLayout">
-                      <property name="horizontalSpacing">
-                       <number>6</number>
-                      </property>
-                      <property name="verticalSpacing">
-                       <number>6</number>
-                      </property>
-                      <property name="leftMargin">
-                       <number>0</number>
-                      </property>
-                      <property name="topMargin">
-                       <number>0</number>
-                      </property>
-                      <property name="rightMargin">
-                       <number>0</number>
-                      </property>
-                      <property name="bottomMargin">
-                       <number>0</number>
-                      </property>
-                      <item row="0" column="0">
-                       <widget class="QLabel" name="label_71">
-                        <property name="text">
-                         <string>Horizontal Flip</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="0" column="1">
-                       <widget class="QFrame" name="frame_62">
+                       <widget class="QFrame" name="frame_51">
                         <property name="frameShape">
                          <enum>QFrame::StyledPanel</enum>
                         </property>
                         <property name="frameShadow">
                          <enum>QFrame::Raised</enum>
                         </property>
-                        <layout class="QHBoxLayout" name="horizontalLayout_53">
+                        <layout class="QHBoxLayout" name="horizontalLayout_30">
                          <property name="leftMargin">
                           <number>0</number>
                          </property>
@@ -4560,57 +4631,51 @@
                           <number>0</number>
                          </property>
                          <item>
-                          <widget class="QSlider" name="h_flip_chance_slider">
-                           <property name="maximum">
-                            <number>100</number>
+                          <widget class="QLabel" name="label_68">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
                            </property>
-                           <property name="orientation">
-                            <enum>Qt::Horizontal</enum>
+                           <property name="font">
+                            <font>
+                             <pointsize>12</pointsize>
+                            </font>
                            </property>
-                           <property name="tickPosition">
-                            <enum>QSlider::NoTicks</enum>
-                           </property>
-                           <property name="tickInterval">
-                            <number>10</number>
+                           <property name="text">
+                            <string>Both</string>
                            </property>
                           </widget>
                          </item>
                          <item>
-                          <widget class="QDoubleSpinBox" name="h_flip_chance">
-                           <property name="suffix">
-                            <string>%</string>
+                          <widget class="Line" name="line_3">
+                           <property name="frameShadow">
+                            <enum>QFrame::Raised</enum>
                            </property>
-                           <property name="decimals">
-                            <number>1</number>
+                           <property name="orientation">
+                            <enum>Qt::Horizontal</enum>
                            </property>
                           </widget>
                          </item>
                         </layout>
                        </widget>
                       </item>
-                      <item row="1" column="0">
-                       <widget class="QLabel" name="label_72">
-                        <property name="text">
-                         <string>Vertical Flip</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="2" column="0">
-                       <widget class="QLabel" name="label_73">
-                        <property name="text">
-                         <string>90° Rotation</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="1" column="1">
-                       <widget class="QFrame" name="frame_64">
+                      <item>
+                       <widget class="QFrame" name="frame_61">
                         <property name="frameShape">
                          <enum>QFrame::StyledPanel</enum>
                         </property>
                         <property name="frameShadow">
                          <enum>QFrame::Raised</enum>
                         </property>
-                        <layout class="QHBoxLayout" name="horizontalLayout_55">
+                        <layout class="QFormLayout" name="formLayout">
+                         <property name="horizontalSpacing">
+                          <number>6</number>
+                         </property>
+                         <property name="verticalSpacing">
+                          <number>6</number>
+                         </property>
                          <property name="leftMargin">
                           <number>0</number>
                          </property>
@@ -4623,80 +4688,175 @@
                          <property name="bottomMargin">
                           <number>0</number>
                          </property>
-                         <item>
-                          <widget class="QSlider" name="v_flip_chance_slider">
-                           <property name="maximum">
-                            <number>100</number>
-                           </property>
-                           <property name="orientation">
-                            <enum>Qt::Horizontal</enum>
-                           </property>
-                           <property name="tickPosition">
-                            <enum>QSlider::NoTicks</enum>
-                           </property>
-                           <property name="tickInterval">
-                            <number>10</number>
+                         <item row="0" column="0">
+                          <widget class="QLabel" name="label_71">
+                           <property name="text">
+                            <string>Horizontal Flip</string>
                            </property>
                           </widget>
                          </item>
-                         <item>
-                          <widget class="QDoubleSpinBox" name="v_flip_chance">
-                           <property name="suffix">
-                            <string>%</string>
+                         <item row="0" column="1">
+                          <widget class="QFrame" name="frame_62">
+                           <property name="frameShape">
+                            <enum>QFrame::StyledPanel</enum>
                            </property>
-                           <property name="decimals">
-                            <number>1</number>
+                           <property name="frameShadow">
+                            <enum>QFrame::Raised</enum>
+                           </property>
+                           <layout class="QHBoxLayout" name="horizontalLayout_53">
+                            <property name="leftMargin">
+                             <number>0</number>
+                            </property>
+                            <property name="topMargin">
+                             <number>0</number>
+                            </property>
+                            <property name="rightMargin">
+                             <number>0</number>
+                            </property>
+                            <property name="bottomMargin">
+                             <number>0</number>
+                            </property>
+                            <item>
+                             <widget class="QSlider" name="h_flip_chance_slider">
+                              <property name="maximum">
+                               <number>100</number>
+                              </property>
+                              <property name="orientation">
+                               <enum>Qt::Horizontal</enum>
+                              </property>
+                              <property name="tickPosition">
+                               <enum>QSlider::NoTicks</enum>
+                              </property>
+                              <property name="tickInterval">
+                               <number>10</number>
+                              </property>
+                             </widget>
+                            </item>
+                            <item>
+                             <widget class="QDoubleSpinBox" name="h_flip_chance">
+                              <property name="suffix">
+                               <string>%</string>
+                              </property>
+                              <property name="decimals">
+                               <number>1</number>
+                              </property>
+                             </widget>
+                            </item>
+                           </layout>
+                          </widget>
+                         </item>
+                         <item row="1" column="0">
+                          <widget class="QLabel" name="label_72">
+                           <property name="text">
+                            <string>Vertical Flip</string>
                            </property>
                           </widget>
                          </item>
-                        </layout>
-                       </widget>
-                      </item>
-                      <item row="2" column="1">
-                       <widget class="QFrame" name="frame_63">
-                        <property name="frameShape">
-                         <enum>QFrame::StyledPanel</enum>
-                        </property>
-                        <property name="frameShadow">
-                         <enum>QFrame::Raised</enum>
-                        </property>
-                        <layout class="QHBoxLayout" name="horizontalLayout_54">
-                         <property name="leftMargin">
-                          <number>0</number>
-                         </property>
-                         <property name="topMargin">
-                          <number>0</number>
-                         </property>
-                         <property name="rightMargin">
-                          <number>0</number>
-                         </property>
-                         <property name="bottomMargin">
-                          <number>0</number>
-                         </property>
-                         <item>
-                          <widget class="QSlider" name="rot90_chance_slider">
-                           <property name="maximum">
-                            <number>100</number>
-                           </property>
-                           <property name="orientation">
-                            <enum>Qt::Horizontal</enum>
-                           </property>
-                           <property name="tickPosition">
-                            <enum>QSlider::NoTicks</enum>
-                           </property>
-                           <property name="tickInterval">
-                            <number>10</number>
+                         <item row="2" column="0">
+                          <widget class="QLabel" name="label_73">
+                           <property name="text">
+                            <string>90° Rotation</string>
                            </property>
                           </widget>
                          </item>
-                         <item>
-                          <widget class="QDoubleSpinBox" name="rot90_chance">
-                           <property name="suffix">
-                            <string>%</string>
+                         <item row="1" column="1">
+                          <widget class="QFrame" name="frame_64">
+                           <property name="frameShape">
+                            <enum>QFrame::StyledPanel</enum>
                            </property>
-                           <property name="decimals">
-                            <number>1</number>
+                           <property name="frameShadow">
+                            <enum>QFrame::Raised</enum>
                            </property>
+                           <layout class="QHBoxLayout" name="horizontalLayout_55">
+                            <property name="leftMargin">
+                             <number>0</number>
+                            </property>
+                            <property name="topMargin">
+                             <number>0</number>
+                            </property>
+                            <property name="rightMargin">
+                             <number>0</number>
+                            </property>
+                            <property name="bottomMargin">
+                             <number>0</number>
+                            </property>
+                            <item>
+                             <widget class="QSlider" name="v_flip_chance_slider">
+                              <property name="maximum">
+                               <number>100</number>
+                              </property>
+                              <property name="orientation">
+                               <enum>Qt::Horizontal</enum>
+                              </property>
+                              <property name="tickPosition">
+                               <enum>QSlider::NoTicks</enum>
+                              </property>
+                              <property name="tickInterval">
+                               <number>10</number>
+                              </property>
+                             </widget>
+                            </item>
+                            <item>
+                             <widget class="QDoubleSpinBox" name="v_flip_chance">
+                              <property name="suffix">
+                               <string>%</string>
+                              </property>
+                              <property name="decimals">
+                               <number>1</number>
+                              </property>
+                             </widget>
+                            </item>
+                           </layout>
+                          </widget>
+                         </item>
+                         <item row="2" column="1">
+                          <widget class="QFrame" name="frame_63">
+                           <property name="frameShape">
+                            <enum>QFrame::StyledPanel</enum>
+                           </property>
+                           <property name="frameShadow">
+                            <enum>QFrame::Raised</enum>
+                           </property>
+                           <layout class="QHBoxLayout" name="horizontalLayout_54">
+                            <property name="leftMargin">
+                             <number>0</number>
+                            </property>
+                            <property name="topMargin">
+                             <number>0</number>
+                            </property>
+                            <property name="rightMargin">
+                             <number>0</number>
+                            </property>
+                            <property name="bottomMargin">
+                             <number>0</number>
+                            </property>
+                            <item>
+                             <widget class="QSlider" name="rot90_chance_slider">
+                              <property name="maximum">
+                               <number>100</number>
+                              </property>
+                              <property name="orientation">
+                               <enum>Qt::Horizontal</enum>
+                              </property>
+                              <property name="tickPosition">
+                               <enum>QSlider::NoTicks</enum>
+                              </property>
+                              <property name="tickInterval">
+                               <number>10</number>
+                              </property>
+                             </widget>
+                            </item>
+                            <item>
+                             <widget class="QDoubleSpinBox" name="rot90_chance">
+                              <property name="suffix">
+                               <string>%</string>
+                              </property>
+                              <property name="decimals">
+                               <number>1</number>
+                              </property>
+                             </widget>
+                            </item>
+                           </layout>
                           </widget>
                          </item>
                         </layout>
@@ -4773,7 +4933,7 @@
                        <rect>
                         <x>0</x>
                         <y>0</y>
-                        <width>419</width>
+                        <width>432</width>
                         <height>814</height>
                        </rect>
                       </property>
@@ -4815,34 +4975,96 @@
                            <number>0</number>
                           </property>
                           <item>
-                           <widget class="QGroupBox" name="continue_train">
-                            <property name="sizePolicy">
-                             <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
-                              <horstretch>0</horstretch>
-                              <verstretch>0</verstretch>
-                             </sizepolicy>
+                           <widget class="QFrame" name="frame_85">
+                            <property name="frameShape">
+                             <enum>QFrame::StyledPanel</enum>
                             </property>
-                            <property name="title">
-                             <string>Continue Train</string>
+                            <property name="frameShadow">
+                             <enum>QFrame::Raised</enum>
                             </property>
-                            <property name="checkable">
-                             <bool>true</bool>
-                            </property>
-                            <property name="checked">
-                             <bool>false</bool>
-                            </property>
-                            <layout class="QHBoxLayout" name="horizontalLayout_16">
+                            <layout class="QHBoxLayout" name="horizontalLayout_74">
                              <property name="leftMargin">
-                              <number>5</number>
+                              <number>0</number>
                              </property>
                              <property name="topMargin">
-                              <number>5</number>
+                              <number>0</number>
                              </property>
                              <property name="rightMargin">
-                              <number>5</number>
+                              <number>0</number>
                              </property>
                              <property name="bottomMargin">
-                              <number>5</number>
+                              <number>0</number>
+                             </property>
+                             <item>
+                              <widget class="QCheckBox" name="continue_train">
+                               <property name="sizePolicy">
+                                <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+                                 <horstretch>0</horstretch>
+                                 <verstretch>0</verstretch>
+                                </sizepolicy>
+                               </property>
+                               <property name="text">
+                                <string/>
+                               </property>
+                              </widget>
+                             </item>
+                             <item>
+                              <widget class="QLabel" name="label_102">
+                               <property name="sizePolicy">
+                                <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+                                 <horstretch>0</horstretch>
+                                 <verstretch>0</verstretch>
+                                </sizepolicy>
+                               </property>
+                               <property name="font">
+                                <font>
+                                 <pointsize>11</pointsize>
+                                </font>
+                               </property>
+                               <property name="frameShape">
+                                <enum>QFrame::NoFrame</enum>
+                               </property>
+                               <property name="frameShadow">
+                                <enum>QFrame::Raised</enum>
+                               </property>
+                               <property name="text">
+                                <string>Continue Train</string>
+                               </property>
+                              </widget>
+                             </item>
+                             <item>
+                              <widget class="Line" name="line_28">
+                               <property name="frameShadow">
+                                <enum>QFrame::Raised</enum>
+                               </property>
+                               <property name="orientation">
+                                <enum>Qt::Horizontal</enum>
+                               </property>
+                              </widget>
+                             </item>
+                            </layout>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QFrame" name="continue_train_settings">
+                            <property name="frameShape">
+                             <enum>QFrame::StyledPanel</enum>
+                            </property>
+                            <property name="frameShadow">
+                             <enum>QFrame::Raised</enum>
+                            </property>
+                            <layout class="QHBoxLayout" name="horizontalLayout_58">
+                             <property name="leftMargin">
+                              <number>0</number>
+                             </property>
+                             <property name="topMargin">
+                              <number>0</number>
+                             </property>
+                             <property name="rightMargin">
+                              <number>0</number>
+                             </property>
+                             <property name="bottomMargin">
+                              <number>0</number>
                              </property>
                              <item>
                               <widget class="QLabel" name="label_16">
@@ -4874,7 +5096,7 @@
                                </property>
                                <property name="sizeHint" stdset="0">
                                 <size>
-                                 <width>40</width>
+                                 <width>257</width>
                                  <height>20</height>
                                 </size>
                                </property>
@@ -4933,8 +5155,8 @@
                                   <rect>
                                    <x>0</x>
                                    <y>0</y>
-                                   <width>409</width>
-                                   <height>710</height>
+                                   <width>422</width>
+                                   <height>713</height>
                                   </rect>
                                  </property>
                                  <layout class="QVBoxLayout" name="verticalLayout_15">
@@ -5391,8 +5613,8 @@
                                   <rect>
                                    <x>0</x>
                                    <y>0</y>
-                                   <width>409</width>
-                                   <height>710</height>
+                                   <width>422</width>
+                                   <height>713</height>
                                   </rect>
                                  </property>
                                  <layout class="QVBoxLayout" name="verticalLayout_36">
@@ -5880,8 +6102,8 @@
                                   <rect>
                                    <x>0</x>
                                    <y>0</y>
-                                   <width>409</width>
-                                   <height>710</height>
+                                   <width>422</width>
+                                   <height>713</height>
                                   </rect>
                                  </property>
                                  <layout class="QVBoxLayout" name="verticalLayout_16">
@@ -6103,8 +6325,8 @@
                                   <rect>
                                    <x>0</x>
                                    <y>0</y>
-                                   <width>409</width>
-                                   <height>710</height>
+                                   <width>422</width>
+                                   <height>713</height>
                                   </rect>
                                  </property>
                                  <layout class="QVBoxLayout" name="verticalLayout_18">
@@ -6395,8 +6617,8 @@
                                   <rect>
                                    <x>0</x>
                                    <y>0</y>
-                                   <width>409</width>
-                                   <height>710</height>
+                                   <width>422</width>
+                                   <height>713</height>
                                   </rect>
                                  </property>
                                  <layout class="QVBoxLayout" name="verticalLayout_21">
@@ -6682,6 +6904,9 @@
                </property>
                <item>
                 <widget class="QScrollArea" name="scrollArea_10">
+                 <property name="frameShadow">
+                  <enum>QFrame::Raised</enum>
+                 </property>
                  <property name="widgetResizable">
                   <bool>true</bool>
                  </property>
@@ -6690,7 +6915,7 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>419</width>
+                    <width>432</width>
                     <height>852</height>
                    </rect>
                   </property>
@@ -6716,6 +6941,9 @@
                       <enum>QFrame::Raised</enum>
                      </property>
                      <layout class="QVBoxLayout" name="verticalLayout_41">
+                      <property name="spacing">
+                       <number>3</number>
+                      </property>
                       <property name="leftMargin">
                        <number>3</number>
                       </property>
@@ -6729,81 +6957,59 @@
                        <number>3</number>
                       </property>
                       <item>
-                       <widget class="QCheckBox" name="test_override_experiment_path">
-                        <property name="text">
-                         <string>Override Experiment Settings</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item>
-                       <widget class="QFrame" name="frame_45">
+                       <widget class="QFrame" name="frame_82">
                         <property name="frameShape">
                          <enum>QFrame::StyledPanel</enum>
                         </property>
                         <property name="frameShadow">
                          <enum>QFrame::Raised</enum>
                         </property>
-                        <layout class="QFormLayout" name="formLayout_23">
-                         <item row="0" column="0">
-                          <widget class="QLabel" name="label_23">
+                        <layout class="QHBoxLayout" name="horizontalLayout_71">
+                         <property name="leftMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="topMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="rightMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="bottomMargin">
+                          <number>0</number>
+                         </property>
+                         <item>
+                          <widget class="QLabel" name="label_98">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="font">
+                            <font>
+                             <pointsize>14</pointsize>
+                            </font>
+                           </property>
+                           <property name="frameShape">
+                            <enum>QFrame::NoFrame</enum>
+                           </property>
+                           <property name="frameShadow">
+                            <enum>QFrame::Raised</enum>
+                           </property>
                            <property name="text">
-                            <string>Experiment Path</string>
+                            <string>Test Settings</string>
                            </property>
                           </widget>
                          </item>
-                         <item row="0" column="1">
-                          <layout class="QHBoxLayout" name="horizontalLayout_39">
-                           <item>
-                            <widget class="QLineEdit" name="test_experiment_path"/>
-                           </item>
-                           <item>
-                            <widget class="QPushButton" name="test_browse_experiment">
-                             <property name="text">
-                              <string>Browse</string>
-                             </property>
-                            </widget>
-                           </item>
-                          </layout>
-                         </item>
-                        </layout>
-                       </widget>
-                      </item>
-                      <item>
-                       <widget class="QCheckBox" name="test_override_dataset">
-                        <property name="text">
-                         <string>Override Dataset Settings</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item>
-                       <widget class="QFrame" name="frame_78">
-                        <property name="frameShape">
-                         <enum>QFrame::StyledPanel</enum>
-                        </property>
-                        <property name="frameShadow">
-                         <enum>QFrame::Raised</enum>
-                        </property>
-                        <layout class="QFormLayout" name="formLayout_26">
-                         <item row="0" column="0">
-                          <widget class="QLabel" name="label_91">
-                           <property name="text">
-                            <string>Dataset Path</string>
+                         <item>
+                          <widget class="Line" name="line_25">
+                           <property name="frameShadow">
+                            <enum>QFrame::Raised</enum>
+                           </property>
+                           <property name="orientation">
+                            <enum>Qt::Horizontal</enum>
                            </property>
                           </widget>
-                         </item>
-                         <item row="0" column="1">
-                          <layout class="QHBoxLayout" name="horizontalLayout_64">
-                           <item>
-                            <widget class="QLineEdit" name="test_dataset_path"/>
-                           </item>
-                           <item>
-                            <widget class="QPushButton" name="test_browse_dataset">
-                             <property name="text">
-                              <string>Browse</string>
-                             </property>
-                            </widget>
-                           </item>
-                          </layout>
                          </item>
                         </layout>
                        </widget>
@@ -6817,10 +7023,22 @@
                          <enum>QFrame::Raised</enum>
                         </property>
                         <layout class="QFormLayout" name="formLayout_25">
+                         <property name="leftMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="topMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="rightMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="bottomMargin">
+                          <number>0</number>
+                         </property>
                          <item row="1" column="0">
                           <widget class="QLabel" name="label_58">
                            <property name="text">
-                            <string>Iterations</string>
+                            <string>Test Iterations</string>
                            </property>
                           </widget>
                          </item>
@@ -6869,6 +7087,9 @@
                          </item>
                          <item row="0" column="1">
                           <layout class="QHBoxLayout" name="horizontalLayout_65">
+                           <property name="spacing">
+                            <number>2</number>
+                           </property>
                            <item>
                             <widget class="QSpinBox" name="test_load_epoch">
                              <property name="minimum">
@@ -6898,7 +7119,316 @@
                        </widget>
                       </item>
                       <item>
-                       <widget class="QFrame" name="frame_50">
+                       <widget class="QFrame" name="frame_80">
+                        <property name="frameShape">
+                         <enum>QFrame::StyledPanel</enum>
+                        </property>
+                        <property name="frameShadow">
+                         <enum>QFrame::Raised</enum>
+                        </property>
+                        <layout class="QHBoxLayout" name="horizontalLayout_69">
+                         <property name="leftMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="topMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="rightMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="bottomMargin">
+                          <number>0</number>
+                         </property>
+                         <item>
+                          <widget class="QCheckBox" name="test_override_experiment_path">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="text">
+                            <string/>
+                           </property>
+                          </widget>
+                         </item>
+                         <item>
+                          <widget class="QLabel" name="label_96">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="font">
+                            <font>
+                             <pointsize>14</pointsize>
+                            </font>
+                           </property>
+                           <property name="frameShape">
+                            <enum>QFrame::NoFrame</enum>
+                           </property>
+                           <property name="frameShadow">
+                            <enum>QFrame::Raised</enum>
+                           </property>
+                           <property name="text">
+                            <string>Override Experiment</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item>
+                          <widget class="Line" name="line_23">
+                           <property name="frameShadow">
+                            <enum>QFrame::Raised</enum>
+                           </property>
+                           <property name="orientation">
+                            <enum>Qt::Horizontal</enum>
+                           </property>
+                          </widget>
+                         </item>
+                        </layout>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QFrame" name="test_experiment_path_frame">
+                        <property name="frameShape">
+                         <enum>QFrame::StyledPanel</enum>
+                        </property>
+                        <property name="frameShadow">
+                         <enum>QFrame::Raised</enum>
+                        </property>
+                        <layout class="QFormLayout" name="formLayout_23">
+                         <property name="leftMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="topMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="rightMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="bottomMargin">
+                          <number>0</number>
+                         </property>
+                         <item row="0" column="0">
+                          <widget class="QLabel" name="label_23">
+                           <property name="text">
+                            <string>Experiment Path</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="0" column="1">
+                          <layout class="QHBoxLayout" name="horizontalLayout_39">
+                           <property name="spacing">
+                            <number>2</number>
+                           </property>
+                           <item>
+                            <widget class="QLineEdit" name="test_experiment_path"/>
+                           </item>
+                           <item>
+                            <widget class="QPushButton" name="test_browse_experiment">
+                             <property name="text">
+                              <string>Browse</string>
+                             </property>
+                            </widget>
+                           </item>
+                          </layout>
+                         </item>
+                        </layout>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QFrame" name="frame_81">
+                        <property name="frameShape">
+                         <enum>QFrame::StyledPanel</enum>
+                        </property>
+                        <property name="frameShadow">
+                         <enum>QFrame::Raised</enum>
+                        </property>
+                        <layout class="QHBoxLayout" name="horizontalLayout_70">
+                         <property name="leftMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="topMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="rightMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="bottomMargin">
+                          <number>0</number>
+                         </property>
+                         <item>
+                          <widget class="QCheckBox" name="test_override_dataset">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="text">
+                            <string/>
+                           </property>
+                          </widget>
+                         </item>
+                         <item>
+                          <widget class="QLabel" name="label_97">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="font">
+                            <font>
+                             <pointsize>14</pointsize>
+                            </font>
+                           </property>
+                           <property name="frameShape">
+                            <enum>QFrame::NoFrame</enum>
+                           </property>
+                           <property name="frameShadow">
+                            <enum>QFrame::Raised</enum>
+                           </property>
+                           <property name="text">
+                            <string>Override Dataset</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item>
+                          <widget class="Line" name="line_24">
+                           <property name="frameShadow">
+                            <enum>QFrame::Raised</enum>
+                           </property>
+                           <property name="orientation">
+                            <enum>Qt::Horizontal</enum>
+                           </property>
+                          </widget>
+                         </item>
+                        </layout>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QFrame" name="test_dataset_path_frame">
+                        <property name="frameShape">
+                         <enum>QFrame::StyledPanel</enum>
+                        </property>
+                        <property name="frameShadow">
+                         <enum>QFrame::Raised</enum>
+                        </property>
+                        <layout class="QFormLayout" name="formLayout_26">
+                         <property name="leftMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="topMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="rightMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="bottomMargin">
+                          <number>0</number>
+                         </property>
+                         <item row="0" column="0">
+                          <widget class="QLabel" name="label_91">
+                           <property name="text">
+                            <string>Dataset Path</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="0" column="1">
+                          <layout class="QHBoxLayout" name="horizontalLayout_64">
+                           <property name="spacing">
+                            <number>2</number>
+                           </property>
+                           <item>
+                            <widget class="QLineEdit" name="test_dataset_path"/>
+                           </item>
+                           <item>
+                            <widget class="QPushButton" name="test_browse_dataset">
+                             <property name="text">
+                              <string>Browse</string>
+                             </property>
+                            </widget>
+                           </item>
+                          </layout>
+                         </item>
+                        </layout>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QFrame" name="frame_83">
+                        <property name="frameShape">
+                         <enum>QFrame::StyledPanel</enum>
+                        </property>
+                        <property name="frameShadow">
+                         <enum>QFrame::Raised</enum>
+                        </property>
+                        <layout class="QHBoxLayout" name="horizontalLayout_72">
+                         <property name="leftMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="topMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="rightMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="bottomMargin">
+                          <number>0</number>
+                         </property>
+                         <item>
+                          <widget class="QCheckBox" name="test_enable_loss">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="text">
+                            <string/>
+                           </property>
+                          </widget>
+                         </item>
+                         <item>
+                          <widget class="QLabel" name="label_99">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="font">
+                            <font>
+                             <pointsize>14</pointsize>
+                            </font>
+                           </property>
+                           <property name="frameShape">
+                            <enum>QFrame::NoFrame</enum>
+                           </property>
+                           <property name="frameShadow">
+                            <enum>QFrame::Raised</enum>
+                           </property>
+                           <property name="text">
+                            <string>Compute Loss on Test Results</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item>
+                          <widget class="Line" name="line_26">
+                           <property name="frameShadow">
+                            <enum>QFrame::Raised</enum>
+                           </property>
+                           <property name="orientation">
+                            <enum>Qt::Horizontal</enum>
+                           </property>
+                          </widget>
+                         </item>
+                        </layout>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QFrame" name="test_losses_frame">
                         <property name="frameShape">
                          <enum>QFrame::StyledPanel</enum>
                         </property>
@@ -6906,6 +7436,15 @@
                          <enum>QFrame::Raised</enum>
                         </property>
                         <layout class="QFormLayout" name="formLayout_24">
+                         <property name="leftMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="topMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="rightMargin">
+                          <number>0</number>
+                         </property>
                          <item row="0" column="0">
                           <widget class="QLabel" name="label_64">
                            <property name="text">
@@ -6961,6 +7500,20 @@
                              <verstretch>0</verstretch>
                             </sizepolicy>
                            </property>
+                           <property name="text">
+                            <string/>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="3" column="0">
+                          <widget class="QLabel" name="label_100">
+                           <property name="text">
+                            <string>VGG</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="3" column="1">
+                          <widget class="QCheckBox" name="test_do_vgg">
                            <property name="text">
                             <string/>
                            </property>
@@ -7063,6 +7616,9 @@
                </property>
                <item>
                 <widget class="QScrollArea" name="scrollArea_11">
+                 <property name="frameShadow">
+                  <enum>QFrame::Raised</enum>
+                 </property>
                  <property name="widgetResizable">
                   <bool>true</bool>
                  </property>
@@ -7071,11 +7627,23 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>419</width>
+                    <width>432</width>
                     <height>921</height>
                    </rect>
                   </property>
                   <layout class="QVBoxLayout" name="verticalLayout_46">
+                   <property name="leftMargin">
+                    <number>0</number>
+                   </property>
+                   <property name="topMargin">
+                    <number>0</number>
+                   </property>
+                   <property name="rightMargin">
+                    <number>0</number>
+                   </property>
+                   <property name="bottomMargin">
+                    <number>0</number>
+                   </property>
                    <item>
                     <widget class="QLabel" name="label_40">
                      <property name="font">
@@ -7113,6 +7681,9 @@
                </property>
                <item>
                 <widget class="QScrollArea" name="scrollArea_12">
+                 <property name="frameShadow">
+                  <enum>QFrame::Raised</enum>
+                 </property>
                  <property name="widgetResizable">
                   <bool>true</bool>
                  </property>
@@ -7163,6 +7734,9 @@
                </property>
                <item>
                 <widget class="QScrollArea" name="scrollArea_13">
+                 <property name="frameShadow">
+                  <enum>QFrame::Raised</enum>
+                 </property>
                  <property name="widgetResizable">
                   <bool>true</bool>
                  </property>
@@ -7171,7 +7745,7 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>419</width>
+                    <width>432</width>
                     <height>921</height>
                    </rect>
                   </property>

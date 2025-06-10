@@ -2,8 +2,7 @@ import sys
 import pathlib
 
 from PySide6.QtWidgets import (
-    QPushButton, QSlider, QProgressBar, QComboBox, QApplication
-)
+    QPushButton, QSlider, QComboBox, QApplication, QCheckBox, QFrame)
 from PySide6.QtUiTools import QUiLoader
 from PySide6.QtCore import QFile, QObject
 
@@ -50,8 +49,23 @@ class Interface(QObject):
             ).valueChanged.connect(self.testerhelper.change_image_scale)
         self.find(QPushButton, 'test_image_scale_reset'
             ).clicked.connect(self.testerhelper.reset_image_scale)
+        
+        test_exp_override = self.find(QFrame, 'test_experiment_path_frame')
+        test_exp_override.setHidden(True)
+        self.find(QCheckBox, 'test_override_experiment_path').clicked.connect(
+            lambda x : test_exp_override.setHidden(not x))
+        
+        test_dataset_override = self.find(QFrame, 'test_dataset_path_frame')
+        test_dataset_override.setHidden(True)
+        self.find(QCheckBox, 'test_override_dataset').clicked.connect(
+            lambda x : test_dataset_override.setHidden(not x))
+        
+        test_losses = self.find(QFrame, 'test_losses_frame')
+        test_losses.setHidden(True)
+        self.find(QCheckBox, 'test_enable_loss').clicked.connect(
+            lambda x : test_losses.setHidden(not x))
 
-         # Init from default config
+        # Init from default config
         self.confighelper._init_from_config(config_path=None)
         
         self.trainerhelper.safe_cleanup.connect(

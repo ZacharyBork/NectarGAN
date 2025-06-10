@@ -101,7 +101,7 @@ class ConfigHelper:
 
             # Train 
             'separate_lr_schedules': ('train.separate_lr_schedules', QCheckBox),
-            'continue_train': ('train.load.continue_train', QGroupBox),
+            'continue_train': ('train.load.continue_train', QCheckBox),
             'load_epoch': ('train.load.load_epoch', QSpinBox),
 
             # Generator

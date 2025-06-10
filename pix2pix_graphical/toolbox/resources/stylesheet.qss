@@ -90,7 +90,7 @@ QWidget#testing_settings_container {
 
 QWidget#testing_page {
     border: 1px solid #ff3b3b3f; background-color: #ff3b3b3f; border-top-right-radius: 10px;}
-QWidget#review_settings_container {
+QWidget#testing_settings_container {
     border: 1px solid #ff3b3b3f;background-color: #ff3b3b3f;border-top-right-radius: 10px;}
 
 QWidget#utilities_page {
@@ -137,6 +137,13 @@ QGroupBox::title {
     color: rgb(200, 200, 200);
 }
 
+QFrame#train_settings QGroupBox {
+    background-color: #ff3b3b3f;
+    font-size: 18px;
+    padding: 5px 1px 1px 1px;
+    margin-top: 4px;
+}
+
 /*---------- DOCKS ----------*/
 
 QDockWidget {
@@ -152,7 +159,7 @@ QPushButton {
     padding: 2px 5px 2px 5px;
 }
 QPushButton::hover {
-    background-color: rgb(70, 70, 70);
+    background-color: rgb(80, 80, 80);
 }
 QPushButton::pressed {
     background-color: rgb(100, 100, 100); border: none;
@@ -335,7 +342,7 @@ QLabel#creator_tag {
 QSlider {
     background: none;
 }
-QSlider::groove:horizontal {
+QSlider::groove {
     border: 1px solid #999999;
     height: 3px; 
     background: qlineargradient(
@@ -343,13 +350,17 @@ QSlider::groove:horizontal {
     margin: 2px 0;
 }
 
-QSlider::handle:horizontal {
+QSlider::handle {
+    background: qlineargradient(
+        x1:0, y1:0, x2:1, y2:1, stop:0 #999999, stop:1 #818181);
+    border: 1px solid #696969;
+    width: 8px;
+    margin: -9px 0;
+    border-radius: 4px;
+}
+QSlider::handle::hover {
     background: qlineargradient(
         x1:0, y1:0, x2:1, y2:1, stop:0 #b4b4b4, stop:1 #8f8f8f);
-    border: 2px solid #696969;
-    width: 8px;
-    margin: -10px 0;
-    border-radius: 5px;
 }
 
 /*---------- LINE EDITS ----------*/
@@ -363,7 +374,7 @@ QLineEdit {
 }
 
 QLineEdit::hover {
-    background-color: rgb(70, 70, 70);
+    background-color: rgb(80, 80, 80);
 }
 
 QLineEdit::pressed {
@@ -417,7 +428,7 @@ QSpinBox, QDoubleSpinBox {
     border-top-left-radius: 5px;
 }
 QSpinBox::hover, QDoubleSpinBox::hover {
-    background-color: rgb(70, 70, 70);
+    background-color: rgb(80, 80, 80);
 }
 QSpinBox::pressed, QDoubleSpinBox::pressed {
     background-color: rgb(100, 100, 100);
@@ -431,6 +442,9 @@ QComboBox {
     padding: 2px 2px 2px 2px;
     border: 1px solid rgb(140, 140, 140);
     border-top-left-radius: 5px;
+}
+QComboBox::hover {
+    background-color: rgb(80, 80, 80)
 }
 QComboBox QAbstractItemView {
     color: rgb(200, 200, 200);
