@@ -152,9 +152,9 @@ QDockWidget {
 
 /*---------- BUTTONS ----------*/
 QPushButton {
-    background-color: rgb(60, 60, 60);
+    background-color: rgb(70, 70, 70);
     border: 2px outset rgb(50, 50, 50);
-    border-radius: 7px;
+    border-radius: 5px;
     color: rgb(200, 200, 200);
     padding: 2px 5px 2px 5px;
 }
@@ -453,6 +453,16 @@ QComboBox QAbstractItemView {
 /*---------- CHECKBOXES ----------*/
 
 QCheckBox {
+    background: none;
+    color: rgb(200, 200, 200);
+}
+QCheckBox::indicator:checked {
+    margin: 3px 3px 3px 3px;
+    background: none;
+    color: rgb(200, 200, 200);
+}
+QCheckBox::indicator:unchecked {
+    margin: 3px 3px 3px 3px;
     background: none;
     color: rgb(200, 200, 200);
 }

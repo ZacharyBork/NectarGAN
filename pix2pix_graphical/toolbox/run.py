@@ -61,7 +61,6 @@ class Interface(QObject):
             lambda x : test_dataset_override.setHidden(not x))
         
         test_losses = self.find(QFrame, 'test_losses_frame')
-        test_losses.setHidden(True)
         self.find(QCheckBox, 'test_enable_loss').clicked.connect(
             lambda x : test_losses.setHidden(not x))
 

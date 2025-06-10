@@ -132,7 +132,7 @@ class ConfigHelper:
             'num_examples': ('save.num_examples', QSpinBox),
 
             # Visdom
-            'visdom_enable': ('visualizer.visdom.enable', QGroupBox),
+            'visdom_enable': ('visualizer.visdom.enable', QCheckBox),
             'visdom_env_name': ('visualizer.visdom.env_name', QLineEdit),
             'visdom_port': ('visualizer.visdom.port', QSpinBox),
             'visdom_image_size': ('visualizer.visdom.image_size', QSpinBox),

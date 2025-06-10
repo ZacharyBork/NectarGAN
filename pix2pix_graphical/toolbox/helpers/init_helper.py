@@ -66,7 +66,24 @@ class InitHelper():
         '''Initializes widgets related to training config settings.'''
         self.find(QFrame, 'disc_schedule_box').setHidden(True)
         self.find(QCheckBox, 'separate_lr_schedules').clicked.connect(
-            self.callbacks._split_lr_schedules)        
+            self.callbacks._split_lr_schedules)  
+        continue_train_settings = self.find(QFrame, 'continue_train_settings')
+        continue_train_settings.setHidden(True)
+        self.find(QCheckBox, 'continue_train').clicked.connect(
+            lambda value : continue_train_settings.setHidden(not value))  
+        
+        save_model_settings = self.find(QFrame, 'save_model_settings')
+        self.find(QCheckBox, 'save_model').clicked.connect(
+            lambda value : save_model_settings.setHidden(not value))    
+
+        save_examples_settings = self.find(QFrame, 'save_examples_settings')
+        self.find(QCheckBox, 'save_examples').clicked.connect(
+            lambda value : save_examples_settings.setHidden(not value))
+        
+        visdom_settings = self.find(QFrame, 'visdom_settings')
+        visdom_settings.setHidden(True)
+        self.find(QCheckBox, 'visdom_enable').clicked.connect(
+            lambda value : visdom_settings.setHidden(not value))
 
     def _init_current_epoch_display(self) -> None:
         '''Initializes the current epoch display QLCD widget.'''
