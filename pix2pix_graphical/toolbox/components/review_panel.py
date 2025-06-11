@@ -1,8 +1,11 @@
+import json
+import math
 from pathlib import Path
 
 from PySide6.QtGui import QPixmap, QImage
 from PySide6.QtWidgets import (
-    QWidget, QFrame, QLineEdit, QLabel, QVBoxLayout, QHBoxLayout
+    QWidget, QFrame, QLineEdit, QLabel, QVBoxLayout, QHBoxLayout, QTextEdit,
+    QComboBox
 )
 
 from pix2pix_graphical.toolbox.widgets.graph import Graph
@@ -13,15 +16,28 @@ class ReviewPanel():
         self.find = self.mainwidget.findChild
         self.images_layout = self.find(QVBoxLayout, 'review_images_layout')
         self.graphs_layout = self.find(QVBoxLayout, 'review_graphs_layout')
+        self.train_config_display = self.find(
+            QTextEdit, 'review_train_config')
+        self.select_config = self.find(
+            QComboBox, 'review_select_train_config')
 
         self.image_size = 300
         self.image_labels = []
+
+        self.graph_sample_rate = 50
+
+    ### UTILITIES ###
 
     def _clear_review_panel(self) -> None:
         for i in reversed(range(self.images_layout.count())): 
             self.images_layout.itemAt(i).widget().setParent(None) 
         for i in reversed(range(self.graphs_layout.count())): 
             self.graphs_layout.itemAt(i).widget().setParent(None) 
+
+    def set_graph_sample_rate(self, sample_rate: int) -> None:
+        self.graph_sample_rate = max(1, sample_rate)
+
+    ### EXAMPLE IMAGES ###
 
     def _get_image_sets(
             self, 
@@ -59,7 +75,7 @@ class ReviewPanel():
             if (idx+1) % 3 == 0:
                 self.image_sets.append(group)
                 group = []
-    
+
     def _build_image_set(
             self,
             epoch: int,
@@ -97,6 +113,57 @@ class ReviewPanel():
         for idx, set in enumerate(self.image_sets):
             self._build_image_set(epoch=idx+1, images=set)
 
+    ### GRAPH LOSSES ###
+
+    def _graph_losses(self, loss_log: Path) -> None:
+        with open(loss_log.as_posix(), 'r') as file:
+            log_data = json.loads(file.read())
+        losses = log_data['LOSSMANAGER_LOG']['loss_functions']
+        dataset_length = log_data['LOSSMANAGER_LOG']['dataset_length']
+        
+        for key, value in losses.items():
+            loss, weights = value['loss'], value['weights']
+            
+            graph = Graph(key)
+            graph.add_line('loss', color=(255, 0, 0))
+            graph.add_line('weight', color=(0, 255, 0))
+            for i in range(len(loss)):
+                if not i % self.graph_sample_rate == 0: continue
+                step = ((i % dataset_length) / dataset_length)
+                step += math.floor(i / dataset_length)
+                graph.update_plot('loss', loss[i], step)
+                graph.update_plot('weight', weights[i], step)
+            
+            layout = QVBoxLayout()
+            layout.setSpacing(2)
+            layout.setContentsMargins(2, 2, 2, 2)
+
+            frame = QFrame()
+            frame.setLayout(layout)
+            
+            label = QLabel(key)
+            layout.addWidget(label)
+            layout.addWidget(graph)
+
+            self.graphs_layout.addWidget(frame)
+
+    ### DISPLAY TRAIN CONFIG ###
+
+    def _get_config_files(self, experiment_dir: Path) -> None:
+        self.config_files = sorted(list(experiment_dir.glob('*config.json')))
+        if len(self.config_files) == 0: return
+        self.select_config.addItems([i.name for i in self.config_files])
+        self.select_config.setCurrentIndex(len(self.config_files)-1)
+
+    def load_train_config(self) -> None:
+        index = self.select_config.currentIndex()
+        config_file = self.config_files[index]
+        with open(config_file.as_posix(), 'r') as file:
+            data = json.loads(file.read())
+        self.train_config_display.clear()
+        self.train_config_display.setText(json.dumps(data, indent=4))
+
+    ### LOAD EXPERIMENT ###
 
     def load_experiment(self) -> None:
         self._clear_review_panel()
@@ -108,4 +175,9 @@ class ReviewPanel():
         
         self._get_image_sets(examples_dir)
         self._build_image_sets()
+
+        self._graph_losses(loss_log)
+
+        self._get_config_files(experiment_dir)
+        self.load_train_config()
 

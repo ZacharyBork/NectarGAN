@@ -3,7 +3,7 @@ import pathlib
 
 from PySide6.QtWidgets import (
     QPushButton, QSlider, QComboBox, QApplication, QCheckBox, QFrame,
-    QFileDialog)
+    QFileDialog, QSpinBox)
 from PySide6.QtUiTools import QUiLoader
 from PySide6.QtCore import QFile, QObject
 
@@ -51,11 +51,20 @@ class Interface(QObject):
         self.find(
             QPushButton, 'reload_stylesheet'
         ).clicked.connect(self._set_stylesheet)
+        self.find(QComboBox, 'upsample_block_type').addItems(
+            ['Transposed Convolution', 'Upsample+Convolution']
+        )
 
         # REVIEW
 
         self.find(QPushButton, 'review_load_experiment').clicked.connect(
             self.reviewpanel.load_experiment
+        )
+        self.find(QSpinBox, 'review_graph_sample_rate').valueChanged.connect(
+            lambda x : self.reviewpanel.set_graph_sample_rate(x)
+        )
+        self.find(QComboBox, 'review_select_train_config').activated.connect(
+            self.reviewpanel.load_train_config
         )
 
         # TESTING

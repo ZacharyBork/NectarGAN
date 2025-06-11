@@ -65,10 +65,13 @@ class LossManager():
     def _build_log_blank(self) -> None:
         '''Defines a dummy log to build default log JSON structure.
         '''
-        return { # 
+        train_set_path = pathlib.Path(self.config.dataloader.dataroot, 'train')
+        dataset_length = len(list(train_set_path.iterdir()))
+        return { 
             'LOSSMANAGER_LOG':{
                 'device': f'{self.device}',
                 'dataroot': f'{self.config.dataloader.dataroot}',
+                'dataset_length': dataset_length,
                 'experiment': f'{self.experiment_dir.name}',
                 'loss_functions': {}
             }
