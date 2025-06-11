@@ -22,7 +22,8 @@ class TrainerWorker(QObject, Pix2pixTrainer):
             self, 
             config: PathLike | dict[str, Any] | None,
             loss_subspec: str='extended+vgg',
-            log_losses: bool=False
+            log_losses: bool=False,
+            loss_dump_frequency: int=5
         ) -> None:
         super().__init__(
             config=config, 
@@ -31,6 +32,7 @@ class TrainerWorker(QObject, Pix2pixTrainer):
         self._is_paused: bool = False
         self._is_interrupted: bool = False
         self._update_frequency: int = 50
+        self.loss_dump_frequency = loss_dump_frequency
 
     def pause(self):
         self.log.emit('Training Paused...')
@@ -79,6 +81,14 @@ class TrainerWorker(QObject, Pix2pixTrainer):
         self.backward_G(loss_G)
 
         return y_fake
+    
+    def on_epoch_end(self, **kwargs: Any) -> None:
+        if (self.log_losses and 
+            self.current_epoch % self.loss_dump_frequency == 0):
+                log_entry = self.loss_manager.update_loss_log(
+                    silent=False, capture=True)
+                self.log.emit(log_entry)
+        self.update_schedulers()
 
     @Slot()
     def run(self):
@@ -88,6 +98,11 @@ class TrainerWorker(QObject, Pix2pixTrainer):
 
         epoch_counts = self.cfg.train.generator.learning_rate
         self.epoch_count = epoch_counts.epochs + epoch_counts.epochs_decay
+
+        # Make buffer slightly larger than dump frequency from UI since we're 
+        # dumping to the log manually based on epoch in this training setup
+        self.loss_manager.buffer_size = ( 
+            len(self.train_loader) * (self.loss_dump_frequency + 1))
 
         for epoch in range(self.epoch_count):    
             start_time = time.perf_counter()
@@ -116,7 +131,8 @@ class TrainerWorker(QObject, Pix2pixTrainer):
                         y.detach().cpu(), 
                         y_fake.detach().cpu()))
                     self.losses.emit(self.loss_manager.get_loss_values(precision=4))
-                    self.log.emit(self.loss_manager.print_losses(epoch, idx, capture=True))
+                    self.log.emit(self.loss_manager.print_losses(
+                        self.current_epoch, idx, capture=True))
                 
 
             self.on_epoch_end() 

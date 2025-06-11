@@ -100,7 +100,8 @@ class InitHelper():
             ('browse_output', 'output_directory'),
             ('browse_dataset', 'dataroot'),
             ('test_browse_experiment', 'test_experiment_path'),
-            ('test_browse_dataset', 'test_dataset_path')
+            ('test_browse_dataset', 'test_dataset_path'),
+            ('review_browse_experiment', 'review_experiment_path')
         ]
         for button_name, line_edit_name in pairs:
             button = self.find(QPushButton, button_name)

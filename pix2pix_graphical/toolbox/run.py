@@ -2,7 +2,8 @@ import sys
 import pathlib
 
 from PySide6.QtWidgets import (
-    QPushButton, QSlider, QComboBox, QApplication, QCheckBox, QFrame)
+    QPushButton, QSlider, QComboBox, QApplication, QCheckBox, QFrame,
+    QFileDialog)
 from PySide6.QtUiTools import QUiLoader
 from PySide6.QtCore import QFile, QObject
 
@@ -12,6 +13,7 @@ from pix2pix_graphical.toolbox.helpers.tester_helper import TesterHelper
 from pix2pix_graphical.toolbox.helpers.init_helper import InitHelper
 from pix2pix_graphical.toolbox.components.log import OutputLog
 from pix2pix_graphical.toolbox.components.settings_dock import SettingsDock
+from pix2pix_graphical.toolbox.components.review_panel import ReviewPanel
 
 class Interface(QObject):    
     def __init__(self) -> None:
@@ -31,6 +33,13 @@ class Interface(QObject):
         self.trainerhelper = TrainerHelper(
             self.mainwidget, self.confighelper, 
             self.log, self.status_msg_length)
+        self.reviewpanel = ReviewPanel(mainwidget=self.mainwidget)
+        
+    def _load_from_config_file(self) -> None:
+        selected = QFileDialog.getOpenFileName(filter='*.json')
+        config_file = pathlib.Path(selected[0])
+        if config_file is None: return
+        self.confighelper._init_from_config(config_path=config_file)
 
     def init_ui(self) -> None:
         '''Initialized the interface. Links parameters, sets defaults, etc.'''
@@ -42,6 +51,12 @@ class Interface(QObject):
         self.find(
             QPushButton, 'reload_stylesheet'
         ).clicked.connect(self._set_stylesheet)
+
+        # REVIEW
+
+        self.find(QPushButton, 'review_load_experiment').clicked.connect(
+            self.reviewpanel.load_experiment
+        )
 
         # TESTING
 
@@ -64,6 +79,9 @@ class Interface(QObject):
 
         # Init from default config
         self.confighelper._init_from_config(config_path=None)
+        self.find(QPushButton, 'load_from_config').clicked.connect(
+            self._load_from_config_file
+        )
         
         self.trainerhelper.safe_cleanup.connect(
             lambda : self.settings_dock.set_state('init'))

@@ -88,9 +88,9 @@ QWidget#testing_page {
 QWidget#testing_settings_container {
     border: 1px solid #ff3b3b3f;background-color: #ff3b3b3f;border-top-right-radius: 10px;}
 
-QWidget#testing_page {
+QWidget#review_page {
     border: 1px solid #ff3b3b3f; background-color: #ff3b3b3f; border-top-right-radius: 10px;}
-QWidget#testing_settings_container {
+QWidget#review_settings_container {
     border: 1px solid #ff3b3b3f;background-color: #ff3b3b3f;border-top-right-radius: 10px;}
 
 QWidget#utilities_page {

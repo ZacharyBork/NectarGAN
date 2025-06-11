@@ -6,7 +6,7 @@ from torch import Tensor
 from PySide6.QtCore import QObject, QThread, Signal
 from PySide6.QtGui import QImage, QPixmap
 from PySide6.QtWidgets import (
-    QWidget, QLCDNumber, QFrame, QPushButton, 
+    QWidget, QLCDNumber, QFrame, QPushButton, QSpinBox,
     QStatusBar, QCheckBox, QProgressBar, QLabel, QStackedWidget)
 
 from pix2pix_graphical.toolbox.helpers.config_helper import ConfigHelper
@@ -276,7 +276,11 @@ class TrainerHelper(QObject):
         
         # Start thread, create worker, move worker to new thread
         self.train_thread = QThread() 
-        self.worker = TrainerWorker(config=self.confighelper.config)
+        self.worker = TrainerWorker(
+            config=self.confighelper.config,
+            log_losses=self.find(QCheckBox, 'log_losses').isChecked(),
+            loss_dump_frequency=self.find(
+                QSpinBox, 'loss_dump_frequency').value())
         self.worker.moveToThread(self.train_thread)
 
         self.safe_cleanup.connect(self.stop_train) # Hook up helper signals

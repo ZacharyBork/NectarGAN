@@ -550,7 +550,11 @@ class LossManager():
         # Clear the LMLoss's LMHistory
         self.loss_fns[name].history = LMHistory(losses=[], weights=[])
 
-    def update_loss_log(self, silent: bool=True) -> None:
+    def update_loss_log(
+            self, 
+            silent: bool=True, 
+            capture: bool=False
+        ) -> str | None:
         '''Exports loss history to loss log.
 
         This is a public wrapper for LossManager._dump_to_log(). It loops
@@ -570,8 +574,15 @@ class LossManager():
             immediately.
 
         Args:
-            silent: If True (default), this function will not print anything to
-                the console. If False, it will print execution time.
+            silent : If True (default), this function will not print anything 
+                to the console. If False, it will print execution time.
+            capture: If True and silent=False, the printed strings will instead
+                be returned.
+
+        Returns:
+            str | None : If silent=False and capture=True, this function will
+                return a string with the time taken to dump to log, otherwise
+                it will return None.
         '''
         if not self.enable_logging: 
             warnings.warn(
@@ -583,10 +594,13 @@ class LossManager():
             case True: dump_history()
             case False:
                 start = time.perf_counter()
-                print(f'LossManager: Updating loss logs')
                 dump_history()
                 end = time.perf_counter()
-                print(f'LossManager: Time taken: {end - start:.3f} seconds')
+                message = (
+                    f'LossManager: Logs updated. Time taken: '
+                    f'{end - start:.3f} seconds')
+                if not capture: print(message)
+                else: return message
 
     ### LOSS WEIGHTING ###
 
