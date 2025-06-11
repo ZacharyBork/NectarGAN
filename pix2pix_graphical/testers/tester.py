@@ -15,14 +15,24 @@ from pix2pix_graphical.losses import losses
 class Tester(Trainer):
     def __init__(
             self, 
-            config: str | PathLike | ConfigManager | None=None
+            config: str | PathLike | ConfigManager | None=None,
+            experiment_dir: PathLike | None=None,
+            dataroot: PathLike | None=None,
+            load_epoch: int | None=None
         ) -> None:
         super().__init__(config=config, quicksetup=False)
         self.config.train.load.continue_train = True
-        self._build_output_directory()
+        if not load_epoch is None:
+            self.config.train.load.load_epoch = load_epoch
+        if not experiment_dir is None:
+            self.experiment_dir = pathlib.Path(experiment_dir)
+            self._init_test_output_root()
+        else: self._build_output_directory()
+        if not dataroot is None:
+            self.config.dataloader.dataroot = dataroot
         self._init_dataloader()
         self._init_generator()
-
+        
     ### INITIALIZATION ###
 
     def _init_generator(self) -> None:
@@ -69,7 +79,7 @@ class Tester(Trainer):
         This function first calls `Trainer.build_output_directory()`. Since we
         are necessarily loading the weights of a pre-trained model, rather
         than create an output directory, this function as it is used here will
-        just assign the correct value to `self.experiment`. Once that is
+        just assign the correct value to `self.experiment_dir`. Once that is
         assigned, it will generate a new directory called `test` inside of the
         experiment dir in which to generate subdirectories for each test that
         is run.

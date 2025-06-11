@@ -13,9 +13,16 @@ class TesterWorker(QObject, Tester):
     def __init__(
             self, 
             config: PathLike | dict[str, Any] | None,
-            image_count: int
+            image_count: int=30,
+            experiment_dir: PathLike | None=None,
+            dataroot: PathLike | None=None,
+            load_epoch: int | None=None
         ) -> None:
-        super().__init__(config=config)
+        super().__init__(
+            config=config, 
+            experiment_dir=experiment_dir,
+            dataroot=dataroot,
+            load_epoch=load_epoch)
         self.image_count = image_count
 
     @Slot()

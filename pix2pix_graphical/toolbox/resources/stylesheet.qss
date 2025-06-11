@@ -152,14 +152,19 @@ QDockWidget {
 
 /*---------- BUTTONS ----------*/
 QPushButton {
-    background-color: rgb(70, 70, 70);
-    border: 2px outset rgb(50, 50, 50);
+    background-color: rgb(80, 80, 80);
+    border: 2px double rgb(70, 70, 70);
     border-radius: 5px;
     color: rgb(200, 200, 200);
-    padding: 2px 5px 2px 5px;
+    padding: 3px 5px 3px 5px;
+}
+QPushButton::disabled {
+    background-color: rgb(50, 50, 50);
+    border-color: rgb(40, 40, 40);
+    color: rgb(120, 120, 120); 
 }
 QPushButton::hover {
-    background-color: rgb(80, 80, 80);
+    background-color: rgb(90, 90, 90);
 }
 QPushButton::pressed {
     background-color: rgb(100, 100, 100); border: none;

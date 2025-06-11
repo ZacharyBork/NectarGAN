@@ -67,7 +67,6 @@ class ConfigHelper:
             widget = self.mainwidget.findChild(widget_type, ui_name)
             config_entry[keys[-1]] = self.GETTERS[widget_type](widget)
 
-
     def _build_mappings(self) -> None:
         self.SETTERS = {
             QLineEdit: lambda widget, value : widget.setText(value),

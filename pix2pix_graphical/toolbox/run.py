@@ -26,7 +26,8 @@ class Interface(QObject):
         self.log = OutputLog(self.mainwidget, self.status_msg_length)
         self.confighelper = ConfigHelper(mainwidget=self.mainwidget)
         self.settings_dock = SettingsDock(mainwidget=self.mainwidget)
-        self.testerhelper = TesterHelper(self.mainwidget, self.log)
+        self.testerhelper = TesterHelper(
+            self.mainwidget, self.confighelper, self.log)
         self.trainerhelper = TrainerHelper(
             self.mainwidget, self.confighelper, 
             self.log, self.status_msg_length)
@@ -43,6 +44,7 @@ class Interface(QObject):
         ).clicked.connect(self._set_stylesheet)
 
         # TESTING
+
         self.find(QPushButton, 'test_start'
             ).clicked.connect(self.testerhelper.start_test)
         self.find(QSlider, 'test_image_scale'
@@ -52,17 +54,13 @@ class Interface(QObject):
         
         test_exp_override = self.find(QFrame, 'test_experiment_path_frame')
         test_exp_override.setHidden(True)
-        self.find(QCheckBox, 'test_override_experiment_path').clicked.connect(
+        self.find(QCheckBox, 'test_override_experiment').clicked.connect(
             lambda x : test_exp_override.setHidden(not x))
         
         test_dataset_override = self.find(QFrame, 'test_dataset_path_frame')
         test_dataset_override.setHidden(True)
         self.find(QCheckBox, 'test_override_dataset').clicked.connect(
             lambda x : test_dataset_override.setHidden(not x))
-        
-        test_losses = self.find(QFrame, 'test_losses_frame')
-        self.find(QCheckBox, 'test_enable_loss').clicked.connect(
-            lambda x : test_losses.setHidden(not x))
 
         # Init from default config
         self.confighelper._init_from_config(config_path=None)

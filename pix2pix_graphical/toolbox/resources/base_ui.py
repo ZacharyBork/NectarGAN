@@ -18,12 +18,11 @@ from PySide6.QtGui import (QAction, QBrush, QColor, QConicalGradient,
     QTransform)
 from PySide6.QtWidgets import (QAbstractScrollArea, QApplication, QCheckBox, QComboBox,
     QDockWidget, QDoubleSpinBox, QFormLayout, QFrame,
-    QGridLayout, QGroupBox, QHBoxLayout, QLCDNumber,
-    QLabel, QLineEdit, QMainWindow, QProgressBar,
-    QPushButton, QScrollArea, QSizePolicy, QSlider,
-    QSpacerItem, QSpinBox, QSplitter, QStackedWidget,
-    QStatusBar, QTabWidget, QTextEdit, QVBoxLayout,
-    QWidget)
+    QGroupBox, QHBoxLayout, QLCDNumber, QLabel,
+    QLineEdit, QMainWindow, QProgressBar, QPushButton,
+    QScrollArea, QSizePolicy, QSlider, QSpacerItem,
+    QSpinBox, QSplitter, QStackedWidget, QStatusBar,
+    QTabWidget, QTextEdit, QVBoxLayout, QWidget)
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -3523,13 +3522,13 @@ class Ui_MainWindow(object):
         self.horizontalLayout_69 = QHBoxLayout(self.frame_80)
         self.horizontalLayout_69.setObjectName(u"horizontalLayout_69")
         self.horizontalLayout_69.setContentsMargins(0, 0, 0, 0)
-        self.test_override_experiment_path = QCheckBox(self.frame_80)
-        self.test_override_experiment_path.setObjectName(u"test_override_experiment_path")
-        sizePolicy8.setHeightForWidth(self.test_override_experiment_path.sizePolicy().hasHeightForWidth())
-        self.test_override_experiment_path.setSizePolicy(sizePolicy8)
-        self.test_override_experiment_path.setFont(font12)
+        self.test_override_experiment = QCheckBox(self.frame_80)
+        self.test_override_experiment.setObjectName(u"test_override_experiment")
+        sizePolicy8.setHeightForWidth(self.test_override_experiment.sizePolicy().hasHeightForWidth())
+        self.test_override_experiment.setSizePolicy(sizePolicy8)
+        self.test_override_experiment.setFont(font12)
 
-        self.horizontalLayout_69.addWidget(self.test_override_experiment_path)
+        self.horizontalLayout_69.addWidget(self.test_override_experiment)
 
         self.line_23 = QFrame(self.frame_80)
         self.line_23.setObjectName(u"line_23")
@@ -3617,75 +3616,6 @@ class Ui_MainWindow(object):
 
 
         self.verticalLayout_41.addWidget(self.test_dataset_path_frame)
-
-        self.frame_83 = QFrame(self.frame_38)
-        self.frame_83.setObjectName(u"frame_83")
-        self.frame_83.setFrameShape(QFrame.StyledPanel)
-        self.frame_83.setFrameShadow(QFrame.Raised)
-        self.horizontalLayout_72 = QHBoxLayout(self.frame_83)
-        self.horizontalLayout_72.setObjectName(u"horizontalLayout_72")
-        self.horizontalLayout_72.setContentsMargins(0, 0, 0, 0)
-        self.test_enable_loss = QCheckBox(self.frame_83)
-        self.test_enable_loss.setObjectName(u"test_enable_loss")
-        sizePolicy8.setHeightForWidth(self.test_enable_loss.sizePolicy().hasHeightForWidth())
-        self.test_enable_loss.setSizePolicy(sizePolicy8)
-        self.test_enable_loss.setFont(font12)
-        self.test_enable_loss.setChecked(True)
-
-        self.horizontalLayout_72.addWidget(self.test_enable_loss)
-
-        self.line_26 = QFrame(self.frame_83)
-        self.line_26.setObjectName(u"line_26")
-        self.line_26.setFrameShadow(QFrame.Raised)
-        self.line_26.setFrameShape(QFrame.Shape.HLine)
-
-        self.horizontalLayout_72.addWidget(self.line_26)
-
-
-        self.verticalLayout_41.addWidget(self.frame_83)
-
-        self.test_losses_frame = QFrame(self.frame_38)
-        self.test_losses_frame.setObjectName(u"test_losses_frame")
-        self.test_losses_frame.setFrameShape(QFrame.StyledPanel)
-        self.test_losses_frame.setFrameShadow(QFrame.Raised)
-        self.gridLayout = QGridLayout(self.test_losses_frame)
-        self.gridLayout.setObjectName(u"gridLayout")
-        self.gridLayout.setContentsMargins(20, 3, 20, 0)
-        self.test_do_sobel = QCheckBox(self.test_losses_frame)
-        self.test_do_sobel.setObjectName(u"test_do_sobel")
-        sizePolicy17 = QSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Preferred)
-        sizePolicy17.setHorizontalStretch(0)
-        sizePolicy17.setVerticalStretch(0)
-        sizePolicy17.setHeightForWidth(self.test_do_sobel.sizePolicy().hasHeightForWidth())
-        self.test_do_sobel.setSizePolicy(sizePolicy17)
-        self.test_do_sobel.setChecked(True)
-
-        self.gridLayout.addWidget(self.test_do_sobel, 2, 2, 1, 1)
-
-        self.test_do_l1 = QCheckBox(self.test_losses_frame)
-        self.test_do_l1.setObjectName(u"test_do_l1")
-        sizePolicy17.setHeightForWidth(self.test_do_l1.sizePolicy().hasHeightForWidth())
-        self.test_do_l1.setSizePolicy(sizePolicy17)
-        self.test_do_l1.setChecked(True)
-
-        self.gridLayout.addWidget(self.test_do_l1, 2, 0, 1, 1)
-
-        self.test_do_vgg = QCheckBox(self.test_losses_frame)
-        self.test_do_vgg.setObjectName(u"test_do_vgg")
-        self.test_do_vgg.setChecked(True)
-
-        self.gridLayout.addWidget(self.test_do_vgg, 2, 1, 1, 1)
-
-        self.test_do_laplacian = QCheckBox(self.test_losses_frame)
-        self.test_do_laplacian.setObjectName(u"test_do_laplacian")
-        sizePolicy17.setHeightForWidth(self.test_do_laplacian.sizePolicy().hasHeightForWidth())
-        self.test_do_laplacian.setSizePolicy(sizePolicy17)
-        self.test_do_laplacian.setChecked(True)
-
-        self.gridLayout.addWidget(self.test_do_laplacian, 2, 3, 1, 1)
-
-
-        self.verticalLayout_41.addWidget(self.test_losses_frame)
 
         self.verticalSpacer = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
 
@@ -4097,17 +4027,12 @@ class Ui_MainWindow(object):
         self.label_58.setText(QCoreApplication.translate("MainWindow", u"Test Iterations", None))
         self.label_92.setText(QCoreApplication.translate("MainWindow", u"Load Epoch", None))
         self.test_get_most_recent.setText(QCoreApplication.translate("MainWindow", u"Most Recent", None))
-        self.test_override_experiment_path.setText(QCoreApplication.translate("MainWindow", u"Override Experiment", None))
+        self.test_override_experiment.setText(QCoreApplication.translate("MainWindow", u"Override Experiment", None))
         self.test_experiment_path.setPlaceholderText(QCoreApplication.translate("MainWindow", u"Enter experiment directory path...", None))
         self.test_browse_experiment.setText(QCoreApplication.translate("MainWindow", u"Browse", None))
         self.test_override_dataset.setText(QCoreApplication.translate("MainWindow", u"Override Dataset", None))
         self.test_dataset_path.setPlaceholderText(QCoreApplication.translate("MainWindow", u"Enter dataset directory path...", None))
         self.test_browse_dataset.setText(QCoreApplication.translate("MainWindow", u"Browse", None))
-        self.test_enable_loss.setText(QCoreApplication.translate("MainWindow", u"Compute Loss", None))
-        self.test_do_sobel.setText(QCoreApplication.translate("MainWindow", u"Sobel", None))
-        self.test_do_l1.setText(QCoreApplication.translate("MainWindow", u"L1", None))
-        self.test_do_vgg.setText(QCoreApplication.translate("MainWindow", u"VGG", None))
-        self.test_do_laplacian.setText(QCoreApplication.translate("MainWindow", u"Laplacian", None))
         self.test_start.setText(QCoreApplication.translate("MainWindow", u"Begin Test", None))
         self.test_progress_label.setText("")
         self.label_40.setText(QCoreApplication.translate("MainWindow", u"Review", None))

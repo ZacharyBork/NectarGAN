@@ -173,12 +173,14 @@ class Trainer():
 
         # Load checkpoint
         checkpoint_path = pathlib.Path(
-            self.experiment_dir, f'{base_name}_net{net_type.upper()}.pth.tar')
+            self.experiment_dir, 
+            f'{base_name}_net{net_type.upper()}.pth.tar')
         if not checkpoint_path.exists():
             message = 'Unable to locate checkpoint at: {}'
-            raise Exception(message.format(checkpoint_path.as_posix()))
+            raise FileNotFoundError(message.format(checkpoint_path.as_posix()))
         
-        checkpoint = torch.load(checkpoint_path.as_posix(), map_location=self.device)
+        checkpoint = torch.load(
+            checkpoint_path.as_posix(), map_location=self.device)
         network.load_state_dict(checkpoint['state_dict'])
         if not optimizer is None:
             optimizer.load_state_dict(checkpoint['optimizer'])
