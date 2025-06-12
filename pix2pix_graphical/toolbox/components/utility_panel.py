@@ -1,10 +1,11 @@
 import pathlib
 from os import PathLike
-from typing import Any
+from typing import Any, Literal
 
-from PySide6.QtCore import QThread, Slot, QVariantAnimation
+from PySide6.QtCore import QThread, QVariantAnimation
 from PySide6.QtWidgets import (
-    QWidget, QLabel, QPushButton, QFrame, QLineEdit, QComboBox, QProgressBar)
+    QWidget, QLabel, QPushButton, QFrame, QLineEdit, QComboBox, QProgressBar,
+    QCheckBox, QHBoxLayout, QTextEdit)
 
 from pix2pix_graphical.toolbox.workers.utility_worker import (
     UtilityWorker, SignalHandler)
@@ -13,63 +14,159 @@ class UtilityPanel():
     def __init__(self, mainwidget: QWidget) -> None:
         self.mainwidget = mainwidget
         self.find = self.mainwidget.findChild
-        self.init_utilities_widgets()
+        self._init_utilities_widgets()
+        self._init_progress_bars()
 
         self.warning_label = self.find(QLabel, 'utils_warning_label')
-        self.pairing_progress = self.find(
-            QProgressBar, 'image_pairing_progress')
-        self.pairing_label = self.find(QLabel, 'pairing_starting_label')
-        self.pairing_label.setHidden(True)
-        self._init_pairing_starting_anim()
+        self.change_log = self.find(QTextEdit, 'file_change_log')
 
-    def init_utilities_widgets(self) -> None:
+    def _init_utilities_widgets(self) -> None:
         pair_images_frame = self.find(QFrame, 'utils_pair_images_frame')
         pair_images_frame.setHidden(True)
         self.find(QPushButton, 'pair_images'
             ).clicked.connect(lambda x : pair_images_frame.setHidden(not x))
         self.find(QPushButton, 'start_image_pairing'
             ).clicked.connect(self.pair_images)
+        self.find(QPushButton, 'preview_image_pairing'
+            ).clicked.connect(lambda : self.pair_images(dry_run=True))
         self.find(QComboBox, 'pair_images_direction'
             ).addItems(['AtoB', 'BtoA'])
-        self.find(QProgressBar, 'image_pairing_progress').setHidden(True)
+        self.pair_do_scaling = self.find(QCheckBox, 'pair_images_do_scaling')
+        self.pair_images_scale = self.find(QComboBox, 'pair_images_scale')
+        self.pair_images_scale.addItems([
+            '16²', '32²', '64²', '128²', '256²', '512²', '1024²'])    
+        self.pair_images_scale.setEnabled(False)
+        self.pair_images_scale.setCurrentIndex(4)
+        self.pair_do_scaling.clicked.connect(
+            lambda x : self.pair_images_scale.setEnabled(x))    
+
+        self.find(QComboBox, 'sort_images_type').addItems([
+            'Count (White Pixels)', 'Count (Black Pixels)', 
+            'Mean Pixel Value', 'Contrast (Average Local)', 
+            'Contrast (RMS)', 'Contrast (Haziness)'])
+        self.find(QComboBox, 'sort_images_direction').addItems([
+            'Ascending', 'Descending'])
+
+        sort_images_frame = self.find(QFrame, 'utils_sort_images_frame')
+        sort_images_frame.setHidden(True)
+        self.find(QPushButton, 'sort_images'
+            ).clicked.connect(lambda x : sort_images_frame.setHidden(not x))
+        self.find(QPushButton, 'start_sort_images'
+            ).clicked.connect(self.sort_images)
+        self.find(QPushButton, 'preview_image_sorting'
+            ).clicked.connect(lambda : self.sort_images(dry_run=True))
+        
+        remove_sorting_tags_frame = self.find(
+            QFrame, 'utils_remove_sorting_tags_frame')
+        remove_sorting_tags_frame.setHidden(True)
+        self.find(QPushButton, 'remove_sorting_tags').clicked.connect(
+            lambda x : remove_sorting_tags_frame.setHidden(not x))
+        self.find(QPushButton, 'start_remove_sort_tags'
+            ).clicked.connect(self.strip_sorting_tags)
+        self.find(QPushButton, 'preview_remove_sort_tags'
+            ).clicked.connect(lambda : self.strip_sorting_tags(dry_run=True))
+        
+        copy_sort_frame = self.find(QFrame, 'utils_copy_sort_frame')
+        copy_sort_frame.setHidden(True)
+        self.find(QPushButton, 'copy_image_sort'
+            ).clicked.connect(lambda x : copy_sort_frame.setHidden(not x))
+        
+        split_dataset_frame = self.find(QFrame, 'utils_split_dataset_frame')
+        split_dataset_frame.setHidden(True)
+        self.find(QPushButton, 'split_dataset'
+            ).clicked.connect(lambda x : split_dataset_frame.setHidden(not x))
+
+    def _init_progress_bars(self) -> None:
+        self.pairing_progress = self.find(
+            QProgressBar, 'image_pairing_progress')
+        self.pairing_label = self.find(QLabel, 'pairing_starting_label')
+        self.pairing_progress.setHidden(True)
+        self.pairing_label.setHidden(True)
+        
+
+        self.sort_images_progress = self.find(
+            QProgressBar, 'sort_images_progress')
+        self.sort_images_progress.setHidden(True)
+        self.sorting_label = self.find(QLabel, 'sorting_starting_label')
+        self.sorting_label.setHidden(True)
+        
+        self.remove_tags_progress = self.find(
+            QProgressBar, 'remove_sort_tags_progress')
+        self.remove_tags_progress.setHidden(True)
+        self.remove_sort_tags_label = self.find(
+            QLabel, 'remove_sort_tags_starting_label')
+        self.remove_sort_tags_label.setHidden(True)
+        
+        self.copy_sort_progress = self.find(
+            QProgressBar, 'copy_sort_progress')
+        self.copy_sort_progress.setHidden(True)
+        self.copy_sort_label = self.find(QLabel, 'copy_sort_starting_label')
+        self.copy_sort_label.setHidden(True)
+        
+        self.split_dataset_progress = self.find(
+            QProgressBar, 'split_dataset_progress')
+        self.split_dataset_progress.setHidden(True)
+        self.split_dataset_label = self.find(QLabel, 'split_dataset_starting_label')
+        self.split_dataset_label.setHidden(True)
+
+        self._init_starting_animation()
         
     def _warn(self, warning: str) -> None:
         self.warning_label.setText(warning)
 
-    def _init_pairing_starting_anim(self) -> None:
-        self.pairing_starting_anim = QVariantAnimation()
-        self.pairing_starting_anim.setStartValue(0)
-        self.pairing_starting_anim.setEndValue(1000)
-        self.pairing_starting_anim.setDuration(500000)
-        self.pairing_starting_anim.valueChanged.connect(
-            self._pairing_stating_anim)
+    def _init_starting_animation(self) -> None:
+        self.starting_anim = QVariantAnimation()
+        self.starting_anim.setStartValue(0)
+        self.starting_anim.setEndValue(1000)
+        self.starting_anim.setDuration(500000)
+        self.starting_anim.valueChanged.connect(
+            self._starting_animation)
 
     ### ANIMATION ###
 
-    def _pairing_stating_anim(self, val: int):
+    def _starting_animation(self, val: int):
         text = 'Starting' + '.' * (val%4) 
         self.pairing_label.setText(text)
+        self.sorting_label.setText(text)
+        self.remove_sort_tags_label.setText(text)
+        self.copy_sort_label.setText(text)
 
     ### WORKER ###
 
-    def _start_worker(self, args: Any) -> None:
+    def _start_worker(
+            self, 
+            args: Any, 
+            task: Literal['pair', 'sort']
+        ) -> None:
         self.utils_thread = QThread() 
         self.signalhandler = SignalHandler()
-        self.worker = UtilityWorker(args=args, signalhandler=self.signalhandler)
+        self.worker = UtilityWorker(
+            args=args, signalhandler=self.signalhandler)
         self.worker.moveToThread(self.utils_thread)
 
-        self.signalhandler.progress.connect(self._pairing_progress)
+        match task:
+            case 'pair': 
+                self.signalhandler.progress.connect(self._pairing_progress)
+                self.signalhandler.finished.connect(self._pairing_cleanup)
+                self.utils_thread.started.connect(self.worker.pair_images)
+            case 'sort': 
+                self.signalhandler.progress.connect(self._sorting_progress)
+                self.signalhandler.finished.connect(self._sorting_cleanup)
+                self.utils_thread.started.connect(self.worker.sort_images)
+        
         self.signalhandler.finished.connect(self.utils_thread.quit)
-        self.signalhandler.finished.connect(self._cleanup)
-                
-        self.utils_thread.started.connect(self.worker.pair_images)
         self.utils_thread.finished.connect(self.utils_thread.deleteLater)
         self.utils_thread.start()
 
-    def _cleanup(self) -> None:
+    def _pairing_cleanup(self) -> None:
         self.pairing_progress.setHidden(True)
         self.find(QFrame, 'utils_pair_images_frame').setEnabled(True)
         self.find(QPushButton, 'pair_images').setEnabled(True)
+
+    def _sorting_cleanup(self) -> None:
+        self.sort_images_progress.setHidden(True)
+        self.find(QFrame, 'utils_sort_images_frame').setEnabled(True)
+        self.find(QPushButton, 'sort_images').setEnabled(True)
 
     ### ONNX UTILITIES ###
 
@@ -91,16 +188,17 @@ class UtilityPanel():
 
     ### IMAGE PAIRING ###        
 
-    @Slot(float)
     def _pairing_progress(self, progress: float) -> None:
-        if not self.pairing_label.isHidden():
-            self.pairing_starting_anim.stop()
+        if not self._sorting_progress.isHidden():
+            self.starting_anim.stop()
             self.pairing_label.setHidden(True)
             self.pairing_progress.setHidden(False)
         self.pairing_progress.setValue(progress)
 
-    def pair_images(self) -> None:
+    def pair_images(self, dry_run: bool=False) -> None:
         '''Takes images from A|B folder and pairs them for pix2pix training.'''
+        self.change_log.clear()
+
         input_dirA = self.find(QLineEdit, 'pair_images_input_a').text()
         dirA = pathlib.Path(input_dirA)
         if not dirA.exists() or input_dirA == '': 
@@ -118,26 +216,87 @@ class UtilityPanel():
             return
         
         direction = self.find(QComboBox, 'pair_images_direction').currentText()
+        if self.pair_do_scaling.isChecked():
+            scale = int(self.pair_images_scale.currentText()[0:-1])
+        else: scale = -1
+        
         args = []
         for fileA in list(dirA.iterdir()):
-            args.append((fileA, dirB, outdir, direction)) 
+            args.append((fileA, dirB, outdir, direction, scale)) 
 
-        self.pairing_label.setHidden(False)
-        self.pairing_starting_anim.start()
-        self.pairing_progress.setValue(0)
-        self.find(QFrame, 'utils_pair_images_frame').setEnabled(False)
-        self.find(QPushButton, 'pair_images').setEnabled(False)
-        self._start_worker(args)       
+        if dry_run:
+            for arg in args:
+                name = arg[0]
+                log_line = (
+                    f'({pathlib.Path(dirA, name)} + '
+                    f'{pathlib.Path(dirB, name)}) -> '
+                    f'{pathlib.Path(outdir, name)}')
+                self.change_log.append(log_line)
+        else:
+            self.pairing_label.setHidden(False)
+            self.starting_anim.start()
+            self.pairing_progress.setValue(0)
+            self.find(QFrame, 'utils_pair_images_frame').setEnabled(False)
+            self.find(QPushButton, 'pair_images').setEnabled(False)
+            self._start_worker(args, task='pair')       
 
     ### IMAGE SORTING ###
-    
-    def sort_images(self) -> None:
-        '''Sorts dataset images by various metrics.'''
-        pass
 
-    def strip_sorting_tag(self) -> None:
+    def _sorting_progress(self, progress: int) -> None:
+        if not self.sorting_label.isHidden():
+            self.starting_anim.stop()
+            self.sorting_label.setHidden(True)
+            self.sort_images_progress.setHidden(False)
+        self.sort_images_progress.setValue(progress)
+    
+    def sort_images(self, dry_run: bool=False) -> None:
+        '''Sorts dataset images by various metrics.'''
+        self.change_log.clear()
+
+        input_dir = self.find(QLineEdit, 'sort_images_input_dir').text()
+        dir = pathlib.Path(input_dir)
+        if not dir.exists() or input_dir == '': 
+            self._warn('Please input a directory with images to sort.')
+            return
+        files = list(dir.iterdir())
+        if len(files) == 0:
+            self._warn('No files found.')
+            return
+        
+        sort_type = self.find(QComboBox, 'sort_images_type').currentText()
+        args = [(i, sort_type) for i in files]
+
+        if dry_run:
+            for file in files:
+                self.change_log.append(file.as_posix())
+        else:
+            self.sorting_label.setHidden(False)
+            self.starting_anim.start()
+            self.sort_images_progress.setValue(0)
+            self._start_worker(args, task='sort')  
+        
+    def strip_sorting_tags(self, dry_run: bool=False) -> None:
         '''Removes sorting tags added by `UtilityPanel.sort_images()`.'''
-        pass
+        self.change_log.clear()
+
+        input_dir = self.find(QLineEdit, 'remove_sort_tags_input').text()
+        dir = pathlib.Path(input_dir)
+        if not dir.exists() or input_dir == '': 
+            self._warn('Please input a directory with images to sort.')
+            return
+        files = list(dir.glob('*_*'))
+        if len(files) == 0:
+            self._warn('No files with sorting tags found.')
+            return
+                
+        for file in files:
+            split = file.name.split('_')[1:]
+            name_name = '_'.join(split)
+            new_path = pathlib.Path(file.parent.resolve(), name_name)
+            if dry_run:
+                log_line = f'{file.as_posix()} -> {new_path.as_posix()}'
+                self.change_log.append(log_line)
+            else: file.rename(new_path)
 
     ### DATASET SPLIT ###
 

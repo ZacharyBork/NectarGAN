@@ -439,7 +439,7 @@ QSpinBox::pressed, QDoubleSpinBox::pressed {
     background-color: rgb(100, 100, 100);
 }
 
-/*---------- SPINBOXES ----------*/
+/*---------- COMBOBOXES ----------*/
 
 QComboBox {
     background-color: rgb(60, 60, 60);
@@ -447,6 +447,10 @@ QComboBox {
     padding: 2px 2px 2px 2px;
     border: 1px solid rgb(140, 140, 140);
     border-top-left-radius: 5px;
+}
+QComboBox::disabled {
+    color: rgb(120, 120, 120);
+    border: 1px solid rgb(100, 100, 100);
 }
 QComboBox::hover {
     background-color: rgb(80, 80, 80)

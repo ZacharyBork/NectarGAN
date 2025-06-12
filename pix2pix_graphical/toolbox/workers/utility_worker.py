@@ -1,5 +1,6 @@
+from pathlib import Path
 from typing import Any
-from concurrent.futures import ProcessPoolExecutor
+from concurrent.futures import ProcessPoolExecutor, wait
 from typing import Any
 
 from PySide6.QtCore import QObject, Signal, Slot
@@ -31,3 +32,20 @@ class UtilityWorker(QObject):
         for arg in self.args:
             future = executor.submit(utils.concat_images, arg)
             future.add_done_callback(self.send_progress_signal)
+
+    @Slot()
+    def sort_images(self) -> None:
+        executor = ProcessPoolExecutor()
+        futures = []
+        for arg in self.args:
+            future = executor.submit(utils.get_image_value, arg)
+            future.add_done_callback(self.send_progress_signal)
+            futures.append(future)
+        wait(futures)
+        values = [i.result() for i in futures]
+        values = sorted(values, key=lambda x : x[0])
+        for i, value in enumerate(values):
+            path = value[1]
+            new_path = Path(path.parent.resolve(), f'{i}_{path.name}')
+            path.rename(new_path)
+        self.signalhandler.finished.emit()  

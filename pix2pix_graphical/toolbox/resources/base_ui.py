@@ -532,14 +532,24 @@ class Ui_MainWindow(object):
         self.verticalLayout_51.setSpacing(0)
         self.verticalLayout_51.setObjectName(u"verticalLayout_51")
         self.verticalLayout_51.setContentsMargins(0, 0, 0, 0)
-        self.label_79 = QLabel(self.central_utils_page)
-        self.label_79.setObjectName(u"label_79")
-        font5 = QFont()
-        font5.setPointSize(32)
-        self.label_79.setFont(font5)
-        self.label_79.setAlignment(Qt.AlignCenter)
+        self.scrollArea_16 = QScrollArea(self.central_utils_page)
+        self.scrollArea_16.setObjectName(u"scrollArea_16")
+        self.scrollArea_16.setWidgetResizable(True)
+        self.scrollAreaWidgetContents_2 = QWidget()
+        self.scrollAreaWidgetContents_2.setObjectName(u"scrollAreaWidgetContents_2")
+        self.scrollAreaWidgetContents_2.setGeometry(QRect(0, 0, 1387, 1041))
+        self.verticalLayout_66 = QVBoxLayout(self.scrollAreaWidgetContents_2)
+        self.verticalLayout_66.setObjectName(u"verticalLayout_66")
+        self.file_change_log = QTextEdit(self.scrollAreaWidgetContents_2)
+        self.file_change_log.setObjectName(u"file_change_log")
+        self.file_change_log.setReadOnly(True)
+        self.file_change_log.setTextInteractionFlags(Qt.NoTextInteraction)
 
-        self.verticalLayout_51.addWidget(self.label_79)
+        self.verticalLayout_66.addWidget(self.file_change_log)
+
+        self.scrollArea_16.setWidget(self.scrollAreaWidgetContents_2)
+
+        self.verticalLayout_51.addWidget(self.scrollArea_16)
 
         self.centralwidget_pages.addWidget(self.central_utils_page)
 
@@ -896,10 +906,10 @@ class Ui_MainWindow(object):
         self.verticalLayout_9.setContentsMargins(3, 3, 3, 3)
         self.log_output_frozen_header = QLabel(self.output_log_group)
         self.log_output_frozen_header.setObjectName(u"log_output_frozen_header")
-        font6 = QFont()
-        font6.setBold(False)
-        font6.setItalic(True)
-        self.log_output_frozen_header.setFont(font6)
+        font5 = QFont()
+        font5.setBold(False)
+        font5.setItalic(True)
+        self.log_output_frozen_header.setFont(font5)
         self.log_output_frozen_header.setAlignment(Qt.AlignCenter)
 
         self.verticalLayout_9.addWidget(self.log_output_frozen_header)
@@ -1035,9 +1045,9 @@ class Ui_MainWindow(object):
 
         self.label_45 = QLabel(self.frame_28)
         self.label_45.setObjectName(u"label_45")
-        font7 = QFont()
-        font7.setPointSize(7)
-        self.label_45.setFont(font7)
+        font6 = QFont()
+        font6.setPointSize(7)
+        self.label_45.setFont(font6)
         self.label_45.setAlignment(Qt.AlignCenter)
 
         self.verticalLayout_27.addWidget(self.label_45)
@@ -1069,7 +1079,7 @@ class Ui_MainWindow(object):
 
         self.label_46 = QLabel(self.frame_29)
         self.label_46.setObjectName(u"label_46")
-        self.label_46.setFont(font7)
+        self.label_46.setFont(font6)
         self.label_46.setAlignment(Qt.AlignCenter)
 
         self.verticalLayout_28.addWidget(self.label_46)
@@ -1094,10 +1104,10 @@ class Ui_MainWindow(object):
 
         self.label_41 = QLabel(self.frame_22)
         self.label_41.setObjectName(u"label_41")
-        font8 = QFont()
-        font8.setPointSize(7)
-        font8.setBold(True)
-        self.label_41.setFont(font8)
+        font7 = QFont()
+        font7.setPointSize(7)
+        font7.setBold(True)
+        self.label_41.setFont(font7)
         self.label_41.setAlignment(Qt.AlignCenter)
 
         self.verticalLayout_31.addWidget(self.label_41)
@@ -1181,9 +1191,9 @@ class Ui_MainWindow(object):
         sizePolicy14.setVerticalStretch(0)
         sizePolicy14.setHeightForWidth(self.experiment_settings_label.sizePolicy().hasHeightForWidth())
         self.experiment_settings_label.setSizePolicy(sizePolicy14)
-        font9 = QFont()
-        font9.setPointSize(16)
-        self.experiment_settings_label.setFont(font9)
+        font8 = QFont()
+        font8.setPointSize(16)
+        self.experiment_settings_label.setFont(font8)
         self.experiment_settings_label.setFlat(True)
 
         self.horizontalLayout_6.addWidget(self.experiment_settings_label)
@@ -1222,7 +1232,7 @@ class Ui_MainWindow(object):
         self.dataset_settings_label.setObjectName(u"dataset_settings_label")
         sizePolicy14.setHeightForWidth(self.dataset_settings_label.sizePolicy().hasHeightForWidth())
         self.dataset_settings_label.setSizePolicy(sizePolicy14)
-        self.dataset_settings_label.setFont(font9)
+        self.dataset_settings_label.setFont(font8)
         self.dataset_settings_label.setFlat(True)
 
         self.horizontalLayout_8.addWidget(self.dataset_settings_label)
@@ -1261,7 +1271,7 @@ class Ui_MainWindow(object):
         self.training_settings_label.setObjectName(u"training_settings_label")
         sizePolicy14.setHeightForWidth(self.training_settings_label.sizePolicy().hasHeightForWidth())
         self.training_settings_label.setSizePolicy(sizePolicy14)
-        self.training_settings_label.setFont(font9)
+        self.training_settings_label.setFont(font8)
         self.training_settings_label.setFlat(True)
 
         self.horizontalLayout_46.addWidget(self.training_settings_label)
@@ -1300,7 +1310,7 @@ class Ui_MainWindow(object):
         self.testing_settings_label.setObjectName(u"testing_settings_label")
         sizePolicy14.setHeightForWidth(self.testing_settings_label.sizePolicy().hasHeightForWidth())
         self.testing_settings_label.setSizePolicy(sizePolicy14)
-        self.testing_settings_label.setFont(font9)
+        self.testing_settings_label.setFont(font8)
         self.testing_settings_label.setFlat(True)
 
         self.horizontalLayout_47.addWidget(self.testing_settings_label)
@@ -1339,7 +1349,7 @@ class Ui_MainWindow(object):
         self.review_settings_label.setObjectName(u"review_settings_label")
         sizePolicy14.setHeightForWidth(self.review_settings_label.sizePolicy().hasHeightForWidth())
         self.review_settings_label.setSizePolicy(sizePolicy14)
-        self.review_settings_label.setFont(font9)
+        self.review_settings_label.setFont(font8)
         self.review_settings_label.setFlat(True)
 
         self.horizontalLayout_50.addWidget(self.review_settings_label)
@@ -1378,7 +1388,7 @@ class Ui_MainWindow(object):
         self.utils_settings_label.setObjectName(u"utils_settings_label")
         sizePolicy14.setHeightForWidth(self.utils_settings_label.sizePolicy().hasHeightForWidth())
         self.utils_settings_label.setSizePolicy(sizePolicy14)
-        self.utils_settings_label.setFont(font9)
+        self.utils_settings_label.setFont(font8)
         self.utils_settings_label.setFlat(True)
 
         self.horizontalLayout_48.addWidget(self.utils_settings_label)
@@ -1417,7 +1427,7 @@ class Ui_MainWindow(object):
         self.settings_settings_label.setObjectName(u"settings_settings_label")
         sizePolicy14.setHeightForWidth(self.settings_settings_label.sizePolicy().hasHeightForWidth())
         self.settings_settings_label.setSizePolicy(sizePolicy14)
-        self.settings_settings_label.setFont(font9)
+        self.settings_settings_label.setFont(font8)
         self.settings_settings_label.setFlat(True)
 
         self.horizontalLayout_49.addWidget(self.settings_settings_label)
@@ -1443,9 +1453,9 @@ class Ui_MainWindow(object):
         self.verticalLayout_40.setContentsMargins(0, 0, 0, 0)
         self.title_tag = QLabel(self.frame_49)
         self.title_tag.setObjectName(u"title_tag")
-        font10 = QFont()
-        font10.setPointSize(8)
-        self.title_tag.setFont(font10)
+        font9 = QFont()
+        font9.setPointSize(8)
+        self.title_tag.setFont(font9)
         self.title_tag.setAlignment(Qt.AlignCenter)
 
         self.verticalLayout_40.addWidget(self.title_tag)
@@ -1454,9 +1464,9 @@ class Ui_MainWindow(object):
         self.creator_tag.setObjectName(u"creator_tag")
         sizePolicy2.setHeightForWidth(self.creator_tag.sizePolicy().hasHeightForWidth())
         self.creator_tag.setSizePolicy(sizePolicy2)
-        font11 = QFont()
-        font11.setPointSize(6)
-        self.creator_tag.setFont(font11)
+        font10 = QFont()
+        font10.setPointSize(6)
+        self.creator_tag.setFont(font10)
         self.creator_tag.setAlignment(Qt.AlignCenter)
 
         self.verticalLayout_40.addWidget(self.creator_tag)
@@ -1494,11 +1504,11 @@ class Ui_MainWindow(object):
         self.settings_section_header = QLabel(self.settings_section_header_frame)
         self.settings_section_header.setObjectName(u"settings_section_header")
         self.settings_section_header.setMinimumSize(QSize(0, 80))
-        font12 = QFont()
-        font12.setPointSize(22)
-        font12.setBold(False)
-        font12.setItalic(False)
-        self.settings_section_header.setFont(font12)
+        font11 = QFont()
+        font11.setPointSize(22)
+        font11.setBold(False)
+        font11.setItalic(False)
+        self.settings_section_header.setFont(font11)
 
         self.horizontalLayout_20.addWidget(self.settings_section_header)
 
@@ -2412,12 +2422,12 @@ class Ui_MainWindow(object):
         sizePolicy8.setHeightForWidth(self.continue_train.sizePolicy().hasHeightForWidth())
         self.continue_train.setSizePolicy(sizePolicy8)
         self.continue_train.setMinimumSize(QSize(0, 0))
-        font13 = QFont()
-        font13.setPointSize(11)
-        font13.setBold(False)
-        font13.setUnderline(False)
-        font13.setKerning(True)
-        self.continue_train.setFont(font13)
+        font12 = QFont()
+        font12.setPointSize(11)
+        font12.setBold(False)
+        font12.setUnderline(False)
+        font12.setKerning(True)
+        self.continue_train.setFont(font12)
         self.continue_train.setLayoutDirection(Qt.RightToLeft)
         self.continue_train.setTristate(False)
 
@@ -2447,9 +2457,9 @@ class Ui_MainWindow(object):
         self.label_16.setObjectName(u"label_16")
         sizePolicy1.setHeightForWidth(self.label_16.sizePolicy().hasHeightForWidth())
         self.label_16.setSizePolicy(sizePolicy1)
-        font14 = QFont()
-        font14.setPointSize(11)
-        self.label_16.setFont(font14)
+        font13 = QFont()
+        font13.setPointSize(11)
+        self.label_16.setFont(font13)
 
         self.horizontalLayout_58.addWidget(self.label_16)
 
@@ -2515,7 +2525,7 @@ class Ui_MainWindow(object):
         self.label_57.setObjectName(u"label_57")
         sizePolicy1.setHeightForWidth(self.label_57.sizePolicy().hasHeightForWidth())
         self.label_57.setSizePolicy(sizePolicy1)
-        self.label_57.setFont(font14)
+        self.label_57.setFont(font13)
         self.label_57.setFrameShape(QFrame.NoFrame)
         self.label_57.setFrameShadow(QFrame.Raised)
 
@@ -2580,7 +2590,7 @@ class Ui_MainWindow(object):
         self.label_60.setObjectName(u"label_60")
         sizePolicy1.setHeightForWidth(self.label_60.sizePolicy().hasHeightForWidth())
         self.label_60.setSizePolicy(sizePolicy1)
-        self.label_60.setFont(font14)
+        self.label_60.setFont(font13)
         self.label_60.setFrameShape(QFrame.NoFrame)
         self.label_60.setFrameShadow(QFrame.Raised)
 
@@ -2673,7 +2683,7 @@ class Ui_MainWindow(object):
         self.label_59.setObjectName(u"label_59")
         sizePolicy1.setHeightForWidth(self.label_59.sizePolicy().hasHeightForWidth())
         self.label_59.setSizePolicy(sizePolicy1)
-        self.label_59.setFont(font14)
+        self.label_59.setFont(font13)
         self.label_59.setFrameShape(QFrame.NoFrame)
         self.label_59.setFrameShadow(QFrame.Raised)
 
@@ -2752,7 +2762,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout_79.setContentsMargins(0, 0, 0, 0)
         self.separate_lr_schedules = QCheckBox(self.frame_76)
         self.separate_lr_schedules.setObjectName(u"separate_lr_schedules")
-        self.separate_lr_schedules.setFont(font14)
+        self.separate_lr_schedules.setFont(font13)
 
         self.horizontalLayout_79.addWidget(self.separate_lr_schedules)
 
@@ -2784,7 +2794,7 @@ class Ui_MainWindow(object):
         self.label_61.setObjectName(u"label_61")
         sizePolicy1.setHeightForWidth(self.label_61.sizePolicy().hasHeightForWidth())
         self.label_61.setSizePolicy(sizePolicy1)
-        self.label_61.setFont(font14)
+        self.label_61.setFont(font13)
         self.label_61.setFrameShape(QFrame.NoFrame)
         self.label_61.setFrameShadow(QFrame.Raised)
 
@@ -2849,7 +2859,7 @@ class Ui_MainWindow(object):
         self.label_62.setObjectName(u"label_62")
         sizePolicy1.setHeightForWidth(self.label_62.sizePolicy().hasHeightForWidth())
         self.label_62.setSizePolicy(sizePolicy1)
-        self.label_62.setFont(font14)
+        self.label_62.setFont(font13)
         self.label_62.setFrameShape(QFrame.NoFrame)
         self.label_62.setFrameShadow(QFrame.Raised)
 
@@ -2945,7 +2955,7 @@ class Ui_MainWindow(object):
         self.label_63.setObjectName(u"label_63")
         sizePolicy1.setHeightForWidth(self.label_63.sizePolicy().hasHeightForWidth())
         self.label_63.setSizePolicy(sizePolicy1)
-        self.label_63.setFont(font14)
+        self.label_63.setFont(font13)
         self.label_63.setFrameShape(QFrame.NoFrame)
         self.label_63.setFrameShadow(QFrame.Raised)
 
@@ -3159,7 +3169,7 @@ class Ui_MainWindow(object):
         self.save_model.setObjectName(u"save_model")
         sizePolicy8.setHeightForWidth(self.save_model.sizePolicy().hasHeightForWidth())
         self.save_model.setSizePolicy(sizePolicy8)
-        self.save_model.setFont(font14)
+        self.save_model.setFont(font13)
         self.save_model.setChecked(True)
 
         self.horizontalLayout_63.addWidget(self.save_model)
@@ -3225,7 +3235,7 @@ class Ui_MainWindow(object):
         self.save_examples.setObjectName(u"save_examples")
         sizePolicy8.setHeightForWidth(self.save_examples.sizePolicy().hasHeightForWidth())
         self.save_examples.setSizePolicy(sizePolicy8)
-        self.save_examples.setFont(font14)
+        self.save_examples.setFont(font13)
         self.save_examples.setChecked(True)
 
         self.horizontalLayout_59.addWidget(self.save_examples)
@@ -3328,7 +3338,7 @@ class Ui_MainWindow(object):
         self.visdom_enable.setObjectName(u"visdom_enable")
         sizePolicy8.setHeightForWidth(self.visdom_enable.sizePolicy().hasHeightForWidth())
         self.visdom_enable.setSizePolicy(sizePolicy8)
-        self.visdom_enable.setFont(font14)
+        self.visdom_enable.setFont(font13)
 
         self.horizontalLayout_78.addWidget(self.visdom_enable)
 
@@ -3430,10 +3440,10 @@ class Ui_MainWindow(object):
         self.train_page_locked_label.setObjectName(u"train_page_locked_label")
         sizePolicy3.setHeightForWidth(self.train_page_locked_label.sizePolicy().hasHeightForWidth())
         self.train_page_locked_label.setSizePolicy(sizePolicy3)
-        font15 = QFont()
-        font15.setPointSize(12)
-        font15.setBold(True)
-        self.train_page_locked_label.setFont(font15)
+        font14 = QFont()
+        font14.setPointSize(12)
+        font14.setBold(True)
+        self.train_page_locked_label.setFont(font14)
         self.train_page_locked_label.setAlignment(Qt.AlignCenter)
 
         self.verticalLayout_56.addWidget(self.train_page_locked_label)
@@ -3454,19 +3464,19 @@ class Ui_MainWindow(object):
         self.verticalLayout_33.setContentsMargins(3, 3, 3, 3)
         self.train_start = QPushButton(self.train_functions_frame)
         self.train_start.setObjectName(u"train_start")
-        self.train_start.setFont(font15)
+        self.train_start.setFont(font14)
 
         self.verticalLayout_33.addWidget(self.train_start)
 
         self.train_pause = QPushButton(self.train_functions_frame)
         self.train_pause.setObjectName(u"train_pause")
-        self.train_pause.setFont(font15)
+        self.train_pause.setFont(font14)
 
         self.verticalLayout_33.addWidget(self.train_pause)
 
         self.train_stop = QPushButton(self.train_functions_frame)
         self.train_stop.setObjectName(u"train_stop")
-        self.train_stop.setFont(font15)
+        self.train_stop.setFont(font14)
 
         self.verticalLayout_33.addWidget(self.train_stop)
 
@@ -3711,7 +3721,7 @@ class Ui_MainWindow(object):
         self.verticalLayout_57.setContentsMargins(3, 3, 3, 3)
         self.test_start = QPushButton(self.frame_79)
         self.test_start.setObjectName(u"test_start")
-        self.test_start.setFont(font15)
+        self.test_start.setFont(font14)
 
         self.verticalLayout_57.addWidget(self.test_start)
 
@@ -3738,7 +3748,7 @@ class Ui_MainWindow(object):
         self.scrollArea_11.setWidgetResizable(True)
         self.review_settings_container = QWidget()
         self.review_settings_container.setObjectName(u"review_settings_container")
-        self.review_settings_container.setGeometry(QRect(0, 0, 210, 242))
+        self.review_settings_container.setGeometry(QRect(0, 0, 419, 921))
         self.verticalLayout_46 = QVBoxLayout(self.review_settings_container)
         self.verticalLayout_46.setObjectName(u"verticalLayout_46")
         self.frame_89 = QFrame(self.review_settings_container)
@@ -3784,22 +3794,14 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_46.addLayout(self.horizontalLayout_81)
 
-        self.frame_90 = QFrame(self.review_settings_container)
-        self.frame_90.setObjectName(u"frame_90")
-        self.frame_90.setFrameShape(QFrame.Panel)
-        self.frame_90.setFrameShadow(QFrame.Sunken)
-        self.frame_90.setLineWidth(2)
-        self.verticalLayout_66 = QVBoxLayout(self.frame_90)
-        self.verticalLayout_66.setObjectName(u"verticalLayout_66")
-        self.verticalLayout_66.setContentsMargins(3, 3, 3, 3)
-        self.review_load_experiment = QPushButton(self.frame_90)
+        self.review_load_experiment = QPushButton(self.review_settings_container)
         self.review_load_experiment.setObjectName(u"review_load_experiment")
+        font15 = QFont()
+        font15.setPointSize(12)
+        font15.setBold(False)
         self.review_load_experiment.setFont(font15)
 
-        self.verticalLayout_66.addWidget(self.review_load_experiment)
-
-
-        self.verticalLayout_46.addWidget(self.frame_90)
+        self.verticalLayout_46.addWidget(self.review_load_experiment)
 
         self.frame_93 = QFrame(self.review_settings_container)
         self.frame_93.setObjectName(u"frame_93")
@@ -3836,7 +3838,7 @@ class Ui_MainWindow(object):
         self.review_train_config = QTextEdit(self.review_settings_container)
         self.review_train_config.setObjectName(u"review_train_config")
         self.review_train_config.setFrameShape(QFrame.Panel)
-        self.review_train_config.setLineWidth(2)
+        self.review_train_config.setLineWidth(1)
         self.review_train_config.setReadOnly(True)
         self.review_train_config.setTextInteractionFlags(Qt.NoTextInteraction)
 
@@ -3858,7 +3860,7 @@ class Ui_MainWindow(object):
         self.scrollArea_12.setWidgetResizable(True)
         self.utilities_settings_container = QWidget()
         self.utilities_settings_container.setObjectName(u"utilities_settings_container")
-        self.utilities_settings_container.setGeometry(QRect(0, 0, 419, 921))
+        self.utilities_settings_container.setGeometry(QRect(0, -567, 402, 1488))
         self.verticalLayout_48 = QVBoxLayout(self.utilities_settings_container)
         self.verticalLayout_48.setObjectName(u"verticalLayout_48")
         self.utils_warning_label = QLabel(self.utilities_settings_container)
@@ -3876,6 +3878,13 @@ class Ui_MainWindow(object):
         self.horizontalLayout_83 = QHBoxLayout(self.frame_95)
         self.horizontalLayout_83.setObjectName(u"horizontalLayout_83")
         self.horizontalLayout_83.setContentsMargins(0, 0, 0, 0)
+        self.line_42 = QFrame(self.frame_95)
+        self.line_42.setObjectName(u"line_42")
+        self.line_42.setFrameShadow(QFrame.Raised)
+        self.line_42.setFrameShape(QFrame.Shape.HLine)
+
+        self.horizontalLayout_83.addWidget(self.line_42)
+
         self.label_106 = QLabel(self.frame_95)
         self.label_106.setObjectName(u"label_106")
         sizePolicy17 = QSizePolicy(QSizePolicy.Policy.Maximum, QSizePolicy.Policy.Maximum)
@@ -3901,11 +3910,13 @@ class Ui_MainWindow(object):
 
         self.convert_to_onnx = QPushButton(self.utilities_settings_container)
         self.convert_to_onnx.setObjectName(u"convert_to_onnx")
+        self.convert_to_onnx.setCheckable(True)
 
         self.verticalLayout_48.addWidget(self.convert_to_onnx)
 
         self.test_onnx_model = QPushButton(self.utilities_settings_container)
         self.test_onnx_model.setObjectName(u"test_onnx_model")
+        self.test_onnx_model.setCheckable(True)
 
         self.verticalLayout_48.addWidget(self.test_onnx_model)
 
@@ -3916,6 +3927,13 @@ class Ui_MainWindow(object):
         self.horizontalLayout_84 = QHBoxLayout(self.frame_96)
         self.horizontalLayout_84.setObjectName(u"horizontalLayout_84")
         self.horizontalLayout_84.setContentsMargins(0, 0, 0, 0)
+        self.line_43 = QFrame(self.frame_96)
+        self.line_43.setObjectName(u"line_43")
+        self.line_43.setFrameShadow(QFrame.Raised)
+        self.line_43.setFrameShape(QFrame.Shape.HLine)
+
+        self.horizontalLayout_84.addWidget(self.line_43)
+
         self.label_107 = QLabel(self.frame_96)
         self.label_107.setObjectName(u"label_107")
         sizePolicy1.setHeightForWidth(self.label_107.sizePolicy().hasHeightForWidth())
@@ -3950,6 +3968,14 @@ class Ui_MainWindow(object):
         self.utils_pair_images_layout.setSpacing(3)
         self.utils_pair_images_layout.setObjectName(u"utils_pair_images_layout")
         self.utils_pair_images_layout.setContentsMargins(2, 2, 2, 2)
+        self.label_89 = QLabel(self.utils_pair_images_frame)
+        self.label_89.setObjectName(u"label_89")
+        sizePolicy2.setHeightForWidth(self.label_89.sizePolicy().hasHeightForWidth())
+        self.label_89.setSizePolicy(sizePolicy2)
+        self.label_89.setAlignment(Qt.AlignCenter)
+
+        self.utils_pair_images_layout.addWidget(self.label_89)
+
         self.frame_83 = QFrame(self.utils_pair_images_frame)
         self.frame_83.setObjectName(u"frame_83")
         self.frame_83.setFrameShape(QFrame.StyledPanel)
@@ -3972,6 +3998,11 @@ class Ui_MainWindow(object):
 
         self.browse_pair_input_a = QPushButton(self.frame_83)
         self.browse_pair_input_a.setObjectName(u"browse_pair_input_a")
+        sizePolicy18 = QSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Fixed)
+        sizePolicy18.setHorizontalStretch(0)
+        sizePolicy18.setVerticalStretch(0)
+        sizePolicy18.setHeightForWidth(self.browse_pair_input_a.sizePolicy().hasHeightForWidth())
+        self.browse_pair_input_a.setSizePolicy(sizePolicy18)
 
         self.horizontalLayout_85.addWidget(self.browse_pair_input_a)
 
@@ -3992,6 +4023,8 @@ class Ui_MainWindow(object):
 
         self.browse_pair_input_b = QPushButton(self.frame_83)
         self.browse_pair_input_b.setObjectName(u"browse_pair_input_b")
+        sizePolicy18.setHeightForWidth(self.browse_pair_input_b.sizePolicy().hasHeightForWidth())
+        self.browse_pair_input_b.setSizePolicy(sizePolicy18)
 
         self.horizontalLayout_86.addWidget(self.browse_pair_input_b)
 
@@ -4012,24 +4045,58 @@ class Ui_MainWindow(object):
 
         self.browse_pair_output = QPushButton(self.frame_83)
         self.browse_pair_output.setObjectName(u"browse_pair_output")
+        sizePolicy18.setHeightForWidth(self.browse_pair_output.sizePolicy().hasHeightForWidth())
+        self.browse_pair_output.setSizePolicy(sizePolicy18)
 
         self.horizontalLayout_87.addWidget(self.browse_pair_output)
 
 
         self.formLayout_23.setLayout(2, QFormLayout.ItemRole.FieldRole, self.horizontalLayout_87)
 
-        self.pair_images_direction = QComboBox(self.frame_83)
-        self.pair_images_direction.setObjectName(u"pair_images_direction")
-
-        self.formLayout_23.setWidget(3, QFormLayout.ItemRole.FieldRole, self.pair_images_direction)
-
-        self.label_77 = QLabel(self.frame_83)
-        self.label_77.setObjectName(u"label_77")
-
-        self.formLayout_23.setWidget(3, QFormLayout.ItemRole.LabelRole, self.label_77)
-
 
         self.utils_pair_images_layout.addWidget(self.frame_83)
+
+        self.frame_102 = QFrame(self.utils_pair_images_frame)
+        self.frame_102.setObjectName(u"frame_102")
+        self.frame_102.setFrameShape(QFrame.StyledPanel)
+        self.frame_102.setFrameShadow(QFrame.Raised)
+        self.formLayout_29 = QFormLayout(self.frame_102)
+        self.formLayout_29.setObjectName(u"formLayout_29")
+        self.label_77 = QLabel(self.frame_102)
+        self.label_77.setObjectName(u"label_77")
+
+        self.formLayout_29.setWidget(0, QFormLayout.ItemRole.LabelRole, self.label_77)
+
+        self.pair_images_direction = QComboBox(self.frame_102)
+        self.pair_images_direction.setObjectName(u"pair_images_direction")
+
+        self.formLayout_29.setWidget(0, QFormLayout.ItemRole.FieldRole, self.pair_images_direction)
+
+        self.horizontalLayout_94 = QHBoxLayout()
+        self.horizontalLayout_94.setObjectName(u"horizontalLayout_94")
+        self.pair_images_do_scaling = QCheckBox(self.frame_102)
+        self.pair_images_do_scaling.setObjectName(u"pair_images_do_scaling")
+        sizePolicy8.setHeightForWidth(self.pair_images_do_scaling.sizePolicy().hasHeightForWidth())
+        self.pair_images_do_scaling.setSizePolicy(sizePolicy8)
+        self.pair_images_do_scaling.setLayoutDirection(Qt.RightToLeft)
+
+        self.horizontalLayout_94.addWidget(self.pair_images_do_scaling)
+
+        self.pair_images_scale = QComboBox(self.frame_102)
+        self.pair_images_scale.setObjectName(u"pair_images_scale")
+
+        self.horizontalLayout_94.addWidget(self.pair_images_scale)
+
+
+        self.formLayout_29.setLayout(1, QFormLayout.ItemRole.FieldRole, self.horizontalLayout_94)
+
+        self.label_97 = QLabel(self.frame_102)
+        self.label_97.setObjectName(u"label_97")
+
+        self.formLayout_29.setWidget(1, QFormLayout.ItemRole.LabelRole, self.label_97)
+
+
+        self.utils_pair_images_layout.addWidget(self.frame_102)
 
         self.frame_98 = QFrame(self.utils_pair_images_frame)
         self.frame_98.setObjectName(u"frame_98")
@@ -4043,6 +4110,13 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_88.addWidget(self.start_image_pairing)
 
+        self.preview_image_pairing = QPushButton(self.frame_98)
+        self.preview_image_pairing.setObjectName(u"preview_image_pairing")
+        sizePolicy8.setHeightForWidth(self.preview_image_pairing.sizePolicy().hasHeightForWidth())
+        self.preview_image_pairing.setSizePolicy(sizePolicy8)
+
+        self.horizontalLayout_88.addWidget(self.preview_image_pairing)
+
 
         self.utils_pair_images_layout.addWidget(self.frame_98)
 
@@ -4051,7 +4125,7 @@ class Ui_MainWindow(object):
         sizePolicy.setHeightForWidth(self.pairing_starting_label.sizePolicy().hasHeightForWidth())
         self.pairing_starting_label.setSizePolicy(sizePolicy)
         self.pairing_starting_label.setMinimumSize(QSize(0, 0))
-        self.pairing_starting_label.setFont(font10)
+        self.pairing_starting_label.setFont(font9)
         self.pairing_starting_label.setAlignment(Qt.AlignCenter)
 
         self.utils_pair_images_layout.addWidget(self.pairing_starting_label)
@@ -4074,26 +4148,501 @@ class Ui_MainWindow(object):
         self.horizontalLayout_16.setContentsMargins(0, 0, 0, 0)
         self.sort_images = QPushButton(self.frame_97)
         self.sort_images.setObjectName(u"sort_images")
+        self.sort_images.setCheckable(True)
 
         self.horizontalLayout_16.addWidget(self.sort_images)
 
         self.remove_sorting_tags = QPushButton(self.frame_97)
         self.remove_sorting_tags.setObjectName(u"remove_sorting_tags")
+        self.remove_sorting_tags.setCheckable(True)
 
         self.horizontalLayout_16.addWidget(self.remove_sorting_tags)
 
         self.copy_image_sort = QPushButton(self.frame_97)
         self.copy_image_sort.setObjectName(u"copy_image_sort")
+        self.copy_image_sort.setCheckable(True)
 
         self.horizontalLayout_16.addWidget(self.copy_image_sort)
 
 
         self.verticalLayout_48.addWidget(self.frame_97)
 
-        self.split_dataset_images = QPushButton(self.utilities_settings_container)
-        self.split_dataset_images.setObjectName(u"split_dataset_images")
+        self.utils_sort_images_frame = QFrame(self.utilities_settings_container)
+        self.utils_sort_images_frame.setObjectName(u"utils_sort_images_frame")
+        self.utils_sort_images_frame.setFrameShape(QFrame.Panel)
+        self.utils_sort_images_frame.setFrameShadow(QFrame.Sunken)
+        self.verticalLayout_62 = QVBoxLayout(self.utils_sort_images_frame)
+        self.verticalLayout_62.setObjectName(u"verticalLayout_62")
+        self.verticalLayout_62.setContentsMargins(2, 2, 2, 2)
+        self.label_90 = QLabel(self.utils_sort_images_frame)
+        self.label_90.setObjectName(u"label_90")
+        sizePolicy2.setHeightForWidth(self.label_90.sizePolicy().hasHeightForWidth())
+        self.label_90.setSizePolicy(sizePolicy2)
+        self.label_90.setAlignment(Qt.AlignCenter)
 
-        self.verticalLayout_48.addWidget(self.split_dataset_images)
+        self.verticalLayout_62.addWidget(self.label_90)
+
+        self.frame_99 = QFrame(self.utils_sort_images_frame)
+        self.frame_99.setObjectName(u"frame_99")
+        self.frame_99.setFrameShape(QFrame.StyledPanel)
+        self.frame_99.setFrameShadow(QFrame.Raised)
+        self.formLayout_24 = QFormLayout(self.frame_99)
+        self.formLayout_24.setObjectName(u"formLayout_24")
+        self.formLayout_24.setContentsMargins(0, 0, 0, 0)
+        self.label_76 = QLabel(self.frame_99)
+        self.label_76.setObjectName(u"label_76")
+
+        self.formLayout_24.setWidget(0, QFormLayout.ItemRole.LabelRole, self.label_76)
+
+        self.horizontalLayout_89 = QHBoxLayout()
+        self.horizontalLayout_89.setObjectName(u"horizontalLayout_89")
+        self.sort_images_input_dir = QLineEdit(self.frame_99)
+        self.sort_images_input_dir.setObjectName(u"sort_images_input_dir")
+
+        self.horizontalLayout_89.addWidget(self.sort_images_input_dir)
+
+        self.browse_sort_input_dir = QPushButton(self.frame_99)
+        self.browse_sort_input_dir.setObjectName(u"browse_sort_input_dir")
+        sizePolicy18.setHeightForWidth(self.browse_sort_input_dir.sizePolicy().hasHeightForWidth())
+        self.browse_sort_input_dir.setSizePolicy(sizePolicy18)
+
+        self.horizontalLayout_89.addWidget(self.browse_sort_input_dir)
+
+
+        self.formLayout_24.setLayout(0, QFormLayout.ItemRole.FieldRole, self.horizontalLayout_89)
+
+        self.label_78 = QLabel(self.frame_99)
+        self.label_78.setObjectName(u"label_78")
+
+        self.formLayout_24.setWidget(1, QFormLayout.ItemRole.LabelRole, self.label_78)
+
+        self.sort_images_type = QComboBox(self.frame_99)
+        self.sort_images_type.setObjectName(u"sort_images_type")
+
+        self.formLayout_24.setWidget(1, QFormLayout.ItemRole.FieldRole, self.sort_images_type)
+
+        self.label_81 = QLabel(self.frame_99)
+        self.label_81.setObjectName(u"label_81")
+
+        self.formLayout_24.setWidget(2, QFormLayout.ItemRole.LabelRole, self.label_81)
+
+        self.sort_images_direction = QComboBox(self.frame_99)
+        self.sort_images_direction.setObjectName(u"sort_images_direction")
+
+        self.formLayout_24.setWidget(2, QFormLayout.ItemRole.FieldRole, self.sort_images_direction)
+
+
+        self.verticalLayout_62.addWidget(self.frame_99)
+
+        self.frame_90 = QFrame(self.utils_sort_images_frame)
+        self.frame_90.setObjectName(u"frame_90")
+        self.frame_90.setFrameShape(QFrame.StyledPanel)
+        self.frame_90.setFrameShadow(QFrame.Raised)
+        self.horizontalLayout_96 = QHBoxLayout(self.frame_90)
+        self.horizontalLayout_96.setObjectName(u"horizontalLayout_96")
+        self.horizontalLayout_96.setContentsMargins(0, 0, 0, 0)
+        self.start_sort_images = QPushButton(self.frame_90)
+        self.start_sort_images.setObjectName(u"start_sort_images")
+
+        self.horizontalLayout_96.addWidget(self.start_sort_images)
+
+        self.preview_image_sorting = QPushButton(self.frame_90)
+        self.preview_image_sorting.setObjectName(u"preview_image_sorting")
+        sizePolicy8.setHeightForWidth(self.preview_image_sorting.sizePolicy().hasHeightForWidth())
+        self.preview_image_sorting.setSizePolicy(sizePolicy8)
+
+        self.horizontalLayout_96.addWidget(self.preview_image_sorting)
+
+
+        self.verticalLayout_62.addWidget(self.frame_90)
+
+        self.sorting_starting_label = QLabel(self.utils_sort_images_frame)
+        self.sorting_starting_label.setObjectName(u"sorting_starting_label")
+        self.sorting_starting_label.setFont(font9)
+        self.sorting_starting_label.setAlignment(Qt.AlignCenter)
+
+        self.verticalLayout_62.addWidget(self.sorting_starting_label)
+
+        self.sort_images_progress = QProgressBar(self.utils_sort_images_frame)
+        self.sort_images_progress.setObjectName(u"sort_images_progress")
+        self.sort_images_progress.setValue(24)
+
+        self.verticalLayout_62.addWidget(self.sort_images_progress)
+
+
+        self.verticalLayout_48.addWidget(self.utils_sort_images_frame)
+
+        self.utils_remove_sorting_tags_frame = QFrame(self.utilities_settings_container)
+        self.utils_remove_sorting_tags_frame.setObjectName(u"utils_remove_sorting_tags_frame")
+        self.utils_remove_sorting_tags_frame.setFrameShape(QFrame.Panel)
+        self.utils_remove_sorting_tags_frame.setFrameShadow(QFrame.Sunken)
+        self.verticalLayout_65 = QVBoxLayout(self.utils_remove_sorting_tags_frame)
+        self.verticalLayout_65.setObjectName(u"verticalLayout_65")
+        self.verticalLayout_65.setContentsMargins(2, 2, 2, 2)
+        self.label_91 = QLabel(self.utils_remove_sorting_tags_frame)
+        self.label_91.setObjectName(u"label_91")
+        sizePolicy2.setHeightForWidth(self.label_91.sizePolicy().hasHeightForWidth())
+        self.label_91.setSizePolicy(sizePolicy2)
+        self.label_91.setAlignment(Qt.AlignCenter)
+
+        self.verticalLayout_65.addWidget(self.label_91)
+
+        self.frame_100 = QFrame(self.utils_remove_sorting_tags_frame)
+        self.frame_100.setObjectName(u"frame_100")
+        self.frame_100.setFrameShape(QFrame.StyledPanel)
+        self.frame_100.setFrameShadow(QFrame.Raised)
+        self.formLayout_26 = QFormLayout(self.frame_100)
+        self.formLayout_26.setObjectName(u"formLayout_26")
+        self.formLayout_26.setContentsMargins(0, 0, 0, 0)
+        self.horizontalLayout_90 = QHBoxLayout()
+        self.horizontalLayout_90.setObjectName(u"horizontalLayout_90")
+        self.remove_sort_tags_input = QLineEdit(self.frame_100)
+        self.remove_sort_tags_input.setObjectName(u"remove_sort_tags_input")
+
+        self.horizontalLayout_90.addWidget(self.remove_sort_tags_input)
+
+        self.browse_remove_sort_tags_input = QPushButton(self.frame_100)
+        self.browse_remove_sort_tags_input.setObjectName(u"browse_remove_sort_tags_input")
+
+        self.horizontalLayout_90.addWidget(self.browse_remove_sort_tags_input)
+
+
+        self.formLayout_26.setLayout(0, QFormLayout.ItemRole.FieldRole, self.horizontalLayout_90)
+
+        self.label_82 = QLabel(self.frame_100)
+        self.label_82.setObjectName(u"label_82")
+
+        self.formLayout_26.setWidget(0, QFormLayout.ItemRole.LabelRole, self.label_82)
+
+
+        self.verticalLayout_65.addWidget(self.frame_100)
+
+        self.frame_103 = QFrame(self.utils_remove_sorting_tags_frame)
+        self.frame_103.setObjectName(u"frame_103")
+        self.frame_103.setFrameShape(QFrame.StyledPanel)
+        self.frame_103.setFrameShadow(QFrame.Raised)
+        self.horizontalLayout_97 = QHBoxLayout(self.frame_103)
+        self.horizontalLayout_97.setObjectName(u"horizontalLayout_97")
+        self.horizontalLayout_97.setContentsMargins(0, 0, 0, 0)
+        self.start_remove_sort_tags = QPushButton(self.frame_103)
+        self.start_remove_sort_tags.setObjectName(u"start_remove_sort_tags")
+
+        self.horizontalLayout_97.addWidget(self.start_remove_sort_tags)
+
+        self.preview_remove_sort_tags = QPushButton(self.frame_103)
+        self.preview_remove_sort_tags.setObjectName(u"preview_remove_sort_tags")
+        sizePolicy8.setHeightForWidth(self.preview_remove_sort_tags.sizePolicy().hasHeightForWidth())
+        self.preview_remove_sort_tags.setSizePolicy(sizePolicy8)
+
+        self.horizontalLayout_97.addWidget(self.preview_remove_sort_tags)
+
+
+        self.verticalLayout_65.addWidget(self.frame_103)
+
+        self.remove_sort_tags_starting_label = QLabel(self.utils_remove_sorting_tags_frame)
+        self.remove_sort_tags_starting_label.setObjectName(u"remove_sort_tags_starting_label")
+        self.remove_sort_tags_starting_label.setFont(font9)
+        self.remove_sort_tags_starting_label.setAlignment(Qt.AlignCenter)
+
+        self.verticalLayout_65.addWidget(self.remove_sort_tags_starting_label)
+
+        self.remove_sort_tags_progress = QProgressBar(self.utils_remove_sorting_tags_frame)
+        self.remove_sort_tags_progress.setObjectName(u"remove_sort_tags_progress")
+        self.remove_sort_tags_progress.setValue(24)
+
+        self.verticalLayout_65.addWidget(self.remove_sort_tags_progress)
+
+
+        self.verticalLayout_48.addWidget(self.utils_remove_sorting_tags_frame)
+
+        self.utils_copy_sort_frame = QFrame(self.utilities_settings_container)
+        self.utils_copy_sort_frame.setObjectName(u"utils_copy_sort_frame")
+        self.utils_copy_sort_frame.setFrameShape(QFrame.Panel)
+        self.utils_copy_sort_frame.setFrameShadow(QFrame.Sunken)
+        self.verticalLayout_67 = QVBoxLayout(self.utils_copy_sort_frame)
+        self.verticalLayout_67.setObjectName(u"verticalLayout_67")
+        self.verticalLayout_67.setContentsMargins(2, 2, 2, 2)
+        self.label_96 = QLabel(self.utils_copy_sort_frame)
+        self.label_96.setObjectName(u"label_96")
+        sizePolicy2.setHeightForWidth(self.label_96.sizePolicy().hasHeightForWidth())
+        self.label_96.setSizePolicy(sizePolicy2)
+        self.label_96.setAlignment(Qt.AlignCenter)
+
+        self.verticalLayout_67.addWidget(self.label_96)
+
+        self.frame_101 = QFrame(self.utils_copy_sort_frame)
+        self.frame_101.setObjectName(u"frame_101")
+        self.frame_101.setFrameShape(QFrame.StyledPanel)
+        self.frame_101.setFrameShadow(QFrame.Raised)
+        self.formLayout_28 = QFormLayout(self.frame_101)
+        self.formLayout_28.setObjectName(u"formLayout_28")
+        self.formLayout_28.setContentsMargins(0, 0, 0, 0)
+        self.label_83 = QLabel(self.frame_101)
+        self.label_83.setObjectName(u"label_83")
+
+        self.formLayout_28.setWidget(0, QFormLayout.ItemRole.LabelRole, self.label_83)
+
+        self.horizontalLayout_91 = QHBoxLayout()
+        self.horizontalLayout_91.setObjectName(u"horizontalLayout_91")
+        self.copy_sort_copy_from = QLineEdit(self.frame_101)
+        self.copy_sort_copy_from.setObjectName(u"copy_sort_copy_from")
+
+        self.horizontalLayout_91.addWidget(self.copy_sort_copy_from)
+
+        self.browse_copy_sort_copy_from = QPushButton(self.frame_101)
+        self.browse_copy_sort_copy_from.setObjectName(u"browse_copy_sort_copy_from")
+
+        self.horizontalLayout_91.addWidget(self.browse_copy_sort_copy_from)
+
+
+        self.formLayout_28.setLayout(0, QFormLayout.ItemRole.FieldRole, self.horizontalLayout_91)
+
+        self.label_88 = QLabel(self.frame_101)
+        self.label_88.setObjectName(u"label_88")
+
+        self.formLayout_28.setWidget(1, QFormLayout.ItemRole.LabelRole, self.label_88)
+
+        self.horizontalLayout_92 = QHBoxLayout()
+        self.horizontalLayout_92.setObjectName(u"horizontalLayout_92")
+        self.copy_sort_copy_to = QLineEdit(self.frame_101)
+        self.copy_sort_copy_to.setObjectName(u"copy_sort_copy_to")
+
+        self.horizontalLayout_92.addWidget(self.copy_sort_copy_to)
+
+        self.browse_copy_sort_copy_to = QPushButton(self.frame_101)
+        self.browse_copy_sort_copy_to.setObjectName(u"browse_copy_sort_copy_to")
+
+        self.horizontalLayout_92.addWidget(self.browse_copy_sort_copy_to)
+
+
+        self.formLayout_28.setLayout(1, QFormLayout.ItemRole.FieldRole, self.horizontalLayout_92)
+
+
+        self.verticalLayout_67.addWidget(self.frame_101)
+
+        self.frame_104 = QFrame(self.utils_copy_sort_frame)
+        self.frame_104.setObjectName(u"frame_104")
+        self.frame_104.setFrameShape(QFrame.StyledPanel)
+        self.frame_104.setFrameShadow(QFrame.Raised)
+        self.horizontalLayout_98 = QHBoxLayout(self.frame_104)
+        self.horizontalLayout_98.setObjectName(u"horizontalLayout_98")
+        self.horizontalLayout_98.setContentsMargins(0, 0, 0, 0)
+        self.start_copy_sort = QPushButton(self.frame_104)
+        self.start_copy_sort.setObjectName(u"start_copy_sort")
+
+        self.horizontalLayout_98.addWidget(self.start_copy_sort)
+
+        self.preview_copy_sort = QPushButton(self.frame_104)
+        self.preview_copy_sort.setObjectName(u"preview_copy_sort")
+        sizePolicy8.setHeightForWidth(self.preview_copy_sort.sizePolicy().hasHeightForWidth())
+        self.preview_copy_sort.setSizePolicy(sizePolicy8)
+
+        self.horizontalLayout_98.addWidget(self.preview_copy_sort)
+
+
+        self.verticalLayout_67.addWidget(self.frame_104)
+
+        self.copy_sort_starting_label = QLabel(self.utils_copy_sort_frame)
+        self.copy_sort_starting_label.setObjectName(u"copy_sort_starting_label")
+        self.copy_sort_starting_label.setFont(font9)
+        self.copy_sort_starting_label.setAlignment(Qt.AlignCenter)
+
+        self.verticalLayout_67.addWidget(self.copy_sort_starting_label)
+
+        self.copy_sort_progress = QProgressBar(self.utils_copy_sort_frame)
+        self.copy_sort_progress.setObjectName(u"copy_sort_progress")
+        self.copy_sort_progress.setValue(24)
+
+        self.verticalLayout_67.addWidget(self.copy_sort_progress)
+
+
+        self.verticalLayout_48.addWidget(self.utils_copy_sort_frame)
+
+        self.split_dataset = QPushButton(self.utilities_settings_container)
+        self.split_dataset.setObjectName(u"split_dataset")
+        self.split_dataset.setCheckable(True)
+
+        self.verticalLayout_48.addWidget(self.split_dataset)
+
+        self.utils_split_dataset_frame = QFrame(self.utilities_settings_container)
+        self.utils_split_dataset_frame.setObjectName(u"utils_split_dataset_frame")
+        self.utils_split_dataset_frame.setFrameShape(QFrame.Panel)
+        self.utils_split_dataset_frame.setFrameShadow(QFrame.Sunken)
+        self.verticalLayout_68 = QVBoxLayout(self.utils_split_dataset_frame)
+        self.verticalLayout_68.setObjectName(u"verticalLayout_68")
+        self.verticalLayout_68.setContentsMargins(2, 2, 2, 2)
+        self.frame_106 = QFrame(self.utils_split_dataset_frame)
+        self.frame_106.setObjectName(u"frame_106")
+        self.frame_106.setFrameShape(QFrame.StyledPanel)
+        self.frame_106.setFrameShadow(QFrame.Raised)
+        self.formLayout_31 = QFormLayout(self.frame_106)
+        self.formLayout_31.setObjectName(u"formLayout_31")
+        self.formLayout_31.setContentsMargins(0, 0, 0, 0)
+        self.label_109 = QLabel(self.frame_106)
+        self.label_109.setObjectName(u"label_109")
+
+        self.formLayout_31.setWidget(0, QFormLayout.ItemRole.LabelRole, self.label_109)
+
+        self.horizontalLayout_102 = QHBoxLayout()
+        self.horizontalLayout_102.setObjectName(u"horizontalLayout_102")
+        self.split_dataset_input = QLineEdit(self.frame_106)
+        self.split_dataset_input.setObjectName(u"split_dataset_input")
+
+        self.horizontalLayout_102.addWidget(self.split_dataset_input)
+
+        self.browse_split_dataset_input = QPushButton(self.frame_106)
+        self.browse_split_dataset_input.setObjectName(u"browse_split_dataset_input")
+
+        self.horizontalLayout_102.addWidget(self.browse_split_dataset_input)
+
+
+        self.formLayout_31.setLayout(0, QFormLayout.ItemRole.FieldRole, self.horizontalLayout_102)
+
+        self.label_110 = QLabel(self.frame_106)
+        self.label_110.setObjectName(u"label_110")
+
+        self.formLayout_31.setWidget(1, QFormLayout.ItemRole.LabelRole, self.label_110)
+
+        self.horizontalLayout_103 = QHBoxLayout()
+        self.horizontalLayout_103.setObjectName(u"horizontalLayout_103")
+        self.split_dataset_output = QLineEdit(self.frame_106)
+        self.split_dataset_output.setObjectName(u"split_dataset_output")
+
+        self.horizontalLayout_103.addWidget(self.split_dataset_output)
+
+        self.browse_split_dataset_output = QPushButton(self.frame_106)
+        self.browse_split_dataset_output.setObjectName(u"browse_split_dataset_output")
+
+        self.horizontalLayout_103.addWidget(self.browse_split_dataset_output)
+
+
+        self.formLayout_31.setLayout(1, QFormLayout.ItemRole.FieldRole, self.horizontalLayout_103)
+
+
+        self.verticalLayout_68.addWidget(self.frame_106)
+
+        self.frame_105 = QFrame(self.utils_split_dataset_frame)
+        self.frame_105.setObjectName(u"frame_105")
+        self.frame_105.setFrameShape(QFrame.StyledPanel)
+        self.frame_105.setFrameShadow(QFrame.Raised)
+        self.formLayout_30 = QFormLayout(self.frame_105)
+        self.formLayout_30.setObjectName(u"formLayout_30")
+        self.formLayout_30.setContentsMargins(0, 0, 0, 0)
+        self.label_79 = QLabel(self.frame_105)
+        self.label_79.setObjectName(u"label_79")
+
+        self.formLayout_30.setWidget(0, QFormLayout.ItemRole.LabelRole, self.label_79)
+
+        self.horizontalLayout_99 = QHBoxLayout()
+        self.horizontalLayout_99.setObjectName(u"horizontalLayout_99")
+        self.split_dataset_test_slider = QSlider(self.frame_105)
+        self.split_dataset_test_slider.setObjectName(u"split_dataset_test_slider")
+        self.split_dataset_test_slider.setMaximum(100)
+        self.split_dataset_test_slider.setValue(10)
+        self.split_dataset_test_slider.setOrientation(Qt.Horizontal)
+
+        self.horizontalLayout_99.addWidget(self.split_dataset_test_slider)
+
+        self.split_dataset_test = QSpinBox(self.frame_105)
+        self.split_dataset_test.setObjectName(u"split_dataset_test")
+        self.split_dataset_test.setMaximum(100)
+        self.split_dataset_test.setValue(10)
+
+        self.horizontalLayout_99.addWidget(self.split_dataset_test)
+
+
+        self.formLayout_30.setLayout(0, QFormLayout.ItemRole.FieldRole, self.horizontalLayout_99)
+
+        self.label_99 = QLabel(self.frame_105)
+        self.label_99.setObjectName(u"label_99")
+
+        self.formLayout_30.setWidget(1, QFormLayout.ItemRole.LabelRole, self.label_99)
+
+        self.label_108 = QLabel(self.frame_105)
+        self.label_108.setObjectName(u"label_108")
+
+        self.formLayout_30.setWidget(2, QFormLayout.ItemRole.LabelRole, self.label_108)
+
+        self.horizontalLayout_100 = QHBoxLayout()
+        self.horizontalLayout_100.setObjectName(u"horizontalLayout_100")
+        self.split_dataset_train_slider = QSlider(self.frame_105)
+        self.split_dataset_train_slider.setObjectName(u"split_dataset_train_slider")
+        self.split_dataset_train_slider.setMaximum(100)
+        self.split_dataset_train_slider.setValue(80)
+        self.split_dataset_train_slider.setOrientation(Qt.Horizontal)
+
+        self.horizontalLayout_100.addWidget(self.split_dataset_train_slider)
+
+        self.split_dataset_train = QSpinBox(self.frame_105)
+        self.split_dataset_train.setObjectName(u"split_dataset_train")
+        self.split_dataset_train.setMaximum(100)
+        self.split_dataset_train.setValue(80)
+
+        self.horizontalLayout_100.addWidget(self.split_dataset_train)
+
+
+        self.formLayout_30.setLayout(1, QFormLayout.ItemRole.FieldRole, self.horizontalLayout_100)
+
+        self.horizontalLayout_101 = QHBoxLayout()
+        self.horizontalLayout_101.setObjectName(u"horizontalLayout_101")
+        self.split_dataset_val_slider = QSlider(self.frame_105)
+        self.split_dataset_val_slider.setObjectName(u"split_dataset_val_slider")
+        self.split_dataset_val_slider.setMaximum(100)
+        self.split_dataset_val_slider.setValue(10)
+        self.split_dataset_val_slider.setOrientation(Qt.Horizontal)
+
+        self.horizontalLayout_101.addWidget(self.split_dataset_val_slider)
+
+        self.split_dataset_val = QSpinBox(self.frame_105)
+        self.split_dataset_val.setObjectName(u"split_dataset_val")
+        self.split_dataset_val.setMaximum(100)
+        self.split_dataset_val.setValue(10)
+
+        self.horizontalLayout_101.addWidget(self.split_dataset_val)
+
+
+        self.formLayout_30.setLayout(2, QFormLayout.ItemRole.FieldRole, self.horizontalLayout_101)
+
+
+        self.verticalLayout_68.addWidget(self.frame_105)
+
+        self.frame_107 = QFrame(self.utils_split_dataset_frame)
+        self.frame_107.setObjectName(u"frame_107")
+        self.frame_107.setFrameShape(QFrame.StyledPanel)
+        self.frame_107.setFrameShadow(QFrame.Raised)
+        self.horizontalLayout_104 = QHBoxLayout(self.frame_107)
+        self.horizontalLayout_104.setObjectName(u"horizontalLayout_104")
+        self.horizontalLayout_104.setContentsMargins(0, 0, 0, 0)
+        self.start_split_dataset = QPushButton(self.frame_107)
+        self.start_split_dataset.setObjectName(u"start_split_dataset")
+
+        self.horizontalLayout_104.addWidget(self.start_split_dataset)
+
+        self.preview_split_dataset = QPushButton(self.frame_107)
+        self.preview_split_dataset.setObjectName(u"preview_split_dataset")
+        sizePolicy8.setHeightForWidth(self.preview_split_dataset.sizePolicy().hasHeightForWidth())
+        self.preview_split_dataset.setSizePolicy(sizePolicy8)
+
+        self.horizontalLayout_104.addWidget(self.preview_split_dataset)
+
+
+        self.verticalLayout_68.addWidget(self.frame_107)
+
+        self.split_dataset_starting_label = QLabel(self.utils_split_dataset_frame)
+        self.split_dataset_starting_label.setObjectName(u"split_dataset_starting_label")
+        self.split_dataset_starting_label.setFont(font9)
+        self.split_dataset_starting_label.setAlignment(Qt.AlignCenter)
+
+        self.verticalLayout_68.addWidget(self.split_dataset_starting_label)
+
+        self.split_dataset_progress = QProgressBar(self.utils_split_dataset_frame)
+        self.split_dataset_progress.setObjectName(u"split_dataset_progress")
+        self.split_dataset_progress.setValue(24)
+
+        self.verticalLayout_68.addWidget(self.split_dataset_progress)
+
+
+        self.verticalLayout_48.addWidget(self.utils_split_dataset_frame)
 
         self.verticalSpacer_15 = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
 
@@ -4248,10 +4797,11 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
 
-        self.centralwidget_pages.setCurrentIndex(2)
+        self.centralwidget_pages.setCurrentIndex(3)
         self.settings_pages.setCurrentIndex(5)
         self.direction.setCurrentIndex(-1)
         self.tabWidget_2.setCurrentIndex(0)
+        self.pair_images_scale.setCurrentIndex(-1)
 
 
         QMetaObject.connectSlotsByName(MainWindow)
@@ -4282,7 +4832,6 @@ class Ui_MainWindow(object):
         self.label_94.setText(QCoreApplication.translate("MainWindow", u"Sort by", None))
         self.label_23.setText(QCoreApplication.translate("MainWindow", u"Example Images", None))
         self.label_25.setText(QCoreApplication.translate("MainWindow", u"Loss Graphs", None))
-        self.label_79.setText(QCoreApplication.translate("MainWindow", u"Utilities", None))
         self.utility_dock.setWindowTitle(QCoreApplication.translate("MainWindow", u"Lift for performance monitor / output log", None))
         self.times_group.setTitle(QCoreApplication.translate("MainWindow", u"Times", None))
         self.label_55.setText(QCoreApplication.translate("MainWindow", u"Train", None))
@@ -4483,6 +5032,7 @@ class Ui_MainWindow(object):
         self.test_onnx_model.setText(QCoreApplication.translate("MainWindow", u"Test ONNX Model", None))
         self.label_107.setText(QCoreApplication.translate("MainWindow", u"Image Tools", None))
         self.pair_images.setText(QCoreApplication.translate("MainWindow", u"Pair Images", None))
+        self.label_89.setText(QCoreApplication.translate("MainWindow", u"Image Pairing Settings", None))
         self.label_64.setText(QCoreApplication.translate("MainWindow", u"Input A", None))
         self.pair_images_input_a.setPlaceholderText(QCoreApplication.translate("MainWindow", u"Enter path to folder of A images...", None))
         self.browse_pair_input_a.setText(QCoreApplication.translate("MainWindow", u"Browse", None))
@@ -4493,12 +5043,57 @@ class Ui_MainWindow(object):
         self.pair_images_output.setPlaceholderText(QCoreApplication.translate("MainWindow", u"Enter path to output directory...", None))
         self.browse_pair_output.setText(QCoreApplication.translate("MainWindow", u"Browse", None))
         self.label_77.setText(QCoreApplication.translate("MainWindow", u"Direction", None))
+        self.pair_images_do_scaling.setText("")
+        self.pair_images_scale.setCurrentText("")
+        self.label_97.setText(QCoreApplication.translate("MainWindow", u"Scale Images", None))
         self.start_image_pairing.setText(QCoreApplication.translate("MainWindow", u"Start", None))
+        self.preview_image_pairing.setText(QCoreApplication.translate("MainWindow", u"Preview", None))
         self.pairing_starting_label.setText(QCoreApplication.translate("MainWindow", u"Starting...", None))
         self.sort_images.setText(QCoreApplication.translate("MainWindow", u"Sort Images", None))
         self.remove_sorting_tags.setText(QCoreApplication.translate("MainWindow", u"Remove Sorting Tags", None))
         self.copy_image_sort.setText(QCoreApplication.translate("MainWindow", u"Copy Sort", None))
-        self.split_dataset_images.setText(QCoreApplication.translate("MainWindow", u"Split Dataset Images", None))
+        self.label_90.setText(QCoreApplication.translate("MainWindow", u"Image Sorting Settings", None))
+        self.label_76.setText(QCoreApplication.translate("MainWindow", u"Input", None))
+        self.sort_images_input_dir.setPlaceholderText(QCoreApplication.translate("MainWindow", u"Enter path to input directory...", None))
+        self.browse_sort_input_dir.setText(QCoreApplication.translate("MainWindow", u"Browse", None))
+        self.label_78.setText(QCoreApplication.translate("MainWindow", u"Type", None))
+        self.label_81.setText(QCoreApplication.translate("MainWindow", u"Direction", None))
+        self.start_sort_images.setText(QCoreApplication.translate("MainWindow", u"Start", None))
+        self.preview_image_sorting.setText(QCoreApplication.translate("MainWindow", u"Preview", None))
+        self.sorting_starting_label.setText(QCoreApplication.translate("MainWindow", u"Starting...", None))
+        self.label_91.setText(QCoreApplication.translate("MainWindow", u"Remove Tags Settings", None))
+        self.remove_sort_tags_input.setPlaceholderText(QCoreApplication.translate("MainWindow", u"Enter path to input directory...", None))
+        self.browse_remove_sort_tags_input.setText(QCoreApplication.translate("MainWindow", u"Browse", None))
+        self.label_82.setText(QCoreApplication.translate("MainWindow", u"Input", None))
+        self.start_remove_sort_tags.setText(QCoreApplication.translate("MainWindow", u"Start", None))
+        self.preview_remove_sort_tags.setText(QCoreApplication.translate("MainWindow", u"Preview", None))
+        self.remove_sort_tags_starting_label.setText(QCoreApplication.translate("MainWindow", u"Starting...", None))
+        self.label_96.setText(QCoreApplication.translate("MainWindow", u"Copy Sort Settings", None))
+        self.label_83.setText(QCoreApplication.translate("MainWindow", u"From", None))
+        self.copy_sort_copy_from.setPlaceholderText(QCoreApplication.translate("MainWindow", u"Enter path to folder of sorted images...", None))
+        self.browse_copy_sort_copy_from.setText(QCoreApplication.translate("MainWindow", u"Browse", None))
+        self.label_88.setText(QCoreApplication.translate("MainWindow", u"To", None))
+        self.copy_sort_copy_to.setPlaceholderText(QCoreApplication.translate("MainWindow", u"Enter path to folder of images to sort...", None))
+        self.browse_copy_sort_copy_to.setText(QCoreApplication.translate("MainWindow", u"Browse", None))
+        self.start_copy_sort.setText(QCoreApplication.translate("MainWindow", u"Start", None))
+        self.preview_copy_sort.setText(QCoreApplication.translate("MainWindow", u"Preview", None))
+        self.copy_sort_starting_label.setText(QCoreApplication.translate("MainWindow", u"Starting...", None))
+        self.split_dataset.setText(QCoreApplication.translate("MainWindow", u"Split Dataset Images", None))
+        self.label_109.setText(QCoreApplication.translate("MainWindow", u"Input", None))
+        self.split_dataset_input.setPlaceholderText(QCoreApplication.translate("MainWindow", u"Enter path to image directory...", None))
+        self.browse_split_dataset_input.setText(QCoreApplication.translate("MainWindow", u"Browse", None))
+        self.label_110.setText(QCoreApplication.translate("MainWindow", u"Output", None))
+        self.split_dataset_output.setPlaceholderText(QCoreApplication.translate("MainWindow", u"Enter path to output directory...", None))
+        self.browse_split_dataset_output.setText(QCoreApplication.translate("MainWindow", u"Browse", None))
+        self.label_79.setText(QCoreApplication.translate("MainWindow", u"Test", None))
+        self.split_dataset_test.setSuffix(QCoreApplication.translate("MainWindow", u"%", None))
+        self.label_99.setText(QCoreApplication.translate("MainWindow", u"Train", None))
+        self.label_108.setText(QCoreApplication.translate("MainWindow", u"Validate", None))
+        self.split_dataset_train.setSuffix(QCoreApplication.translate("MainWindow", u"%", None))
+        self.split_dataset_val.setSuffix(QCoreApplication.translate("MainWindow", u"%", None))
+        self.start_split_dataset.setText(QCoreApplication.translate("MainWindow", u"Start", None))
+        self.preview_split_dataset.setText(QCoreApplication.translate("MainWindow", u"Preview", None))
+        self.split_dataset_starting_label.setText(QCoreApplication.translate("MainWindow", u"Starting...", None))
         self.always_on_top.setText(QCoreApplication.translate("MainWindow", u"Always on Top", None))
         self.log_losses.setText(QCoreApplication.translate("MainWindow", u"Log Losses During Training", None))
         self.label_18.setText(QCoreApplication.translate("MainWindow", u"Loss Log Dump Frequency (epochs)", None))

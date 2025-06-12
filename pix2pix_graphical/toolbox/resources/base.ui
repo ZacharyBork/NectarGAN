@@ -99,7 +99,7 @@
        <item>
         <widget class="QStackedWidget" name="centralwidget_pages">
          <property name="currentIndex">
-          <number>2</number>
+          <number>3</number>
          </property>
          <widget class="QWidget" name="central_train_page">
           <layout class="QVBoxLayout" name="verticalLayout_25">
@@ -1033,18 +1033,32 @@
             <number>0</number>
            </property>
            <item>
-            <widget class="QLabel" name="label_79">
-             <property name="font">
-              <font>
-               <pointsize>32</pointsize>
-              </font>
+            <widget class="QScrollArea" name="scrollArea_16">
+             <property name="widgetResizable">
+              <bool>true</bool>
              </property>
-             <property name="text">
-              <string>Utilities</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignCenter</set>
-             </property>
+             <widget class="QWidget" name="scrollAreaWidgetContents_2">
+              <property name="geometry">
+               <rect>
+                <x>0</x>
+                <y>0</y>
+                <width>1387</width>
+                <height>1041</height>
+               </rect>
+              </property>
+              <layout class="QVBoxLayout" name="verticalLayout_66">
+               <item>
+                <widget class="QTextEdit" name="file_change_log">
+                 <property name="readOnly">
+                  <bool>true</bool>
+                 </property>
+                 <property name="textInteractionFlags">
+                  <set>Qt::NoTextInteraction</set>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
             </widget>
            </item>
           </layout>
@@ -7700,8 +7714,8 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>210</width>
-                    <height>242</height>
+                    <width>419</width>
+                    <height>921</height>
                    </rect>
                   </property>
                   <layout class="QVBoxLayout" name="verticalLayout_46">
@@ -7785,43 +7799,16 @@
                     </layout>
                    </item>
                    <item>
-                    <widget class="QFrame" name="frame_90">
-                     <property name="frameShape">
-                      <enum>QFrame::Panel</enum>
+                    <widget class="QPushButton" name="review_load_experiment">
+                     <property name="font">
+                      <font>
+                       <pointsize>12</pointsize>
+                       <bold>false</bold>
+                      </font>
                      </property>
-                     <property name="frameShadow">
-                      <enum>QFrame::Sunken</enum>
+                     <property name="text">
+                      <string>Load Experiment</string>
                      </property>
-                     <property name="lineWidth">
-                      <number>2</number>
-                     </property>
-                     <layout class="QVBoxLayout" name="verticalLayout_66">
-                      <property name="leftMargin">
-                       <number>3</number>
-                      </property>
-                      <property name="topMargin">
-                       <number>3</number>
-                      </property>
-                      <property name="rightMargin">
-                       <number>3</number>
-                      </property>
-                      <property name="bottomMargin">
-                       <number>3</number>
-                      </property>
-                      <item>
-                       <widget class="QPushButton" name="review_load_experiment">
-                        <property name="font">
-                         <font>
-                          <pointsize>12</pointsize>
-                          <bold>true</bold>
-                         </font>
-                        </property>
-                        <property name="text">
-                         <string>Load Experiment</string>
-                        </property>
-                       </widget>
-                      </item>
-                     </layout>
                     </widget>
                    </item>
                    <item>
@@ -7891,7 +7878,7 @@
                       <enum>QFrame::Panel</enum>
                      </property>
                      <property name="lineWidth">
-                      <number>2</number>
+                      <number>1</number>
                      </property>
                      <property name="readOnly">
                       <bool>true</bool>
@@ -7933,9 +7920,9 @@
                   <property name="geometry">
                    <rect>
                     <x>0</x>
-                    <y>0</y>
-                    <width>419</width>
-                    <height>921</height>
+                    <y>-567</y>
+                    <width>402</width>
+                    <height>1488</height>
                    </rect>
                   </property>
                   <layout class="QVBoxLayout" name="verticalLayout_48">
@@ -7976,6 +7963,16 @@
                       <property name="bottomMargin">
                        <number>0</number>
                       </property>
+                      <item>
+                       <widget class="Line" name="line_42">
+                        <property name="frameShadow">
+                         <enum>QFrame::Raised</enum>
+                        </property>
+                        <property name="orientation">
+                         <enum>Qt::Horizontal</enum>
+                        </property>
+                       </widget>
+                      </item>
                       <item>
                        <widget class="QLabel" name="label_106">
                         <property name="sizePolicy">
@@ -8018,12 +8015,18 @@
                      <property name="text">
                       <string>Convert to ONNX</string>
                      </property>
+                     <property name="checkable">
+                      <bool>true</bool>
+                     </property>
                     </widget>
                    </item>
                    <item>
                     <widget class="QPushButton" name="test_onnx_model">
                      <property name="text">
                       <string>Test ONNX Model</string>
+                     </property>
+                     <property name="checkable">
+                      <bool>true</bool>
                      </property>
                     </widget>
                    </item>
@@ -8048,6 +8051,16 @@
                       <property name="bottomMargin">
                        <number>0</number>
                       </property>
+                      <item>
+                       <widget class="Line" name="line_43">
+                        <property name="frameShadow">
+                         <enum>QFrame::Raised</enum>
+                        </property>
+                        <property name="orientation">
+                         <enum>Qt::Horizontal</enum>
+                        </property>
+                       </widget>
+                      </item>
                       <item>
                        <widget class="QLabel" name="label_107">
                         <property name="sizePolicy">
@@ -8120,6 +8133,22 @@
                        <number>2</number>
                       </property>
                       <item>
+                       <widget class="QLabel" name="label_89">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="text">
+                         <string>Image Pairing Settings</string>
+                        </property>
+                        <property name="alignment">
+                         <set>Qt::AlignCenter</set>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
                        <widget class="QFrame" name="frame_83">
                         <property name="frameShape">
                          <enum>QFrame::StyledPanel</enum>
@@ -8158,6 +8187,12 @@
                            </item>
                            <item>
                             <widget class="QPushButton" name="browse_pair_input_a">
+                             <property name="sizePolicy">
+                              <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                               <horstretch>0</horstretch>
+                               <verstretch>0</verstretch>
+                              </sizepolicy>
+                             </property>
                              <property name="text">
                               <string>Browse</string>
                              </property>
@@ -8183,6 +8218,12 @@
                            </item>
                            <item>
                             <widget class="QPushButton" name="browse_pair_input_b">
+                             <property name="sizePolicy">
+                              <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                               <horstretch>0</horstretch>
+                               <verstretch>0</verstretch>
+                              </sizepolicy>
+                             </property>
                              <property name="text">
                               <string>Browse</string>
                              </property>
@@ -8208,6 +8249,12 @@
                            </item>
                            <item>
                             <widget class="QPushButton" name="browse_pair_output">
+                             <property name="sizePolicy">
+                              <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                               <horstretch>0</horstretch>
+                               <verstretch>0</verstretch>
+                              </sizepolicy>
+                             </property>
                              <property name="text">
                               <string>Browse</string>
                              </property>
@@ -8215,13 +8262,62 @@
                            </item>
                           </layout>
                          </item>
-                         <item row="3" column="1">
-                          <widget class="QComboBox" name="pair_images_direction"/>
-                         </item>
-                         <item row="3" column="0">
+                        </layout>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QFrame" name="frame_102">
+                        <property name="frameShape">
+                         <enum>QFrame::StyledPanel</enum>
+                        </property>
+                        <property name="frameShadow">
+                         <enum>QFrame::Raised</enum>
+                        </property>
+                        <layout class="QFormLayout" name="formLayout_29">
+                         <item row="0" column="0">
                           <widget class="QLabel" name="label_77">
                            <property name="text">
                             <string>Direction</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="0" column="1">
+                          <widget class="QComboBox" name="pair_images_direction"/>
+                         </item>
+                         <item row="1" column="1">
+                          <layout class="QHBoxLayout" name="horizontalLayout_94">
+                           <item>
+                            <widget class="QCheckBox" name="pair_images_do_scaling">
+                             <property name="sizePolicy">
+                              <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+                               <horstretch>0</horstretch>
+                               <verstretch>0</verstretch>
+                              </sizepolicy>
+                             </property>
+                             <property name="layoutDirection">
+                              <enum>Qt::RightToLeft</enum>
+                             </property>
+                             <property name="text">
+                              <string/>
+                             </property>
+                            </widget>
+                           </item>
+                           <item>
+                            <widget class="QComboBox" name="pair_images_scale">
+                             <property name="currentText">
+                              <string/>
+                             </property>
+                             <property name="currentIndex">
+                              <number>-1</number>
+                             </property>
+                            </widget>
+                           </item>
+                          </layout>
+                         </item>
+                         <item row="1" column="0">
+                          <widget class="QLabel" name="label_97">
+                           <property name="text">
+                            <string>Scale Images</string>
                            </property>
                           </widget>
                          </item>
@@ -8253,6 +8349,19 @@
                           <widget class="QPushButton" name="start_image_pairing">
                            <property name="text">
                             <string>Start</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item>
+                          <widget class="QPushButton" name="preview_image_pairing">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="text">
+                            <string>Preview</string>
                            </property>
                           </widget>
                          </item>
@@ -8322,12 +8431,18 @@
                         <property name="text">
                          <string>Sort Images</string>
                         </property>
+                        <property name="checkable">
+                         <bool>true</bool>
+                        </property>
                        </widget>
                       </item>
                       <item>
                        <widget class="QPushButton" name="remove_sorting_tags">
                         <property name="text">
                          <string>Remove Sorting Tags</string>
+                        </property>
+                        <property name="checkable">
+                         <bool>true</bool>
                         </property>
                        </widget>
                       </item>
@@ -8336,16 +8451,837 @@
                         <property name="text">
                          <string>Copy Sort</string>
                         </property>
+                        <property name="checkable">
+                         <bool>true</bool>
+                        </property>
                        </widget>
                       </item>
                      </layout>
                     </widget>
                    </item>
                    <item>
-                    <widget class="QPushButton" name="split_dataset_images">
+                    <widget class="QFrame" name="utils_sort_images_frame">
+                     <property name="frameShape">
+                      <enum>QFrame::Panel</enum>
+                     </property>
+                     <property name="frameShadow">
+                      <enum>QFrame::Sunken</enum>
+                     </property>
+                     <layout class="QVBoxLayout" name="verticalLayout_62">
+                      <property name="leftMargin">
+                       <number>2</number>
+                      </property>
+                      <property name="topMargin">
+                       <number>2</number>
+                      </property>
+                      <property name="rightMargin">
+                       <number>2</number>
+                      </property>
+                      <property name="bottomMargin">
+                       <number>2</number>
+                      </property>
+                      <item>
+                       <widget class="QLabel" name="label_90">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="text">
+                         <string>Image Sorting Settings</string>
+                        </property>
+                        <property name="alignment">
+                         <set>Qt::AlignCenter</set>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QFrame" name="frame_99">
+                        <property name="frameShape">
+                         <enum>QFrame::StyledPanel</enum>
+                        </property>
+                        <property name="frameShadow">
+                         <enum>QFrame::Raised</enum>
+                        </property>
+                        <layout class="QFormLayout" name="formLayout_24">
+                         <property name="leftMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="topMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="rightMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="bottomMargin">
+                          <number>0</number>
+                         </property>
+                         <item row="0" column="0">
+                          <widget class="QLabel" name="label_76">
+                           <property name="text">
+                            <string>Input</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="0" column="1">
+                          <layout class="QHBoxLayout" name="horizontalLayout_89">
+                           <item>
+                            <widget class="QLineEdit" name="sort_images_input_dir">
+                             <property name="placeholderText">
+                              <string>Enter path to input directory...</string>
+                             </property>
+                            </widget>
+                           </item>
+                           <item>
+                            <widget class="QPushButton" name="browse_sort_input_dir">
+                             <property name="sizePolicy">
+                              <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                               <horstretch>0</horstretch>
+                               <verstretch>0</verstretch>
+                              </sizepolicy>
+                             </property>
+                             <property name="text">
+                              <string>Browse</string>
+                             </property>
+                            </widget>
+                           </item>
+                          </layout>
+                         </item>
+                         <item row="1" column="0">
+                          <widget class="QLabel" name="label_78">
+                           <property name="text">
+                            <string>Type</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="1" column="1">
+                          <widget class="QComboBox" name="sort_images_type"/>
+                         </item>
+                         <item row="2" column="0">
+                          <widget class="QLabel" name="label_81">
+                           <property name="text">
+                            <string>Direction</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="2" column="1">
+                          <widget class="QComboBox" name="sort_images_direction"/>
+                         </item>
+                        </layout>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QFrame" name="frame_90">
+                        <property name="frameShape">
+                         <enum>QFrame::StyledPanel</enum>
+                        </property>
+                        <property name="frameShadow">
+                         <enum>QFrame::Raised</enum>
+                        </property>
+                        <layout class="QHBoxLayout" name="horizontalLayout_96">
+                         <property name="leftMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="topMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="rightMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="bottomMargin">
+                          <number>0</number>
+                         </property>
+                         <item>
+                          <widget class="QPushButton" name="start_sort_images">
+                           <property name="text">
+                            <string>Start</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item>
+                          <widget class="QPushButton" name="preview_image_sorting">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="text">
+                            <string>Preview</string>
+                           </property>
+                          </widget>
+                         </item>
+                        </layout>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QLabel" name="sorting_starting_label">
+                        <property name="font">
+                         <font>
+                          <pointsize>8</pointsize>
+                         </font>
+                        </property>
+                        <property name="text">
+                         <string>Starting...</string>
+                        </property>
+                        <property name="alignment">
+                         <set>Qt::AlignCenter</set>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QProgressBar" name="sort_images_progress">
+                        <property name="value">
+                         <number>24</number>
+                        </property>
+                       </widget>
+                      </item>
+                     </layout>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QFrame" name="utils_remove_sorting_tags_frame">
+                     <property name="frameShape">
+                      <enum>QFrame::Panel</enum>
+                     </property>
+                     <property name="frameShadow">
+                      <enum>QFrame::Sunken</enum>
+                     </property>
+                     <layout class="QVBoxLayout" name="verticalLayout_65">
+                      <property name="leftMargin">
+                       <number>2</number>
+                      </property>
+                      <property name="topMargin">
+                       <number>2</number>
+                      </property>
+                      <property name="rightMargin">
+                       <number>2</number>
+                      </property>
+                      <property name="bottomMargin">
+                       <number>2</number>
+                      </property>
+                      <item>
+                       <widget class="QLabel" name="label_91">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="text">
+                         <string>Remove Tags Settings</string>
+                        </property>
+                        <property name="alignment">
+                         <set>Qt::AlignCenter</set>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QFrame" name="frame_100">
+                        <property name="frameShape">
+                         <enum>QFrame::StyledPanel</enum>
+                        </property>
+                        <property name="frameShadow">
+                         <enum>QFrame::Raised</enum>
+                        </property>
+                        <layout class="QFormLayout" name="formLayout_26">
+                         <property name="leftMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="topMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="rightMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="bottomMargin">
+                          <number>0</number>
+                         </property>
+                         <item row="0" column="1">
+                          <layout class="QHBoxLayout" name="horizontalLayout_90">
+                           <item>
+                            <widget class="QLineEdit" name="remove_sort_tags_input">
+                             <property name="placeholderText">
+                              <string>Enter path to input directory...</string>
+                             </property>
+                            </widget>
+                           </item>
+                           <item>
+                            <widget class="QPushButton" name="browse_remove_sort_tags_input">
+                             <property name="text">
+                              <string>Browse</string>
+                             </property>
+                            </widget>
+                           </item>
+                          </layout>
+                         </item>
+                         <item row="0" column="0">
+                          <widget class="QLabel" name="label_82">
+                           <property name="text">
+                            <string>Input</string>
+                           </property>
+                          </widget>
+                         </item>
+                        </layout>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QFrame" name="frame_103">
+                        <property name="frameShape">
+                         <enum>QFrame::StyledPanel</enum>
+                        </property>
+                        <property name="frameShadow">
+                         <enum>QFrame::Raised</enum>
+                        </property>
+                        <layout class="QHBoxLayout" name="horizontalLayout_97">
+                         <property name="leftMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="topMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="rightMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="bottomMargin">
+                          <number>0</number>
+                         </property>
+                         <item>
+                          <widget class="QPushButton" name="start_remove_sort_tags">
+                           <property name="text">
+                            <string>Start</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item>
+                          <widget class="QPushButton" name="preview_remove_sort_tags">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="text">
+                            <string>Preview</string>
+                           </property>
+                          </widget>
+                         </item>
+                        </layout>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QLabel" name="remove_sort_tags_starting_label">
+                        <property name="font">
+                         <font>
+                          <pointsize>8</pointsize>
+                         </font>
+                        </property>
+                        <property name="text">
+                         <string>Starting...</string>
+                        </property>
+                        <property name="alignment">
+                         <set>Qt::AlignCenter</set>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QProgressBar" name="remove_sort_tags_progress">
+                        <property name="value">
+                         <number>24</number>
+                        </property>
+                       </widget>
+                      </item>
+                     </layout>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QFrame" name="utils_copy_sort_frame">
+                     <property name="frameShape">
+                      <enum>QFrame::Panel</enum>
+                     </property>
+                     <property name="frameShadow">
+                      <enum>QFrame::Sunken</enum>
+                     </property>
+                     <layout class="QVBoxLayout" name="verticalLayout_67">
+                      <property name="leftMargin">
+                       <number>2</number>
+                      </property>
+                      <property name="topMargin">
+                       <number>2</number>
+                      </property>
+                      <property name="rightMargin">
+                       <number>2</number>
+                      </property>
+                      <property name="bottomMargin">
+                       <number>2</number>
+                      </property>
+                      <item>
+                       <widget class="QLabel" name="label_96">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="text">
+                         <string>Copy Sort Settings</string>
+                        </property>
+                        <property name="alignment">
+                         <set>Qt::AlignCenter</set>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QFrame" name="frame_101">
+                        <property name="frameShape">
+                         <enum>QFrame::StyledPanel</enum>
+                        </property>
+                        <property name="frameShadow">
+                         <enum>QFrame::Raised</enum>
+                        </property>
+                        <layout class="QFormLayout" name="formLayout_28">
+                         <property name="leftMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="topMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="rightMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="bottomMargin">
+                          <number>0</number>
+                         </property>
+                         <item row="0" column="0">
+                          <widget class="QLabel" name="label_83">
+                           <property name="text">
+                            <string>From</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="0" column="1">
+                          <layout class="QHBoxLayout" name="horizontalLayout_91">
+                           <item>
+                            <widget class="QLineEdit" name="copy_sort_copy_from">
+                             <property name="placeholderText">
+                              <string>Enter path to folder of sorted images...</string>
+                             </property>
+                            </widget>
+                           </item>
+                           <item>
+                            <widget class="QPushButton" name="browse_copy_sort_copy_from">
+                             <property name="text">
+                              <string>Browse</string>
+                             </property>
+                            </widget>
+                           </item>
+                          </layout>
+                         </item>
+                         <item row="1" column="0">
+                          <widget class="QLabel" name="label_88">
+                           <property name="text">
+                            <string>To</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="1" column="1">
+                          <layout class="QHBoxLayout" name="horizontalLayout_92">
+                           <item>
+                            <widget class="QLineEdit" name="copy_sort_copy_to">
+                             <property name="placeholderText">
+                              <string>Enter path to folder of images to sort...</string>
+                             </property>
+                            </widget>
+                           </item>
+                           <item>
+                            <widget class="QPushButton" name="browse_copy_sort_copy_to">
+                             <property name="text">
+                              <string>Browse</string>
+                             </property>
+                            </widget>
+                           </item>
+                          </layout>
+                         </item>
+                        </layout>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QFrame" name="frame_104">
+                        <property name="frameShape">
+                         <enum>QFrame::StyledPanel</enum>
+                        </property>
+                        <property name="frameShadow">
+                         <enum>QFrame::Raised</enum>
+                        </property>
+                        <layout class="QHBoxLayout" name="horizontalLayout_98">
+                         <property name="leftMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="topMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="rightMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="bottomMargin">
+                          <number>0</number>
+                         </property>
+                         <item>
+                          <widget class="QPushButton" name="start_copy_sort">
+                           <property name="text">
+                            <string>Start</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item>
+                          <widget class="QPushButton" name="preview_copy_sort">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="text">
+                            <string>Preview</string>
+                           </property>
+                          </widget>
+                         </item>
+                        </layout>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QLabel" name="copy_sort_starting_label">
+                        <property name="font">
+                         <font>
+                          <pointsize>8</pointsize>
+                         </font>
+                        </property>
+                        <property name="text">
+                         <string>Starting...</string>
+                        </property>
+                        <property name="alignment">
+                         <set>Qt::AlignCenter</set>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QProgressBar" name="copy_sort_progress">
+                        <property name="value">
+                         <number>24</number>
+                        </property>
+                       </widget>
+                      </item>
+                     </layout>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QPushButton" name="split_dataset">
                      <property name="text">
                       <string>Split Dataset Images</string>
                      </property>
+                     <property name="checkable">
+                      <bool>true</bool>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QFrame" name="utils_split_dataset_frame">
+                     <property name="frameShape">
+                      <enum>QFrame::Panel</enum>
+                     </property>
+                     <property name="frameShadow">
+                      <enum>QFrame::Sunken</enum>
+                     </property>
+                     <layout class="QVBoxLayout" name="verticalLayout_68">
+                      <property name="leftMargin">
+                       <number>2</number>
+                      </property>
+                      <property name="topMargin">
+                       <number>2</number>
+                      </property>
+                      <property name="rightMargin">
+                       <number>2</number>
+                      </property>
+                      <property name="bottomMargin">
+                       <number>2</number>
+                      </property>
+                      <item>
+                       <widget class="QFrame" name="frame_106">
+                        <property name="frameShape">
+                         <enum>QFrame::StyledPanel</enum>
+                        </property>
+                        <property name="frameShadow">
+                         <enum>QFrame::Raised</enum>
+                        </property>
+                        <layout class="QFormLayout" name="formLayout_31">
+                         <property name="leftMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="topMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="rightMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="bottomMargin">
+                          <number>0</number>
+                         </property>
+                         <item row="0" column="0">
+                          <widget class="QLabel" name="label_109">
+                           <property name="text">
+                            <string>Input</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="0" column="1">
+                          <layout class="QHBoxLayout" name="horizontalLayout_102">
+                           <item>
+                            <widget class="QLineEdit" name="split_dataset_input">
+                             <property name="placeholderText">
+                              <string>Enter path to image directory...</string>
+                             </property>
+                            </widget>
+                           </item>
+                           <item>
+                            <widget class="QPushButton" name="browse_split_dataset_input">
+                             <property name="text">
+                              <string>Browse</string>
+                             </property>
+                            </widget>
+                           </item>
+                          </layout>
+                         </item>
+                         <item row="1" column="0">
+                          <widget class="QLabel" name="label_110">
+                           <property name="text">
+                            <string>Output</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="1" column="1">
+                          <layout class="QHBoxLayout" name="horizontalLayout_103">
+                           <item>
+                            <widget class="QLineEdit" name="split_dataset_output">
+                             <property name="placeholderText">
+                              <string>Enter path to output directory...</string>
+                             </property>
+                            </widget>
+                           </item>
+                           <item>
+                            <widget class="QPushButton" name="browse_split_dataset_output">
+                             <property name="text">
+                              <string>Browse</string>
+                             </property>
+                            </widget>
+                           </item>
+                          </layout>
+                         </item>
+                        </layout>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QFrame" name="frame_105">
+                        <property name="frameShape">
+                         <enum>QFrame::StyledPanel</enum>
+                        </property>
+                        <property name="frameShadow">
+                         <enum>QFrame::Raised</enum>
+                        </property>
+                        <layout class="QFormLayout" name="formLayout_30">
+                         <property name="leftMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="topMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="rightMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="bottomMargin">
+                          <number>0</number>
+                         </property>
+                         <item row="0" column="0">
+                          <widget class="QLabel" name="label_79">
+                           <property name="text">
+                            <string>Test</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="0" column="1">
+                          <layout class="QHBoxLayout" name="horizontalLayout_99">
+                           <item>
+                            <widget class="QSlider" name="split_dataset_test_slider">
+                             <property name="maximum">
+                              <number>100</number>
+                             </property>
+                             <property name="value">
+                              <number>10</number>
+                             </property>
+                             <property name="orientation">
+                              <enum>Qt::Horizontal</enum>
+                             </property>
+                            </widget>
+                           </item>
+                           <item>
+                            <widget class="QSpinBox" name="split_dataset_test">
+                             <property name="suffix">
+                              <string>%</string>
+                             </property>
+                             <property name="maximum">
+                              <number>100</number>
+                             </property>
+                             <property name="value">
+                              <number>10</number>
+                             </property>
+                            </widget>
+                           </item>
+                          </layout>
+                         </item>
+                         <item row="1" column="0">
+                          <widget class="QLabel" name="label_99">
+                           <property name="text">
+                            <string>Train</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="2" column="0">
+                          <widget class="QLabel" name="label_108">
+                           <property name="text">
+                            <string>Validate</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="1" column="1">
+                          <layout class="QHBoxLayout" name="horizontalLayout_100">
+                           <item>
+                            <widget class="QSlider" name="split_dataset_train_slider">
+                             <property name="maximum">
+                              <number>100</number>
+                             </property>
+                             <property name="value">
+                              <number>80</number>
+                             </property>
+                             <property name="orientation">
+                              <enum>Qt::Horizontal</enum>
+                             </property>
+                            </widget>
+                           </item>
+                           <item>
+                            <widget class="QSpinBox" name="split_dataset_train">
+                             <property name="suffix">
+                              <string>%</string>
+                             </property>
+                             <property name="maximum">
+                              <number>100</number>
+                             </property>
+                             <property name="value">
+                              <number>80</number>
+                             </property>
+                            </widget>
+                           </item>
+                          </layout>
+                         </item>
+                         <item row="2" column="1">
+                          <layout class="QHBoxLayout" name="horizontalLayout_101">
+                           <item>
+                            <widget class="QSlider" name="split_dataset_val_slider">
+                             <property name="maximum">
+                              <number>100</number>
+                             </property>
+                             <property name="value">
+                              <number>10</number>
+                             </property>
+                             <property name="orientation">
+                              <enum>Qt::Horizontal</enum>
+                             </property>
+                            </widget>
+                           </item>
+                           <item>
+                            <widget class="QSpinBox" name="split_dataset_val">
+                             <property name="suffix">
+                              <string>%</string>
+                             </property>
+                             <property name="maximum">
+                              <number>100</number>
+                             </property>
+                             <property name="value">
+                              <number>10</number>
+                             </property>
+                            </widget>
+                           </item>
+                          </layout>
+                         </item>
+                        </layout>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QFrame" name="frame_107">
+                        <property name="frameShape">
+                         <enum>QFrame::StyledPanel</enum>
+                        </property>
+                        <property name="frameShadow">
+                         <enum>QFrame::Raised</enum>
+                        </property>
+                        <layout class="QHBoxLayout" name="horizontalLayout_104">
+                         <property name="leftMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="topMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="rightMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="bottomMargin">
+                          <number>0</number>
+                         </property>
+                         <item>
+                          <widget class="QPushButton" name="start_split_dataset">
+                           <property name="text">
+                            <string>Start</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item>
+                          <widget class="QPushButton" name="preview_split_dataset">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="text">
+                            <string>Preview</string>
+                           </property>
+                          </widget>
+                         </item>
+                        </layout>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QLabel" name="split_dataset_starting_label">
+                        <property name="font">
+                         <font>
+                          <pointsize>8</pointsize>
+                         </font>
+                        </property>
+                        <property name="text">
+                         <string>Starting...</string>
+                        </property>
+                        <property name="alignment">
+                         <set>Qt::AlignCenter</set>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QProgressBar" name="split_dataset_progress">
+                        <property name="value">
+                         <number>24</number>
+                        </property>
+                       </widget>
+                      </item>
+                     </layout>
                     </widget>
                    </item>
                    <item>
