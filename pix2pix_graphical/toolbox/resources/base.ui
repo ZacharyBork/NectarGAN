@@ -617,8 +617,8 @@
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>1364</width>
-                <height>997</height>
+                <width>163</width>
+                <height>34</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_58">
@@ -928,7 +928,7 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>655</width>
+                    <width>745</width>
                     <height>967</height>
                    </rect>
                   </property>
@@ -1001,7 +1001,7 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>654</width>
+                    <width>577</width>
                     <height>967</height>
                    </rect>
                   </property>
@@ -3330,7 +3330,7 @@
            <item>
             <widget class="QStackedWidget" name="settings_pages">
              <property name="currentIndex">
-              <number>0</number>
+              <number>5</number>
              </property>
              <widget class="QWidget" name="experiment_page">
               <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -3362,8 +3362,8 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>432</width>
-                    <height>884</height>
+                    <width>310</width>
+                    <height>318</height>
                    </rect>
                   </property>
                   <layout class="QVBoxLayout" name="verticalLayout_11">
@@ -4013,8 +4013,8 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>432</width>
-                    <height>921</height>
+                    <width>419</width>
+                    <height>521</height>
                    </rect>
                   </property>
                   <layout class="QVBoxLayout" name="verticalLayout_10">
@@ -5056,8 +5056,8 @@
                        <rect>
                         <x>0</x>
                         <y>0</y>
-                        <width>432</width>
-                        <height>814</height>
+                        <width>302</width>
+                        <height>145</height>
                        </rect>
                       </property>
                       <layout class="QVBoxLayout" name="verticalLayout_20">
@@ -5310,8 +5310,8 @@
                                   <rect>
                                    <x>0</x>
                                    <y>0</y>
-                                   <width>422</width>
-                                   <height>739</height>
+                                   <width>191</width>
+                                   <height>273</height>
                                   </rect>
                                  </property>
                                  <layout class="QVBoxLayout" name="verticalLayout_15">
@@ -5768,8 +5768,8 @@
                                   <rect>
                                    <x>0</x>
                                    <y>0</y>
-                                   <width>422</width>
-                                   <height>739</height>
+                                   <width>233</width>
+                                   <height>307</height>
                                   </rect>
                                  </property>
                                  <layout class="QVBoxLayout" name="verticalLayout_36">
@@ -6296,8 +6296,8 @@
                                   <rect>
                                    <x>0</x>
                                    <y>0</y>
-                                   <width>422</width>
-                                   <height>739</height>
+                                   <width>174</width>
+                                   <height>154</height>
                                   </rect>
                                  </property>
                                  <layout class="QVBoxLayout" name="verticalLayout_16">
@@ -6519,8 +6519,8 @@
                                   <rect>
                                    <x>0</x>
                                    <y>0</y>
-                                   <width>422</width>
-                                   <height>739</height>
+                                   <width>187</width>
+                                   <height>177</height>
                                   </rect>
                                  </property>
                                  <layout class="QVBoxLayout" name="verticalLayout_18">
@@ -6857,8 +6857,8 @@
                                   <rect>
                                    <x>0</x>
                                    <y>0</y>
-                                   <width>422</width>
-                                   <height>739</height>
+                                   <width>219</width>
+                                   <height>170</height>
                                   </rect>
                                  </property>
                                  <layout class="QVBoxLayout" name="verticalLayout_21">
@@ -7198,8 +7198,8 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>432</width>
-                    <height>852</height>
+                    <width>289</width>
+                    <height>252</height>
                    </rect>
                   </property>
                   <layout class="QVBoxLayout" name="verticalLayout_44">
@@ -7700,8 +7700,8 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>432</width>
-                    <height>921</height>
+                    <width>210</width>
+                    <height>242</height>
                    </rect>
                   </property>
                   <layout class="QVBoxLayout" name="verticalLayout_46">
@@ -7934,11 +7934,21 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>432</width>
+                    <width>419</width>
                     <height>921</height>
                    </rect>
                   </property>
                   <layout class="QVBoxLayout" name="verticalLayout_48">
+                   <item>
+                    <widget class="QLabel" name="utils_warning_label">
+                     <property name="text">
+                      <string>_utils_warning_label_</string>
+                     </property>
+                     <property name="alignment">
+                      <set>Qt::AlignCenter</set>
+                     </property>
+                    </widget>
+                   </item>
                    <item>
                     <widget class="QFrame" name="frame_95">
                      <property name="sizePolicy">
@@ -8080,6 +8090,210 @@
                      <property name="text">
                       <string>Pair Images</string>
                      </property>
+                     <property name="checkable">
+                      <bool>true</bool>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QFrame" name="utils_pair_images_frame">
+                     <property name="frameShape">
+                      <enum>QFrame::Panel</enum>
+                     </property>
+                     <property name="frameShadow">
+                      <enum>QFrame::Sunken</enum>
+                     </property>
+                     <layout class="QVBoxLayout" name="utils_pair_images_layout">
+                      <property name="spacing">
+                       <number>3</number>
+                      </property>
+                      <property name="leftMargin">
+                       <number>2</number>
+                      </property>
+                      <property name="topMargin">
+                       <number>2</number>
+                      </property>
+                      <property name="rightMargin">
+                       <number>2</number>
+                      </property>
+                      <property name="bottomMargin">
+                       <number>2</number>
+                      </property>
+                      <item>
+                       <widget class="QFrame" name="frame_83">
+                        <property name="frameShape">
+                         <enum>QFrame::StyledPanel</enum>
+                        </property>
+                        <property name="frameShadow">
+                         <enum>QFrame::Raised</enum>
+                        </property>
+                        <layout class="QFormLayout" name="formLayout_23">
+                         <property name="horizontalSpacing">
+                          <number>6</number>
+                         </property>
+                         <property name="topMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="rightMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="bottomMargin">
+                          <number>0</number>
+                         </property>
+                         <item row="0" column="0">
+                          <widget class="QLabel" name="label_64">
+                           <property name="text">
+                            <string>Input A</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="0" column="1">
+                          <layout class="QHBoxLayout" name="horizontalLayout_85">
+                           <item>
+                            <widget class="QLineEdit" name="pair_images_input_a">
+                             <property name="placeholderText">
+                              <string>Enter path to folder of A images...</string>
+                             </property>
+                            </widget>
+                           </item>
+                           <item>
+                            <widget class="QPushButton" name="browse_pair_input_a">
+                             <property name="text">
+                              <string>Browse</string>
+                             </property>
+                            </widget>
+                           </item>
+                          </layout>
+                         </item>
+                         <item row="1" column="0">
+                          <widget class="QLabel" name="label_66">
+                           <property name="text">
+                            <string>Input B</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="1" column="1">
+                          <layout class="QHBoxLayout" name="horizontalLayout_86">
+                           <item>
+                            <widget class="QLineEdit" name="pair_images_input_b">
+                             <property name="placeholderText">
+                              <string>Enter path to folder of B images...</string>
+                             </property>
+                            </widget>
+                           </item>
+                           <item>
+                            <widget class="QPushButton" name="browse_pair_input_b">
+                             <property name="text">
+                              <string>Browse</string>
+                             </property>
+                            </widget>
+                           </item>
+                          </layout>
+                         </item>
+                         <item row="2" column="0">
+                          <widget class="QLabel" name="label_67">
+                           <property name="text">
+                            <string>Output</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="2" column="1">
+                          <layout class="QHBoxLayout" name="horizontalLayout_87">
+                           <item>
+                            <widget class="QLineEdit" name="pair_images_output">
+                             <property name="placeholderText">
+                              <string>Enter path to output directory...</string>
+                             </property>
+                            </widget>
+                           </item>
+                           <item>
+                            <widget class="QPushButton" name="browse_pair_output">
+                             <property name="text">
+                              <string>Browse</string>
+                             </property>
+                            </widget>
+                           </item>
+                          </layout>
+                         </item>
+                         <item row="3" column="1">
+                          <widget class="QComboBox" name="pair_images_direction"/>
+                         </item>
+                         <item row="3" column="0">
+                          <widget class="QLabel" name="label_77">
+                           <property name="text">
+                            <string>Direction</string>
+                           </property>
+                          </widget>
+                         </item>
+                        </layout>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QFrame" name="frame_98">
+                        <property name="frameShape">
+                         <enum>QFrame::StyledPanel</enum>
+                        </property>
+                        <property name="frameShadow">
+                         <enum>QFrame::Raised</enum>
+                        </property>
+                        <layout class="QHBoxLayout" name="horizontalLayout_88">
+                         <property name="leftMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="topMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="rightMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="bottomMargin">
+                          <number>0</number>
+                         </property>
+                         <item>
+                          <widget class="QPushButton" name="start_image_pairing">
+                           <property name="text">
+                            <string>Start</string>
+                           </property>
+                          </widget>
+                         </item>
+                        </layout>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QLabel" name="pairing_starting_label">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="minimumSize">
+                         <size>
+                          <width>0</width>
+                          <height>0</height>
+                         </size>
+                        </property>
+                        <property name="font">
+                         <font>
+                          <pointsize>8</pointsize>
+                         </font>
+                        </property>
+                        <property name="text">
+                         <string>Starting...</string>
+                        </property>
+                        <property name="alignment">
+                         <set>Qt::AlignCenter</set>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QProgressBar" name="image_pairing_progress">
+                        <property name="value">
+                         <number>24</number>
+                        </property>
+                       </widget>
+                      </item>
+                     </layout>
                     </widget>
                    </item>
                    <item>
@@ -8117,7 +8331,21 @@
                         </property>
                        </widget>
                       </item>
+                      <item>
+                       <widget class="QPushButton" name="copy_image_sort">
+                        <property name="text">
+                         <string>Copy Sort</string>
+                        </property>
+                       </widget>
+                      </item>
                      </layout>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QPushButton" name="split_dataset_images">
+                     <property name="text">
+                      <string>Split Dataset Images</string>
+                     </property>
                     </widget>
                    </item>
                    <item>
@@ -8166,8 +8394,8 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>432</width>
-                    <height>921</height>
+                    <width>360</width>
+                    <height>221</height>
                    </rect>
                   </property>
                   <layout class="QVBoxLayout" name="verticalLayout_50">

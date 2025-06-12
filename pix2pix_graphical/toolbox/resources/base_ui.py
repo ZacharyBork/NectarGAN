@@ -310,7 +310,7 @@ class Ui_MainWindow(object):
         self.scrollArea_9.setWidgetResizable(True)
         self.scrollAreaWidgetContents = QWidget()
         self.scrollAreaWidgetContents.setObjectName(u"scrollAreaWidgetContents")
-        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 1364, 997))
+        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 163, 34))
         self.verticalLayout_58 = QVBoxLayout(self.scrollAreaWidgetContents)
         self.verticalLayout_58.setSpacing(0)
         self.verticalLayout_58.setObjectName(u"verticalLayout_58")
@@ -476,7 +476,7 @@ class Ui_MainWindow(object):
         self.scrollArea_14.setWidgetResizable(True)
         self.review_images_widget = QWidget()
         self.review_images_widget.setObjectName(u"review_images_widget")
-        self.review_images_widget.setGeometry(QRect(0, 0, 655, 967))
+        self.review_images_widget.setGeometry(QRect(0, 0, 745, 967))
         self.review_images_layout = QVBoxLayout(self.review_images_widget)
         self.review_images_layout.setObjectName(u"review_images_layout")
         self.scrollArea_14.setWidget(self.review_images_widget)
@@ -514,7 +514,7 @@ class Ui_MainWindow(object):
         self.scrollArea_15.setWidgetResizable(True)
         self.review_graphs_widget = QWidget()
         self.review_graphs_widget.setObjectName(u"review_graphs_widget")
-        self.review_graphs_widget.setGeometry(QRect(0, 0, 654, 967))
+        self.review_graphs_widget.setGeometry(QRect(0, 0, 577, 967))
         self.review_graphs_layout = QVBoxLayout(self.review_graphs_widget)
         self.review_graphs_layout.setObjectName(u"review_graphs_layout")
         self.scrollArea_15.setWidget(self.review_graphs_widget)
@@ -1528,7 +1528,7 @@ class Ui_MainWindow(object):
         self.scrollArea.setWidgetResizable(True)
         self.experiment_settings_container = QWidget()
         self.experiment_settings_container.setObjectName(u"experiment_settings_container")
-        self.experiment_settings_container.setGeometry(QRect(0, 0, 432, 884))
+        self.experiment_settings_container.setGeometry(QRect(0, 0, 310, 318))
         self.verticalLayout_11 = QVBoxLayout(self.experiment_settings_container)
         self.verticalLayout_11.setSpacing(6)
         self.verticalLayout_11.setObjectName(u"verticalLayout_11")
@@ -1865,7 +1865,7 @@ class Ui_MainWindow(object):
         self.scrollArea_2.setWidgetResizable(True)
         self.dataloader_settings_container = QWidget()
         self.dataloader_settings_container.setObjectName(u"dataloader_settings_container")
-        self.dataloader_settings_container.setGeometry(QRect(0, 0, 432, 921))
+        self.dataloader_settings_container.setGeometry(QRect(0, 0, 419, 521))
         self.verticalLayout_10 = QVBoxLayout(self.dataloader_settings_container)
         self.verticalLayout_10.setObjectName(u"verticalLayout_10")
         self.verticalLayout_10.setContentsMargins(0, 0, 0, 0)
@@ -2387,7 +2387,7 @@ class Ui_MainWindow(object):
         self.scrollArea_3.setWidgetResizable(True)
         self.training_settings_container_ = QWidget()
         self.training_settings_container_.setObjectName(u"training_settings_container_")
-        self.training_settings_container_.setGeometry(QRect(0, 0, 432, 814))
+        self.training_settings_container_.setGeometry(QRect(0, 0, 302, 145))
         self.verticalLayout_20 = QVBoxLayout(self.training_settings_container_)
         self.verticalLayout_20.setSpacing(0)
         self.verticalLayout_20.setObjectName(u"verticalLayout_20")
@@ -2500,7 +2500,7 @@ class Ui_MainWindow(object):
         self.scrollArea_4.setWidgetResizable(True)
         self.generator_tab = QWidget()
         self.generator_tab.setObjectName(u"generator_tab")
-        self.generator_tab.setGeometry(QRect(0, 0, 422, 739))
+        self.generator_tab.setGeometry(QRect(0, 0, 191, 273))
         self.verticalLayout_15 = QVBoxLayout(self.generator_tab)
         self.verticalLayout_15.setObjectName(u"verticalLayout_15")
         self.verticalLayout_15.setContentsMargins(6, 6, 6, 6)
@@ -2739,7 +2739,7 @@ class Ui_MainWindow(object):
         self.scrollArea_6.setWidgetResizable(True)
         self.discriminator_tab = QWidget()
         self.discriminator_tab.setObjectName(u"discriminator_tab")
-        self.discriminator_tab.setGeometry(QRect(0, 0, 422, 739))
+        self.discriminator_tab.setGeometry(QRect(0, 0, 233, 307))
         self.verticalLayout_36 = QVBoxLayout(self.discriminator_tab)
         self.verticalLayout_36.setObjectName(u"verticalLayout_36")
         self.verticalLayout_36.setContentsMargins(6, 6, 6, 6)
@@ -3011,7 +3011,7 @@ class Ui_MainWindow(object):
         self.scrollArea_5.setWidgetResizable(True)
         self.loss_tab = QWidget()
         self.loss_tab.setObjectName(u"loss_tab")
-        self.loss_tab.setGeometry(QRect(0, 0, 422, 739))
+        self.loss_tab.setGeometry(QRect(0, 0, 174, 154))
         self.verticalLayout_16 = QVBoxLayout(self.loss_tab)
         self.verticalLayout_16.setObjectName(u"verticalLayout_16")
         self.verticalLayout_16.setContentsMargins(6, 6, 6, 6)
@@ -3144,7 +3144,7 @@ class Ui_MainWindow(object):
         self.scrollArea_7.setWidgetResizable(True)
         self.saving_tab = QWidget()
         self.saving_tab.setObjectName(u"saving_tab")
-        self.saving_tab.setGeometry(QRect(0, 0, 422, 739))
+        self.saving_tab.setGeometry(QRect(0, 0, 187, 177))
         self.verticalLayout_18 = QVBoxLayout(self.saving_tab)
         self.verticalLayout_18.setObjectName(u"verticalLayout_18")
         self.verticalLayout_18.setContentsMargins(2, 2, 2, 2)
@@ -3313,7 +3313,7 @@ class Ui_MainWindow(object):
         self.scrollArea_8.setWidgetResizable(True)
         self.visdom_tab = QWidget()
         self.visdom_tab.setObjectName(u"visdom_tab")
-        self.visdom_tab.setGeometry(QRect(0, 0, 422, 739))
+        self.visdom_tab.setGeometry(QRect(0, 0, 219, 170))
         self.verticalLayout_21 = QVBoxLayout(self.visdom_tab)
         self.verticalLayout_21.setObjectName(u"verticalLayout_21")
         self.verticalLayout_21.setContentsMargins(2, 2, 2, 2)
@@ -3486,7 +3486,7 @@ class Ui_MainWindow(object):
         self.scrollArea_10.setWidgetResizable(True)
         self.testing_settings_container = QWidget()
         self.testing_settings_container.setObjectName(u"testing_settings_container")
-        self.testing_settings_container.setGeometry(QRect(0, 0, 432, 852))
+        self.testing_settings_container.setGeometry(QRect(0, 0, 289, 252))
         self.verticalLayout_44 = QVBoxLayout(self.testing_settings_container)
         self.verticalLayout_44.setObjectName(u"verticalLayout_44")
         self.verticalLayout_44.setContentsMargins(0, 0, 0, 0)
@@ -3738,7 +3738,7 @@ class Ui_MainWindow(object):
         self.scrollArea_11.setWidgetResizable(True)
         self.review_settings_container = QWidget()
         self.review_settings_container.setObjectName(u"review_settings_container")
-        self.review_settings_container.setGeometry(QRect(0, 0, 432, 921))
+        self.review_settings_container.setGeometry(QRect(0, 0, 210, 242))
         self.verticalLayout_46 = QVBoxLayout(self.review_settings_container)
         self.verticalLayout_46.setObjectName(u"verticalLayout_46")
         self.frame_89 = QFrame(self.review_settings_container)
@@ -3858,9 +3858,15 @@ class Ui_MainWindow(object):
         self.scrollArea_12.setWidgetResizable(True)
         self.utilities_settings_container = QWidget()
         self.utilities_settings_container.setObjectName(u"utilities_settings_container")
-        self.utilities_settings_container.setGeometry(QRect(0, 0, 432, 921))
+        self.utilities_settings_container.setGeometry(QRect(0, 0, 419, 921))
         self.verticalLayout_48 = QVBoxLayout(self.utilities_settings_container)
         self.verticalLayout_48.setObjectName(u"verticalLayout_48")
+        self.utils_warning_label = QLabel(self.utilities_settings_container)
+        self.utils_warning_label.setObjectName(u"utils_warning_label")
+        self.utils_warning_label.setAlignment(Qt.AlignCenter)
+
+        self.verticalLayout_48.addWidget(self.utils_warning_label)
+
         self.frame_95 = QFrame(self.utilities_settings_container)
         self.frame_95.setObjectName(u"frame_95")
         sizePolicy.setHeightForWidth(self.frame_95.sizePolicy().hasHeightForWidth())
@@ -3932,8 +3938,132 @@ class Ui_MainWindow(object):
 
         self.pair_images = QPushButton(self.utilities_settings_container)
         self.pair_images.setObjectName(u"pair_images")
+        self.pair_images.setCheckable(True)
 
         self.verticalLayout_48.addWidget(self.pair_images)
+
+        self.utils_pair_images_frame = QFrame(self.utilities_settings_container)
+        self.utils_pair_images_frame.setObjectName(u"utils_pair_images_frame")
+        self.utils_pair_images_frame.setFrameShape(QFrame.Panel)
+        self.utils_pair_images_frame.setFrameShadow(QFrame.Sunken)
+        self.utils_pair_images_layout = QVBoxLayout(self.utils_pair_images_frame)
+        self.utils_pair_images_layout.setSpacing(3)
+        self.utils_pair_images_layout.setObjectName(u"utils_pair_images_layout")
+        self.utils_pair_images_layout.setContentsMargins(2, 2, 2, 2)
+        self.frame_83 = QFrame(self.utils_pair_images_frame)
+        self.frame_83.setObjectName(u"frame_83")
+        self.frame_83.setFrameShape(QFrame.StyledPanel)
+        self.frame_83.setFrameShadow(QFrame.Raised)
+        self.formLayout_23 = QFormLayout(self.frame_83)
+        self.formLayout_23.setObjectName(u"formLayout_23")
+        self.formLayout_23.setHorizontalSpacing(6)
+        self.formLayout_23.setContentsMargins(-1, 0, 0, 0)
+        self.label_64 = QLabel(self.frame_83)
+        self.label_64.setObjectName(u"label_64")
+
+        self.formLayout_23.setWidget(0, QFormLayout.ItemRole.LabelRole, self.label_64)
+
+        self.horizontalLayout_85 = QHBoxLayout()
+        self.horizontalLayout_85.setObjectName(u"horizontalLayout_85")
+        self.pair_images_input_a = QLineEdit(self.frame_83)
+        self.pair_images_input_a.setObjectName(u"pair_images_input_a")
+
+        self.horizontalLayout_85.addWidget(self.pair_images_input_a)
+
+        self.browse_pair_input_a = QPushButton(self.frame_83)
+        self.browse_pair_input_a.setObjectName(u"browse_pair_input_a")
+
+        self.horizontalLayout_85.addWidget(self.browse_pair_input_a)
+
+
+        self.formLayout_23.setLayout(0, QFormLayout.ItemRole.FieldRole, self.horizontalLayout_85)
+
+        self.label_66 = QLabel(self.frame_83)
+        self.label_66.setObjectName(u"label_66")
+
+        self.formLayout_23.setWidget(1, QFormLayout.ItemRole.LabelRole, self.label_66)
+
+        self.horizontalLayout_86 = QHBoxLayout()
+        self.horizontalLayout_86.setObjectName(u"horizontalLayout_86")
+        self.pair_images_input_b = QLineEdit(self.frame_83)
+        self.pair_images_input_b.setObjectName(u"pair_images_input_b")
+
+        self.horizontalLayout_86.addWidget(self.pair_images_input_b)
+
+        self.browse_pair_input_b = QPushButton(self.frame_83)
+        self.browse_pair_input_b.setObjectName(u"browse_pair_input_b")
+
+        self.horizontalLayout_86.addWidget(self.browse_pair_input_b)
+
+
+        self.formLayout_23.setLayout(1, QFormLayout.ItemRole.FieldRole, self.horizontalLayout_86)
+
+        self.label_67 = QLabel(self.frame_83)
+        self.label_67.setObjectName(u"label_67")
+
+        self.formLayout_23.setWidget(2, QFormLayout.ItemRole.LabelRole, self.label_67)
+
+        self.horizontalLayout_87 = QHBoxLayout()
+        self.horizontalLayout_87.setObjectName(u"horizontalLayout_87")
+        self.pair_images_output = QLineEdit(self.frame_83)
+        self.pair_images_output.setObjectName(u"pair_images_output")
+
+        self.horizontalLayout_87.addWidget(self.pair_images_output)
+
+        self.browse_pair_output = QPushButton(self.frame_83)
+        self.browse_pair_output.setObjectName(u"browse_pair_output")
+
+        self.horizontalLayout_87.addWidget(self.browse_pair_output)
+
+
+        self.formLayout_23.setLayout(2, QFormLayout.ItemRole.FieldRole, self.horizontalLayout_87)
+
+        self.pair_images_direction = QComboBox(self.frame_83)
+        self.pair_images_direction.setObjectName(u"pair_images_direction")
+
+        self.formLayout_23.setWidget(3, QFormLayout.ItemRole.FieldRole, self.pair_images_direction)
+
+        self.label_77 = QLabel(self.frame_83)
+        self.label_77.setObjectName(u"label_77")
+
+        self.formLayout_23.setWidget(3, QFormLayout.ItemRole.LabelRole, self.label_77)
+
+
+        self.utils_pair_images_layout.addWidget(self.frame_83)
+
+        self.frame_98 = QFrame(self.utils_pair_images_frame)
+        self.frame_98.setObjectName(u"frame_98")
+        self.frame_98.setFrameShape(QFrame.StyledPanel)
+        self.frame_98.setFrameShadow(QFrame.Raised)
+        self.horizontalLayout_88 = QHBoxLayout(self.frame_98)
+        self.horizontalLayout_88.setObjectName(u"horizontalLayout_88")
+        self.horizontalLayout_88.setContentsMargins(0, 0, 0, 0)
+        self.start_image_pairing = QPushButton(self.frame_98)
+        self.start_image_pairing.setObjectName(u"start_image_pairing")
+
+        self.horizontalLayout_88.addWidget(self.start_image_pairing)
+
+
+        self.utils_pair_images_layout.addWidget(self.frame_98)
+
+        self.pairing_starting_label = QLabel(self.utils_pair_images_frame)
+        self.pairing_starting_label.setObjectName(u"pairing_starting_label")
+        sizePolicy.setHeightForWidth(self.pairing_starting_label.sizePolicy().hasHeightForWidth())
+        self.pairing_starting_label.setSizePolicy(sizePolicy)
+        self.pairing_starting_label.setMinimumSize(QSize(0, 0))
+        self.pairing_starting_label.setFont(font10)
+        self.pairing_starting_label.setAlignment(Qt.AlignCenter)
+
+        self.utils_pair_images_layout.addWidget(self.pairing_starting_label)
+
+        self.image_pairing_progress = QProgressBar(self.utils_pair_images_frame)
+        self.image_pairing_progress.setObjectName(u"image_pairing_progress")
+        self.image_pairing_progress.setValue(24)
+
+        self.utils_pair_images_layout.addWidget(self.image_pairing_progress)
+
+
+        self.verticalLayout_48.addWidget(self.utils_pair_images_frame)
 
         self.frame_97 = QFrame(self.utilities_settings_container)
         self.frame_97.setObjectName(u"frame_97")
@@ -3952,8 +4082,18 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_16.addWidget(self.remove_sorting_tags)
 
+        self.copy_image_sort = QPushButton(self.frame_97)
+        self.copy_image_sort.setObjectName(u"copy_image_sort")
+
+        self.horizontalLayout_16.addWidget(self.copy_image_sort)
+
 
         self.verticalLayout_48.addWidget(self.frame_97)
+
+        self.split_dataset_images = QPushButton(self.utilities_settings_container)
+        self.split_dataset_images.setObjectName(u"split_dataset_images")
+
+        self.verticalLayout_48.addWidget(self.split_dataset_images)
 
         self.verticalSpacer_15 = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
 
@@ -3975,7 +4115,7 @@ class Ui_MainWindow(object):
         self.scrollArea_13.setWidgetResizable(True)
         self.setting_settings_container = QWidget()
         self.setting_settings_container.setObjectName(u"setting_settings_container")
-        self.setting_settings_container.setGeometry(QRect(0, 0, 432, 921))
+        self.setting_settings_container.setGeometry(QRect(0, 0, 360, 221))
         self.verticalLayout_50 = QVBoxLayout(self.setting_settings_container)
         self.verticalLayout_50.setObjectName(u"verticalLayout_50")
         self.verticalLayout_50.setContentsMargins(0, 0, 0, 0)
@@ -4109,7 +4249,7 @@ class Ui_MainWindow(object):
         self.retranslateUi(MainWindow)
 
         self.centralwidget_pages.setCurrentIndex(2)
-        self.settings_pages.setCurrentIndex(0)
+        self.settings_pages.setCurrentIndex(5)
         self.direction.setCurrentIndex(-1)
         self.tabWidget_2.setCurrentIndex(0)
 
@@ -4337,13 +4477,28 @@ class Ui_MainWindow(object):
         self.review_browse_experiment.setText(QCoreApplication.translate("MainWindow", u"Browse", None))
         self.review_load_experiment.setText(QCoreApplication.translate("MainWindow", u"Load Experiment", None))
         self.label_102.setText(QCoreApplication.translate("MainWindow", u"Train Config", None))
+        self.utils_warning_label.setText(QCoreApplication.translate("MainWindow", u"_utils_warning_label_", None))
         self.label_106.setText(QCoreApplication.translate("MainWindow", u"ONNX Tools", None))
         self.convert_to_onnx.setText(QCoreApplication.translate("MainWindow", u"Convert to ONNX", None))
         self.test_onnx_model.setText(QCoreApplication.translate("MainWindow", u"Test ONNX Model", None))
         self.label_107.setText(QCoreApplication.translate("MainWindow", u"Image Tools", None))
         self.pair_images.setText(QCoreApplication.translate("MainWindow", u"Pair Images", None))
+        self.label_64.setText(QCoreApplication.translate("MainWindow", u"Input A", None))
+        self.pair_images_input_a.setPlaceholderText(QCoreApplication.translate("MainWindow", u"Enter path to folder of A images...", None))
+        self.browse_pair_input_a.setText(QCoreApplication.translate("MainWindow", u"Browse", None))
+        self.label_66.setText(QCoreApplication.translate("MainWindow", u"Input B", None))
+        self.pair_images_input_b.setPlaceholderText(QCoreApplication.translate("MainWindow", u"Enter path to folder of B images...", None))
+        self.browse_pair_input_b.setText(QCoreApplication.translate("MainWindow", u"Browse", None))
+        self.label_67.setText(QCoreApplication.translate("MainWindow", u"Output", None))
+        self.pair_images_output.setPlaceholderText(QCoreApplication.translate("MainWindow", u"Enter path to output directory...", None))
+        self.browse_pair_output.setText(QCoreApplication.translate("MainWindow", u"Browse", None))
+        self.label_77.setText(QCoreApplication.translate("MainWindow", u"Direction", None))
+        self.start_image_pairing.setText(QCoreApplication.translate("MainWindow", u"Start", None))
+        self.pairing_starting_label.setText(QCoreApplication.translate("MainWindow", u"Starting...", None))
         self.sort_images.setText(QCoreApplication.translate("MainWindow", u"Sort Images", None))
         self.remove_sorting_tags.setText(QCoreApplication.translate("MainWindow", u"Remove Sorting Tags", None))
+        self.copy_image_sort.setText(QCoreApplication.translate("MainWindow", u"Copy Sort", None))
+        self.split_dataset_images.setText(QCoreApplication.translate("MainWindow", u"Split Dataset Images", None))
         self.always_on_top.setText(QCoreApplication.translate("MainWindow", u"Always on Top", None))
         self.log_losses.setText(QCoreApplication.translate("MainWindow", u"Log Losses During Training", None))
         self.label_18.setText(QCoreApplication.translate("MainWindow", u"Loss Log Dump Frequency (epochs)", None))

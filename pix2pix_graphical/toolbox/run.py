@@ -14,6 +14,7 @@ from pix2pix_graphical.toolbox.helpers.init_helper import InitHelper
 from pix2pix_graphical.toolbox.components.log import OutputLog
 from pix2pix_graphical.toolbox.components.settings_dock import SettingsDock
 from pix2pix_graphical.toolbox.components.review_panel import ReviewPanel
+from pix2pix_graphical.toolbox.components.utility_panel import UtilityPanel
 
 class Interface(QObject):    
     def __init__(self) -> None:
@@ -34,6 +35,7 @@ class Interface(QObject):
             self.mainwidget, self.confighelper, 
             self.log, self.status_msg_length)
         self.reviewpanel = ReviewPanel(mainwidget=self.mainwidget)
+        self.utilitypanel = UtilityPanel(mainwidget=self.mainwidget)
         
     def _load_from_config_file(self) -> None:
         selected = QFileDialog.getOpenFileName(filter='*.json')
@@ -85,6 +87,8 @@ class Interface(QObject):
         test_dataset_override.setHidden(True)
         self.find(QCheckBox, 'test_override_dataset').clicked.connect(
             lambda x : test_dataset_override.setHidden(not x))
+        
+        
 
         # Init from default config
         self.confighelper._init_from_config(config_path=None)
