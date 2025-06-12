@@ -320,6 +320,9 @@ QLabel {
     color: rgb(200, 200, 200);
     border: none;
 }
+QLabel::disabled {
+    color: rgb(120, 120, 120);
+}
 QLabel#x_label {
     background-color: rgb(50, 50, 50);
 }
@@ -376,6 +379,12 @@ QLineEdit {
     padding: 2px 2px 2px 2px;
     border: 1px solid rgb(140, 140, 140);
     border-radius: 5;
+}
+
+QLineEdit::disabled {
+    color: rgb(120, 120, 120);
+    background-color: rgb(50, 50, 50);
+    border: 1px solid rgb(100, 100, 100);
 }
 
 QLineEdit::hover {
@@ -450,7 +459,6 @@ QComboBox {
 }
 QComboBox::disabled {
     color: rgb(120, 120, 120);
-    border: 1px solid rgb(100, 100, 100);
 }
 QComboBox::hover {
     background-color: rgb(80, 80, 80)
@@ -465,15 +473,17 @@ QCheckBox {
     background: none;
     color: rgb(200, 200, 200);
 }
+QCheckBox::indicator {
+    padding: 2px 2px 2px 2px;
+}
 QCheckBox::indicator:checked {
-    margin: 3px 3px 3px 3px;
-    background: none;
-    color: rgb(200, 200, 200);
+    color: rgb(200, 200, 200); 
 }
 QCheckBox::indicator:unchecked {
-    margin: 3px 3px 3px 3px;
-    background: none;
     color: rgb(200, 200, 200);
+}
+QCheckBox::indicator:disabled {
+    background-color: rgb(100, 100, 100);
 }
 
 /*---------- PROGRESS BARS ----------*/

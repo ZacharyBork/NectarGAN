@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>2006</width>
-    <height>1140</height>
+    <width>1920</width>
+    <height>1080</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -1042,8 +1042,8 @@
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>1387</width>
-                <height>1041</height>
+                <width>1301</width>
+                <height>981</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_66">
@@ -7920,9 +7920,9 @@
                   <property name="geometry">
                    <rect>
                     <x>0</x>
-                    <y>-637</y>
+                    <y>-353</y>
                     <width>402</width>
-                    <height>1558</height>
+                    <height>1214</height>
                    </rect>
                   </property>
                   <layout class="QVBoxLayout" name="verticalLayout_48">
@@ -8368,40 +8368,6 @@
                         </layout>
                        </widget>
                       </item>
-                      <item>
-                       <widget class="QLabel" name="pairing_starting_label">
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                          <horstretch>0</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
-                        </property>
-                        <property name="minimumSize">
-                         <size>
-                          <width>0</width>
-                          <height>29</height>
-                         </size>
-                        </property>
-                        <property name="font">
-                         <font>
-                          <pointsize>9</pointsize>
-                         </font>
-                        </property>
-                        <property name="text">
-                         <string>Starting...</string>
-                        </property>
-                        <property name="alignment">
-                         <set>Qt::AlignCenter</set>
-                        </property>
-                       </widget>
-                      </item>
-                      <item>
-                       <widget class="QProgressBar" name="image_pairing_progress">
-                        <property name="value">
-                         <number>24</number>
-                        </property>
-                       </widget>
-                      </item>
                      </layout>
                     </widget>
                    </item>
@@ -8467,7 +8433,7 @@
                      <property name="frameShadow">
                       <enum>QFrame::Sunken</enum>
                      </property>
-                     <layout class="QVBoxLayout" name="verticalLayout_62">
+                     <layout class="QVBoxLayout" name="utils_sort_images_layout">
                       <property name="leftMargin">
                        <number>2</number>
                       </property>
@@ -8615,34 +8581,6 @@
                         </layout>
                        </widget>
                       </item>
-                      <item>
-                       <widget class="QLabel" name="sorting_starting_label">
-                        <property name="minimumSize">
-                         <size>
-                          <width>0</width>
-                          <height>29</height>
-                         </size>
-                        </property>
-                        <property name="font">
-                         <font>
-                          <pointsize>9</pointsize>
-                         </font>
-                        </property>
-                        <property name="text">
-                         <string>Starting...</string>
-                        </property>
-                        <property name="alignment">
-                         <set>Qt::AlignCenter</set>
-                        </property>
-                       </widget>
-                      </item>
-                      <item>
-                       <widget class="QProgressBar" name="sort_images_progress">
-                        <property name="value">
-                         <number>24</number>
-                        </property>
-                       </widget>
-                      </item>
                      </layout>
                     </widget>
                    </item>
@@ -8654,7 +8592,7 @@
                      <property name="frameShadow">
                       <enum>QFrame::Sunken</enum>
                      </property>
-                     <layout class="QVBoxLayout" name="verticalLayout_65">
+                     <layout class="QVBoxLayout" name="utils_remove_sorting_tags_layout">
                       <property name="leftMargin">
                        <number>2</number>
                       </property>
@@ -8776,34 +8714,6 @@
                         </layout>
                        </widget>
                       </item>
-                      <item>
-                       <widget class="QLabel" name="remove_sort_tags_starting_label">
-                        <property name="minimumSize">
-                         <size>
-                          <width>0</width>
-                          <height>29</height>
-                         </size>
-                        </property>
-                        <property name="font">
-                         <font>
-                          <pointsize>9</pointsize>
-                         </font>
-                        </property>
-                        <property name="text">
-                         <string>Starting...</string>
-                        </property>
-                        <property name="alignment">
-                         <set>Qt::AlignCenter</set>
-                        </property>
-                       </widget>
-                      </item>
-                      <item>
-                       <widget class="QProgressBar" name="remove_sort_tags_progress">
-                        <property name="value">
-                         <number>24</number>
-                        </property>
-                       </widget>
-                      </item>
                      </layout>
                     </widget>
                    </item>
@@ -8815,7 +8725,7 @@
                      <property name="frameShadow">
                       <enum>QFrame::Sunken</enum>
                      </property>
-                     <layout class="QVBoxLayout" name="verticalLayout_67">
+                     <layout class="QVBoxLayout" name="utils_copy_sort_layout">
                       <property name="leftMargin">
                        <number>2</number>
                       </property>
@@ -8962,34 +8872,6 @@
                         </layout>
                        </widget>
                       </item>
-                      <item>
-                       <widget class="QLabel" name="copy_sort_starting_label">
-                        <property name="minimumSize">
-                         <size>
-                          <width>0</width>
-                          <height>29</height>
-                         </size>
-                        </property>
-                        <property name="font">
-                         <font>
-                          <pointsize>9</pointsize>
-                         </font>
-                        </property>
-                        <property name="text">
-                         <string>Starting...</string>
-                        </property>
-                        <property name="alignment">
-                         <set>Qt::AlignCenter</set>
-                        </property>
-                       </widget>
-                      </item>
-                      <item>
-                       <widget class="QProgressBar" name="copy_sort_progress">
-                        <property name="value">
-                         <number>24</number>
-                        </property>
-                       </widget>
-                      </item>
                      </layout>
                     </widget>
                    </item>
@@ -9011,7 +8893,7 @@
                      <property name="frameShadow">
                       <enum>QFrame::Sunken</enum>
                      </property>
-                     <layout class="QVBoxLayout" name="verticalLayout_68">
+                     <layout class="QVBoxLayout" name="utils_split_dataset_layout">
                       <property name="leftMargin">
                        <number>2</number>
                       </property>
@@ -9275,34 +9157,6 @@
                           </widget>
                          </item>
                         </layout>
-                       </widget>
-                      </item>
-                      <item>
-                       <widget class="QLabel" name="split_dataset_starting_label">
-                        <property name="minimumSize">
-                         <size>
-                          <width>0</width>
-                          <height>29</height>
-                         </size>
-                        </property>
-                        <property name="font">
-                         <font>
-                          <pointsize>9</pointsize>
-                         </font>
-                        </property>
-                        <property name="text">
-                         <string>Starting...</string>
-                        </property>
-                        <property name="alignment">
-                         <set>Qt::AlignCenter</set>
-                        </property>
-                       </widget>
-                      </item>
-                      <item>
-                       <widget class="QProgressBar" name="split_dataset_progress">
-                        <property name="value">
-                         <number>24</number>
-                        </property>
                        </widget>
                       </item>
                      </layout>

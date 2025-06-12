@@ -28,7 +28,7 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(2006, 1140)
+        MainWindow.resize(1920, 1080)
         sizePolicy = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -537,7 +537,7 @@ class Ui_MainWindow(object):
         self.scrollArea_16.setWidgetResizable(True)
         self.scrollAreaWidgetContents_2 = QWidget()
         self.scrollAreaWidgetContents_2.setObjectName(u"scrollAreaWidgetContents_2")
-        self.scrollAreaWidgetContents_2.setGeometry(QRect(0, 0, 1387, 1041))
+        self.scrollAreaWidgetContents_2.setGeometry(QRect(0, 0, 1301, 981))
         self.verticalLayout_66 = QVBoxLayout(self.scrollAreaWidgetContents_2)
         self.verticalLayout_66.setObjectName(u"verticalLayout_66")
         self.file_change_log = QTextEdit(self.scrollAreaWidgetContents_2)
@@ -3860,7 +3860,7 @@ class Ui_MainWindow(object):
         self.scrollArea_12.setWidgetResizable(True)
         self.utilities_settings_container = QWidget()
         self.utilities_settings_container.setObjectName(u"utilities_settings_container")
-        self.utilities_settings_container.setGeometry(QRect(0, -637, 402, 1558))
+        self.utilities_settings_container.setGeometry(QRect(0, -353, 402, 1214))
         self.verticalLayout_48 = QVBoxLayout(self.utilities_settings_container)
         self.verticalLayout_48.setObjectName(u"verticalLayout_48")
         self.utils_warning_label = QLabel(self.utilities_settings_container)
@@ -4120,24 +4120,6 @@ class Ui_MainWindow(object):
 
         self.utils_pair_images_layout.addWidget(self.frame_98)
 
-        self.pairing_starting_label = QLabel(self.utils_pair_images_frame)
-        self.pairing_starting_label.setObjectName(u"pairing_starting_label")
-        sizePolicy.setHeightForWidth(self.pairing_starting_label.sizePolicy().hasHeightForWidth())
-        self.pairing_starting_label.setSizePolicy(sizePolicy)
-        self.pairing_starting_label.setMinimumSize(QSize(0, 29))
-        font16 = QFont()
-        font16.setPointSize(9)
-        self.pairing_starting_label.setFont(font16)
-        self.pairing_starting_label.setAlignment(Qt.AlignCenter)
-
-        self.utils_pair_images_layout.addWidget(self.pairing_starting_label)
-
-        self.image_pairing_progress = QProgressBar(self.utils_pair_images_frame)
-        self.image_pairing_progress.setObjectName(u"image_pairing_progress")
-        self.image_pairing_progress.setValue(24)
-
-        self.utils_pair_images_layout.addWidget(self.image_pairing_progress)
-
 
         self.verticalLayout_48.addWidget(self.utils_pair_images_frame)
 
@@ -4173,16 +4155,16 @@ class Ui_MainWindow(object):
         self.utils_sort_images_frame.setObjectName(u"utils_sort_images_frame")
         self.utils_sort_images_frame.setFrameShape(QFrame.Panel)
         self.utils_sort_images_frame.setFrameShadow(QFrame.Sunken)
-        self.verticalLayout_62 = QVBoxLayout(self.utils_sort_images_frame)
-        self.verticalLayout_62.setObjectName(u"verticalLayout_62")
-        self.verticalLayout_62.setContentsMargins(2, 2, 2, 2)
+        self.utils_sort_images_layout = QVBoxLayout(self.utils_sort_images_frame)
+        self.utils_sort_images_layout.setObjectName(u"utils_sort_images_layout")
+        self.utils_sort_images_layout.setContentsMargins(2, 2, 2, 2)
         self.label_90 = QLabel(self.utils_sort_images_frame)
         self.label_90.setObjectName(u"label_90")
         sizePolicy2.setHeightForWidth(self.label_90.sizePolicy().hasHeightForWidth())
         self.label_90.setSizePolicy(sizePolicy2)
         self.label_90.setAlignment(Qt.AlignCenter)
 
-        self.verticalLayout_62.addWidget(self.label_90)
+        self.utils_sort_images_layout.addWidget(self.label_90)
 
         self.frame_99 = QFrame(self.utils_sort_images_frame)
         self.frame_99.setObjectName(u"frame_99")
@@ -4234,7 +4216,7 @@ class Ui_MainWindow(object):
         self.formLayout_24.setWidget(2, QFormLayout.ItemRole.FieldRole, self.sort_images_direction)
 
 
-        self.verticalLayout_62.addWidget(self.frame_99)
+        self.utils_sort_images_layout.addWidget(self.frame_99)
 
         self.frame_90 = QFrame(self.utils_sort_images_frame)
         self.frame_90.setObjectName(u"frame_90")
@@ -4256,21 +4238,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout_96.addWidget(self.preview_image_sorting)
 
 
-        self.verticalLayout_62.addWidget(self.frame_90)
-
-        self.sorting_starting_label = QLabel(self.utils_sort_images_frame)
-        self.sorting_starting_label.setObjectName(u"sorting_starting_label")
-        self.sorting_starting_label.setMinimumSize(QSize(0, 29))
-        self.sorting_starting_label.setFont(font16)
-        self.sorting_starting_label.setAlignment(Qt.AlignCenter)
-
-        self.verticalLayout_62.addWidget(self.sorting_starting_label)
-
-        self.sort_images_progress = QProgressBar(self.utils_sort_images_frame)
-        self.sort_images_progress.setObjectName(u"sort_images_progress")
-        self.sort_images_progress.setValue(24)
-
-        self.verticalLayout_62.addWidget(self.sort_images_progress)
+        self.utils_sort_images_layout.addWidget(self.frame_90)
 
 
         self.verticalLayout_48.addWidget(self.utils_sort_images_frame)
@@ -4279,16 +4247,16 @@ class Ui_MainWindow(object):
         self.utils_remove_sorting_tags_frame.setObjectName(u"utils_remove_sorting_tags_frame")
         self.utils_remove_sorting_tags_frame.setFrameShape(QFrame.Panel)
         self.utils_remove_sorting_tags_frame.setFrameShadow(QFrame.Sunken)
-        self.verticalLayout_65 = QVBoxLayout(self.utils_remove_sorting_tags_frame)
-        self.verticalLayout_65.setObjectName(u"verticalLayout_65")
-        self.verticalLayout_65.setContentsMargins(2, 2, 2, 2)
+        self.utils_remove_sorting_tags_layout = QVBoxLayout(self.utils_remove_sorting_tags_frame)
+        self.utils_remove_sorting_tags_layout.setObjectName(u"utils_remove_sorting_tags_layout")
+        self.utils_remove_sorting_tags_layout.setContentsMargins(2, 2, 2, 2)
         self.label_91 = QLabel(self.utils_remove_sorting_tags_frame)
         self.label_91.setObjectName(u"label_91")
         sizePolicy2.setHeightForWidth(self.label_91.sizePolicy().hasHeightForWidth())
         self.label_91.setSizePolicy(sizePolicy2)
         self.label_91.setAlignment(Qt.AlignCenter)
 
-        self.verticalLayout_65.addWidget(self.label_91)
+        self.utils_remove_sorting_tags_layout.addWidget(self.label_91)
 
         self.frame_100 = QFrame(self.utils_remove_sorting_tags_frame)
         self.frame_100.setObjectName(u"frame_100")
@@ -4318,7 +4286,7 @@ class Ui_MainWindow(object):
         self.formLayout_26.setWidget(0, QFormLayout.ItemRole.LabelRole, self.label_82)
 
 
-        self.verticalLayout_65.addWidget(self.frame_100)
+        self.utils_remove_sorting_tags_layout.addWidget(self.frame_100)
 
         self.frame_103 = QFrame(self.utils_remove_sorting_tags_frame)
         self.frame_103.setObjectName(u"frame_103")
@@ -4340,21 +4308,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout_97.addWidget(self.preview_remove_sort_tags)
 
 
-        self.verticalLayout_65.addWidget(self.frame_103)
-
-        self.remove_sort_tags_starting_label = QLabel(self.utils_remove_sorting_tags_frame)
-        self.remove_sort_tags_starting_label.setObjectName(u"remove_sort_tags_starting_label")
-        self.remove_sort_tags_starting_label.setMinimumSize(QSize(0, 29))
-        self.remove_sort_tags_starting_label.setFont(font16)
-        self.remove_sort_tags_starting_label.setAlignment(Qt.AlignCenter)
-
-        self.verticalLayout_65.addWidget(self.remove_sort_tags_starting_label)
-
-        self.remove_sort_tags_progress = QProgressBar(self.utils_remove_sorting_tags_frame)
-        self.remove_sort_tags_progress.setObjectName(u"remove_sort_tags_progress")
-        self.remove_sort_tags_progress.setValue(24)
-
-        self.verticalLayout_65.addWidget(self.remove_sort_tags_progress)
+        self.utils_remove_sorting_tags_layout.addWidget(self.frame_103)
 
 
         self.verticalLayout_48.addWidget(self.utils_remove_sorting_tags_frame)
@@ -4363,16 +4317,16 @@ class Ui_MainWindow(object):
         self.utils_copy_sort_frame.setObjectName(u"utils_copy_sort_frame")
         self.utils_copy_sort_frame.setFrameShape(QFrame.Panel)
         self.utils_copy_sort_frame.setFrameShadow(QFrame.Sunken)
-        self.verticalLayout_67 = QVBoxLayout(self.utils_copy_sort_frame)
-        self.verticalLayout_67.setObjectName(u"verticalLayout_67")
-        self.verticalLayout_67.setContentsMargins(2, 2, 2, 2)
+        self.utils_copy_sort_layout = QVBoxLayout(self.utils_copy_sort_frame)
+        self.utils_copy_sort_layout.setObjectName(u"utils_copy_sort_layout")
+        self.utils_copy_sort_layout.setContentsMargins(2, 2, 2, 2)
         self.label_96 = QLabel(self.utils_copy_sort_frame)
         self.label_96.setObjectName(u"label_96")
         sizePolicy2.setHeightForWidth(self.label_96.sizePolicy().hasHeightForWidth())
         self.label_96.setSizePolicy(sizePolicy2)
         self.label_96.setAlignment(Qt.AlignCenter)
 
-        self.verticalLayout_67.addWidget(self.label_96)
+        self.utils_copy_sort_layout.addWidget(self.label_96)
 
         self.frame_101 = QFrame(self.utils_copy_sort_frame)
         self.frame_101.setObjectName(u"frame_101")
@@ -4422,7 +4376,7 @@ class Ui_MainWindow(object):
         self.formLayout_28.setLayout(1, QFormLayout.ItemRole.FieldRole, self.horizontalLayout_92)
 
 
-        self.verticalLayout_67.addWidget(self.frame_101)
+        self.utils_copy_sort_layout.addWidget(self.frame_101)
 
         self.frame_104 = QFrame(self.utils_copy_sort_frame)
         self.frame_104.setObjectName(u"frame_104")
@@ -4444,21 +4398,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout_98.addWidget(self.preview_copy_sort)
 
 
-        self.verticalLayout_67.addWidget(self.frame_104)
-
-        self.copy_sort_starting_label = QLabel(self.utils_copy_sort_frame)
-        self.copy_sort_starting_label.setObjectName(u"copy_sort_starting_label")
-        self.copy_sort_starting_label.setMinimumSize(QSize(0, 29))
-        self.copy_sort_starting_label.setFont(font16)
-        self.copy_sort_starting_label.setAlignment(Qt.AlignCenter)
-
-        self.verticalLayout_67.addWidget(self.copy_sort_starting_label)
-
-        self.copy_sort_progress = QProgressBar(self.utils_copy_sort_frame)
-        self.copy_sort_progress.setObjectName(u"copy_sort_progress")
-        self.copy_sort_progress.setValue(24)
-
-        self.verticalLayout_67.addWidget(self.copy_sort_progress)
+        self.utils_copy_sort_layout.addWidget(self.frame_104)
 
 
         self.verticalLayout_48.addWidget(self.utils_copy_sort_frame)
@@ -4473,9 +4413,9 @@ class Ui_MainWindow(object):
         self.utils_split_dataset_frame.setObjectName(u"utils_split_dataset_frame")
         self.utils_split_dataset_frame.setFrameShape(QFrame.Panel)
         self.utils_split_dataset_frame.setFrameShadow(QFrame.Sunken)
-        self.verticalLayout_68 = QVBoxLayout(self.utils_split_dataset_frame)
-        self.verticalLayout_68.setObjectName(u"verticalLayout_68")
-        self.verticalLayout_68.setContentsMargins(2, 2, 2, 2)
+        self.utils_split_dataset_layout = QVBoxLayout(self.utils_split_dataset_frame)
+        self.utils_split_dataset_layout.setObjectName(u"utils_split_dataset_layout")
+        self.utils_split_dataset_layout.setContentsMargins(2, 2, 2, 2)
         self.frame_106 = QFrame(self.utils_split_dataset_frame)
         self.frame_106.setObjectName(u"frame_106")
         self.frame_106.setFrameShape(QFrame.StyledPanel)
@@ -4524,7 +4464,7 @@ class Ui_MainWindow(object):
         self.formLayout_31.setLayout(1, QFormLayout.ItemRole.FieldRole, self.horizontalLayout_103)
 
 
-        self.verticalLayout_68.addWidget(self.frame_106)
+        self.utils_split_dataset_layout.addWidget(self.frame_106)
 
         self.frame_105 = QFrame(self.utils_split_dataset_frame)
         self.frame_105.setObjectName(u"frame_105")
@@ -4609,7 +4549,7 @@ class Ui_MainWindow(object):
         self.formLayout_30.setLayout(2, QFormLayout.ItemRole.FieldRole, self.horizontalLayout_101)
 
 
-        self.verticalLayout_68.addWidget(self.frame_105)
+        self.utils_split_dataset_layout.addWidget(self.frame_105)
 
         self.frame_107 = QFrame(self.utils_split_dataset_frame)
         self.frame_107.setObjectName(u"frame_107")
@@ -4631,21 +4571,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout_104.addWidget(self.preview_split_dataset)
 
 
-        self.verticalLayout_68.addWidget(self.frame_107)
-
-        self.split_dataset_starting_label = QLabel(self.utils_split_dataset_frame)
-        self.split_dataset_starting_label.setObjectName(u"split_dataset_starting_label")
-        self.split_dataset_starting_label.setMinimumSize(QSize(0, 29))
-        self.split_dataset_starting_label.setFont(font16)
-        self.split_dataset_starting_label.setAlignment(Qt.AlignCenter)
-
-        self.verticalLayout_68.addWidget(self.split_dataset_starting_label)
-
-        self.split_dataset_progress = QProgressBar(self.utils_split_dataset_frame)
-        self.split_dataset_progress.setObjectName(u"split_dataset_progress")
-        self.split_dataset_progress.setValue(24)
-
-        self.verticalLayout_68.addWidget(self.split_dataset_progress)
+        self.utils_split_dataset_layout.addWidget(self.frame_107)
 
 
         self.verticalLayout_48.addWidget(self.utils_split_dataset_frame)
@@ -5054,7 +4980,6 @@ class Ui_MainWindow(object):
         self.label_97.setText(QCoreApplication.translate("MainWindow", u"Scale Images", None))
         self.start_image_pairing.setText(QCoreApplication.translate("MainWindow", u"Start", None))
         self.preview_image_pairing.setText(QCoreApplication.translate("MainWindow", u"Preview", None))
-        self.pairing_starting_label.setText(QCoreApplication.translate("MainWindow", u"Starting...", None))
         self.sort_images.setText(QCoreApplication.translate("MainWindow", u"Sort Images", None))
         self.remove_sorting_tags.setText(QCoreApplication.translate("MainWindow", u"Remove Sorting Tags", None))
         self.copy_image_sort.setText(QCoreApplication.translate("MainWindow", u"Copy Sort", None))
@@ -5066,14 +4991,12 @@ class Ui_MainWindow(object):
         self.label_81.setText(QCoreApplication.translate("MainWindow", u"Direction", None))
         self.start_sort_images.setText(QCoreApplication.translate("MainWindow", u"Start", None))
         self.preview_image_sorting.setText(QCoreApplication.translate("MainWindow", u"Preview", None))
-        self.sorting_starting_label.setText(QCoreApplication.translate("MainWindow", u"Starting...", None))
         self.label_91.setText(QCoreApplication.translate("MainWindow", u"Remove Tags Settings", None))
         self.remove_sort_tags_input.setPlaceholderText(QCoreApplication.translate("MainWindow", u"Enter path to input directory...", None))
         self.browse_remove_sort_tags_input.setText(QCoreApplication.translate("MainWindow", u"Browse", None))
         self.label_82.setText(QCoreApplication.translate("MainWindow", u"Input", None))
         self.start_remove_sort_tags.setText(QCoreApplication.translate("MainWindow", u"Start", None))
         self.preview_remove_sort_tags.setText(QCoreApplication.translate("MainWindow", u"Preview", None))
-        self.remove_sort_tags_starting_label.setText(QCoreApplication.translate("MainWindow", u"Starting...", None))
         self.label_96.setText(QCoreApplication.translate("MainWindow", u"Copy Sort Settings", None))
         self.label_83.setText(QCoreApplication.translate("MainWindow", u"From", None))
         self.copy_sort_copy_from.setPlaceholderText(QCoreApplication.translate("MainWindow", u"Enter path to folder of sorted images...", None))
@@ -5083,7 +5006,6 @@ class Ui_MainWindow(object):
         self.browse_copy_sort_copy_to.setText(QCoreApplication.translate("MainWindow", u"Browse", None))
         self.start_copy_sort.setText(QCoreApplication.translate("MainWindow", u"Start", None))
         self.preview_copy_sort.setText(QCoreApplication.translate("MainWindow", u"Preview", None))
-        self.copy_sort_starting_label.setText(QCoreApplication.translate("MainWindow", u"Starting...", None))
         self.split_dataset.setText(QCoreApplication.translate("MainWindow", u"Split Dataset Images", None))
         self.label_109.setText(QCoreApplication.translate("MainWindow", u"Input", None))
         self.split_dataset_input.setPlaceholderText(QCoreApplication.translate("MainWindow", u"Enter path to image directory...", None))
@@ -5099,7 +5021,6 @@ class Ui_MainWindow(object):
         self.split_dataset_val.setSuffix(QCoreApplication.translate("MainWindow", u"%", None))
         self.start_split_dataset.setText(QCoreApplication.translate("MainWindow", u"Start", None))
         self.preview_split_dataset.setText(QCoreApplication.translate("MainWindow", u"Preview", None))
-        self.split_dataset_starting_label.setText(QCoreApplication.translate("MainWindow", u"Starting...", None))
         self.always_on_top.setText(QCoreApplication.translate("MainWindow", u"Always on Top", None))
         self.log_losses.setText(QCoreApplication.translate("MainWindow", u"Log Losses During Training", None))
         self.label_18.setText(QCoreApplication.translate("MainWindow", u"Loss Log Dump Frequency (epochs)", None))
