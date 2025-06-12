@@ -42,16 +42,14 @@ def concat_images(args: tuple[Path, Path, Path, str, int]) -> None:
     Args:
         args : A tuple containing:
             Path : The input A file for the pairing operation.
-            Path : The directory contining the B image files.
+            Path : The input B file for the pairing operation.
             Path : The directory to output the paired images to.
             str  : The pairing direction (i.e. 'AtoB, 'BtoA').
             int  : Resolution (squared) to scale each image to before they
                 are concatenated, or -1 for no scaling. Final output 
                 resolution will be: [value * 2, value]. 
     '''
-    fileA, dirB, outdir, direction, scale = args
-    fileB = Path(dirB, fileA.name)
-    if not fileB.exists(): return
+    fileA, fileB, outdir, direction, scale = args
 
     try:
         imgA = Image.open(fileA).convert('RGB')

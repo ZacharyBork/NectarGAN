@@ -3860,7 +3860,7 @@ class Ui_MainWindow(object):
         self.scrollArea_12.setWidgetResizable(True)
         self.utilities_settings_container = QWidget()
         self.utilities_settings_container.setObjectName(u"utilities_settings_container")
-        self.utilities_settings_container.setGeometry(QRect(0, -567, 402, 1488))
+        self.utilities_settings_container.setGeometry(QRect(0, -637, 402, 1558))
         self.verticalLayout_48 = QVBoxLayout(self.utilities_settings_container)
         self.verticalLayout_48.setObjectName(u"verticalLayout_48")
         self.utils_warning_label = QLabel(self.utilities_settings_container)
@@ -4124,8 +4124,10 @@ class Ui_MainWindow(object):
         self.pairing_starting_label.setObjectName(u"pairing_starting_label")
         sizePolicy.setHeightForWidth(self.pairing_starting_label.sizePolicy().hasHeightForWidth())
         self.pairing_starting_label.setSizePolicy(sizePolicy)
-        self.pairing_starting_label.setMinimumSize(QSize(0, 0))
-        self.pairing_starting_label.setFont(font9)
+        self.pairing_starting_label.setMinimumSize(QSize(0, 29))
+        font16 = QFont()
+        font16.setPointSize(9)
+        self.pairing_starting_label.setFont(font16)
         self.pairing_starting_label.setAlignment(Qt.AlignCenter)
 
         self.utils_pair_images_layout.addWidget(self.pairing_starting_label)
@@ -4258,7 +4260,8 @@ class Ui_MainWindow(object):
 
         self.sorting_starting_label = QLabel(self.utils_sort_images_frame)
         self.sorting_starting_label.setObjectName(u"sorting_starting_label")
-        self.sorting_starting_label.setFont(font9)
+        self.sorting_starting_label.setMinimumSize(QSize(0, 29))
+        self.sorting_starting_label.setFont(font16)
         self.sorting_starting_label.setAlignment(Qt.AlignCenter)
 
         self.verticalLayout_62.addWidget(self.sorting_starting_label)
@@ -4341,7 +4344,8 @@ class Ui_MainWindow(object):
 
         self.remove_sort_tags_starting_label = QLabel(self.utils_remove_sorting_tags_frame)
         self.remove_sort_tags_starting_label.setObjectName(u"remove_sort_tags_starting_label")
-        self.remove_sort_tags_starting_label.setFont(font9)
+        self.remove_sort_tags_starting_label.setMinimumSize(QSize(0, 29))
+        self.remove_sort_tags_starting_label.setFont(font16)
         self.remove_sort_tags_starting_label.setAlignment(Qt.AlignCenter)
 
         self.verticalLayout_65.addWidget(self.remove_sort_tags_starting_label)
@@ -4444,7 +4448,8 @@ class Ui_MainWindow(object):
 
         self.copy_sort_starting_label = QLabel(self.utils_copy_sort_frame)
         self.copy_sort_starting_label.setObjectName(u"copy_sort_starting_label")
-        self.copy_sort_starting_label.setFont(font9)
+        self.copy_sort_starting_label.setMinimumSize(QSize(0, 29))
+        self.copy_sort_starting_label.setFont(font16)
         self.copy_sort_starting_label.setAlignment(Qt.AlignCenter)
 
         self.verticalLayout_67.addWidget(self.copy_sort_starting_label)
@@ -4630,7 +4635,8 @@ class Ui_MainWindow(object):
 
         self.split_dataset_starting_label = QLabel(self.utils_split_dataset_frame)
         self.split_dataset_starting_label.setObjectName(u"split_dataset_starting_label")
-        self.split_dataset_starting_label.setFont(font9)
+        self.split_dataset_starting_label.setMinimumSize(QSize(0, 29))
+        self.split_dataset_starting_label.setFont(font16)
         self.split_dataset_starting_label.setAlignment(Qt.AlignCenter)
 
         self.verticalLayout_68.addWidget(self.split_dataset_starting_label)

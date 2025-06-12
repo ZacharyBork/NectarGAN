@@ -7920,9 +7920,9 @@
                   <property name="geometry">
                    <rect>
                     <x>0</x>
-                    <y>-567</y>
+                    <y>-637</y>
                     <width>402</width>
-                    <height>1488</height>
+                    <height>1558</height>
                    </rect>
                   </property>
                   <layout class="QVBoxLayout" name="verticalLayout_48">
@@ -8379,12 +8379,12 @@
                         <property name="minimumSize">
                          <size>
                           <width>0</width>
-                          <height>0</height>
+                          <height>29</height>
                          </size>
                         </property>
                         <property name="font">
                          <font>
-                          <pointsize>8</pointsize>
+                          <pointsize>9</pointsize>
                          </font>
                         </property>
                         <property name="text">
@@ -8617,9 +8617,15 @@
                       </item>
                       <item>
                        <widget class="QLabel" name="sorting_starting_label">
+                        <property name="minimumSize">
+                         <size>
+                          <width>0</width>
+                          <height>29</height>
+                         </size>
+                        </property>
                         <property name="font">
                          <font>
-                          <pointsize>8</pointsize>
+                          <pointsize>9</pointsize>
                          </font>
                         </property>
                         <property name="text">
@@ -8772,9 +8778,15 @@
                       </item>
                       <item>
                        <widget class="QLabel" name="remove_sort_tags_starting_label">
+                        <property name="minimumSize">
+                         <size>
+                          <width>0</width>
+                          <height>29</height>
+                         </size>
+                        </property>
                         <property name="font">
                          <font>
-                          <pointsize>8</pointsize>
+                          <pointsize>9</pointsize>
                          </font>
                         </property>
                         <property name="text">
@@ -8952,9 +8964,15 @@
                       </item>
                       <item>
                        <widget class="QLabel" name="copy_sort_starting_label">
+                        <property name="minimumSize">
+                         <size>
+                          <width>0</width>
+                          <height>29</height>
+                         </size>
+                        </property>
                         <property name="font">
                          <font>
-                          <pointsize>8</pointsize>
+                          <pointsize>9</pointsize>
                          </font>
                         </property>
                         <property name="text">
@@ -9261,9 +9279,15 @@
                       </item>
                       <item>
                        <widget class="QLabel" name="split_dataset_starting_label">
+                        <property name="minimumSize">
+                         <size>
+                          <width>0</width>
+                          <height>29</height>
+                         </size>
+                        </property>
                         <property name="font">
                          <font>
-                          <pointsize>8</pointsize>
+                          <pointsize>9</pointsize>
                          </font>
                         </property>
                         <property name="text">

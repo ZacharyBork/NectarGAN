@@ -1,13 +1,13 @@
-import pathlib
 import shutil
 import random
+from pathlib import Path
 from os import PathLike
 from typing import Any, Literal
 
 from PySide6.QtCore import QThread, QVariantAnimation
 from PySide6.QtWidgets import (
     QWidget, QLabel, QPushButton, QFrame, QLineEdit, QComboBox, QProgressBar,
-    QCheckBox, QHBoxLayout, QTextEdit, QSpinBox)
+    QCheckBox, QTextEdit, QSpinBox)
 
 from pix2pix_graphical.toolbox.workers.utility_worker import (
     UtilityWorker, SignalHandler)
@@ -21,6 +21,8 @@ class UtilityPanel():
 
         self.warning_label = self.find(QLabel, 'utils_warning_label')
         self.change_log = self.find(QTextEdit, 'file_change_log')
+
+    ### INIT HELPERS ###
 
     def _init_utilities_widgets(self) -> None:
         pair_images_frame = self.find(QFrame, 'utils_pair_images_frame')
@@ -72,6 +74,10 @@ class UtilityPanel():
         copy_sort_frame.setHidden(True)
         self.find(QPushButton, 'copy_image_sort'
             ).clicked.connect(lambda x : copy_sort_frame.setHidden(not x))
+        self.find(QPushButton, 'start_copy_sort'
+            ).clicked.connect(self.copy_image_sort)
+        self.find(QPushButton, 'preview_copy_sort'
+            ).clicked.connect(lambda : self.copy_image_sort(dry_run=True))
         
         split_dataset_frame = self.find(QFrame, 'utils_split_dataset_frame')
         split_dataset_frame.setHidden(True)
@@ -88,7 +94,6 @@ class UtilityPanel():
         self.pairing_label = self.find(QLabel, 'pairing_starting_label')
         self.pairing_progress.setHidden(True)
         self.pairing_label.setHidden(True)
-        
 
         self.sort_images_progress = self.find(
             QProgressBar, 'sort_images_progress')
@@ -112,13 +117,11 @@ class UtilityPanel():
         self.split_dataset_progress = self.find(
             QProgressBar, 'split_dataset_progress')
         self.split_dataset_progress.setHidden(True)
-        self.split_dataset_label = self.find(QLabel, 'split_dataset_starting_label')
+        self.split_dataset_label = self.find(
+            QLabel, 'split_dataset_starting_label')
         self.split_dataset_label.setHidden(True)
 
         self._init_starting_animation()
-        
-    def _warn(self, warning: str) -> None:
-        self.warning_label.setText(warning)
 
     def _init_starting_animation(self) -> None:
         self.starting_anim = QVariantAnimation()
@@ -127,6 +130,29 @@ class UtilityPanel():
         self.starting_anim.setDuration(500000)
         self.starting_anim.valueChanged.connect(
             self._starting_animation)
+
+    ### UTILITIES ###
+
+    def _warn(self, warning: str) -> None:
+        self.warning_label.setText(warning)
+
+    def _validate_input_files(
+            self, 
+            lineedit_name: str,
+            invalid_dir_warning: str,
+            no_files_warning: str,
+            key: str='*'
+        ) -> tuple[bool, list[Path]]:
+        input_dir = self.find(QLineEdit, lineedit_name).text()
+        dir = Path(input_dir)
+        if not dir.exists() or input_dir == '': 
+            self._warn(invalid_dir_warning)
+            return (False, [])
+        files = list(dir.glob(key))
+        if len(files) == 0:
+            self._warn(no_files_warning)
+            return (False, [])
+        return (True, files)
 
     ### ANIMATION ###
 
@@ -195,7 +221,7 @@ class UtilityPanel():
     ### IMAGE PAIRING ###        
 
     def _pairing_progress(self, progress: float) -> None:
-        if not self._sorting_progress.isHidden():
+        if not self.pairing_label.isHidden():
             self.starting_anim.stop()
             self.pairing_label.setHidden(True)
             self.pairing_progress.setHidden(False)
@@ -205,18 +231,19 @@ class UtilityPanel():
         '''Takes images from A|B folder and pairs them for pix2pix training.'''
         self.change_log.clear()
 
-        input_dirA = self.find(QLineEdit, 'pair_images_input_a').text()
-        dirA = pathlib.Path(input_dirA)
-        if not dirA.exists() or input_dirA == '': 
-            self._warn('Please input an A directory for pairing.')
-            return
-        input_dirB = self.find(QLineEdit, 'pair_images_input_b').text()
-        dirB = pathlib.Path(input_dirB)
-        if not dirB.exists() or input_dirB == '': 
-            self._warn('Please input a B directory for pairing.')
-            return
+        valid, filesA = self._validate_input_files(
+            'pair_images_input_a', 
+            'Please input an A directory for pairing.', 
+            'No files found in input directory A.')
+        if not valid: return
+        valid, filesB = self._validate_input_files(
+            'pair_images_input_b', 
+            'Please input an B directory for pairing.', 
+            'No files found in input directory B.')
+        if not valid: return
+
         input_outdir = self.find(QLineEdit, 'pair_images_output').text()
-        outdir = pathlib.Path(input_outdir)
+        outdir = Path(input_outdir)
         if not outdir.exists() or input_outdir == '': 
             self._warn('Please input an output directory for pairing.')
             return
@@ -227,17 +254,13 @@ class UtilityPanel():
         else: scale = -1
         
         args = []
-        for fileA in list(dirA.iterdir()):
-            args.append((fileA, dirB, outdir, direction, scale)) 
+        for fileA, fileB in zip(filesA, filesB):
+            args.append((fileA, fileB, outdir, direction, scale)) 
 
         if dry_run:
             for arg in args:
-                name = arg[0]
-                log_line = (
-                    f'({pathlib.Path(dirA, name)} + '
-                    f'{pathlib.Path(dirB, name)}) -> '
-                    f'{pathlib.Path(outdir, name)}')
-                self.change_log.append(log_line)
+                x = (f'({arg[0]} + {arg[1]}) -> {Path(outdir, arg[0].name)}')
+                self.change_log.append(x)
         else:
             self.pairing_label.setHidden(False)
             self.starting_anim.start()
@@ -258,16 +281,11 @@ class UtilityPanel():
     def sort_images(self, dry_run: bool=False) -> None:
         '''Sorts dataset images by various metrics.'''
         self.change_log.clear()
-
-        input_dir = self.find(QLineEdit, 'sort_images_input_dir').text()
-        dir = pathlib.Path(input_dir)
-        if not dir.exists() or input_dir == '': 
-            self._warn('Please input a directory with images to sort.')
-            return
-        files = list(dir.iterdir())
-        if len(files) == 0:
-            self._warn('No files found.')
-            return
+        valid, files = self._validate_input_files(
+            'sort_images_input_dir', 
+            'Please input a directory with images to sort.', 
+            'No files found.')
+        if not valid: return
         
         sort_type = self.find(QComboBox, 'sort_images_type').currentText()
         args = [(i, sort_type) for i in files]
@@ -284,77 +302,101 @@ class UtilityPanel():
     def strip_sorting_tags(self, dry_run: bool=False) -> None:
         '''Removes sorting tags added by `UtilityPanel.sort_images()`.'''
         self.change_log.clear()
-
-        input_dir = self.find(QLineEdit, 'remove_sort_tags_input').text()
-        dir = pathlib.Path(input_dir)
-        if not dir.exists() or input_dir == '': 
-            message = (
-                f'Please input a directory of '
-                f'sorted images to remove tags from.')
-            self._warn(message)
-            return
-        files = list(dir.glob('*_*'))
-        if len(files) == 0:
-            self._warn('No files with sorting tags found.')
-            return
+        invalid_dir = (
+            f'Please input a directory of '
+            f'sorted images to remove tags from.')
+        valid, files = self._validate_input_files(
+            'remove_sort_tags_input', invalid_dir, 
+            'No files with sorting tags found.', key='*_*')
+        if not valid: return
                 
         for file in files:
             split = file.name.split('_')[1:]
             name_name = '_'.join(split)
-            new_path = pathlib.Path(file.parent.resolve(), name_name)
+            new_path = Path(file.parent.resolve(), name_name)
             if dry_run:
                 log_line = f'{file.as_posix()} -> {new_path.as_posix()}'
                 self.change_log.append(log_line)
             else: file.rename(new_path)
 
+    def copy_image_sort(self, dry_run: bool=False) -> None:
+        valid, copyfrom_files = self._validate_input_files(
+            'copy_sort_copy_from',
+            'Please input a folder of sorted images to copy the order from.',
+            'No sorted files found.')
+        if not valid: return
+        valid, copyto_files = self._validate_input_files(
+            'copy_sort_copy_to',
+            'Please input a folder of images to copy the order to.',
+            'No files to sort.')
+        if not valid: return
+        copyto_dir = copyto_files[0].parent.resolve()
+        for file in copyfrom_files:
+            sorted_name = file.name
+            original_name = '_'.join(file.name.split('_')[1:])
+            other_file = Path(copyto_dir, original_name)
+            if not other_file.exists():
+                message = f'Unable to find match for file: {file.as_posix()}'
+                self._warn(message)
+                return
+            new_path = Path(copyto_dir, sorted_name)
+            if dry_run:
+                log_line = f'{other_file.as_posix()} -> {new_path.as_posix()}'
+                self.change_log.append(log_line)
+            else: other_file.rename(new_path)
+
     ### DATASET SPLIT ###
+
+    def _get_dataset_splits(self) -> None:
+        total = 0
+        chances = []
+        for x in ['test', 'train', 'val']:
+            value = self.find(QSpinBox, f'split_dataset_{x}').value()
+            chances.append(value)
+            total += value
+        normalized = [i/total for i in chances]
+        return normalized
+
+    def _build_split_output_dirs(
+            self,
+            test: Path,
+            train: Path,
+            val: Path,
+        ) -> None:
+        for i in [test, train, val]:
+            try: i.mkdir()
+            except Exception as e:
+                msg = (f'Unable to create output directory: {i.as_posix()}')
+                raise RuntimeError(msg) from e
+        return (test, train, val)
 
     def split_dataset(self, dry_run: bool=False) -> None:
         '''Splits a folder of dataset images into [train, test, val].'''
-        input_dir = self.find(QLineEdit, 'split_dataset_input').text()
-        dir = pathlib.Path(input_dir)
-        if not dir.exists() or input_dir == '': 
-            self._warn('Please input a directory with images to split.')
-            return
-        files = list(dir.iterdir())
-        if len(files) == 0:
-            self._warn('No files to split.')
-            return
-        
+        valid, files = self._validate_input_files(
+            'split_dataset_input',
+            'Please input a directory with images to split.',
+            'No files to split.')
+        if not valid: return
+
         input_outdir = self.find(QLineEdit, 'split_dataset_output').text()
-        outdir = pathlib.Path(input_outdir)
+        outdir = Path(input_outdir)
         if not outdir.exists() or input_outdir == '': 
             self._warn('Please input an output directory for the dataset.')
             return
-        
-        test_percent = self.find(QSpinBox, 'split_dataset_test').value()
-        train_percent = self.find(QSpinBox, 'split_dataset_train').value()
-        val_percent = self.find(QSpinBox, 'split_dataset_val').value()
-        
-        total = test_percent + train_percent + val_percent
-        
-        test_percent /= total
-        train_percent /= total
-        val_percent /= total
-        
-        test = pathlib.Path(outdir, 'test')
-        train = pathlib.Path(outdir, 'train')
-        val = pathlib.Path(outdir, 'val')
-        if not dry_run:
-            for i in [test, train, val]:
-                try: i.mkdir()
-                except Exception as e:
-                    message = (
-                        f'Unable to create output directory: '
-                        f'{i.as_posix()}')
-                    raise RuntimeError(message) from e
+
+        test_percent, train_percent, val_percent = self._get_dataset_splits()
+        test, train, val = (
+            Path(outdir, 'test'), 
+            Path(outdir, 'train'), 
+            Path(outdir, 'val'))
+        if not dry_run: self._build_split_output_dirs(test, train, val)
 
         for file in files:
             value = random.random()
-            if value < test_percent: new_path = pathlib.Path(test, file.name)
+            if value < test_percent: new_path = Path(test, file.name)
             elif value > test_percent and value < test_percent + train_percent:
-                new_path = pathlib.Path(train, file.name)
-            else: new_path = pathlib.Path(val, file.name)
+                new_path = Path(train, file.name)
+            else: new_path = Path(val, file.name)
             
             if dry_run:
                 log_line = f'{file.as_posix()} -> {new_path.as_posix()}'
