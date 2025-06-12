@@ -1,11 +1,13 @@
 import pathlib
+import shutil
+import random
 from os import PathLike
 from typing import Any, Literal
 
 from PySide6.QtCore import QThread, QVariantAnimation
 from PySide6.QtWidgets import (
     QWidget, QLabel, QPushButton, QFrame, QLineEdit, QComboBox, QProgressBar,
-    QCheckBox, QHBoxLayout, QTextEdit)
+    QCheckBox, QHBoxLayout, QTextEdit, QSpinBox)
 
 from pix2pix_graphical.toolbox.workers.utility_worker import (
     UtilityWorker, SignalHandler)
@@ -75,6 +77,10 @@ class UtilityPanel():
         split_dataset_frame.setHidden(True)
         self.find(QPushButton, 'split_dataset'
             ).clicked.connect(lambda x : split_dataset_frame.setHidden(not x))
+        self.find(QPushButton, 'start_split_dataset'
+            ).clicked.connect(self.split_dataset)
+        self.find(QPushButton, 'preview_split_dataset'
+            ).clicked.connect(lambda : self.split_dataset(dry_run=True))
 
     def _init_progress_bars(self) -> None:
         self.pairing_progress = self.find(
@@ -282,7 +288,10 @@ class UtilityPanel():
         input_dir = self.find(QLineEdit, 'remove_sort_tags_input').text()
         dir = pathlib.Path(input_dir)
         if not dir.exists() or input_dir == '': 
-            self._warn('Please input a directory with images to sort.')
+            message = (
+                f'Please input a directory of '
+                f'sorted images to remove tags from.')
+            self._warn(message)
             return
         files = list(dir.glob('*_*'))
         if len(files) == 0:
@@ -300,7 +309,58 @@ class UtilityPanel():
 
     ### DATASET SPLIT ###
 
-    def split_dataset_images(self) -> None:
+    def split_dataset(self, dry_run: bool=False) -> None:
         '''Splits a folder of dataset images into [train, test, val].'''
-        pass
+        input_dir = self.find(QLineEdit, 'split_dataset_input').text()
+        dir = pathlib.Path(input_dir)
+        if not dir.exists() or input_dir == '': 
+            self._warn('Please input a directory with images to split.')
+            return
+        files = list(dir.iterdir())
+        if len(files) == 0:
+            self._warn('No files to split.')
+            return
+        
+        input_outdir = self.find(QLineEdit, 'split_dataset_output').text()
+        outdir = pathlib.Path(input_outdir)
+        if not outdir.exists() or input_outdir == '': 
+            self._warn('Please input an output directory for the dataset.')
+            return
+        
+        test_percent = self.find(QSpinBox, 'split_dataset_test').value()
+        train_percent = self.find(QSpinBox, 'split_dataset_train').value()
+        val_percent = self.find(QSpinBox, 'split_dataset_val').value()
+        
+        total = test_percent + train_percent + val_percent
+        
+        test_percent /= total
+        train_percent /= total
+        val_percent /= total
+        
+        test = pathlib.Path(outdir, 'test')
+        train = pathlib.Path(outdir, 'train')
+        val = pathlib.Path(outdir, 'val')
+        if not dry_run:
+            for i in [test, train, val]:
+                try: i.mkdir()
+                except Exception as e:
+                    message = (
+                        f'Unable to create output directory: '
+                        f'{i.as_posix()}')
+                    raise RuntimeError(message) from e
 
+        for file in files:
+            value = random.random()
+            if value < test_percent: new_path = pathlib.Path(test, file.name)
+            elif value > test_percent and value < test_percent + train_percent:
+                new_path = pathlib.Path(train, file.name)
+            else: new_path = pathlib.Path(val, file.name)
+            
+            if dry_run:
+                log_line = f'{file.as_posix()} -> {new_path.as_posix()}'
+                self.change_log.append(log_line)
+            else:
+                try: shutil.copy(file, new_path)
+                except Exception as e:
+                    message = f'Unable to copy file: {file.as_posix()}'
+                    raise RuntimeError(message) from e
