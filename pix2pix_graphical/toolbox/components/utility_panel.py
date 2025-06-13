@@ -11,6 +11,7 @@ from PySide6.QtWidgets import (
 
 from pix2pix_graphical.toolbox.workers.utility_worker import (
     UtilityWorker, SignalHandler)
+from pix2pix_graphical.onnx.converter import ONNXConverter
 
 class UtilityPanel():
     def __init__(self, mainwidget: QWidget) -> None:
@@ -20,11 +21,23 @@ class UtilityPanel():
         self._init_utilities_buttons()
 
         self.warning_label = self.find(QLabel, 'utils_warning_label')
+        self.warning_label.setHidden(True)
+        self.warning_anim : QVariantAnimation | None = None
+        self.starting_anim: QVariantAnimation | None = None
         self.change_log = self.find(QTextEdit, 'file_change_log')
 
     ### INIT HELPERS ###
 
     def _init_utilities_widgets(self) -> None:
+        size = self.find(QComboBox, 'convert_onnx_crop_size')
+        size.addItems(['16', '32', '64', '128', '256', '512', '1024', '2048'])  
+        size.setCurrentIndex(4)
+        self.find(QComboBox, 'convert_onnx_device').addItems(['CPU', 'Cuda']) 
+        onnx_opset = self.find(QComboBox, 'convert_onnx_opset_version') 
+        onnx_opset.addItems(['9', '10', '11', '13', '14', '17', '18'])
+        onnx_opset.setCurrentIndex(5)
+        
+
         self.find(QComboBox, 'pair_images_direction'
             ).addItems(['AtoB', 'BtoA'])
         self.pair_do_scaling = self.find(QCheckBox, 'pair_images_do_scaling')
@@ -74,19 +87,30 @@ class UtilityPanel():
                 'toggle' : 'split_dataset',
                 'start'  : 'start_split_dataset',
                 'preview': 'preview_split_dataset',
-                'lambda' : self.split_dataset}}
+                'lambda' : self.split_dataset},
+            'convert_onnx': {
+                'frame'  : 'utils_convert_onnx_frame',
+                'toggle' : 'convert_to_onnx',
+                'start'  : 'convert_onnx_start',
+                'preview': None,
+                'lambda' : self.convert_to_onnx}}
 
-        for key, value in groups.items():
+        for value in groups.values():
             frame = self.find(QFrame, value['frame'])
             frame.setHidden(True)
             self.find(QPushButton, value['toggle']
                 ).clicked.connect(lambda x, y=frame: y.setHidden(not x))
             self.find(QPushButton, value['start']
                 ).clicked.connect(value['lambda'])
-            self.find(QPushButton, value['preview']
-                ).clicked.connect(lambda : value['lambda'](dry_run=True))
+            if not value['preview'] is None:
+                self.find(QPushButton, value['preview']
+                    ).clicked.connect(lambda : value['lambda'](dry_run=True))
 
     ### PROGRESS DISPLAY ###
+
+    def _starting_animation(self, val: int):
+        text = 'Starting' + '.' * (val%4) 
+        self.starting_label.setText(text)
 
     def _init_starting_animation(self) -> None:
         self.starting_anim = QVariantAnimation()
@@ -134,10 +158,28 @@ class UtilityPanel():
             self.utility_progress.setHidden(False)
         self.utility_progress.setValue(progress)
 
-    ### UTILITIES ###
+    ### WARNING LABEL ###
+
+    def _show_warning_label(self, val: int) -> None:
+        show = not val > 0
+        self.warning_label.setHidden(show)
+
+    def _init_warning_animation(self) -> None:
+        if not self.warning_anim is None: 
+            self.warning_anim.deleteLater()
+        self.warning_anim = QVariantAnimation()
+        self.warning_anim.setStartValue(10000)
+        self.warning_anim.setEndValue(0)
+        self.warning_anim.setDuration(3000)
+        self.warning_anim.valueChanged.connect(
+            lambda x : self.warning_label.setHidden(not x > 0))
 
     def _warn(self, warning: str) -> None:
+        self._init_warning_animation()
         self.warning_label.setText(warning)
+        self.warning_anim.start()
+
+    ### UTILITIES ###
 
     def _validate_input_files(
             self, 
@@ -156,12 +198,6 @@ class UtilityPanel():
             self._warn(no_files_warning)
             return (False, [])
         return (True, files)
-
-    ### ANIMATION ###
-
-    def _starting_animation(self, val: int):
-        text = 'Starting' + '.' * (val%4) 
-        self.starting_label.setText(text)
 
     ### WORKER ###
 
@@ -201,7 +237,37 @@ class UtilityPanel():
 
     def convert_to_onnx(self) -> None:
         '''Converts pre-trained model weights to ONNX format.'''
-        pass
+        experiment = self.find(QLineEdit, 'convert_onnx_experiment').text()
+        if not experiment == '':
+            experiment = Path(experiment)
+            if not experiment.exists():
+                return self._warn(f'Invalid experiment directory.')  
+        else: return self._warn(f'Please enter an experiment directory.')
+        
+        load_epoch = self.find(QSpinBox, 'convert_onnx_load_epoch').value()
+        checkpoint = Path(experiment, f'epoch{load_epoch}_netG.pth.tar')
+        if not checkpoint.exists():
+            return self._warn((
+                f'Unable to locate checkpoint file: {checkpoint}'))  
+
+        in_channels = self.find(QSpinBox, 'convert_onnx_in_channels').value()
+        crop_size = int(self.find(QComboBox, 'convert_onnx_crop_size').currentText())
+        device = self.find(QComboBox, 'convert_onnx_device').currentText().lower()
+        opset_version = int(self.find(QComboBox, 'convert_onnx_opset_version').currentText())
+
+        export_params = self.find(QCheckBox, 'convert_onnx_export_params').isChecked()
+        fold_constants = self.find(QCheckBox, 'convert_onnx_fold_constants').isChecked()
+
+        converter = ONNXConverter(
+            experiment_dir=experiment,
+            load_epoch=load_epoch,
+            in_channels=in_channels,
+            crop_size=crop_size,
+            device=device)
+        converter.convert_model(
+            export_params=export_params,
+            opset_version=opset_version,
+            do_constant_folding=fold_constants)
 
     def _run_onnx_inference(self) -> None:
         '''Runs ONNX model inference.'''

@@ -333,6 +333,10 @@ QLabel#y_fake_label {
     background-color: rgb(50, 50, 50);
 }
 
+QLabel#utils_warning_label {
+    color: rgb(255, 158, 31);
+}
+
 QLabel#experiment_section_header {
     background-color: rgb(40, 40, 40);
     color: rgb(200, 200, 200);

@@ -102,9 +102,16 @@ class InitHelper():
             ('test_browse_experiment', 'test_experiment_path'),
             ('test_browse_dataset', 'test_dataset_path'),
             ('review_browse_experiment', 'review_experiment_path'),
+            ('convert_onnx_browse_experiment', 'convert_onnx_experiment'),
             ('browse_pair_input_a', 'pair_images_input_a'),
             ('browse_pair_input_b', 'pair_images_input_b'),
-            ('browse_pair_output', 'pair_images_output')
+            ('browse_pair_output', 'pair_images_output'),
+            ('browse_sort_input_dir', 'sort_images_input_dir'),
+            ('browse_remove_sort_tags_input', 'remove_sort_tags_input'),
+            ('browse_copy_sort_copy_from', 'copy_sort_copy_from'),
+            ('browse_copy_sort_copy_to', 'copy_sort_copy_to'),
+            ('browse_split_dataset_input', 'split_dataset_input'),
+            ('browse_split_dataset_output', 'split_dataset_output')
         ]
         for button_name, line_edit_name in pairs:
             button = self.find(QPushButton, button_name)

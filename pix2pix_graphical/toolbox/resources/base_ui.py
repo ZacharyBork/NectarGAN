@@ -476,7 +476,7 @@ class Ui_MainWindow(object):
         self.scrollArea_14.setWidgetResizable(True)
         self.review_images_widget = QWidget()
         self.review_images_widget.setObjectName(u"review_images_widget")
-        self.review_images_widget.setGeometry(QRect(0, 0, 745, 967))
+        self.review_images_widget.setGeometry(QRect(0, 0, 18, 18))
         self.review_images_layout = QVBoxLayout(self.review_images_widget)
         self.review_images_layout.setObjectName(u"review_images_layout")
         self.scrollArea_14.setWidget(self.review_images_widget)
@@ -514,7 +514,7 @@ class Ui_MainWindow(object):
         self.scrollArea_15.setWidgetResizable(True)
         self.review_graphs_widget = QWidget()
         self.review_graphs_widget.setObjectName(u"review_graphs_widget")
-        self.review_graphs_widget.setGeometry(QRect(0, 0, 577, 967))
+        self.review_graphs_widget.setGeometry(QRect(0, 0, 18, 18))
         self.review_graphs_layout = QVBoxLayout(self.review_graphs_widget)
         self.review_graphs_layout.setObjectName(u"review_graphs_layout")
         self.scrollArea_15.setWidget(self.review_graphs_widget)
@@ -3748,7 +3748,7 @@ class Ui_MainWindow(object):
         self.scrollArea_11.setWidgetResizable(True)
         self.review_settings_container = QWidget()
         self.review_settings_container.setObjectName(u"review_settings_container")
-        self.review_settings_container.setGeometry(QRect(0, 0, 419, 921))
+        self.review_settings_container.setGeometry(QRect(0, 0, 210, 230))
         self.verticalLayout_46 = QVBoxLayout(self.review_settings_container)
         self.verticalLayout_46.setObjectName(u"verticalLayout_46")
         self.frame_89 = QFrame(self.review_settings_container)
@@ -3860,15 +3860,9 @@ class Ui_MainWindow(object):
         self.scrollArea_12.setWidgetResizable(True)
         self.utilities_settings_container = QWidget()
         self.utilities_settings_container.setObjectName(u"utilities_settings_container")
-        self.utilities_settings_container.setGeometry(QRect(0, -353, 402, 1214))
+        self.utilities_settings_container.setGeometry(QRect(0, 0, 402, 1485))
         self.verticalLayout_48 = QVBoxLayout(self.utilities_settings_container)
         self.verticalLayout_48.setObjectName(u"verticalLayout_48")
-        self.utils_warning_label = QLabel(self.utilities_settings_container)
-        self.utils_warning_label.setObjectName(u"utils_warning_label")
-        self.utils_warning_label.setAlignment(Qt.AlignCenter)
-
-        self.verticalLayout_48.addWidget(self.utils_warning_label)
-
         self.frame_95 = QFrame(self.utilities_settings_container)
         self.frame_95.setObjectName(u"frame_95")
         sizePolicy.setHeightForWidth(self.frame_95.sizePolicy().hasHeightForWidth())
@@ -3914,11 +3908,161 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_48.addWidget(self.convert_to_onnx)
 
+        self.utils_convert_onnx_frame = QFrame(self.utilities_settings_container)
+        self.utils_convert_onnx_frame.setObjectName(u"utils_convert_onnx_frame")
+        self.utils_convert_onnx_frame.setFrameShape(QFrame.Panel)
+        self.utils_convert_onnx_frame.setFrameShadow(QFrame.Sunken)
+        self.utils_convert_onnx_layout = QVBoxLayout(self.utils_convert_onnx_frame)
+        self.utils_convert_onnx_layout.setObjectName(u"utils_convert_onnx_layout")
+        self.utils_convert_onnx_layout.setContentsMargins(2, 2, 2, 2)
+        self.frame_108 = QFrame(self.utils_convert_onnx_frame)
+        self.frame_108.setObjectName(u"frame_108")
+        self.frame_108.setFrameShape(QFrame.StyledPanel)
+        self.frame_108.setFrameShadow(QFrame.Raised)
+        self.formLayout_33 = QFormLayout(self.frame_108)
+        self.formLayout_33.setObjectName(u"formLayout_33")
+        self.formLayout_33.setContentsMargins(0, 0, 0, 0)
+        self.label_111 = QLabel(self.frame_108)
+        self.label_111.setObjectName(u"label_111")
+
+        self.formLayout_33.setWidget(0, QFormLayout.ItemRole.LabelRole, self.label_111)
+
+        self.horizontalLayout_93 = QHBoxLayout()
+        self.horizontalLayout_93.setObjectName(u"horizontalLayout_93")
+        self.convert_onnx_experiment = QLineEdit(self.frame_108)
+        self.convert_onnx_experiment.setObjectName(u"convert_onnx_experiment")
+
+        self.horizontalLayout_93.addWidget(self.convert_onnx_experiment)
+
+        self.convert_onnx_browse_experiment = QPushButton(self.frame_108)
+        self.convert_onnx_browse_experiment.setObjectName(u"convert_onnx_browse_experiment")
+        sizePolicy18 = QSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Fixed)
+        sizePolicy18.setHorizontalStretch(0)
+        sizePolicy18.setVerticalStretch(0)
+        sizePolicy18.setHeightForWidth(self.convert_onnx_browse_experiment.sizePolicy().hasHeightForWidth())
+        self.convert_onnx_browse_experiment.setSizePolicy(sizePolicy18)
+
+        self.horizontalLayout_93.addWidget(self.convert_onnx_browse_experiment)
+
+
+        self.formLayout_33.setLayout(0, QFormLayout.ItemRole.FieldRole, self.horizontalLayout_93)
+
+        self.label_112 = QLabel(self.frame_108)
+        self.label_112.setObjectName(u"label_112")
+
+        self.formLayout_33.setWidget(1, QFormLayout.ItemRole.LabelRole, self.label_112)
+
+        self.horizontalLayout_95 = QHBoxLayout()
+        self.horizontalLayout_95.setObjectName(u"horizontalLayout_95")
+        self.convert_onnx_load_epoch = QSpinBox(self.frame_108)
+        self.convert_onnx_load_epoch.setObjectName(u"convert_onnx_load_epoch")
+        self.convert_onnx_load_epoch.setMinimum(1)
+        self.convert_onnx_load_epoch.setMaximum(999999)
+
+        self.horizontalLayout_95.addWidget(self.convert_onnx_load_epoch)
+
+        self.convert_onnx_load_latest_epoch = QPushButton(self.frame_108)
+        self.convert_onnx_load_latest_epoch.setObjectName(u"convert_onnx_load_latest_epoch")
+        sizePolicy8.setHeightForWidth(self.convert_onnx_load_latest_epoch.sizePolicy().hasHeightForWidth())
+        self.convert_onnx_load_latest_epoch.setSizePolicy(sizePolicy8)
+
+        self.horizontalLayout_95.addWidget(self.convert_onnx_load_latest_epoch)
+
+
+        self.formLayout_33.setLayout(1, QFormLayout.ItemRole.FieldRole, self.horizontalLayout_95)
+
+        self.label_118 = QLabel(self.frame_108)
+        self.label_118.setObjectName(u"label_118")
+
+        self.formLayout_33.setWidget(2, QFormLayout.ItemRole.LabelRole, self.label_118)
+
+        self.convert_onnx_in_channels = QSpinBox(self.frame_108)
+        self.convert_onnx_in_channels.setObjectName(u"convert_onnx_in_channels")
+        self.convert_onnx_in_channels.setMinimum(1)
+        self.convert_onnx_in_channels.setMaximum(3)
+        self.convert_onnx_in_channels.setValue(3)
+
+        self.formLayout_33.setWidget(2, QFormLayout.ItemRole.FieldRole, self.convert_onnx_in_channels)
+
+        self.label_113 = QLabel(self.frame_108)
+        self.label_113.setObjectName(u"label_113")
+
+        self.formLayout_33.setWidget(3, QFormLayout.ItemRole.LabelRole, self.label_113)
+
+        self.convert_onnx_crop_size = QComboBox(self.frame_108)
+        self.convert_onnx_crop_size.setObjectName(u"convert_onnx_crop_size")
+
+        self.formLayout_33.setWidget(3, QFormLayout.ItemRole.FieldRole, self.convert_onnx_crop_size)
+
+        self.label_114 = QLabel(self.frame_108)
+        self.label_114.setObjectName(u"label_114")
+
+        self.formLayout_33.setWidget(4, QFormLayout.ItemRole.LabelRole, self.label_114)
+
+        self.convert_onnx_device = QComboBox(self.frame_108)
+        self.convert_onnx_device.setObjectName(u"convert_onnx_device")
+
+        self.formLayout_33.setWidget(4, QFormLayout.ItemRole.FieldRole, self.convert_onnx_device)
+
+        self.label_115 = QLabel(self.frame_108)
+        self.label_115.setObjectName(u"label_115")
+
+        self.formLayout_33.setWidget(5, QFormLayout.ItemRole.LabelRole, self.label_115)
+
+        self.convert_onnx_opset_version = QComboBox(self.frame_108)
+        self.convert_onnx_opset_version.setObjectName(u"convert_onnx_opset_version")
+
+        self.formLayout_33.setWidget(5, QFormLayout.ItemRole.FieldRole, self.convert_onnx_opset_version)
+
+
+        self.utils_convert_onnx_layout.addWidget(self.frame_108)
+
+        self.frame_109 = QFrame(self.utils_convert_onnx_frame)
+        self.frame_109.setObjectName(u"frame_109")
+        self.frame_109.setFrameShape(QFrame.StyledPanel)
+        self.frame_109.setFrameShadow(QFrame.Raised)
+        self.horizontalLayout_105 = QHBoxLayout(self.frame_109)
+        self.horizontalLayout_105.setObjectName(u"horizontalLayout_105")
+        self.horizontalLayout_105.setContentsMargins(30, 0, 30, 0)
+        self.convert_onnx_export_params = QCheckBox(self.frame_109)
+        self.convert_onnx_export_params.setObjectName(u"convert_onnx_export_params")
+        sizePolicy8.setHeightForWidth(self.convert_onnx_export_params.sizePolicy().hasHeightForWidth())
+        self.convert_onnx_export_params.setSizePolicy(sizePolicy8)
+        self.convert_onnx_export_params.setChecked(True)
+
+        self.horizontalLayout_105.addWidget(self.convert_onnx_export_params)
+
+        self.convert_onnx_fold_constants = QCheckBox(self.frame_109)
+        self.convert_onnx_fold_constants.setObjectName(u"convert_onnx_fold_constants")
+        sizePolicy8.setHeightForWidth(self.convert_onnx_fold_constants.sizePolicy().hasHeightForWidth())
+        self.convert_onnx_fold_constants.setSizePolicy(sizePolicy8)
+        self.convert_onnx_fold_constants.setChecked(True)
+
+        self.horizontalLayout_105.addWidget(self.convert_onnx_fold_constants)
+
+
+        self.utils_convert_onnx_layout.addWidget(self.frame_109)
+
+        self.convert_onnx_start = QPushButton(self.utils_convert_onnx_frame)
+        self.convert_onnx_start.setObjectName(u"convert_onnx_start")
+
+        self.utils_convert_onnx_layout.addWidget(self.convert_onnx_start)
+
+
+        self.verticalLayout_48.addWidget(self.utils_convert_onnx_frame)
+
         self.test_onnx_model = QPushButton(self.utilities_settings_container)
         self.test_onnx_model.setObjectName(u"test_onnx_model")
         self.test_onnx_model.setCheckable(True)
 
         self.verticalLayout_48.addWidget(self.test_onnx_model)
+
+        self.utils_test_onnx_frame = QFrame(self.utilities_settings_container)
+        self.utils_test_onnx_frame.setObjectName(u"utils_test_onnx_frame")
+        self.utils_test_onnx_frame.setFrameShape(QFrame.Panel)
+        self.utils_test_onnx_frame.setFrameShadow(QFrame.Sunken)
+
+        self.verticalLayout_48.addWidget(self.utils_test_onnx_frame)
 
         self.frame_96 = QFrame(self.utilities_settings_container)
         self.frame_96.setObjectName(u"frame_96")
@@ -3998,9 +4142,6 @@ class Ui_MainWindow(object):
 
         self.browse_pair_input_a = QPushButton(self.frame_83)
         self.browse_pair_input_a.setObjectName(u"browse_pair_input_a")
-        sizePolicy18 = QSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Fixed)
-        sizePolicy18.setHorizontalStretch(0)
-        sizePolicy18.setVerticalStretch(0)
         sizePolicy18.setHeightForWidth(self.browse_pair_input_a.sizePolicy().hasHeightForWidth())
         self.browse_pair_input_a.setSizePolicy(sizePolicy18)
 
@@ -4078,7 +4219,7 @@ class Ui_MainWindow(object):
         self.pair_images_do_scaling.setObjectName(u"pair_images_do_scaling")
         sizePolicy8.setHeightForWidth(self.pair_images_do_scaling.sizePolicy().hasHeightForWidth())
         self.pair_images_do_scaling.setSizePolicy(sizePolicy8)
-        self.pair_images_do_scaling.setLayoutDirection(Qt.RightToLeft)
+        self.pair_images_do_scaling.setLayoutDirection(Qt.LeftToRight)
 
         self.horizontalLayout_94.addWidget(self.pair_images_do_scaling)
 
@@ -4584,6 +4725,12 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_47.addWidget(self.scrollArea_12)
 
+        self.utils_warning_label = QLabel(self.utilities_page)
+        self.utils_warning_label.setObjectName(u"utils_warning_label")
+        self.utils_warning_label.setAlignment(Qt.AlignCenter)
+
+        self.verticalLayout_47.addWidget(self.utils_warning_label)
+
         self.settings_pages.addWidget(self.utilities_page)
         self.settings_page = QWidget()
         self.settings_page.setObjectName(u"settings_page")
@@ -4958,9 +5105,20 @@ class Ui_MainWindow(object):
         self.review_browse_experiment.setText(QCoreApplication.translate("MainWindow", u"Browse", None))
         self.review_load_experiment.setText(QCoreApplication.translate("MainWindow", u"Load Experiment", None))
         self.label_102.setText(QCoreApplication.translate("MainWindow", u"Train Config", None))
-        self.utils_warning_label.setText(QCoreApplication.translate("MainWindow", u"_utils_warning_label_", None))
         self.label_106.setText(QCoreApplication.translate("MainWindow", u"ONNX Tools", None))
         self.convert_to_onnx.setText(QCoreApplication.translate("MainWindow", u"Convert to ONNX", None))
+        self.label_111.setText(QCoreApplication.translate("MainWindow", u"Experiment", None))
+        self.convert_onnx_experiment.setPlaceholderText(QCoreApplication.translate("MainWindow", u"Enter path to experiment directory...", None))
+        self.convert_onnx_browse_experiment.setText(QCoreApplication.translate("MainWindow", u"Browse", None))
+        self.label_112.setText(QCoreApplication.translate("MainWindow", u"Load Epoch", None))
+        self.convert_onnx_load_latest_epoch.setText(QCoreApplication.translate("MainWindow", u"Latest", None))
+        self.label_118.setText(QCoreApplication.translate("MainWindow", u"In Channels", None))
+        self.label_113.setText(QCoreApplication.translate("MainWindow", u"Width/Height", None))
+        self.label_114.setText(QCoreApplication.translate("MainWindow", u"Target Device", None))
+        self.label_115.setText(QCoreApplication.translate("MainWindow", u"Opset Version", None))
+        self.convert_onnx_export_params.setText(QCoreApplication.translate("MainWindow", u"Export Params", None))
+        self.convert_onnx_fold_constants.setText(QCoreApplication.translate("MainWindow", u"Fold Constants", None))
+        self.convert_onnx_start.setText(QCoreApplication.translate("MainWindow", u"Convert", None))
         self.test_onnx_model.setText(QCoreApplication.translate("MainWindow", u"Test ONNX Model", None))
         self.label_107.setText(QCoreApplication.translate("MainWindow", u"Image Tools", None))
         self.pair_images.setText(QCoreApplication.translate("MainWindow", u"Pair Images", None))
@@ -5021,6 +5179,7 @@ class Ui_MainWindow(object):
         self.split_dataset_val.setSuffix(QCoreApplication.translate("MainWindow", u"%", None))
         self.start_split_dataset.setText(QCoreApplication.translate("MainWindow", u"Start", None))
         self.preview_split_dataset.setText(QCoreApplication.translate("MainWindow", u"Preview", None))
+        self.utils_warning_label.setText(QCoreApplication.translate("MainWindow", u"_utils_warning_label_", None))
         self.always_on_top.setText(QCoreApplication.translate("MainWindow", u"Always on Top", None))
         self.log_losses.setText(QCoreApplication.translate("MainWindow", u"Log Losses During Training", None))
         self.label_18.setText(QCoreApplication.translate("MainWindow", u"Loss Log Dump Frequency (epochs)", None))

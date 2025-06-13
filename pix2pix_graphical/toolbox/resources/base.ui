@@ -928,8 +928,8 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>745</width>
-                    <height>967</height>
+                    <width>18</width>
+                    <height>18</height>
                    </rect>
                   </property>
                   <layout class="QVBoxLayout" name="review_images_layout"/>
@@ -1001,8 +1001,8 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>577</width>
-                    <height>967</height>
+                    <width>18</width>
+                    <height>18</height>
                    </rect>
                   </property>
                   <layout class="QVBoxLayout" name="review_graphs_layout"/>
@@ -7714,8 +7714,8 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>419</width>
-                    <height>921</height>
+                    <width>210</width>
+                    <height>230</height>
                    </rect>
                   </property>
                   <layout class="QVBoxLayout" name="verticalLayout_46">
@@ -7920,22 +7920,12 @@
                   <property name="geometry">
                    <rect>
                     <x>0</x>
-                    <y>-353</y>
+                    <y>0</y>
                     <width>402</width>
-                    <height>1214</height>
+                    <height>1485</height>
                    </rect>
                   </property>
                   <layout class="QVBoxLayout" name="verticalLayout_48">
-                   <item>
-                    <widget class="QLabel" name="utils_warning_label">
-                     <property name="text">
-                      <string>_utils_warning_label_</string>
-                     </property>
-                     <property name="alignment">
-                      <set>Qt::AlignCenter</set>
-                     </property>
-                    </widget>
-                   </item>
                    <item>
                     <widget class="QFrame" name="frame_95">
                      <property name="sizePolicy">
@@ -8021,12 +8011,248 @@
                     </widget>
                    </item>
                    <item>
+                    <widget class="QFrame" name="utils_convert_onnx_frame">
+                     <property name="frameShape">
+                      <enum>QFrame::Panel</enum>
+                     </property>
+                     <property name="frameShadow">
+                      <enum>QFrame::Sunken</enum>
+                     </property>
+                     <layout class="QVBoxLayout" name="utils_convert_onnx_layout">
+                      <property name="leftMargin">
+                       <number>2</number>
+                      </property>
+                      <property name="topMargin">
+                       <number>2</number>
+                      </property>
+                      <property name="rightMargin">
+                       <number>2</number>
+                      </property>
+                      <property name="bottomMargin">
+                       <number>2</number>
+                      </property>
+                      <item>
+                       <widget class="QFrame" name="frame_108">
+                        <property name="frameShape">
+                         <enum>QFrame::StyledPanel</enum>
+                        </property>
+                        <property name="frameShadow">
+                         <enum>QFrame::Raised</enum>
+                        </property>
+                        <layout class="QFormLayout" name="formLayout_33">
+                         <property name="leftMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="topMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="rightMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="bottomMargin">
+                          <number>0</number>
+                         </property>
+                         <item row="0" column="0">
+                          <widget class="QLabel" name="label_111">
+                           <property name="text">
+                            <string>Experiment</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="0" column="1">
+                          <layout class="QHBoxLayout" name="horizontalLayout_93">
+                           <item>
+                            <widget class="QLineEdit" name="convert_onnx_experiment">
+                             <property name="placeholderText">
+                              <string>Enter path to experiment directory...</string>
+                             </property>
+                            </widget>
+                           </item>
+                           <item>
+                            <widget class="QPushButton" name="convert_onnx_browse_experiment">
+                             <property name="sizePolicy">
+                              <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                               <horstretch>0</horstretch>
+                               <verstretch>0</verstretch>
+                              </sizepolicy>
+                             </property>
+                             <property name="text">
+                              <string>Browse</string>
+                             </property>
+                            </widget>
+                           </item>
+                          </layout>
+                         </item>
+                         <item row="1" column="0">
+                          <widget class="QLabel" name="label_112">
+                           <property name="text">
+                            <string>Load Epoch</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="1" column="1">
+                          <layout class="QHBoxLayout" name="horizontalLayout_95">
+                           <item>
+                            <widget class="QSpinBox" name="convert_onnx_load_epoch">
+                             <property name="minimum">
+                              <number>1</number>
+                             </property>
+                             <property name="maximum">
+                              <number>999999</number>
+                             </property>
+                            </widget>
+                           </item>
+                           <item>
+                            <widget class="QPushButton" name="convert_onnx_load_latest_epoch">
+                             <property name="sizePolicy">
+                              <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+                               <horstretch>0</horstretch>
+                               <verstretch>0</verstretch>
+                              </sizepolicy>
+                             </property>
+                             <property name="text">
+                              <string>Latest</string>
+                             </property>
+                            </widget>
+                           </item>
+                          </layout>
+                         </item>
+                         <item row="2" column="0">
+                          <widget class="QLabel" name="label_118">
+                           <property name="text">
+                            <string>In Channels</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="2" column="1">
+                          <widget class="QSpinBox" name="convert_onnx_in_channels">
+                           <property name="minimum">
+                            <number>1</number>
+                           </property>
+                           <property name="maximum">
+                            <number>3</number>
+                           </property>
+                           <property name="value">
+                            <number>3</number>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="3" column="0">
+                          <widget class="QLabel" name="label_113">
+                           <property name="text">
+                            <string>Width/Height</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="3" column="1">
+                          <widget class="QComboBox" name="convert_onnx_crop_size"/>
+                         </item>
+                         <item row="4" column="0">
+                          <widget class="QLabel" name="label_114">
+                           <property name="text">
+                            <string>Target Device</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="4" column="1">
+                          <widget class="QComboBox" name="convert_onnx_device"/>
+                         </item>
+                         <item row="5" column="0">
+                          <widget class="QLabel" name="label_115">
+                           <property name="text">
+                            <string>Opset Version</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="5" column="1">
+                          <widget class="QComboBox" name="convert_onnx_opset_version"/>
+                         </item>
+                        </layout>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QFrame" name="frame_109">
+                        <property name="frameShape">
+                         <enum>QFrame::StyledPanel</enum>
+                        </property>
+                        <property name="frameShadow">
+                         <enum>QFrame::Raised</enum>
+                        </property>
+                        <layout class="QHBoxLayout" name="horizontalLayout_105">
+                         <property name="leftMargin">
+                          <number>30</number>
+                         </property>
+                         <property name="topMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="rightMargin">
+                          <number>30</number>
+                         </property>
+                         <property name="bottomMargin">
+                          <number>0</number>
+                         </property>
+                         <item>
+                          <widget class="QCheckBox" name="convert_onnx_export_params">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="text">
+                            <string>Export Params</string>
+                           </property>
+                           <property name="checked">
+                            <bool>true</bool>
+                           </property>
+                          </widget>
+                         </item>
+                         <item>
+                          <widget class="QCheckBox" name="convert_onnx_fold_constants">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="text">
+                            <string>Fold Constants</string>
+                           </property>
+                           <property name="checked">
+                            <bool>true</bool>
+                           </property>
+                          </widget>
+                         </item>
+                        </layout>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QPushButton" name="convert_onnx_start">
+                        <property name="text">
+                         <string>Convert</string>
+                        </property>
+                       </widget>
+                      </item>
+                     </layout>
+                    </widget>
+                   </item>
+                   <item>
                     <widget class="QPushButton" name="test_onnx_model">
                      <property name="text">
                       <string>Test ONNX Model</string>
                      </property>
                      <property name="checkable">
                       <bool>true</bool>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QFrame" name="utils_test_onnx_frame">
+                     <property name="frameShape">
+                      <enum>QFrame::Panel</enum>
+                     </property>
+                     <property name="frameShadow">
+                      <enum>QFrame::Sunken</enum>
                      </property>
                     </widget>
                    </item>
@@ -8295,7 +8521,7 @@
                               </sizepolicy>
                              </property>
                              <property name="layoutDirection">
-                              <enum>Qt::RightToLeft</enum>
+                              <enum>Qt::LeftToRight</enum>
                              </property>
                              <property name="text">
                               <string/>
@@ -9177,6 +9403,16 @@
                    </item>
                   </layout>
                  </widget>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLabel" name="utils_warning_label">
+                 <property name="text">
+                  <string>_utils_warning_label_</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignCenter</set>
+                 </property>
                 </widget>
                </item>
               </layout>
