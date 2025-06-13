@@ -1,13 +1,17 @@
 import shutil
 import random
 from pathlib import Path
-from os import PathLike
 from typing import Any, Literal
 
+import cv2
+import numpy as np
+import onnxruntime as ort
 from PySide6.QtCore import Qt, QThread, QVariantAnimation
+from PySide6.QtGui import QPixmap, QImage
 from PySide6.QtWidgets import (
     QWidget, QLabel, QPushButton, QFrame, QLineEdit, QComboBox, QProgressBar,
-    QCheckBox, QTextEdit, QSpinBox, QLayout, QVBoxLayout)
+    QCheckBox, QTextEdit, QSpinBox, QLayout, QVBoxLayout, QFileDialog,
+    QHBoxLayout)
 
 from pix2pix_graphical.toolbox.workers.utility_worker import (
     UtilityWorker, SignalHandler)
@@ -36,6 +40,8 @@ class UtilityPanel():
         onnx_opset = self.find(QComboBox, 'convert_onnx_opset_version') 
         onnx_opset.addItems(['9', '10', '11', '13', '14', '17', '18'])
         onnx_opset.setCurrentIndex(5)
+        self.find(QPushButton, 'browse_onnx_model_path'
+            ).clicked.connect(self._browse_for_onnx_model)
         
 
         self.find(QComboBox, 'pair_images_direction'
@@ -93,7 +99,13 @@ class UtilityPanel():
                 'toggle' : 'convert_to_onnx',
                 'start'  : 'convert_onnx_start',
                 'preview': None,
-                'lambda' : self.convert_to_onnx}}
+                'lambda' : self.convert_to_onnx},
+            'test_onnx': {
+                'frame'  : 'utils_test_onnx_frame',
+                'toggle' : 'test_onnx_model',
+                'start'  : 'test_onnx_start',
+                'preview': None,
+                'lambda' : self.test_onnx_model}}
 
         for value in groups.values():
             frame = self.find(QFrame, value['frame'])
@@ -231,9 +243,11 @@ class UtilityPanel():
 
     ### ONNX UTILITIES ###
 
-    def _pth_to_onnx(self, input_file: PathLike) -> None:
-        '''Converts a .pth.tar model checkpoint to a .onnx file.'''
-        pass
+    def _browse_for_onnx_model(self) -> Path:
+        selected = QFileDialog.getOpenFileName(filter='*.onnx')
+        if not selected is None and not selected == '.':
+            line_edit = self.find(QLineEdit, 'test_onnx_model_path')
+            line_edit.setText(selected[0])
 
     def convert_to_onnx(self) -> None:
         '''Converts pre-trained model weights to ONNX format.'''
@@ -250,13 +264,19 @@ class UtilityPanel():
             return self._warn((
                 f'Unable to locate checkpoint file: {checkpoint}'))  
 
-        in_channels = self.find(QSpinBox, 'convert_onnx_in_channels').value()
-        crop_size = int(self.find(QComboBox, 'convert_onnx_crop_size').currentText())
-        device = self.find(QComboBox, 'convert_onnx_device').currentText().lower()
-        opset_version = int(self.find(QComboBox, 'convert_onnx_opset_version').currentText())
+        in_channels = self.find(
+            QSpinBox, 'convert_onnx_in_channels').value()
+        crop_size = int(self.find(
+            QComboBox, 'convert_onnx_crop_size').currentText())
+        device = self.find(
+            QComboBox, 'convert_onnx_device').currentText().lower()
+        opset_version = int(
+            self.find(QComboBox, 'convert_onnx_opset_version').currentText())
 
-        export_params = self.find(QCheckBox, 'convert_onnx_export_params').isChecked()
-        fold_constants = self.find(QCheckBox, 'convert_onnx_fold_constants').isChecked()
+        export_params = self.find(
+            QCheckBox, 'convert_onnx_export_params').isChecked()
+        fold_constants = self.find(
+            QCheckBox, 'convert_onnx_fold_constants').isChecked()
 
         converter = ONNXConverter(
             experiment_dir=experiment,
@@ -269,14 +289,66 @@ class UtilityPanel():
             opset_version=opset_version,
             do_constant_folding=fold_constants)
 
-    def _run_onnx_inference(self) -> None:
-        '''Runs ONNX model inference.'''
-        pass
+    def _prep_onnx_input(
+            self, 
+            filepath: Path
+        ) -> tuple[np.ndarray[np.float64], np.ndarray[np.float64]]:
+        base_image = cv2.imread(filepath.as_posix())
+        base_image = cv2.cvtColor(base_image, cv2.COLOR_BGR2RGB)
+        image = base_image.astype(np.float32) / 255.0
+        image = (image - 0.5) * 2.0
+        image = np.transpose(image, (2, 0, 1))
+        image = np.expand_dims(image, axis=0)
+        return (base_image, image)
 
     def test_onnx_model(self) -> None:
         '''Tests the inference of an ONNX model.'''
-        pass
+        model = self.find(QLineEdit, 'test_onnx_model_path').text()
+        if not model == '':
+            model = Path(model)
+            if not model.exists() or not model.suffix == '.onnx':
+                return self._warn(f'Invalid model file: {model}')  
+        else: return self._warn(f'Please enter the path to an ONNX model.')
 
+        valid, test_images = self._validate_input_files(
+            'test_onnx_image_dir',
+            'Test image directory is invalid.',
+            'No files found in selected test directory.')
+        if not valid: return
+
+        session = ort.InferenceSession(model.as_posix())
+        input_name = session.get_inputs()[0].name
+        output_name = session.get_outputs()[0].name
+
+        layout = self.find(QVBoxLayout, 'test_onnx_vis_layout')
+        for _image in test_images:
+            base_image, input_image = self._prep_onnx_input(_image)
+
+            output = session.run([output_name], {input_name: input_image})[0]
+
+            output_image = output.squeeze().transpose(1, 2, 0)
+            output_image = (output_image + 1) / 2.0
+            output_image = np.clip(output_image, 0, 1)
+            
+            output_image = (output_image * 255).astype(np.uint8)
+
+            image_layout = QHBoxLayout()
+            for x in [base_image, output_image]:
+                label = QLabel('')
+                height, width, _ = x.shape
+                x = np.ascontiguousarray(x)
+                gen_pixmap = QPixmap.fromImage(QImage(
+                    x, width, height,
+                    QImage.Format.Format_RGB888))
+                label.setPixmap(gen_pixmap)
+                image_layout.addWidget(label)
+            image_layout.setAlignment(Qt.AlignmentFlag.AlignLeft)
+            image_layout.setSpacing(0)
+
+            frame = QFrame()
+            frame.setLayout(image_layout)            
+            layout.addWidget(frame)
+            
     ### IMAGE PAIRING ###        
 
     def pair_images(self, dry_run: bool=False) -> None:

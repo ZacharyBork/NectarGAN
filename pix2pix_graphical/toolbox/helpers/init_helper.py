@@ -103,6 +103,7 @@ class InitHelper():
             ('test_browse_dataset', 'test_dataset_path'),
             ('review_browse_experiment', 'review_experiment_path'),
             ('convert_onnx_browse_experiment', 'convert_onnx_experiment'),
+            ('browse_onnx_image_dir', 'test_onnx_image_dir'),
             ('browse_pair_input_a', 'pair_images_input_a'),
             ('browse_pair_input_b', 'pair_images_input_b'),
             ('browse_pair_output', 'pair_images_output'),
