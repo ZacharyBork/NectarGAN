@@ -66,23 +66,60 @@ class Transformer():
         self._append_xform_by_value(
             A.RandomRotate90,
             seq=xforms, value=b.rot90_chance)
+        if b.elastic_transform_chance > 0.0:
+            xforms.append(A.ElasticTransform(
+                alpha=b.elastic_transform_alpha,
+                sigma=b.elastic_transform_sigma,
+                p=b.elastic_transform_chance))
+        if b.optical_distortion_chance > 0.0:
+            xforms.append(A.OpticalDistortion(
+                (b.optical_distortion_min, b.optical_distortion_max),
+                mode=b.optical_distortion_mode,
+                p=b.optical_distortion_chance))
+        if b.coarse_dropout_chance > 0.0:
+            xforms.append(A.CoarseDropout(
+                (b.coarse_dropout_holes_min, b.coarse_dropout_holes_max),
+                (b.coarse_dropout_height_min, b.coarse_dropout_height_max),
+                (b.coarse_dropout_width_min, b.coarse_dropout_width_max)))
         
         return A.Compose(xforms, additional_targets={ 'image0': 'image' })
 
     def _input_transform(self) -> A.Compose:
         '''Builds transform function that is applied only to input.
         '''
-        return A.Compose([
-            A.ColorJitter(
-                (self.augs.input.colorjitter_brightness[0], 
-                self.augs.input.colorjitter_brightness[1]), 
-                p=self.augs.input.colorjitter_chance),
+        i = self.augs.input
+        xforms = []
+        if i.colorjitter_chance > 0.0:
+            xforms.append(A.ColorJitter(
+                (i.colorjitter_min_brightness, i.colorjitter_max_brightness), 
+                p=i.colorjitter_chance))
+        if i.gaussnoise_chance > 0.0:
+           xforms.append(A.GaussNoise(
+                (i.gaussnoise_min, i.gaussnoise_max), p=i.gaussnoise_chance))
+        if i.motionblur_chance > 0.0:
+            xforms.append(A.MotionBlur(
+                (3, i.motionblur_limit), p=i.motionblur_chance))
+        if i.randgamma_chance > 0.0:
+            xforms.append(A.RandomGamma(
+                (i.randgamma_min, i.randgamma_max), p=i.randgamma_chance))
+        if i.grayscale_chance > 0.0:
+            xforms.append(A.ToGray(
+                num_output_channels=3, method=i.grayscale_method, 
+                p=i.grayscale_chance))
+        if i.compression_chance > 0.0:
+            xforms.append(A.ImageCompression(
+                compression_type=i.compression_type,
+                quality_range=(
+                    i.compression_quality_min, i.compression_quality_max),
+                p=i.compression_chance))
+    
+        xforms.append(
             A.Normalize(
-                mean=self.mean, 
-                std=self.std, 
-                max_pixel_value=self.max_value),
-            A.ToTensorV2(),
-        ]) 
+                mean=self.mean, std=self.std, 
+                max_pixel_value=self.max_value))
+        xforms.append(A.ToTensorV2())
+
+        return A.Compose(xforms)
 
     def _target_transform(self) -> A.Compose:
         '''Builds transform function that is applied only to target.

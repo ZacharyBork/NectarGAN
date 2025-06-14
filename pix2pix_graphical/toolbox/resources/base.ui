@@ -617,7 +617,7 @@
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>1291</width>
+                <width>1261</width>
                 <height>937</height>
                </rect>
               </property>
@@ -3476,7 +3476,7 @@
            <item>
             <widget class="QStackedWidget" name="settings_pages">
              <property name="currentIndex">
-              <number>0</number>
+              <number>1</number>
              </property>
              <widget class="QWidget" name="experiment_page">
               <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -4216,7 +4216,7 @@
                     <x>0</x>
                     <y>0</y>
                     <width>437</width>
-                    <height>861</height>
+                    <height>1228</height>
                    </rect>
                   </property>
                   <layout class="QVBoxLayout" name="verticalLayout_10">
@@ -4832,7 +4832,7 @@
                              <number>0</number>
                             </property>
                             <item>
-                             <widget class="QDoubleSpinBox" name="colorjitter_brightness_0">
+                             <widget class="QDoubleSpinBox" name="colorjitter_min_brightness">
                               <property name="maximum">
                                <double>2.500000000000000</double>
                               </property>
@@ -4845,7 +4845,7 @@
                              </widget>
                             </item>
                             <item>
-                             <widget class="QDoubleSpinBox" name="colorjitter_brightness_1">
+                             <widget class="QDoubleSpinBox" name="colorjitter_max_brightness">
                               <property name="maximum">
                                <double>2.500000000000000</double>
                               </property>
@@ -4860,56 +4860,491 @@
                            </layout>
                           </widget>
                          </item>
-                        </layout>
-                       </widget>
-                      </item>
-                      <item>
-                       <widget class="QFrame" name="frame_60">
-                        <property name="frameShape">
-                         <enum>QFrame::StyledPanel</enum>
-                        </property>
-                        <property name="frameShadow">
-                         <enum>QFrame::Raised</enum>
-                        </property>
-                        <layout class="QHBoxLayout" name="horizontalLayout_52">
-                         <property name="leftMargin">
-                          <number>0</number>
-                         </property>
-                         <property name="topMargin">
-                          <number>0</number>
-                         </property>
-                         <property name="rightMargin">
-                          <number>0</number>
-                         </property>
-                         <property name="bottomMargin">
-                          <number>0</number>
-                         </property>
-                         <item>
-                          <widget class="QLabel" name="label_70">
-                           <property name="sizePolicy">
-                            <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
-                             <horstretch>0</horstretch>
-                             <verstretch>0</verstretch>
-                            </sizepolicy>
-                           </property>
-                           <property name="font">
-                            <font>
-                             <pointsize>12</pointsize>
-                            </font>
-                           </property>
+                         <item row="2" column="0">
+                          <widget class="QLabel" name="label_127">
                            <property name="text">
-                            <string>Target</string>
+                            <string>Gaussian Noise</string>
                            </property>
                           </widget>
                          </item>
-                         <item>
-                          <widget class="Line" name="line_6">
+                         <item row="2" column="1">
+                          <widget class="QFrame" name="frame_115">
+                           <property name="frameShape">
+                            <enum>QFrame::StyledPanel</enum>
+                           </property>
                            <property name="frameShadow">
                             <enum>QFrame::Raised</enum>
                            </property>
-                           <property name="orientation">
-                            <enum>Qt::Horizontal</enum>
+                           <layout class="QHBoxLayout" name="horizontalLayout_109">
+                            <property name="leftMargin">
+                             <number>0</number>
+                            </property>
+                            <property name="topMargin">
+                             <number>0</number>
+                            </property>
+                            <property name="rightMargin">
+                             <number>0</number>
+                            </property>
+                            <property name="bottomMargin">
+                             <number>0</number>
+                            </property>
+                            <item>
+                             <widget class="QSlider" name="gaussnoise_chance_slider">
+                              <property name="maximum">
+                               <number>100</number>
+                              </property>
+                              <property name="orientation">
+                               <enum>Qt::Horizontal</enum>
+                              </property>
+                              <property name="tickPosition">
+                               <enum>QSlider::NoTicks</enum>
+                              </property>
+                              <property name="tickInterval">
+                               <number>10</number>
+                              </property>
+                             </widget>
+                            </item>
+                            <item>
+                             <widget class="QDoubleSpinBox" name="gaussnoise_chance">
+                              <property name="suffix">
+                               <string>%</string>
+                              </property>
+                              <property name="decimals">
+                               <number>1</number>
+                              </property>
+                             </widget>
+                            </item>
+                           </layout>
+                          </widget>
+                         </item>
+                         <item row="3" column="0">
+                          <widget class="QLabel" name="label_128">
+                           <property name="text">
+                            <string>Gaussian Range</string>
                            </property>
+                          </widget>
+                         </item>
+                         <item row="3" column="1">
+                          <widget class="QFrame" name="frame_116">
+                           <property name="frameShape">
+                            <enum>QFrame::StyledPanel</enum>
+                           </property>
+                           <property name="frameShadow">
+                            <enum>QFrame::Raised</enum>
+                           </property>
+                           <layout class="QHBoxLayout" name="horizontalLayout_110">
+                            <property name="leftMargin">
+                             <number>0</number>
+                            </property>
+                            <property name="topMargin">
+                             <number>0</number>
+                            </property>
+                            <property name="rightMargin">
+                             <number>0</number>
+                            </property>
+                            <property name="bottomMargin">
+                             <number>0</number>
+                            </property>
+                            <item>
+                             <widget class="QDoubleSpinBox" name="gaussnoise_min">
+                              <property name="maximum">
+                               <double>2.500000000000000</double>
+                              </property>
+                              <property name="singleStep">
+                               <double>0.050000000000000</double>
+                              </property>
+                              <property name="value">
+                               <double>0.800000000000000</double>
+                              </property>
+                             </widget>
+                            </item>
+                            <item>
+                             <widget class="QDoubleSpinBox" name="gaussnoise_max">
+                              <property name="maximum">
+                               <double>2.500000000000000</double>
+                              </property>
+                              <property name="singleStep">
+                               <double>0.050000000000000</double>
+                              </property>
+                              <property name="value">
+                               <double>1.200000000000000</double>
+                              </property>
+                             </widget>
+                            </item>
+                           </layout>
+                          </widget>
+                         </item>
+                         <item row="4" column="0">
+                          <widget class="QLabel" name="label_129">
+                           <property name="text">
+                            <string>Motion Blur</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="4" column="1">
+                          <widget class="QFrame" name="frame_117">
+                           <property name="frameShape">
+                            <enum>QFrame::StyledPanel</enum>
+                           </property>
+                           <property name="frameShadow">
+                            <enum>QFrame::Raised</enum>
+                           </property>
+                           <layout class="QHBoxLayout" name="horizontalLayout_111">
+                            <property name="leftMargin">
+                             <number>0</number>
+                            </property>
+                            <property name="topMargin">
+                             <number>0</number>
+                            </property>
+                            <property name="rightMargin">
+                             <number>0</number>
+                            </property>
+                            <property name="bottomMargin">
+                             <number>0</number>
+                            </property>
+                            <item>
+                             <widget class="QSlider" name="motionblur_chance_slider">
+                              <property name="maximum">
+                               <number>100</number>
+                              </property>
+                              <property name="orientation">
+                               <enum>Qt::Horizontal</enum>
+                              </property>
+                              <property name="tickPosition">
+                               <enum>QSlider::NoTicks</enum>
+                              </property>
+                              <property name="tickInterval">
+                               <number>10</number>
+                              </property>
+                             </widget>
+                            </item>
+                            <item>
+                             <widget class="QDoubleSpinBox" name="motionblur_chance">
+                              <property name="suffix">
+                               <string>%</string>
+                              </property>
+                              <property name="decimals">
+                               <number>1</number>
+                              </property>
+                             </widget>
+                            </item>
+                           </layout>
+                          </widget>
+                         </item>
+                         <item row="5" column="0">
+                          <widget class="QLabel" name="label_130">
+                           <property name="text">
+                            <string>Motion Blur Limit</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="5" column="1">
+                          <widget class="QSpinBox" name="motionblur_limit">
+                           <property name="minimum">
+                            <number>3</number>
+                           </property>
+                           <property name="value">
+                            <number>7</number>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="6" column="0">
+                          <widget class="QLabel" name="label_131">
+                           <property name="text">
+                            <string>Random Gamma</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="6" column="1">
+                          <widget class="QFrame" name="frame_118">
+                           <property name="frameShape">
+                            <enum>QFrame::StyledPanel</enum>
+                           </property>
+                           <property name="frameShadow">
+                            <enum>QFrame::Raised</enum>
+                           </property>
+                           <layout class="QHBoxLayout" name="horizontalLayout_112">
+                            <property name="leftMargin">
+                             <number>0</number>
+                            </property>
+                            <property name="topMargin">
+                             <number>0</number>
+                            </property>
+                            <property name="rightMargin">
+                             <number>0</number>
+                            </property>
+                            <property name="bottomMargin">
+                             <number>0</number>
+                            </property>
+                            <item>
+                             <widget class="QSlider" name="randgamma_chance_slider">
+                              <property name="maximum">
+                               <number>100</number>
+                              </property>
+                              <property name="orientation">
+                               <enum>Qt::Horizontal</enum>
+                              </property>
+                              <property name="tickPosition">
+                               <enum>QSlider::NoTicks</enum>
+                              </property>
+                              <property name="tickInterval">
+                               <number>10</number>
+                              </property>
+                             </widget>
+                            </item>
+                            <item>
+                             <widget class="QDoubleSpinBox" name="randgamma_chance">
+                              <property name="suffix">
+                               <string>%</string>
+                              </property>
+                              <property name="decimals">
+                               <number>1</number>
+                              </property>
+                             </widget>
+                            </item>
+                           </layout>
+                          </widget>
+                         </item>
+                         <item row="7" column="0">
+                          <widget class="QLabel" name="label_133">
+                           <property name="text">
+                            <string>Gamma Limits</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="7" column="1">
+                          <widget class="QFrame" name="frame_119">
+                           <property name="frameShape">
+                            <enum>QFrame::StyledPanel</enum>
+                           </property>
+                           <property name="frameShadow">
+                            <enum>QFrame::Raised</enum>
+                           </property>
+                           <layout class="QHBoxLayout" name="horizontalLayout_113">
+                            <property name="leftMargin">
+                             <number>0</number>
+                            </property>
+                            <property name="topMargin">
+                             <number>0</number>
+                            </property>
+                            <property name="rightMargin">
+                             <number>0</number>
+                            </property>
+                            <property name="bottomMargin">
+                             <number>0</number>
+                            </property>
+                            <item>
+                             <widget class="QDoubleSpinBox" name="randgamma_min">
+                              <property name="maximum">
+                               <double>250.000000000000000</double>
+                              </property>
+                              <property name="singleStep">
+                               <double>5.000000000000000</double>
+                              </property>
+                              <property name="value">
+                               <double>80.000000000000000</double>
+                              </property>
+                             </widget>
+                            </item>
+                            <item>
+                             <widget class="QDoubleSpinBox" name="randgamma_max">
+                              <property name="maximum">
+                               <double>250.000000000000000</double>
+                              </property>
+                              <property name="singleStep">
+                               <double>5.000000000000000</double>
+                              </property>
+                              <property name="value">
+                               <double>120.000000000000000</double>
+                              </property>
+                             </widget>
+                            </item>
+                           </layout>
+                          </widget>
+                         </item>
+                         <item row="8" column="0">
+                          <widget class="QLabel" name="label_132">
+                           <property name="text">
+                            <string>Grayscale</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="8" column="1">
+                          <widget class="QFrame" name="frame_120">
+                           <property name="frameShape">
+                            <enum>QFrame::StyledPanel</enum>
+                           </property>
+                           <property name="frameShadow">
+                            <enum>QFrame::Raised</enum>
+                           </property>
+                           <layout class="QHBoxLayout" name="horizontalLayout_114">
+                            <property name="leftMargin">
+                             <number>0</number>
+                            </property>
+                            <property name="topMargin">
+                             <number>0</number>
+                            </property>
+                            <property name="rightMargin">
+                             <number>0</number>
+                            </property>
+                            <property name="bottomMargin">
+                             <number>0</number>
+                            </property>
+                            <item>
+                             <widget class="QSlider" name="grayscale_chance_slider">
+                              <property name="maximum">
+                               <number>100</number>
+                              </property>
+                              <property name="orientation">
+                               <enum>Qt::Horizontal</enum>
+                              </property>
+                              <property name="tickPosition">
+                               <enum>QSlider::NoTicks</enum>
+                              </property>
+                              <property name="tickInterval">
+                               <number>10</number>
+                              </property>
+                             </widget>
+                            </item>
+                            <item>
+                             <widget class="QDoubleSpinBox" name="grayscale_chance">
+                              <property name="suffix">
+                               <string>%</string>
+                              </property>
+                              <property name="decimals">
+                               <number>1</number>
+                              </property>
+                             </widget>
+                            </item>
+                           </layout>
+                          </widget>
+                         </item>
+                         <item row="9" column="0">
+                          <widget class="QLabel" name="label_134">
+                           <property name="text">
+                            <string>Grayscale Method</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="9" column="1">
+                          <widget class="QComboBox" name="grayscale_method"/>
+                         </item>
+                         <item row="10" column="0">
+                          <widget class="QLabel" name="label_135">
+                           <property name="text">
+                            <string>Compression</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="11" column="0">
+                          <widget class="QLabel" name="label_136">
+                           <property name="text">
+                            <string>Compression Type</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="12" column="0">
+                          <widget class="QLabel" name="label_137">
+                           <property name="text">
+                            <string>Compression Quality</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="10" column="1">
+                          <widget class="QFrame" name="frame_121">
+                           <property name="frameShape">
+                            <enum>QFrame::StyledPanel</enum>
+                           </property>
+                           <property name="frameShadow">
+                            <enum>QFrame::Raised</enum>
+                           </property>
+                           <layout class="QHBoxLayout" name="horizontalLayout_115">
+                            <property name="leftMargin">
+                             <number>0</number>
+                            </property>
+                            <property name="topMargin">
+                             <number>0</number>
+                            </property>
+                            <property name="rightMargin">
+                             <number>0</number>
+                            </property>
+                            <property name="bottomMargin">
+                             <number>0</number>
+                            </property>
+                            <item>
+                             <widget class="QSlider" name="compression_chance_slider">
+                              <property name="maximum">
+                               <number>100</number>
+                              </property>
+                              <property name="orientation">
+                               <enum>Qt::Horizontal</enum>
+                              </property>
+                              <property name="tickPosition">
+                               <enum>QSlider::NoTicks</enum>
+                              </property>
+                              <property name="tickInterval">
+                               <number>10</number>
+                              </property>
+                             </widget>
+                            </item>
+                            <item>
+                             <widget class="QDoubleSpinBox" name="compression_chance">
+                              <property name="suffix">
+                               <string>%</string>
+                              </property>
+                              <property name="decimals">
+                               <number>1</number>
+                              </property>
+                             </widget>
+                            </item>
+                           </layout>
+                          </widget>
+                         </item>
+                         <item row="11" column="1">
+                          <widget class="QComboBox" name="compression_type"/>
+                         </item>
+                         <item row="12" column="1">
+                          <widget class="QFrame" name="frame_122">
+                           <property name="frameShape">
+                            <enum>QFrame::StyledPanel</enum>
+                           </property>
+                           <property name="frameShadow">
+                            <enum>QFrame::Raised</enum>
+                           </property>
+                           <layout class="QHBoxLayout" name="horizontalLayout_116">
+                            <property name="leftMargin">
+                             <number>0</number>
+                            </property>
+                            <property name="topMargin">
+                             <number>0</number>
+                            </property>
+                            <property name="rightMargin">
+                             <number>0</number>
+                            </property>
+                            <property name="bottomMargin">
+                             <number>0</number>
+                            </property>
+                            <item>
+                             <widget class="QSpinBox" name="compression_quality_min">
+                              <property name="maximum">
+                               <number>100</number>
+                              </property>
+                              <property name="value">
+                               <number>99</number>
+                              </property>
+                             </widget>
+                            </item>
+                            <item>
+                             <widget class="QSpinBox" name="compression_quality_max">
+                              <property name="maximum">
+                               <number>100</number>
+                              </property>
+                              <property name="value">
+                               <number>100</number>
+                              </property>
+                             </widget>
+                            </item>
+                           </layout>
                           </widget>
                          </item>
                         </layout>
@@ -5159,6 +5594,559 @@
                               </property>
                               <property name="decimals">
                                <number>1</number>
+                              </property>
+                             </widget>
+                            </item>
+                           </layout>
+                          </widget>
+                         </item>
+                         <item row="3" column="0">
+                          <widget class="QLabel" name="label_138">
+                           <property name="text">
+                            <string>Elastic Xform</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="3" column="1">
+                          <widget class="QFrame" name="frame_123">
+                           <property name="frameShape">
+                            <enum>QFrame::StyledPanel</enum>
+                           </property>
+                           <property name="frameShadow">
+                            <enum>QFrame::Raised</enum>
+                           </property>
+                           <layout class="QHBoxLayout" name="horizontalLayout_117">
+                            <property name="leftMargin">
+                             <number>0</number>
+                            </property>
+                            <property name="topMargin">
+                             <number>0</number>
+                            </property>
+                            <property name="rightMargin">
+                             <number>0</number>
+                            </property>
+                            <property name="bottomMargin">
+                             <number>0</number>
+                            </property>
+                            <item>
+                             <widget class="QSlider" name="elastic_transform_chance_slider">
+                              <property name="maximum">
+                               <number>100</number>
+                              </property>
+                              <property name="orientation">
+                               <enum>Qt::Horizontal</enum>
+                              </property>
+                              <property name="tickPosition">
+                               <enum>QSlider::NoTicks</enum>
+                              </property>
+                              <property name="tickInterval">
+                               <number>10</number>
+                              </property>
+                             </widget>
+                            </item>
+                            <item>
+                             <widget class="QDoubleSpinBox" name="elastic_transform_chance">
+                              <property name="suffix">
+                               <string>%</string>
+                              </property>
+                              <property name="decimals">
+                               <number>1</number>
+                              </property>
+                             </widget>
+                            </item>
+                           </layout>
+                          </widget>
+                         </item>
+                         <item row="4" column="0">
+                          <widget class="QLabel" name="label_139">
+                           <property name="text">
+                            <string>Elastic Alpha</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="5" column="0">
+                          <widget class="QLabel" name="label_140">
+                           <property name="text">
+                            <string>Elastic Sigma</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="4" column="1">
+                          <widget class="QFrame" name="frame_125">
+                           <property name="frameShape">
+                            <enum>QFrame::StyledPanel</enum>
+                           </property>
+                           <property name="frameShadow">
+                            <enum>QFrame::Raised</enum>
+                           </property>
+                           <layout class="QHBoxLayout" name="horizontalLayout_119">
+                            <property name="leftMargin">
+                             <number>0</number>
+                            </property>
+                            <property name="topMargin">
+                             <number>0</number>
+                            </property>
+                            <property name="rightMargin">
+                             <number>0</number>
+                            </property>
+                            <property name="bottomMargin">
+                             <number>0</number>
+                            </property>
+                            <item>
+                             <widget class="QSlider" name="elastic_transform_alpha_slider">
+                              <property name="maximum">
+                               <number>100</number>
+                              </property>
+                              <property name="orientation">
+                               <enum>Qt::Horizontal</enum>
+                              </property>
+                              <property name="tickPosition">
+                               <enum>QSlider::NoTicks</enum>
+                              </property>
+                              <property name="tickInterval">
+                               <number>10</number>
+                              </property>
+                             </widget>
+                            </item>
+                            <item>
+                             <widget class="QDoubleSpinBox" name="elastic_transform_alpha">
+                              <property name="minimumSize">
+                               <size>
+                                <width>74</width>
+                                <height>0</height>
+                               </size>
+                              </property>
+                              <property name="suffix">
+                               <string/>
+                              </property>
+                              <property name="decimals">
+                               <number>1</number>
+                              </property>
+                              <property name="maximum">
+                               <double>5.000000000000000</double>
+                              </property>
+                              <property name="singleStep">
+                               <double>0.050000000000000</double>
+                              </property>
+                              <property name="value">
+                               <double>1.000000000000000</double>
+                              </property>
+                             </widget>
+                            </item>
+                           </layout>
+                          </widget>
+                         </item>
+                         <item row="5" column="1">
+                          <widget class="QFrame" name="frame_124">
+                           <property name="frameShape">
+                            <enum>QFrame::StyledPanel</enum>
+                           </property>
+                           <property name="frameShadow">
+                            <enum>QFrame::Raised</enum>
+                           </property>
+                           <layout class="QHBoxLayout" name="horizontalLayout_118">
+                            <property name="leftMargin">
+                             <number>0</number>
+                            </property>
+                            <property name="topMargin">
+                             <number>0</number>
+                            </property>
+                            <property name="rightMargin">
+                             <number>0</number>
+                            </property>
+                            <property name="bottomMargin">
+                             <number>0</number>
+                            </property>
+                            <item>
+                             <widget class="QSlider" name="elastic_transform_sigma_slider">
+                              <property name="maximum">
+                               <number>100</number>
+                              </property>
+                              <property name="orientation">
+                               <enum>Qt::Horizontal</enum>
+                              </property>
+                              <property name="tickPosition">
+                               <enum>QSlider::NoTicks</enum>
+                              </property>
+                              <property name="tickInterval">
+                               <number>10</number>
+                              </property>
+                             </widget>
+                            </item>
+                            <item>
+                             <widget class="QDoubleSpinBox" name="elastic_transform_sigma">
+                              <property name="sizePolicy">
+                               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                                <horstretch>0</horstretch>
+                                <verstretch>0</verstretch>
+                               </sizepolicy>
+                              </property>
+                              <property name="minimumSize">
+                               <size>
+                                <width>74</width>
+                                <height>0</height>
+                               </size>
+                              </property>
+                              <property name="suffix">
+                               <string/>
+                              </property>
+                              <property name="decimals">
+                               <number>1</number>
+                              </property>
+                              <property name="singleStep">
+                               <double>5.000000000000000</double>
+                              </property>
+                              <property name="value">
+                               <double>50.000000000000000</double>
+                              </property>
+                             </widget>
+                            </item>
+                           </layout>
+                          </widget>
+                         </item>
+                         <item row="6" column="0">
+                          <widget class="QLabel" name="label_141">
+                           <property name="text">
+                            <string>Optical Distort</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="6" column="1">
+                          <widget class="QFrame" name="frame_126">
+                           <property name="frameShape">
+                            <enum>QFrame::StyledPanel</enum>
+                           </property>
+                           <property name="frameShadow">
+                            <enum>QFrame::Raised</enum>
+                           </property>
+                           <layout class="QHBoxLayout" name="horizontalLayout_120">
+                            <property name="leftMargin">
+                             <number>0</number>
+                            </property>
+                            <property name="topMargin">
+                             <number>0</number>
+                            </property>
+                            <property name="rightMargin">
+                             <number>0</number>
+                            </property>
+                            <property name="bottomMargin">
+                             <number>0</number>
+                            </property>
+                            <item>
+                             <widget class="QSlider" name="optical_distortion_chance_slider">
+                              <property name="maximum">
+                               <number>100</number>
+                              </property>
+                              <property name="orientation">
+                               <enum>Qt::Horizontal</enum>
+                              </property>
+                              <property name="tickPosition">
+                               <enum>QSlider::NoTicks</enum>
+                              </property>
+                              <property name="tickInterval">
+                               <number>10</number>
+                              </property>
+                             </widget>
+                            </item>
+                            <item>
+                             <widget class="QDoubleSpinBox" name="optical_distortion_chance">
+                              <property name="suffix">
+                               <string>%</string>
+                              </property>
+                              <property name="decimals">
+                               <number>1</number>
+                              </property>
+                             </widget>
+                            </item>
+                           </layout>
+                          </widget>
+                         </item>
+                         <item row="7" column="0">
+                          <widget class="QLabel" name="label_142">
+                           <property name="text">
+                            <string>Distortion Limits</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="7" column="1">
+                          <widget class="QFrame" name="frame_127">
+                           <property name="frameShape">
+                            <enum>QFrame::StyledPanel</enum>
+                           </property>
+                           <property name="frameShadow">
+                            <enum>QFrame::Raised</enum>
+                           </property>
+                           <layout class="QHBoxLayout" name="horizontalLayout_121">
+                            <property name="leftMargin">
+                             <number>0</number>
+                            </property>
+                            <property name="topMargin">
+                             <number>0</number>
+                            </property>
+                            <property name="rightMargin">
+                             <number>0</number>
+                            </property>
+                            <property name="bottomMargin">
+                             <number>0</number>
+                            </property>
+                            <item>
+                             <widget class="QDoubleSpinBox" name="optical_distortion_min">
+                              <property name="minimum">
+                               <double>-2.500000000000000</double>
+                              </property>
+                              <property name="maximum">
+                               <double>2.500000000000000</double>
+                              </property>
+                              <property name="singleStep">
+                               <double>0.050000000000000</double>
+                              </property>
+                              <property name="value">
+                               <double>-0.050000000000000</double>
+                              </property>
+                             </widget>
+                            </item>
+                            <item>
+                             <widget class="QDoubleSpinBox" name="optical_distortion_max">
+                              <property name="minimum">
+                               <double>-2.500000000000000</double>
+                              </property>
+                              <property name="maximum">
+                               <double>2.500000000000000</double>
+                              </property>
+                              <property name="singleStep">
+                               <double>0.050000000000000</double>
+                              </property>
+                              <property name="value">
+                               <double>0.050000000000000</double>
+                              </property>
+                             </widget>
+                            </item>
+                           </layout>
+                          </widget>
+                         </item>
+                         <item row="8" column="0">
+                          <widget class="QLabel" name="label_143">
+                           <property name="text">
+                            <string>Distortion Mode</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="8" column="1">
+                          <widget class="QComboBox" name="optical_distortion_mode"/>
+                         </item>
+                         <item row="9" column="0">
+                          <widget class="QLabel" name="label_144">
+                           <property name="text">
+                            <string>Coarse Dropout</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="10" column="0">
+                          <widget class="QLabel" name="label_145">
+                           <property name="text">
+                            <string>Hole Count</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="11" column="0">
+                          <widget class="QLabel" name="label_146">
+                           <property name="text">
+                            <string>Hole Height</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="12" column="0">
+                          <widget class="QLabel" name="label_147">
+                           <property name="text">
+                            <string>Hole Width</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="9" column="1">
+                          <widget class="QFrame" name="frame_128">
+                           <property name="frameShape">
+                            <enum>QFrame::StyledPanel</enum>
+                           </property>
+                           <property name="frameShadow">
+                            <enum>QFrame::Raised</enum>
+                           </property>
+                           <layout class="QHBoxLayout" name="horizontalLayout_122">
+                            <property name="leftMargin">
+                             <number>0</number>
+                            </property>
+                            <property name="topMargin">
+                             <number>0</number>
+                            </property>
+                            <property name="rightMargin">
+                             <number>0</number>
+                            </property>
+                            <property name="bottomMargin">
+                             <number>0</number>
+                            </property>
+                            <item>
+                             <widget class="QSlider" name="coarse_dropout_chance_slider">
+                              <property name="maximum">
+                               <number>100</number>
+                              </property>
+                              <property name="orientation">
+                               <enum>Qt::Horizontal</enum>
+                              </property>
+                              <property name="tickPosition">
+                               <enum>QSlider::NoTicks</enum>
+                              </property>
+                              <property name="tickInterval">
+                               <number>10</number>
+                              </property>
+                             </widget>
+                            </item>
+                            <item>
+                             <widget class="QDoubleSpinBox" name="coarse_dropout_chance">
+                              <property name="suffix">
+                               <string>%</string>
+                              </property>
+                              <property name="decimals">
+                               <number>1</number>
+                              </property>
+                             </widget>
+                            </item>
+                           </layout>
+                          </widget>
+                         </item>
+                         <item row="10" column="1">
+                          <widget class="QFrame" name="frame_129">
+                           <property name="frameShape">
+                            <enum>QFrame::StyledPanel</enum>
+                           </property>
+                           <property name="frameShadow">
+                            <enum>QFrame::Raised</enum>
+                           </property>
+                           <layout class="QHBoxLayout" name="horizontalLayout_123">
+                            <property name="leftMargin">
+                             <number>0</number>
+                            </property>
+                            <property name="topMargin">
+                             <number>0</number>
+                            </property>
+                            <property name="rightMargin">
+                             <number>0</number>
+                            </property>
+                            <property name="bottomMargin">
+                             <number>0</number>
+                            </property>
+                            <item>
+                             <widget class="QSpinBox" name="coarse_dropout_holes_min">
+                              <property name="minimum">
+                               <number>1</number>
+                              </property>
+                             </widget>
+                            </item>
+                            <item>
+                             <widget class="QSpinBox" name="coarse_dropout_holes_max">
+                              <property name="minimum">
+                               <number>1</number>
+                              </property>
+                              <property name="value">
+                               <number>2</number>
+                              </property>
+                             </widget>
+                            </item>
+                           </layout>
+                          </widget>
+                         </item>
+                         <item row="11" column="1">
+                          <widget class="QFrame" name="frame_130">
+                           <property name="frameShape">
+                            <enum>QFrame::StyledPanel</enum>
+                           </property>
+                           <property name="frameShadow">
+                            <enum>QFrame::Raised</enum>
+                           </property>
+                           <layout class="QHBoxLayout" name="horizontalLayout_124">
+                            <property name="leftMargin">
+                             <number>0</number>
+                            </property>
+                            <property name="topMargin">
+                             <number>0</number>
+                            </property>
+                            <property name="rightMargin">
+                             <number>0</number>
+                            </property>
+                            <property name="bottomMargin">
+                             <number>0</number>
+                            </property>
+                            <item>
+                             <widget class="QDoubleSpinBox" name="coarse_dropout_height_min">
+                              <property name="maximum">
+                               <double>1.000000000000000</double>
+                              </property>
+                              <property name="singleStep">
+                               <double>0.050000000000000</double>
+                              </property>
+                              <property name="value">
+                               <double>0.100000000000000</double>
+                              </property>
+                             </widget>
+                            </item>
+                            <item>
+                             <widget class="QDoubleSpinBox" name="coarse_dropout_height_max">
+                              <property name="maximum">
+                               <double>1.000000000000000</double>
+                              </property>
+                              <property name="singleStep">
+                               <double>0.050000000000000</double>
+                              </property>
+                              <property name="value">
+                               <double>0.200000000000000</double>
+                              </property>
+                             </widget>
+                            </item>
+                           </layout>
+                          </widget>
+                         </item>
+                         <item row="12" column="1">
+                          <widget class="QFrame" name="frame_131">
+                           <property name="frameShape">
+                            <enum>QFrame::StyledPanel</enum>
+                           </property>
+                           <property name="frameShadow">
+                            <enum>QFrame::Raised</enum>
+                           </property>
+                           <layout class="QHBoxLayout" name="horizontalLayout_125">
+                            <property name="leftMargin">
+                             <number>0</number>
+                            </property>
+                            <property name="topMargin">
+                             <number>0</number>
+                            </property>
+                            <property name="rightMargin">
+                             <number>0</number>
+                            </property>
+                            <property name="bottomMargin">
+                             <number>0</number>
+                            </property>
+                            <item>
+                             <widget class="QDoubleSpinBox" name="coarse_dropout_width_min">
+                              <property name="maximum">
+                               <double>1.000000000000000</double>
+                              </property>
+                              <property name="singleStep">
+                               <double>0.050000000000000</double>
+                              </property>
+                              <property name="value">
+                               <double>0.100000000000000</double>
+                              </property>
+                             </widget>
+                            </item>
+                            <item>
+                             <widget class="QDoubleSpinBox" name="coarse_dropout_width_max">
+                              <property name="maximum">
+                               <double>1.000000000000000</double>
+                              </property>
+                              <property name="singleStep">
+                               <double>0.050000000000000</double>
+                              </property>
+                              <property name="value">
+                               <double>0.200000000000000</double>
                               </property>
                              </widget>
                             </item>
@@ -6649,6 +7637,76 @@
                                         </widget>
                                        </item>
                                       </layout>
+                                     </item>
+                                    </layout>
+                                   </widget>
+                                  </item>
+                                  <item>
+                                   <widget class="Line" name="line_44">
+                                    <property name="orientation">
+                                     <enum>Qt::Horizontal</enum>
+                                    </property>
+                                   </widget>
+                                  </item>
+                                  <item>
+                                   <widget class="QCheckBox" name="log_losses">
+                                    <property name="text">
+                                     <string>Log Losses During Training</string>
+                                    </property>
+                                    <property name="checked">
+                                     <bool>true</bool>
+                                    </property>
+                                   </widget>
+                                  </item>
+                                  <item>
+                                   <widget class="QFrame" name="frame_114">
+                                    <property name="frameShape">
+                                     <enum>QFrame::StyledPanel</enum>
+                                    </property>
+                                    <property name="frameShadow">
+                                     <enum>QFrame::Raised</enum>
+                                    </property>
+                                    <layout class="QHBoxLayout" name="horizontalLayout_108">
+                                     <property name="leftMargin">
+                                      <number>0</number>
+                                     </property>
+                                     <property name="topMargin">
+                                      <number>0</number>
+                                     </property>
+                                     <property name="rightMargin">
+                                      <number>0</number>
+                                     </property>
+                                     <property name="bottomMargin">
+                                      <number>0</number>
+                                     </property>
+                                     <item>
+                                      <widget class="QLabel" name="label_18">
+                                       <property name="sizePolicy">
+                                        <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+                                         <horstretch>0</horstretch>
+                                         <verstretch>0</verstretch>
+                                        </sizepolicy>
+                                       </property>
+                                       <property name="text">
+                                        <string>Log Dump Frequency (epochs)</string>
+                                       </property>
+                                      </widget>
+                                     </item>
+                                     <item>
+                                      <widget class="QSpinBox" name="loss_dump_frequency">
+                                       <property name="minimum">
+                                        <number>1</number>
+                                       </property>
+                                       <property name="maximum">
+                                        <number>999</number>
+                                       </property>
+                                       <property name="singleStep">
+                                        <number>1</number>
+                                       </property>
+                                       <property name="value">
+                                        <number>5</number>
+                                       </property>
+                                      </widget>
                                      </item>
                                     </layout>
                                    </widget>
@@ -9803,16 +10861,6 @@
                        </widget>
                       </item>
                       <item>
-                       <widget class="QCheckBox" name="log_losses">
-                        <property name="text">
-                         <string>Log Losses During Training</string>
-                        </property>
-                        <property name="checked">
-                         <bool>true</bool>
-                        </property>
-                       </widget>
-                      </item>
-                      <item>
                        <widget class="Line" name="line_38">
                         <property name="orientation">
                          <enum>Qt::Horizontal</enum>
@@ -9828,43 +10876,26 @@
                          <enum>QFrame::Raised</enum>
                         </property>
                         <layout class="QFormLayout" name="formLayout_9">
+                         <property name="leftMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="topMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="rightMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="bottomMargin">
+                          <number>0</number>
+                         </property>
                          <item row="0" column="0">
-                          <widget class="QLabel" name="label_18">
-                           <property name="sizePolicy">
-                            <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
-                             <horstretch>0</horstretch>
-                             <verstretch>0</verstretch>
-                            </sizepolicy>
-                           </property>
-                           <property name="text">
-                            <string>Loss Log Dump Frequency (epochs)</string>
-                           </property>
-                          </widget>
-                         </item>
-                         <item row="0" column="1">
-                          <widget class="QSpinBox" name="loss_dump_frequency">
-                           <property name="minimum">
-                            <number>1</number>
-                           </property>
-                           <property name="maximum">
-                            <number>999</number>
-                           </property>
-                           <property name="singleStep">
-                            <number>1</number>
-                           </property>
-                           <property name="value">
-                            <number>5</number>
-                           </property>
-                          </widget>
-                         </item>
-                         <item row="1" column="0">
                           <widget class="QLabel" name="label_40">
                            <property name="text">
                             <string>Review Graph Sample Rate</string>
                            </property>
                           </widget>
                          </item>
-                         <item row="1" column="1">
+                         <item row="0" column="1">
                           <widget class="QSpinBox" name="review_graph_sample_rate">
                            <property name="minimum">
                             <number>1</number>
@@ -9880,6 +10911,61 @@
                            </property>
                           </widget>
                          </item>
+                         <item row="1" column="0">
+                          <widget class="QLabel" name="label_44">
+                           <property name="text">
+                            <string>Training Update Rate (Iters)</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="1" column="1">
+                          <layout class="QHBoxLayout" name="horizontalLayout_31">
+                           <item>
+                            <widget class="QSlider" name="update_frequency_slider">
+                             <property name="minimum">
+                              <number>1</number>
+                             </property>
+                             <property name="maximum">
+                              <number>1000</number>
+                             </property>
+                             <property name="singleStep">
+                              <number>10</number>
+                             </property>
+                             <property name="pageStep">
+                              <number>50</number>
+                             </property>
+                             <property name="value">
+                              <number>50</number>
+                             </property>
+                             <property name="orientation">
+                              <enum>Qt::Horizontal</enum>
+                             </property>
+                             <property name="invertedAppearance">
+                              <bool>true</bool>
+                             </property>
+                             <property name="invertedControls">
+                              <bool>false</bool>
+                             </property>
+                            </widget>
+                           </item>
+                           <item>
+                            <widget class="QSpinBox" name="update_frequency">
+                             <property name="minimum">
+                              <number>1</number>
+                             </property>
+                             <property name="maximum">
+                              <number>99999</number>
+                             </property>
+                             <property name="singleStep">
+                              <number>10</number>
+                             </property>
+                             <property name="value">
+                              <number>50</number>
+                             </property>
+                            </widget>
+                           </item>
+                          </layout>
+                         </item>
                         </layout>
                        </widget>
                       </item>
@@ -9889,61 +10975,6 @@
                          <enum>Qt::Horizontal</enum>
                         </property>
                        </widget>
-                      </item>
-                      <item>
-                       <layout class="QHBoxLayout" name="horizontalLayout_31">
-                        <item>
-                         <widget class="QLabel" name="label_44">
-                          <property name="text">
-                           <string>Training Update Rate (Iters)</string>
-                          </property>
-                         </widget>
-                        </item>
-                        <item>
-                         <widget class="QSlider" name="update_frequency_slider">
-                          <property name="minimum">
-                           <number>1</number>
-                          </property>
-                          <property name="maximum">
-                           <number>1000</number>
-                          </property>
-                          <property name="singleStep">
-                           <number>10</number>
-                          </property>
-                          <property name="pageStep">
-                           <number>50</number>
-                          </property>
-                          <property name="value">
-                           <number>50</number>
-                          </property>
-                          <property name="orientation">
-                           <enum>Qt::Horizontal</enum>
-                          </property>
-                          <property name="invertedAppearance">
-                           <bool>true</bool>
-                          </property>
-                          <property name="invertedControls">
-                           <bool>false</bool>
-                          </property>
-                         </widget>
-                        </item>
-                        <item>
-                         <widget class="QSpinBox" name="update_frequency">
-                          <property name="minimum">
-                           <number>1</number>
-                          </property>
-                          <property name="maximum">
-                           <number>99999</number>
-                          </property>
-                          <property name="singleStep">
-                           <number>10</number>
-                          </property>
-                          <property name="value">
-                           <number>50</number>
-                          </property>
-                         </widget>
-                        </item>
-                       </layout>
                       </item>
                       <item>
                        <spacer name="verticalSpacer_13">

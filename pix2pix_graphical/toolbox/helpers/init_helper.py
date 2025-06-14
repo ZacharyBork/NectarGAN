@@ -151,7 +151,25 @@ class InitHelper():
             ('h_flip_chance_slider', 'h_flip_chance', 1.0),
             ('v_flip_chance_slider', 'v_flip_chance', 1.0),
             ('rot90_chance_slider', 'rot90_chance', 1.0),
+
+            ('elastic_transform_chance_slider', 
+             'elastic_transform_chance', 1.0),
+            ('elastic_transform_alpha_slider', 
+             'elastic_transform_alpha', 1.0),
+            ('elastic_transform_sigma_slider', 
+             'elastic_transform_sigma', 1.0),
+            ('optical_distortion_chance_slider', 
+             'optical_distortion_chance', 1.0),
+            ('coarse_dropout_chance_slider', 
+             'coarse_dropout_chance', 1.0),
+
+
             ('colorjitter_chance_slider', 'colorjitter_chance', 1.0),
+            ('gaussnoise_chance_slider', 'gaussnoise_chance', 1.0),
+            ('motionblur_chance_slider', 'motionblur_chance', 1.0),
+            ('randgamma_chance_slider', 'randgamma_chance', 1.0),
+            ('grayscale_chance_slider', 'grayscale_chance', 1.0),
+            ('compression_chance_slider', 'compression_chance', 1.0),
 
             ('gen_lr_initial_slider', 'gen_lr_initial', 0.0001),
             ('gen_lr_target_slider', 'gen_lr_target', 0.0001),

@@ -66,6 +66,14 @@ class Interface(QObject):
         crop_size = self.find(QComboBox, 'crop_size')
         crop_size.addItems(['16', '32', '64', '128', '256', '512', '1024'])
         crop_size.setCurrentIndex(4)
+
+        self.find(QComboBox, 'grayscale_method').addItems([
+            'Weighted Average', 'From LAB', 'Desaturation', 
+            'Average', 'Max', 'PCA'])
+        self.find(QComboBox, 'compression_type').addItems(
+            ['jpeg', 'webp'])
+        self.find(QComboBox, 'optical_distortion_mode').addItems(
+            ['Camera', 'Fisheye'])
         
         # REVIEW
 

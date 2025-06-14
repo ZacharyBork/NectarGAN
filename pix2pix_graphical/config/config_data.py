@@ -13,11 +13,40 @@ class ConfigAugsBoth:
     h_flip_chance: float
     v_flip_chance: float
     rot90_chance: float
+    elastic_transform_chance: float
+    elastic_transform_alpha: float
+    elastic_transform_sigma: float
+    optical_distortion_chance: float
+    optical_distortion_min: float
+    optical_distortion_max: float
+    optical_distortion_mode: str
+    coarse_dropout_chance: float
+    coarse_dropout_holes_min: int
+    coarse_dropout_holes_max: int
+    coarse_dropout_height_min: float
+    coarse_dropout_height_max: float
+    coarse_dropout_width_min: float
+    coarse_dropout_width_max: float
 
 @dataclass
 class ConfigAugsInput:
     colorjitter_chance: float
-    colorjitter_brightness: list[float]
+    colorjitter_min_brightness: float
+    colorjitter_max_brightness: float
+    gaussnoise_chance: float
+    gaussnoise_min: float
+    gaussnoise_max: float
+    motionblur_chance: float
+    motionblur_limit: int
+    randgamma_chance: float
+    randgamma_min: float
+    randgamma_max: float
+    grayscale_chance: float
+    grayscale_method:  str
+    compression_chance: float
+    compression_type: str
+    compression_quality_min: int
+    compression_quality_max: int
 
 @dataclass
 class ConfigAugsOutput:

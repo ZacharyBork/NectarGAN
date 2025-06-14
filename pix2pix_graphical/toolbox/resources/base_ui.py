@@ -310,7 +310,7 @@ class Ui_MainWindow(object):
         self.scrollArea_9.setWidgetResizable(True)
         self.scrollAreaWidgetContents = QWidget()
         self.scrollAreaWidgetContents.setObjectName(u"scrollAreaWidgetContents")
-        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 1291, 937))
+        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 1261, 937))
         self.verticalLayout_58 = QVBoxLayout(self.scrollAreaWidgetContents)
         self.verticalLayout_58.setSpacing(0)
         self.verticalLayout_58.setObjectName(u"verticalLayout_58")
@@ -1967,7 +1967,7 @@ class Ui_MainWindow(object):
         self.scrollArea_2.setWidgetResizable(True)
         self.dataloader_settings_container = QWidget()
         self.dataloader_settings_container.setObjectName(u"dataloader_settings_container")
-        self.dataloader_settings_container.setGeometry(QRect(0, 0, 437, 861))
+        self.dataloader_settings_container.setGeometry(QRect(0, 0, 437, 1228))
         self.verticalLayout_10 = QVBoxLayout(self.dataloader_settings_container)
         self.verticalLayout_10.setObjectName(u"verticalLayout_10")
         self.verticalLayout_10.setContentsMargins(0, 0, 0, 0)
@@ -2277,52 +2277,300 @@ class Ui_MainWindow(object):
         self.horizontalLayout_57 = QHBoxLayout(self.frame_67)
         self.horizontalLayout_57.setObjectName(u"horizontalLayout_57")
         self.horizontalLayout_57.setContentsMargins(0, 0, 0, 0)
-        self.colorjitter_brightness_0 = QDoubleSpinBox(self.frame_67)
-        self.colorjitter_brightness_0.setObjectName(u"colorjitter_brightness_0")
-        self.colorjitter_brightness_0.setMaximum(2.500000000000000)
-        self.colorjitter_brightness_0.setSingleStep(0.050000000000000)
-        self.colorjitter_brightness_0.setValue(0.800000000000000)
+        self.colorjitter_min_brightness = QDoubleSpinBox(self.frame_67)
+        self.colorjitter_min_brightness.setObjectName(u"colorjitter_min_brightness")
+        self.colorjitter_min_brightness.setMaximum(2.500000000000000)
+        self.colorjitter_min_brightness.setSingleStep(0.050000000000000)
+        self.colorjitter_min_brightness.setValue(0.800000000000000)
 
-        self.horizontalLayout_57.addWidget(self.colorjitter_brightness_0)
+        self.horizontalLayout_57.addWidget(self.colorjitter_min_brightness)
 
-        self.colorjitter_brightness_1 = QDoubleSpinBox(self.frame_67)
-        self.colorjitter_brightness_1.setObjectName(u"colorjitter_brightness_1")
-        self.colorjitter_brightness_1.setMaximum(2.500000000000000)
-        self.colorjitter_brightness_1.setSingleStep(0.050000000000000)
-        self.colorjitter_brightness_1.setValue(1.200000000000000)
+        self.colorjitter_max_brightness = QDoubleSpinBox(self.frame_67)
+        self.colorjitter_max_brightness.setObjectName(u"colorjitter_max_brightness")
+        self.colorjitter_max_brightness.setMaximum(2.500000000000000)
+        self.colorjitter_max_brightness.setSingleStep(0.050000000000000)
+        self.colorjitter_max_brightness.setValue(1.200000000000000)
 
-        self.horizontalLayout_57.addWidget(self.colorjitter_brightness_1)
+        self.horizontalLayout_57.addWidget(self.colorjitter_max_brightness)
 
 
         self.formLayout_20.setWidget(1, QFormLayout.ItemRole.FieldRole, self.frame_67)
 
+        self.label_127 = QLabel(self.frame_65)
+        self.label_127.setObjectName(u"label_127")
+
+        self.formLayout_20.setWidget(2, QFormLayout.ItemRole.LabelRole, self.label_127)
+
+        self.frame_115 = QFrame(self.frame_65)
+        self.frame_115.setObjectName(u"frame_115")
+        self.frame_115.setFrameShape(QFrame.StyledPanel)
+        self.frame_115.setFrameShadow(QFrame.Raised)
+        self.horizontalLayout_109 = QHBoxLayout(self.frame_115)
+        self.horizontalLayout_109.setObjectName(u"horizontalLayout_109")
+        self.horizontalLayout_109.setContentsMargins(0, 0, 0, 0)
+        self.gaussnoise_chance_slider = QSlider(self.frame_115)
+        self.gaussnoise_chance_slider.setObjectName(u"gaussnoise_chance_slider")
+        self.gaussnoise_chance_slider.setMaximum(100)
+        self.gaussnoise_chance_slider.setOrientation(Qt.Horizontal)
+        self.gaussnoise_chance_slider.setTickPosition(QSlider.NoTicks)
+        self.gaussnoise_chance_slider.setTickInterval(10)
+
+        self.horizontalLayout_109.addWidget(self.gaussnoise_chance_slider)
+
+        self.gaussnoise_chance = QDoubleSpinBox(self.frame_115)
+        self.gaussnoise_chance.setObjectName(u"gaussnoise_chance")
+        self.gaussnoise_chance.setDecimals(1)
+
+        self.horizontalLayout_109.addWidget(self.gaussnoise_chance)
+
+
+        self.formLayout_20.setWidget(2, QFormLayout.ItemRole.FieldRole, self.frame_115)
+
+        self.label_128 = QLabel(self.frame_65)
+        self.label_128.setObjectName(u"label_128")
+
+        self.formLayout_20.setWidget(3, QFormLayout.ItemRole.LabelRole, self.label_128)
+
+        self.frame_116 = QFrame(self.frame_65)
+        self.frame_116.setObjectName(u"frame_116")
+        self.frame_116.setFrameShape(QFrame.StyledPanel)
+        self.frame_116.setFrameShadow(QFrame.Raised)
+        self.horizontalLayout_110 = QHBoxLayout(self.frame_116)
+        self.horizontalLayout_110.setObjectName(u"horizontalLayout_110")
+        self.horizontalLayout_110.setContentsMargins(0, 0, 0, 0)
+        self.gaussnoise_min = QDoubleSpinBox(self.frame_116)
+        self.gaussnoise_min.setObjectName(u"gaussnoise_min")
+        self.gaussnoise_min.setMaximum(2.500000000000000)
+        self.gaussnoise_min.setSingleStep(0.050000000000000)
+        self.gaussnoise_min.setValue(0.800000000000000)
+
+        self.horizontalLayout_110.addWidget(self.gaussnoise_min)
+
+        self.gaussnoise_max = QDoubleSpinBox(self.frame_116)
+        self.gaussnoise_max.setObjectName(u"gaussnoise_max")
+        self.gaussnoise_max.setMaximum(2.500000000000000)
+        self.gaussnoise_max.setSingleStep(0.050000000000000)
+        self.gaussnoise_max.setValue(1.200000000000000)
+
+        self.horizontalLayout_110.addWidget(self.gaussnoise_max)
+
+
+        self.formLayout_20.setWidget(3, QFormLayout.ItemRole.FieldRole, self.frame_116)
+
+        self.label_129 = QLabel(self.frame_65)
+        self.label_129.setObjectName(u"label_129")
+
+        self.formLayout_20.setWidget(4, QFormLayout.ItemRole.LabelRole, self.label_129)
+
+        self.frame_117 = QFrame(self.frame_65)
+        self.frame_117.setObjectName(u"frame_117")
+        self.frame_117.setFrameShape(QFrame.StyledPanel)
+        self.frame_117.setFrameShadow(QFrame.Raised)
+        self.horizontalLayout_111 = QHBoxLayout(self.frame_117)
+        self.horizontalLayout_111.setObjectName(u"horizontalLayout_111")
+        self.horizontalLayout_111.setContentsMargins(0, 0, 0, 0)
+        self.motionblur_chance_slider = QSlider(self.frame_117)
+        self.motionblur_chance_slider.setObjectName(u"motionblur_chance_slider")
+        self.motionblur_chance_slider.setMaximum(100)
+        self.motionblur_chance_slider.setOrientation(Qt.Horizontal)
+        self.motionblur_chance_slider.setTickPosition(QSlider.NoTicks)
+        self.motionblur_chance_slider.setTickInterval(10)
+
+        self.horizontalLayout_111.addWidget(self.motionblur_chance_slider)
+
+        self.motionblur_chance = QDoubleSpinBox(self.frame_117)
+        self.motionblur_chance.setObjectName(u"motionblur_chance")
+        self.motionblur_chance.setDecimals(1)
+
+        self.horizontalLayout_111.addWidget(self.motionblur_chance)
+
+
+        self.formLayout_20.setWidget(4, QFormLayout.ItemRole.FieldRole, self.frame_117)
+
+        self.label_130 = QLabel(self.frame_65)
+        self.label_130.setObjectName(u"label_130")
+
+        self.formLayout_20.setWidget(5, QFormLayout.ItemRole.LabelRole, self.label_130)
+
+        self.motionblur_limit = QSpinBox(self.frame_65)
+        self.motionblur_limit.setObjectName(u"motionblur_limit")
+        self.motionblur_limit.setMinimum(3)
+        self.motionblur_limit.setValue(7)
+
+        self.formLayout_20.setWidget(5, QFormLayout.ItemRole.FieldRole, self.motionblur_limit)
+
+        self.label_131 = QLabel(self.frame_65)
+        self.label_131.setObjectName(u"label_131")
+
+        self.formLayout_20.setWidget(6, QFormLayout.ItemRole.LabelRole, self.label_131)
+
+        self.frame_118 = QFrame(self.frame_65)
+        self.frame_118.setObjectName(u"frame_118")
+        self.frame_118.setFrameShape(QFrame.StyledPanel)
+        self.frame_118.setFrameShadow(QFrame.Raised)
+        self.horizontalLayout_112 = QHBoxLayout(self.frame_118)
+        self.horizontalLayout_112.setObjectName(u"horizontalLayout_112")
+        self.horizontalLayout_112.setContentsMargins(0, 0, 0, 0)
+        self.randgamma_chance_slider = QSlider(self.frame_118)
+        self.randgamma_chance_slider.setObjectName(u"randgamma_chance_slider")
+        self.randgamma_chance_slider.setMaximum(100)
+        self.randgamma_chance_slider.setOrientation(Qt.Horizontal)
+        self.randgamma_chance_slider.setTickPosition(QSlider.NoTicks)
+        self.randgamma_chance_slider.setTickInterval(10)
+
+        self.horizontalLayout_112.addWidget(self.randgamma_chance_slider)
+
+        self.randgamma_chance = QDoubleSpinBox(self.frame_118)
+        self.randgamma_chance.setObjectName(u"randgamma_chance")
+        self.randgamma_chance.setDecimals(1)
+
+        self.horizontalLayout_112.addWidget(self.randgamma_chance)
+
+
+        self.formLayout_20.setWidget(6, QFormLayout.ItemRole.FieldRole, self.frame_118)
+
+        self.label_133 = QLabel(self.frame_65)
+        self.label_133.setObjectName(u"label_133")
+
+        self.formLayout_20.setWidget(7, QFormLayout.ItemRole.LabelRole, self.label_133)
+
+        self.frame_119 = QFrame(self.frame_65)
+        self.frame_119.setObjectName(u"frame_119")
+        self.frame_119.setFrameShape(QFrame.StyledPanel)
+        self.frame_119.setFrameShadow(QFrame.Raised)
+        self.horizontalLayout_113 = QHBoxLayout(self.frame_119)
+        self.horizontalLayout_113.setObjectName(u"horizontalLayout_113")
+        self.horizontalLayout_113.setContentsMargins(0, 0, 0, 0)
+        self.randgamma_min = QDoubleSpinBox(self.frame_119)
+        self.randgamma_min.setObjectName(u"randgamma_min")
+        self.randgamma_min.setMaximum(250.000000000000000)
+        self.randgamma_min.setSingleStep(5.000000000000000)
+        self.randgamma_min.setValue(80.000000000000000)
+
+        self.horizontalLayout_113.addWidget(self.randgamma_min)
+
+        self.randgamma_max = QDoubleSpinBox(self.frame_119)
+        self.randgamma_max.setObjectName(u"randgamma_max")
+        self.randgamma_max.setMaximum(250.000000000000000)
+        self.randgamma_max.setSingleStep(5.000000000000000)
+        self.randgamma_max.setValue(120.000000000000000)
+
+        self.horizontalLayout_113.addWidget(self.randgamma_max)
+
+
+        self.formLayout_20.setWidget(7, QFormLayout.ItemRole.FieldRole, self.frame_119)
+
+        self.label_132 = QLabel(self.frame_65)
+        self.label_132.setObjectName(u"label_132")
+
+        self.formLayout_20.setWidget(8, QFormLayout.ItemRole.LabelRole, self.label_132)
+
+        self.frame_120 = QFrame(self.frame_65)
+        self.frame_120.setObjectName(u"frame_120")
+        self.frame_120.setFrameShape(QFrame.StyledPanel)
+        self.frame_120.setFrameShadow(QFrame.Raised)
+        self.horizontalLayout_114 = QHBoxLayout(self.frame_120)
+        self.horizontalLayout_114.setObjectName(u"horizontalLayout_114")
+        self.horizontalLayout_114.setContentsMargins(0, 0, 0, 0)
+        self.grayscale_chance_slider = QSlider(self.frame_120)
+        self.grayscale_chance_slider.setObjectName(u"grayscale_chance_slider")
+        self.grayscale_chance_slider.setMaximum(100)
+        self.grayscale_chance_slider.setOrientation(Qt.Horizontal)
+        self.grayscale_chance_slider.setTickPosition(QSlider.NoTicks)
+        self.grayscale_chance_slider.setTickInterval(10)
+
+        self.horizontalLayout_114.addWidget(self.grayscale_chance_slider)
+
+        self.grayscale_chance = QDoubleSpinBox(self.frame_120)
+        self.grayscale_chance.setObjectName(u"grayscale_chance")
+        self.grayscale_chance.setDecimals(1)
+
+        self.horizontalLayout_114.addWidget(self.grayscale_chance)
+
+
+        self.formLayout_20.setWidget(8, QFormLayout.ItemRole.FieldRole, self.frame_120)
+
+        self.label_134 = QLabel(self.frame_65)
+        self.label_134.setObjectName(u"label_134")
+
+        self.formLayout_20.setWidget(9, QFormLayout.ItemRole.LabelRole, self.label_134)
+
+        self.grayscale_method = QComboBox(self.frame_65)
+        self.grayscale_method.setObjectName(u"grayscale_method")
+
+        self.formLayout_20.setWidget(9, QFormLayout.ItemRole.FieldRole, self.grayscale_method)
+
+        self.label_135 = QLabel(self.frame_65)
+        self.label_135.setObjectName(u"label_135")
+
+        self.formLayout_20.setWidget(10, QFormLayout.ItemRole.LabelRole, self.label_135)
+
+        self.label_136 = QLabel(self.frame_65)
+        self.label_136.setObjectName(u"label_136")
+
+        self.formLayout_20.setWidget(11, QFormLayout.ItemRole.LabelRole, self.label_136)
+
+        self.label_137 = QLabel(self.frame_65)
+        self.label_137.setObjectName(u"label_137")
+
+        self.formLayout_20.setWidget(12, QFormLayout.ItemRole.LabelRole, self.label_137)
+
+        self.frame_121 = QFrame(self.frame_65)
+        self.frame_121.setObjectName(u"frame_121")
+        self.frame_121.setFrameShape(QFrame.StyledPanel)
+        self.frame_121.setFrameShadow(QFrame.Raised)
+        self.horizontalLayout_115 = QHBoxLayout(self.frame_121)
+        self.horizontalLayout_115.setObjectName(u"horizontalLayout_115")
+        self.horizontalLayout_115.setContentsMargins(0, 0, 0, 0)
+        self.compression_chance_slider = QSlider(self.frame_121)
+        self.compression_chance_slider.setObjectName(u"compression_chance_slider")
+        self.compression_chance_slider.setMaximum(100)
+        self.compression_chance_slider.setOrientation(Qt.Horizontal)
+        self.compression_chance_slider.setTickPosition(QSlider.NoTicks)
+        self.compression_chance_slider.setTickInterval(10)
+
+        self.horizontalLayout_115.addWidget(self.compression_chance_slider)
+
+        self.compression_chance = QDoubleSpinBox(self.frame_121)
+        self.compression_chance.setObjectName(u"compression_chance")
+        self.compression_chance.setDecimals(1)
+
+        self.horizontalLayout_115.addWidget(self.compression_chance)
+
+
+        self.formLayout_20.setWidget(10, QFormLayout.ItemRole.FieldRole, self.frame_121)
+
+        self.compression_type = QComboBox(self.frame_65)
+        self.compression_type.setObjectName(u"compression_type")
+
+        self.formLayout_20.setWidget(11, QFormLayout.ItemRole.FieldRole, self.compression_type)
+
+        self.frame_122 = QFrame(self.frame_65)
+        self.frame_122.setObjectName(u"frame_122")
+        self.frame_122.setFrameShape(QFrame.StyledPanel)
+        self.frame_122.setFrameShadow(QFrame.Raised)
+        self.horizontalLayout_116 = QHBoxLayout(self.frame_122)
+        self.horizontalLayout_116.setObjectName(u"horizontalLayout_116")
+        self.horizontalLayout_116.setContentsMargins(0, 0, 0, 0)
+        self.compression_quality_min = QSpinBox(self.frame_122)
+        self.compression_quality_min.setObjectName(u"compression_quality_min")
+        self.compression_quality_min.setMaximum(100)
+        self.compression_quality_min.setValue(99)
+
+        self.horizontalLayout_116.addWidget(self.compression_quality_min)
+
+        self.compression_quality_max = QSpinBox(self.frame_122)
+        self.compression_quality_max.setObjectName(u"compression_quality_max")
+        self.compression_quality_max.setMaximum(100)
+        self.compression_quality_max.setValue(100)
+
+        self.horizontalLayout_116.addWidget(self.compression_quality_max)
+
+
+        self.formLayout_20.setWidget(12, QFormLayout.ItemRole.FieldRole, self.frame_122)
+
 
         self.verticalLayout_60.addWidget(self.frame_65)
-
-        self.frame_60 = QFrame(self.groupBox_2)
-        self.frame_60.setObjectName(u"frame_60")
-        self.frame_60.setFrameShape(QFrame.StyledPanel)
-        self.frame_60.setFrameShadow(QFrame.Raised)
-        self.horizontalLayout_52 = QHBoxLayout(self.frame_60)
-        self.horizontalLayout_52.setObjectName(u"horizontalLayout_52")
-        self.horizontalLayout_52.setContentsMargins(0, 0, 0, 0)
-        self.label_70 = QLabel(self.frame_60)
-        self.label_70.setObjectName(u"label_70")
-        sizePolicy1.setHeightForWidth(self.label_70.sizePolicy().hasHeightForWidth())
-        self.label_70.setSizePolicy(sizePolicy1)
-        self.label_70.setFont(font2)
-
-        self.horizontalLayout_52.addWidget(self.label_70)
-
-        self.line_6 = QFrame(self.frame_60)
-        self.line_6.setObjectName(u"line_6")
-        self.line_6.setFrameShadow(QFrame.Raised)
-        self.line_6.setFrameShape(QFrame.Shape.HLine)
-
-        self.horizontalLayout_52.addWidget(self.line_6)
-
-
-        self.verticalLayout_60.addWidget(self.frame_60)
 
         self.frame_51 = QFrame(self.groupBox_2)
         self.frame_51.setObjectName(u"frame_51")
@@ -2447,6 +2695,298 @@ class Ui_MainWindow(object):
 
 
         self.formLayout.setWidget(2, QFormLayout.ItemRole.FieldRole, self.frame_63)
+
+        self.label_138 = QLabel(self.frame_61)
+        self.label_138.setObjectName(u"label_138")
+
+        self.formLayout.setWidget(3, QFormLayout.ItemRole.LabelRole, self.label_138)
+
+        self.frame_123 = QFrame(self.frame_61)
+        self.frame_123.setObjectName(u"frame_123")
+        self.frame_123.setFrameShape(QFrame.StyledPanel)
+        self.frame_123.setFrameShadow(QFrame.Raised)
+        self.horizontalLayout_117 = QHBoxLayout(self.frame_123)
+        self.horizontalLayout_117.setObjectName(u"horizontalLayout_117")
+        self.horizontalLayout_117.setContentsMargins(0, 0, 0, 0)
+        self.elastic_transform_chance_slider = QSlider(self.frame_123)
+        self.elastic_transform_chance_slider.setObjectName(u"elastic_transform_chance_slider")
+        self.elastic_transform_chance_slider.setMaximum(100)
+        self.elastic_transform_chance_slider.setOrientation(Qt.Horizontal)
+        self.elastic_transform_chance_slider.setTickPosition(QSlider.NoTicks)
+        self.elastic_transform_chance_slider.setTickInterval(10)
+
+        self.horizontalLayout_117.addWidget(self.elastic_transform_chance_slider)
+
+        self.elastic_transform_chance = QDoubleSpinBox(self.frame_123)
+        self.elastic_transform_chance.setObjectName(u"elastic_transform_chance")
+        self.elastic_transform_chance.setDecimals(1)
+
+        self.horizontalLayout_117.addWidget(self.elastic_transform_chance)
+
+
+        self.formLayout.setWidget(3, QFormLayout.ItemRole.FieldRole, self.frame_123)
+
+        self.label_139 = QLabel(self.frame_61)
+        self.label_139.setObjectName(u"label_139")
+
+        self.formLayout.setWidget(4, QFormLayout.ItemRole.LabelRole, self.label_139)
+
+        self.label_140 = QLabel(self.frame_61)
+        self.label_140.setObjectName(u"label_140")
+
+        self.formLayout.setWidget(5, QFormLayout.ItemRole.LabelRole, self.label_140)
+
+        self.frame_125 = QFrame(self.frame_61)
+        self.frame_125.setObjectName(u"frame_125")
+        self.frame_125.setFrameShape(QFrame.StyledPanel)
+        self.frame_125.setFrameShadow(QFrame.Raised)
+        self.horizontalLayout_119 = QHBoxLayout(self.frame_125)
+        self.horizontalLayout_119.setObjectName(u"horizontalLayout_119")
+        self.horizontalLayout_119.setContentsMargins(0, 0, 0, 0)
+        self.elastic_transform_alpha_slider = QSlider(self.frame_125)
+        self.elastic_transform_alpha_slider.setObjectName(u"elastic_transform_alpha_slider")
+        self.elastic_transform_alpha_slider.setMaximum(100)
+        self.elastic_transform_alpha_slider.setOrientation(Qt.Horizontal)
+        self.elastic_transform_alpha_slider.setTickPosition(QSlider.NoTicks)
+        self.elastic_transform_alpha_slider.setTickInterval(10)
+
+        self.horizontalLayout_119.addWidget(self.elastic_transform_alpha_slider)
+
+        self.elastic_transform_alpha = QDoubleSpinBox(self.frame_125)
+        self.elastic_transform_alpha.setObjectName(u"elastic_transform_alpha")
+        self.elastic_transform_alpha.setMinimumSize(QSize(74, 0))
+        self.elastic_transform_alpha.setDecimals(1)
+        self.elastic_transform_alpha.setMaximum(5.000000000000000)
+        self.elastic_transform_alpha.setSingleStep(0.050000000000000)
+        self.elastic_transform_alpha.setValue(1.000000000000000)
+
+        self.horizontalLayout_119.addWidget(self.elastic_transform_alpha)
+
+
+        self.formLayout.setWidget(4, QFormLayout.ItemRole.FieldRole, self.frame_125)
+
+        self.frame_124 = QFrame(self.frame_61)
+        self.frame_124.setObjectName(u"frame_124")
+        self.frame_124.setFrameShape(QFrame.StyledPanel)
+        self.frame_124.setFrameShadow(QFrame.Raised)
+        self.horizontalLayout_118 = QHBoxLayout(self.frame_124)
+        self.horizontalLayout_118.setObjectName(u"horizontalLayout_118")
+        self.horizontalLayout_118.setContentsMargins(0, 0, 0, 0)
+        self.elastic_transform_sigma_slider = QSlider(self.frame_124)
+        self.elastic_transform_sigma_slider.setObjectName(u"elastic_transform_sigma_slider")
+        self.elastic_transform_sigma_slider.setMaximum(100)
+        self.elastic_transform_sigma_slider.setOrientation(Qt.Horizontal)
+        self.elastic_transform_sigma_slider.setTickPosition(QSlider.NoTicks)
+        self.elastic_transform_sigma_slider.setTickInterval(10)
+
+        self.horizontalLayout_118.addWidget(self.elastic_transform_sigma_slider)
+
+        self.elastic_transform_sigma = QDoubleSpinBox(self.frame_124)
+        self.elastic_transform_sigma.setObjectName(u"elastic_transform_sigma")
+        sizePolicy9.setHeightForWidth(self.elastic_transform_sigma.sizePolicy().hasHeightForWidth())
+        self.elastic_transform_sigma.setSizePolicy(sizePolicy9)
+        self.elastic_transform_sigma.setMinimumSize(QSize(74, 0))
+        self.elastic_transform_sigma.setDecimals(1)
+        self.elastic_transform_sigma.setSingleStep(5.000000000000000)
+        self.elastic_transform_sigma.setValue(50.000000000000000)
+
+        self.horizontalLayout_118.addWidget(self.elastic_transform_sigma)
+
+
+        self.formLayout.setWidget(5, QFormLayout.ItemRole.FieldRole, self.frame_124)
+
+        self.label_141 = QLabel(self.frame_61)
+        self.label_141.setObjectName(u"label_141")
+
+        self.formLayout.setWidget(6, QFormLayout.ItemRole.LabelRole, self.label_141)
+
+        self.frame_126 = QFrame(self.frame_61)
+        self.frame_126.setObjectName(u"frame_126")
+        self.frame_126.setFrameShape(QFrame.StyledPanel)
+        self.frame_126.setFrameShadow(QFrame.Raised)
+        self.horizontalLayout_120 = QHBoxLayout(self.frame_126)
+        self.horizontalLayout_120.setObjectName(u"horizontalLayout_120")
+        self.horizontalLayout_120.setContentsMargins(0, 0, 0, 0)
+        self.optical_distortion_chance_slider = QSlider(self.frame_126)
+        self.optical_distortion_chance_slider.setObjectName(u"optical_distortion_chance_slider")
+        self.optical_distortion_chance_slider.setMaximum(100)
+        self.optical_distortion_chance_slider.setOrientation(Qt.Horizontal)
+        self.optical_distortion_chance_slider.setTickPosition(QSlider.NoTicks)
+        self.optical_distortion_chance_slider.setTickInterval(10)
+
+        self.horizontalLayout_120.addWidget(self.optical_distortion_chance_slider)
+
+        self.optical_distortion_chance = QDoubleSpinBox(self.frame_126)
+        self.optical_distortion_chance.setObjectName(u"optical_distortion_chance")
+        self.optical_distortion_chance.setDecimals(1)
+
+        self.horizontalLayout_120.addWidget(self.optical_distortion_chance)
+
+
+        self.formLayout.setWidget(6, QFormLayout.ItemRole.FieldRole, self.frame_126)
+
+        self.label_142 = QLabel(self.frame_61)
+        self.label_142.setObjectName(u"label_142")
+
+        self.formLayout.setWidget(7, QFormLayout.ItemRole.LabelRole, self.label_142)
+
+        self.frame_127 = QFrame(self.frame_61)
+        self.frame_127.setObjectName(u"frame_127")
+        self.frame_127.setFrameShape(QFrame.StyledPanel)
+        self.frame_127.setFrameShadow(QFrame.Raised)
+        self.horizontalLayout_121 = QHBoxLayout(self.frame_127)
+        self.horizontalLayout_121.setObjectName(u"horizontalLayout_121")
+        self.horizontalLayout_121.setContentsMargins(0, 0, 0, 0)
+        self.optical_distortion_min = QDoubleSpinBox(self.frame_127)
+        self.optical_distortion_min.setObjectName(u"optical_distortion_min")
+        self.optical_distortion_min.setMinimum(-2.500000000000000)
+        self.optical_distortion_min.setMaximum(2.500000000000000)
+        self.optical_distortion_min.setSingleStep(0.050000000000000)
+        self.optical_distortion_min.setValue(-0.050000000000000)
+
+        self.horizontalLayout_121.addWidget(self.optical_distortion_min)
+
+        self.optical_distortion_max = QDoubleSpinBox(self.frame_127)
+        self.optical_distortion_max.setObjectName(u"optical_distortion_max")
+        self.optical_distortion_max.setMinimum(-2.500000000000000)
+        self.optical_distortion_max.setMaximum(2.500000000000000)
+        self.optical_distortion_max.setSingleStep(0.050000000000000)
+        self.optical_distortion_max.setValue(0.050000000000000)
+
+        self.horizontalLayout_121.addWidget(self.optical_distortion_max)
+
+
+        self.formLayout.setWidget(7, QFormLayout.ItemRole.FieldRole, self.frame_127)
+
+        self.label_143 = QLabel(self.frame_61)
+        self.label_143.setObjectName(u"label_143")
+
+        self.formLayout.setWidget(8, QFormLayout.ItemRole.LabelRole, self.label_143)
+
+        self.optical_distortion_mode = QComboBox(self.frame_61)
+        self.optical_distortion_mode.setObjectName(u"optical_distortion_mode")
+
+        self.formLayout.setWidget(8, QFormLayout.ItemRole.FieldRole, self.optical_distortion_mode)
+
+        self.label_144 = QLabel(self.frame_61)
+        self.label_144.setObjectName(u"label_144")
+
+        self.formLayout.setWidget(9, QFormLayout.ItemRole.LabelRole, self.label_144)
+
+        self.label_145 = QLabel(self.frame_61)
+        self.label_145.setObjectName(u"label_145")
+
+        self.formLayout.setWidget(10, QFormLayout.ItemRole.LabelRole, self.label_145)
+
+        self.label_146 = QLabel(self.frame_61)
+        self.label_146.setObjectName(u"label_146")
+
+        self.formLayout.setWidget(11, QFormLayout.ItemRole.LabelRole, self.label_146)
+
+        self.label_147 = QLabel(self.frame_61)
+        self.label_147.setObjectName(u"label_147")
+
+        self.formLayout.setWidget(12, QFormLayout.ItemRole.LabelRole, self.label_147)
+
+        self.frame_128 = QFrame(self.frame_61)
+        self.frame_128.setObjectName(u"frame_128")
+        self.frame_128.setFrameShape(QFrame.StyledPanel)
+        self.frame_128.setFrameShadow(QFrame.Raised)
+        self.horizontalLayout_122 = QHBoxLayout(self.frame_128)
+        self.horizontalLayout_122.setObjectName(u"horizontalLayout_122")
+        self.horizontalLayout_122.setContentsMargins(0, 0, 0, 0)
+        self.coarse_dropout_chance_slider = QSlider(self.frame_128)
+        self.coarse_dropout_chance_slider.setObjectName(u"coarse_dropout_chance_slider")
+        self.coarse_dropout_chance_slider.setMaximum(100)
+        self.coarse_dropout_chance_slider.setOrientation(Qt.Horizontal)
+        self.coarse_dropout_chance_slider.setTickPosition(QSlider.NoTicks)
+        self.coarse_dropout_chance_slider.setTickInterval(10)
+
+        self.horizontalLayout_122.addWidget(self.coarse_dropout_chance_slider)
+
+        self.coarse_dropout_chance = QDoubleSpinBox(self.frame_128)
+        self.coarse_dropout_chance.setObjectName(u"coarse_dropout_chance")
+        self.coarse_dropout_chance.setDecimals(1)
+
+        self.horizontalLayout_122.addWidget(self.coarse_dropout_chance)
+
+
+        self.formLayout.setWidget(9, QFormLayout.ItemRole.FieldRole, self.frame_128)
+
+        self.frame_129 = QFrame(self.frame_61)
+        self.frame_129.setObjectName(u"frame_129")
+        self.frame_129.setFrameShape(QFrame.StyledPanel)
+        self.frame_129.setFrameShadow(QFrame.Raised)
+        self.horizontalLayout_123 = QHBoxLayout(self.frame_129)
+        self.horizontalLayout_123.setObjectName(u"horizontalLayout_123")
+        self.horizontalLayout_123.setContentsMargins(0, 0, 0, 0)
+        self.coarse_dropout_holes_min = QSpinBox(self.frame_129)
+        self.coarse_dropout_holes_min.setObjectName(u"coarse_dropout_holes_min")
+        self.coarse_dropout_holes_min.setMinimum(1)
+
+        self.horizontalLayout_123.addWidget(self.coarse_dropout_holes_min)
+
+        self.coarse_dropout_holes_max = QSpinBox(self.frame_129)
+        self.coarse_dropout_holes_max.setObjectName(u"coarse_dropout_holes_max")
+        self.coarse_dropout_holes_max.setMinimum(1)
+        self.coarse_dropout_holes_max.setValue(2)
+
+        self.horizontalLayout_123.addWidget(self.coarse_dropout_holes_max)
+
+
+        self.formLayout.setWidget(10, QFormLayout.ItemRole.FieldRole, self.frame_129)
+
+        self.frame_130 = QFrame(self.frame_61)
+        self.frame_130.setObjectName(u"frame_130")
+        self.frame_130.setFrameShape(QFrame.StyledPanel)
+        self.frame_130.setFrameShadow(QFrame.Raised)
+        self.horizontalLayout_124 = QHBoxLayout(self.frame_130)
+        self.horizontalLayout_124.setObjectName(u"horizontalLayout_124")
+        self.horizontalLayout_124.setContentsMargins(0, 0, 0, 0)
+        self.coarse_dropout_height_min = QDoubleSpinBox(self.frame_130)
+        self.coarse_dropout_height_min.setObjectName(u"coarse_dropout_height_min")
+        self.coarse_dropout_height_min.setMaximum(1.000000000000000)
+        self.coarse_dropout_height_min.setSingleStep(0.050000000000000)
+        self.coarse_dropout_height_min.setValue(0.100000000000000)
+
+        self.horizontalLayout_124.addWidget(self.coarse_dropout_height_min)
+
+        self.coarse_dropout_height_max = QDoubleSpinBox(self.frame_130)
+        self.coarse_dropout_height_max.setObjectName(u"coarse_dropout_height_max")
+        self.coarse_dropout_height_max.setMaximum(1.000000000000000)
+        self.coarse_dropout_height_max.setSingleStep(0.050000000000000)
+        self.coarse_dropout_height_max.setValue(0.200000000000000)
+
+        self.horizontalLayout_124.addWidget(self.coarse_dropout_height_max)
+
+
+        self.formLayout.setWidget(11, QFormLayout.ItemRole.FieldRole, self.frame_130)
+
+        self.frame_131 = QFrame(self.frame_61)
+        self.frame_131.setObjectName(u"frame_131")
+        self.frame_131.setFrameShape(QFrame.StyledPanel)
+        self.frame_131.setFrameShadow(QFrame.Raised)
+        self.horizontalLayout_125 = QHBoxLayout(self.frame_131)
+        self.horizontalLayout_125.setObjectName(u"horizontalLayout_125")
+        self.horizontalLayout_125.setContentsMargins(0, 0, 0, 0)
+        self.coarse_dropout_width_min = QDoubleSpinBox(self.frame_131)
+        self.coarse_dropout_width_min.setObjectName(u"coarse_dropout_width_min")
+        self.coarse_dropout_width_min.setMaximum(1.000000000000000)
+        self.coarse_dropout_width_min.setSingleStep(0.050000000000000)
+        self.coarse_dropout_width_min.setValue(0.100000000000000)
+
+        self.horizontalLayout_125.addWidget(self.coarse_dropout_width_min)
+
+        self.coarse_dropout_width_max = QDoubleSpinBox(self.frame_131)
+        self.coarse_dropout_width_max.setObjectName(u"coarse_dropout_width_max")
+        self.coarse_dropout_width_max.setMaximum(1.000000000000000)
+        self.coarse_dropout_width_max.setSingleStep(0.050000000000000)
+        self.coarse_dropout_width_max.setValue(0.200000000000000)
+
+        self.horizontalLayout_125.addWidget(self.coarse_dropout_width_max)
+
+
+        self.formLayout.setWidget(12, QFormLayout.ItemRole.FieldRole, self.frame_131)
 
 
         self.verticalLayout_60.addWidget(self.frame_61)
@@ -3219,6 +3759,45 @@ class Ui_MainWindow(object):
 
 
         self.verticalLayout_16.addWidget(self.frame_25)
+
+        self.line_44 = QFrame(self.loss_tab)
+        self.line_44.setObjectName(u"line_44")
+        self.line_44.setFrameShape(QFrame.Shape.HLine)
+        self.line_44.setFrameShadow(QFrame.Shadow.Sunken)
+
+        self.verticalLayout_16.addWidget(self.line_44)
+
+        self.log_losses = QCheckBox(self.loss_tab)
+        self.log_losses.setObjectName(u"log_losses")
+        self.log_losses.setChecked(True)
+
+        self.verticalLayout_16.addWidget(self.log_losses)
+
+        self.frame_114 = QFrame(self.loss_tab)
+        self.frame_114.setObjectName(u"frame_114")
+        self.frame_114.setFrameShape(QFrame.StyledPanel)
+        self.frame_114.setFrameShadow(QFrame.Raised)
+        self.horizontalLayout_108 = QHBoxLayout(self.frame_114)
+        self.horizontalLayout_108.setObjectName(u"horizontalLayout_108")
+        self.horizontalLayout_108.setContentsMargins(0, 0, 0, 0)
+        self.label_18 = QLabel(self.frame_114)
+        self.label_18.setObjectName(u"label_18")
+        sizePolicy1.setHeightForWidth(self.label_18.sizePolicy().hasHeightForWidth())
+        self.label_18.setSizePolicy(sizePolicy1)
+
+        self.horizontalLayout_108.addWidget(self.label_18)
+
+        self.loss_dump_frequency = QSpinBox(self.frame_114)
+        self.loss_dump_frequency.setObjectName(u"loss_dump_frequency")
+        self.loss_dump_frequency.setMinimum(1)
+        self.loss_dump_frequency.setMaximum(999)
+        self.loss_dump_frequency.setSingleStep(1)
+        self.loss_dump_frequency.setValue(5)
+
+        self.horizontalLayout_108.addWidget(self.loss_dump_frequency)
+
+
+        self.verticalLayout_16.addWidget(self.frame_114)
 
         self.verticalSpacer_5 = QSpacerItem(20, 356, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
 
@@ -4933,12 +5512,6 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_42.addWidget(self.always_on_top)
 
-        self.log_losses = QCheckBox(self.frame_53)
-        self.log_losses.setObjectName(u"log_losses")
-        self.log_losses.setChecked(True)
-
-        self.verticalLayout_42.addWidget(self.log_losses)
-
         self.line_38 = QFrame(self.frame_53)
         self.line_38.setObjectName(u"line_38")
         self.line_38.setFrameShape(QFrame.Shape.HLine)
@@ -4952,26 +5525,11 @@ class Ui_MainWindow(object):
         self.frame_94.setFrameShadow(QFrame.Raised)
         self.formLayout_9 = QFormLayout(self.frame_94)
         self.formLayout_9.setObjectName(u"formLayout_9")
-        self.label_18 = QLabel(self.frame_94)
-        self.label_18.setObjectName(u"label_18")
-        sizePolicy1.setHeightForWidth(self.label_18.sizePolicy().hasHeightForWidth())
-        self.label_18.setSizePolicy(sizePolicy1)
-
-        self.formLayout_9.setWidget(0, QFormLayout.ItemRole.LabelRole, self.label_18)
-
-        self.loss_dump_frequency = QSpinBox(self.frame_94)
-        self.loss_dump_frequency.setObjectName(u"loss_dump_frequency")
-        self.loss_dump_frequency.setMinimum(1)
-        self.loss_dump_frequency.setMaximum(999)
-        self.loss_dump_frequency.setSingleStep(1)
-        self.loss_dump_frequency.setValue(5)
-
-        self.formLayout_9.setWidget(0, QFormLayout.ItemRole.FieldRole, self.loss_dump_frequency)
-
+        self.formLayout_9.setContentsMargins(0, 0, 0, 0)
         self.label_40 = QLabel(self.frame_94)
         self.label_40.setObjectName(u"label_40")
 
-        self.formLayout_9.setWidget(1, QFormLayout.ItemRole.LabelRole, self.label_40)
+        self.formLayout_9.setWidget(0, QFormLayout.ItemRole.LabelRole, self.label_40)
 
         self.review_graph_sample_rate = QSpinBox(self.frame_94)
         self.review_graph_sample_rate.setObjectName(u"review_graph_sample_rate")
@@ -4980,26 +5538,16 @@ class Ui_MainWindow(object):
         self.review_graph_sample_rate.setSingleStep(5)
         self.review_graph_sample_rate.setValue(50)
 
-        self.formLayout_9.setWidget(1, QFormLayout.ItemRole.FieldRole, self.review_graph_sample_rate)
+        self.formLayout_9.setWidget(0, QFormLayout.ItemRole.FieldRole, self.review_graph_sample_rate)
 
+        self.label_44 = QLabel(self.frame_94)
+        self.label_44.setObjectName(u"label_44")
 
-        self.verticalLayout_42.addWidget(self.frame_94)
-
-        self.line_26 = QFrame(self.frame_53)
-        self.line_26.setObjectName(u"line_26")
-        self.line_26.setFrameShape(QFrame.Shape.HLine)
-        self.line_26.setFrameShadow(QFrame.Shadow.Sunken)
-
-        self.verticalLayout_42.addWidget(self.line_26)
+        self.formLayout_9.setWidget(1, QFormLayout.ItemRole.LabelRole, self.label_44)
 
         self.horizontalLayout_31 = QHBoxLayout()
         self.horizontalLayout_31.setObjectName(u"horizontalLayout_31")
-        self.label_44 = QLabel(self.frame_53)
-        self.label_44.setObjectName(u"label_44")
-
-        self.horizontalLayout_31.addWidget(self.label_44)
-
-        self.update_frequency_slider = QSlider(self.frame_53)
+        self.update_frequency_slider = QSlider(self.frame_94)
         self.update_frequency_slider.setObjectName(u"update_frequency_slider")
         self.update_frequency_slider.setMinimum(1)
         self.update_frequency_slider.setMaximum(1000)
@@ -5012,7 +5560,7 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_31.addWidget(self.update_frequency_slider)
 
-        self.update_frequency = QSpinBox(self.frame_53)
+        self.update_frequency = QSpinBox(self.frame_94)
         self.update_frequency.setObjectName(u"update_frequency")
         self.update_frequency.setMinimum(1)
         self.update_frequency.setMaximum(99999)
@@ -5022,7 +5570,17 @@ class Ui_MainWindow(object):
         self.horizontalLayout_31.addWidget(self.update_frequency)
 
 
-        self.verticalLayout_42.addLayout(self.horizontalLayout_31)
+        self.formLayout_9.setLayout(1, QFormLayout.ItemRole.FieldRole, self.horizontalLayout_31)
+
+
+        self.verticalLayout_42.addWidget(self.frame_94)
+
+        self.line_26 = QFrame(self.frame_53)
+        self.line_26.setObjectName(u"line_26")
+        self.line_26.setFrameShape(QFrame.Shape.HLine)
+        self.line_26.setFrameShadow(QFrame.Shadow.Sunken)
+
+        self.verticalLayout_42.addWidget(self.line_26)
 
         self.verticalSpacer_13 = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
 
@@ -5051,7 +5609,7 @@ class Ui_MainWindow(object):
         self.retranslateUi(MainWindow)
 
         self.centralwidget_pages.setCurrentIndex(1)
-        self.settings_pages.setCurrentIndex(0)
+        self.settings_pages.setCurrentIndex(1)
         self.direction.setCurrentIndex(-1)
         self.tabWidget_2.setCurrentIndex(0)
         self.pair_images_scale.setCurrentIndex(-1)
@@ -5217,7 +5775,22 @@ class Ui_MainWindow(object):
         self.label_74.setText(QCoreApplication.translate("MainWindow", u"Colorjitter", None))
         self.colorjitter_chance.setSuffix(QCoreApplication.translate("MainWindow", u"%", None))
         self.label_75.setText(QCoreApplication.translate("MainWindow", u"Colorjitter Range", None))
-        self.label_70.setText(QCoreApplication.translate("MainWindow", u"Target", None))
+        self.label_127.setText(QCoreApplication.translate("MainWindow", u"Gaussian Noise", None))
+        self.gaussnoise_chance.setSuffix(QCoreApplication.translate("MainWindow", u"%", None))
+        self.label_128.setText(QCoreApplication.translate("MainWindow", u"Gaussian Range", None))
+        self.label_129.setText(QCoreApplication.translate("MainWindow", u"Motion Blur", None))
+        self.motionblur_chance.setSuffix(QCoreApplication.translate("MainWindow", u"%", None))
+        self.label_130.setText(QCoreApplication.translate("MainWindow", u"Motion Blur Limit", None))
+        self.label_131.setText(QCoreApplication.translate("MainWindow", u"Random Gamma", None))
+        self.randgamma_chance.setSuffix(QCoreApplication.translate("MainWindow", u"%", None))
+        self.label_133.setText(QCoreApplication.translate("MainWindow", u"Gamma Limits", None))
+        self.label_132.setText(QCoreApplication.translate("MainWindow", u"Grayscale", None))
+        self.grayscale_chance.setSuffix(QCoreApplication.translate("MainWindow", u"%", None))
+        self.label_134.setText(QCoreApplication.translate("MainWindow", u"Grayscale Method", None))
+        self.label_135.setText(QCoreApplication.translate("MainWindow", u"Compression", None))
+        self.label_136.setText(QCoreApplication.translate("MainWindow", u"Compression Type", None))
+        self.label_137.setText(QCoreApplication.translate("MainWindow", u"Compression Quality", None))
+        self.compression_chance.setSuffix(QCoreApplication.translate("MainWindow", u"%", None))
         self.label_68.setText(QCoreApplication.translate("MainWindow", u"Both", None))
         self.label_71.setText(QCoreApplication.translate("MainWindow", u"Horizontal Flip", None))
         self.h_flip_chance.setSuffix(QCoreApplication.translate("MainWindow", u"%", None))
@@ -5225,6 +5798,21 @@ class Ui_MainWindow(object):
         self.label_73.setText(QCoreApplication.translate("MainWindow", u"90\u00b0 Rotation", None))
         self.v_flip_chance.setSuffix(QCoreApplication.translate("MainWindow", u"%", None))
         self.rot90_chance.setSuffix(QCoreApplication.translate("MainWindow", u"%", None))
+        self.label_138.setText(QCoreApplication.translate("MainWindow", u"Elastic Xform", None))
+        self.elastic_transform_chance.setSuffix(QCoreApplication.translate("MainWindow", u"%", None))
+        self.label_139.setText(QCoreApplication.translate("MainWindow", u"Elastic Alpha", None))
+        self.label_140.setText(QCoreApplication.translate("MainWindow", u"Elastic Sigma", None))
+        self.elastic_transform_alpha.setSuffix("")
+        self.elastic_transform_sigma.setSuffix("")
+        self.label_141.setText(QCoreApplication.translate("MainWindow", u"Optical Distort", None))
+        self.optical_distortion_chance.setSuffix(QCoreApplication.translate("MainWindow", u"%", None))
+        self.label_142.setText(QCoreApplication.translate("MainWindow", u"Distortion Limits", None))
+        self.label_143.setText(QCoreApplication.translate("MainWindow", u"Distortion Mode", None))
+        self.label_144.setText(QCoreApplication.translate("MainWindow", u"Coarse Dropout", None))
+        self.label_145.setText(QCoreApplication.translate("MainWindow", u"Hole Count", None))
+        self.label_146.setText(QCoreApplication.translate("MainWindow", u"Hole Height", None))
+        self.label_147.setText(QCoreApplication.translate("MainWindow", u"Hole Width", None))
+        self.coarse_dropout_chance.setSuffix(QCoreApplication.translate("MainWindow", u"%", None))
         self.continue_train.setText(QCoreApplication.translate("MainWindow", u"Continue Train", None))
         self.label_16.setText(QCoreApplication.translate("MainWindow", u"Load Epoch", None))
         self.label_57.setText(QCoreApplication.translate("MainWindow", u"Duration", None))
@@ -5250,6 +5838,8 @@ class Ui_MainWindow(object):
         self.label_17.setText(QCoreApplication.translate("MainWindow", u"Sobel", None))
         self.label_37.setText(QCoreApplication.translate("MainWindow", u"Laplacian", None))
         self.label_38.setText(QCoreApplication.translate("MainWindow", u"VGG", None))
+        self.log_losses.setText(QCoreApplication.translate("MainWindow", u"Log Losses During Training", None))
+        self.label_18.setText(QCoreApplication.translate("MainWindow", u"Log Dump Frequency (epochs)", None))
         self.tabWidget_2.setTabText(self.tabWidget_2.indexOf(self._loss_tab), QCoreApplication.translate("MainWindow", u"Loss", None))
         self.save_model.setText(QCoreApplication.translate("MainWindow", u"Save Checkpoints", None))
         self.label_24.setText(QCoreApplication.translate("MainWindow", u"Frequency", None))
@@ -5374,8 +5964,6 @@ class Ui_MainWindow(object):
         self.preview_split_dataset.setText(QCoreApplication.translate("MainWindow", u"Preview", None))
         self.utils_warning_label.setText(QCoreApplication.translate("MainWindow", u"_utils_warning_label_", None))
         self.always_on_top.setText(QCoreApplication.translate("MainWindow", u"Always on Top", None))
-        self.log_losses.setText(QCoreApplication.translate("MainWindow", u"Log Losses During Training", None))
-        self.label_18.setText(QCoreApplication.translate("MainWindow", u"Loss Log Dump Frequency (epochs)", None))
         self.label_40.setText(QCoreApplication.translate("MainWindow", u"Review Graph Sample Rate", None))
         self.label_44.setText(QCoreApplication.translate("MainWindow", u"Training Update Rate (Iters)", None))
     # retranslateUi

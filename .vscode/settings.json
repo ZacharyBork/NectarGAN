@@ -1,4 +1,3 @@
 {
-  "python.analysis.extraPaths": ["./"],
-  "python.defaultInterpreterPath": "<your-env-path>/bin/python"
+  "python.analysis.extraPaths": ["./"]
 }
