@@ -1732,12 +1732,49 @@ class Ui_MainWindow(object):
         self.label_87 = QLabel(self.frame_75)
         self.label_87.setObjectName(u"label_87")
 
-        self.formLayout_22.setWidget(0, QFormLayout.ItemRole.LabelRole, self.label_87)
+        self.formLayout_22.setWidget(3, QFormLayout.ItemRole.LabelRole, self.label_87)
 
-        self.upsample_block_type = QComboBox(self.frame_75)
-        self.upsample_block_type.setObjectName(u"upsample_block_type")
+        self.gen_upsample_type = QComboBox(self.frame_75)
+        self.gen_upsample_type.setObjectName(u"gen_upsample_type")
 
-        self.formLayout_22.setWidget(0, QFormLayout.ItemRole.FieldRole, self.upsample_block_type)
+        self.formLayout_22.setWidget(3, QFormLayout.ItemRole.FieldRole, self.gen_upsample_type)
+
+        self.label_124 = QLabel(self.frame_75)
+        self.label_124.setObjectName(u"label_124")
+
+        self.formLayout_22.setWidget(0, QFormLayout.ItemRole.LabelRole, self.label_124)
+
+        self.gen_features = QSpinBox(self.frame_75)
+        self.gen_features.setObjectName(u"gen_features")
+        self.gen_features.setMinimum(16)
+        self.gen_features.setMaximum(512)
+        self.gen_features.setSingleStep(16)
+        self.gen_features.setValue(64)
+
+        self.formLayout_22.setWidget(0, QFormLayout.ItemRole.FieldRole, self.gen_features)
+
+        self.label_125 = QLabel(self.frame_75)
+        self.label_125.setObjectName(u"label_125")
+
+        self.formLayout_22.setWidget(1, QFormLayout.ItemRole.LabelRole, self.label_125)
+
+        self.gen_n_downs = QSpinBox(self.frame_75)
+        self.gen_n_downs.setObjectName(u"gen_n_downs")
+        self.gen_n_downs.setMinimum(1)
+        self.gen_n_downs.setMaximum(7)
+        self.gen_n_downs.setValue(6)
+
+        self.formLayout_22.setWidget(1, QFormLayout.ItemRole.FieldRole, self.gen_n_downs)
+
+        self.label_126 = QLabel(self.frame_75)
+        self.label_126.setObjectName(u"label_126")
+
+        self.formLayout_22.setWidget(2, QFormLayout.ItemRole.LabelRole, self.label_126)
+
+        self.gen_block_type = QComboBox(self.frame_75)
+        self.gen_block_type.setObjectName(u"gen_block_type")
+
+        self.formLayout_22.setWidget(2, QFormLayout.ItemRole.FieldRole, self.gen_block_type)
 
 
         self.verticalLayout_11.addWidget(self.frame_75)
@@ -1930,7 +1967,7 @@ class Ui_MainWindow(object):
         self.scrollArea_2.setWidgetResizable(True)
         self.dataloader_settings_container = QWidget()
         self.dataloader_settings_container.setObjectName(u"dataloader_settings_container")
-        self.dataloader_settings_container.setGeometry(QRect(0, 0, 419, 861))
+        self.dataloader_settings_container.setGeometry(QRect(0, 0, 437, 861))
         self.verticalLayout_10 = QVBoxLayout(self.dataloader_settings_container)
         self.verticalLayout_10.setObjectName(u"verticalLayout_10")
         self.verticalLayout_10.setContentsMargins(0, 0, 0, 0)
@@ -2042,21 +2079,15 @@ class Ui_MainWindow(object):
         self.formLayout_5 = QFormLayout(self.frame_18)
         self.formLayout_5.setObjectName(u"formLayout_5")
         self.formLayout_5.setContentsMargins(0, 0, 0, 0)
+        self.crop_size = QComboBox(self.frame_18)
+        self.crop_size.setObjectName(u"crop_size")
+
+        self.formLayout_5.setWidget(0, QFormLayout.ItemRole.FieldRole, self.crop_size)
+
         self.label_11 = QLabel(self.frame_18)
         self.label_11.setObjectName(u"label_11")
 
         self.formLayout_5.setWidget(0, QFormLayout.ItemRole.LabelRole, self.label_11)
-
-        self.crop_size = QSpinBox(self.frame_18)
-        self.crop_size.setObjectName(u"crop_size")
-        sizePolicy5.setHeightForWidth(self.crop_size.sizePolicy().hasHeightForWidth())
-        self.crop_size.setSizePolicy(sizePolicy5)
-        self.crop_size.setMinimum(64)
-        self.crop_size.setMaximum(1024)
-        self.crop_size.setSingleStep(64)
-        self.crop_size.setValue(256)
-
-        self.formLayout_5.setWidget(0, QFormLayout.ItemRole.FieldRole, self.crop_size)
 
 
         self.horizontalLayout_9.addWidget(self.frame_18)
@@ -4886,7 +4917,7 @@ class Ui_MainWindow(object):
         self.scrollArea_13.setWidgetResizable(True)
         self.setting_settings_container = QWidget()
         self.setting_settings_container.setObjectName(u"setting_settings_container")
-        self.setting_settings_container.setGeometry(QRect(0, 0, 360, 221))
+        self.setting_settings_container.setGeometry(QRect(0, 0, 419, 861))
         self.verticalLayout_50 = QVBoxLayout(self.setting_settings_container)
         self.verticalLayout_50.setObjectName(u"verticalLayout_50")
         self.verticalLayout_50.setContentsMargins(0, 0, 0, 0)
@@ -5020,7 +5051,7 @@ class Ui_MainWindow(object):
         self.retranslateUi(MainWindow)
 
         self.centralwidget_pages.setCurrentIndex(1)
-        self.settings_pages.setCurrentIndex(2)
+        self.settings_pages.setCurrentIndex(0)
         self.direction.setCurrentIndex(-1)
         self.tabWidget_2.setCurrentIndex(0)
         self.pair_images_scale.setCurrentIndex(-1)
@@ -5159,7 +5190,13 @@ class Ui_MainWindow(object):
         self.label_3.setText(QCoreApplication.translate("MainWindow", u"Experiment Name", None))
         self.label_4.setText(QCoreApplication.translate("MainWindow", u"Version", None))
         self.label_105.setText(QCoreApplication.translate("MainWindow", u"Generator Architecture", None))
-        self.label_87.setText(QCoreApplication.translate("MainWindow", u"Upsampling Block Type", None))
+        self.label_87.setText(QCoreApplication.translate("MainWindow", u"Upsample Type", None))
+#if QT_CONFIG(tooltip)
+        self.label_124.setToolTip(QCoreApplication.translate("MainWindow", u"Number of features on the first conv layer.", None))
+#endif // QT_CONFIG(tooltip)
+        self.label_124.setText(QCoreApplication.translate("MainWindow", u"Features", None))
+        self.label_125.setText(QCoreApplication.translate("MainWindow", u"Down Layers", None))
+        self.label_126.setText(QCoreApplication.translate("MainWindow", u"Block Type", None))
         self.label_103.setText(QCoreApplication.translate("MainWindow", u"Discriminator Architecture", None))
         self.label_84.setText(QCoreApplication.translate("MainWindow", u"Layer Count", None))
         self.label_85.setText(QCoreApplication.translate("MainWindow", u"Base Channels", None))

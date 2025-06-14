@@ -39,7 +39,10 @@
                 "load_epoch": 1
             },
             "generator": {
-                "upsample_block_type": "Transpose",
+                "features": 64,
+                "n_downs": 6,
+                "block_type": "UnetBlock",
+                "upsample_type": "Transposed",
                 "learning_rate" : {
                     "epochs": 100,
                     "epochs_decay": 100,

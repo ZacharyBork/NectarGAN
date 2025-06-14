@@ -62,7 +62,10 @@ class ConfigOptimizer:
 
 @dataclass
 class ConfigGenerator:
-    upsample_block_type: str
+    features: int
+    n_downs: int
+    block_type: str
+    upsample_type: str
     learning_rate: ConfigLearningRate
     optimizer: ConfigOptimizer
     

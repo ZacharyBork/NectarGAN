@@ -318,27 +318,22 @@ class TrainerHelper(QObject):
         '''
         success = self._preflight_check()
         if not success: return
-        self.settings_dock.set_state('training')
-
-        self._set_ui_state(state='train_start') # First, init the UI state
-        self.find(QStackedWidget, 'train_page_state_swap').setCurrentIndex(1)
-
-        self.last_epoch = 0               # Then reset both of our progress
+        self.last_epoch = 0               # Reset both progress
         self.current_epoch_progress = 0.0 # tracking variables
-
-        self._init_timers() # Create new timers for this train
-        self._init_graphs() # And delete all previous graph data
+        
 
         # Build JSON-like config data from UI settings
         self.confighelper._build_launch_config() 
         
         # Start thread, create worker, move worker to new thread
         self.train_thread = QThread() 
-        self.worker = TrainerWorker(
-            config=self.confighelper.config,
-            log_losses=self.find(QCheckBox, 'log_losses').isChecked(),
-            loss_dump_frequency=self.find(
-                QSpinBox, 'loss_dump_frequency').value())
+        try:
+            self.worker = TrainerWorker(
+                config=self.confighelper.config,
+                log_losses=self.find(QCheckBox, 'log_losses').isChecked(),
+                loss_dump_frequency=self.find(
+                    QSpinBox, 'loss_dump_frequency').value())
+        except ValueError as e: return self._warn(str(e))
         self.worker.moveToThread(self.train_thread)
 
         self.safe_cleanup.connect(self.stop_train) # Hook up helper signals
@@ -349,9 +344,18 @@ class TrainerHelper(QObject):
         # deletelater on train_thread when train finishes
         self.train_thread.finished.connect(self.train_thread.deleteLater)
         self.train_thread.start()   # Spin up train thread
+
+        self.settings_dock.set_state('training')
+
+        self._set_ui_state(state='train_start')
+        self.find(QStackedWidget, 'train_page_state_swap').setCurrentIndex(1)
+
+        self._init_timers() # Create new timers for this train
+        self._init_graphs() # And delete all previous graph data
         self.epoch_timer.set_time() # Start epoch timer
         self.iter_timer.set_time()  # Start iteration timer
         self.train_timer.set_time() # Start train timer
+        
 
     def _cleanup(self) -> None:
         '''Cleanup when training is finished.'''

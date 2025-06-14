@@ -59,9 +59,14 @@ class Interface(QObject):
         self.find(QComboBox, 'direction').addItems(['AtoB', 'BtoA'])
         self.find( QPushButton, 'reload_stylesheet'
             ).clicked.connect(self._set_stylesheet)
-        self.find(QComboBox, 'upsample_block_type').addItems(
-            ['Transposed Convolution', 'Upsample+Convolution'])
-
+        self.find(QComboBox, 'gen_block_type').addItems(
+            ['UnetBlock', 'ResidualUnetBlock'])
+        self.find(QComboBox, 'gen_upsample_type').addItems(
+            ['Transposed', 'Bilinear'])
+        crop_size = self.find(QComboBox, 'crop_size')
+        crop_size.addItems(['16', '32', '64', '128', '256', '512', '1024'])
+        crop_size.setCurrentIndex(4)
+        
         # REVIEW
 
         self.find(QPushButton, 'review_load_experiment').clicked.connect(

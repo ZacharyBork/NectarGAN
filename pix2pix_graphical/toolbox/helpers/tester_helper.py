@@ -111,8 +111,6 @@ class TesterHelper(QObject):
         for i in reversed(range(self.image_layout.count())): 
             self.image_layout.itemAt(i).widget().setParent(None) 
 
-        ### WARNING LABEL ###
-
     ### WARNING LABEL ###
 
     def _show_warning_label(self, val: int) -> None:

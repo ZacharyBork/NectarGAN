@@ -3476,7 +3476,7 @@
            <item>
             <widget class="QStackedWidget" name="settings_pages">
              <property name="currentIndex">
-              <number>2</number>
+              <number>0</number>
              </property>
              <widget class="QWidget" name="experiment_page">
               <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -3758,15 +3758,71 @@
                       <property name="bottomMargin">
                        <number>0</number>
                       </property>
-                      <item row="0" column="0">
+                      <item row="3" column="0">
                        <widget class="QLabel" name="label_87">
                         <property name="text">
-                         <string>Upsampling Block Type</string>
+                         <string>Upsample Type</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="3" column="1">
+                       <widget class="QComboBox" name="gen_upsample_type"/>
+                      </item>
+                      <item row="0" column="0">
+                       <widget class="QLabel" name="label_124">
+                        <property name="toolTip">
+                         <string>Number of features on the first conv layer.</string>
+                        </property>
+                        <property name="text">
+                         <string>Features</string>
                         </property>
                        </widget>
                       </item>
                       <item row="0" column="1">
-                       <widget class="QComboBox" name="upsample_block_type"/>
+                       <widget class="QSpinBox" name="gen_features">
+                        <property name="minimum">
+                         <number>16</number>
+                        </property>
+                        <property name="maximum">
+                         <number>512</number>
+                        </property>
+                        <property name="singleStep">
+                         <number>16</number>
+                        </property>
+                        <property name="value">
+                         <number>64</number>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="1" column="0">
+                       <widget class="QLabel" name="label_125">
+                        <property name="text">
+                         <string>Down Layers</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="1" column="1">
+                       <widget class="QSpinBox" name="gen_n_downs">
+                        <property name="minimum">
+                         <number>1</number>
+                        </property>
+                        <property name="maximum">
+                         <number>7</number>
+                        </property>
+                        <property name="value">
+                         <number>6</number>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="2" column="0">
+                       <widget class="QLabel" name="label_126">
+                        <property name="text">
+                         <string>Block Type</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="2" column="1">
+                       <widget class="QComboBox" name="gen_block_type"/>
                       </item>
                      </layout>
                     </widget>
@@ -4159,7 +4215,7 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>419</width>
+                    <width>437</width>
                     <height>861</height>
                    </rect>
                   </property>
@@ -4396,32 +4452,13 @@
                          <property name="bottomMargin">
                           <number>0</number>
                          </property>
+                         <item row="0" column="1">
+                          <widget class="QComboBox" name="crop_size"/>
+                         </item>
                          <item row="0" column="0">
                           <widget class="QLabel" name="label_11">
                            <property name="text">
                             <string>Crop Size</string>
-                           </property>
-                          </widget>
-                         </item>
-                         <item row="0" column="1">
-                          <widget class="QSpinBox" name="crop_size">
-                           <property name="sizePolicy">
-                            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                             <horstretch>0</horstretch>
-                             <verstretch>0</verstretch>
-                            </sizepolicy>
-                           </property>
-                           <property name="minimum">
-                            <number>64</number>
-                           </property>
-                           <property name="maximum">
-                            <number>1024</number>
-                           </property>
-                           <property name="singleStep">
-                            <number>64</number>
-                           </property>
-                           <property name="value">
-                            <number>256</number>
                            </property>
                           </widget>
                          </item>
@@ -9729,8 +9766,8 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>360</width>
-                    <height>221</height>
+                    <width>419</width>
+                    <height>861</height>
                    </rect>
                   </property>
                   <layout class="QVBoxLayout" name="verticalLayout_50">

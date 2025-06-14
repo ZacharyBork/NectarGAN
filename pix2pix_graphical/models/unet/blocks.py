@@ -23,7 +23,7 @@ class UnetBlock(nn.Module):
                     bias=bias, padding_mode='reflect'))
         else:
             match upconv_type:
-                case 'Transpose':
+                case 'Transposed':
                     modules.append(nn.ConvTranspose2d(
                         in_channels, out_channels, 
                         kernel_size=4, stride=2, padding=1, bias=bias))

@@ -19,13 +19,10 @@ Input: [1, 3, 512, 512] (512^2 RGB)                     Output:  [1, 3, 512, 512
                         ↓                                 ↑ 
 [1, 512, 8, 8] -----> down6 -----> [1, 512, 4, 4] -----> up2 -------> [1, 512, 8, 8]
                         ↓                                 ↑
-                        ↓     ← ← ← extra layers → → →    ↑
-                        ↓                                 ↑
 [1, 512, 4, 4] ---> bottleneck --> [1, 512, 2, 2] → → → → up1 -> [1, 512, 4, 4]
 '''
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 import torch.nn.init as init
 
 from pix2pix_graphical.models.unet.blocks import UnetBlock, ResidualUnetBlock
@@ -38,19 +35,20 @@ class UnetGenerator(nn.Module):
             input_size: int, 
             in_channels: int=3, 
             features: int=64, 
-            extra_layers: int=0, 
+            n_downs: int=6, 
             use_dropout_layers: int=3, 
-            block_type=UnetBlock, 
-            upconv_type: str='Transpose'
+            block_type='UnetBlock', 
+            upconv_type: str='Transposed'
         ) -> None:
         super().__init__()
         self.input_size = input_size
         self.in_channels = in_channels
         self.features = features
-        self.extra_layers = extra_layers
         self.use_dropout_layers = use_dropout_layers
-        self.n_down = 6
-        self.block_type = block_type
+        self.n_down = n_downs
+        match block_type:
+            case 'UnetBlock': self.block_type = UnetBlock
+            case 'ResidualUnetBlock': self.block_type = ResidualUnetBlock
         self.upconv_type = upconv_type
 
         self.build_model() # Initialize generator model
@@ -74,7 +72,7 @@ class UnetGenerator(nn.Module):
         
         # Define min resolution based on number of downsampling layers
         # +1 for initial_down, +1 for bottleneck
-        min_size = 2 ** (self.extra_layers + self.n_down + 2)  
+        min_size = 2 ** (self.n_down + 2)  
 
         # Check tensor shape against min resolution
         if any(s < min_size for s in shape[-2:]):
@@ -90,11 +88,6 @@ class UnetGenerator(nn.Module):
             in_features = min(out_features, self.features*8)
             out_features = min(out_features*2, self.features*8)
             down_channels.append((in_features, out_features))
-
-        # Create extra layer IO shapes and add to down channels list
-        extra_layers = [(self.features*8, self.features*8) 
-            for _ in range(self.extra_layers)]
-        down_channels = down_channels[:self.n_down+1] + extra_layers
 
         # Create layer IO shapes skip channels
         skip_channels = list(reversed(
