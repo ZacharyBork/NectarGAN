@@ -116,6 +116,7 @@ class ReviewPanel():
     ### GRAPH LOSSES ###
 
     def _graph_losses(self, loss_log: Path) -> None:
+        if not loss_log.exists(): return
         with open(loss_log.as_posix(), 'r') as file:
             log_data = json.loads(file.read())
         losses = log_data['LOSSMANAGER_LOG']['loss_functions']
@@ -156,6 +157,7 @@ class ReviewPanel():
         self.select_config.setCurrentIndex(len(self.config_files)-1)
 
     def load_train_config(self) -> None:
+        if len(self.config_files) == 0: return
         index = self.select_config.currentIndex()
         config_file = self.config_files[index]
         with open(config_file.as_posix(), 'r') as file:

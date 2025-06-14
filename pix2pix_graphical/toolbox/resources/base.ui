@@ -99,7 +99,7 @@
        <item>
         <widget class="QStackedWidget" name="centralwidget_pages">
          <property name="currentIndex">
-          <number>3</number>
+          <number>1</number>
          </property>
          <widget class="QWidget" name="central_train_page">
           <layout class="QVBoxLayout" name="verticalLayout_25">
@@ -3476,7 +3476,7 @@
            <item>
             <widget class="QStackedWidget" name="settings_pages">
              <property name="currentIndex">
-              <number>5</number>
+              <number>2</number>
              </property>
              <widget class="QWidget" name="experiment_page">
               <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -3508,8 +3508,8 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>310</width>
-                    <height>318</height>
+                    <width>419</width>
+                    <height>824</height>
                    </rect>
                   </property>
                   <layout class="QVBoxLayout" name="verticalLayout_11">
@@ -4160,7 +4160,7 @@
                     <x>0</x>
                     <y>0</y>
                     <width>419</width>
-                    <height>521</height>
+                    <height>861</height>
                    </rect>
                   </property>
                   <layout class="QVBoxLayout" name="verticalLayout_10">
@@ -5202,8 +5202,8 @@
                        <rect>
                         <x>0</x>
                         <y>0</y>
-                        <width>302</width>
-                        <height>145</height>
+                        <width>419</width>
+                        <height>754</height>
                        </rect>
                       </property>
                       <layout class="QVBoxLayout" name="verticalLayout_20">
@@ -5456,8 +5456,8 @@
                                   <rect>
                                    <x>0</x>
                                    <y>0</y>
-                                   <width>191</width>
-                                   <height>273</height>
+                                   <width>409</width>
+                                   <height>652</height>
                                   </rect>
                                  </property>
                                  <layout class="QVBoxLayout" name="verticalLayout_15">
@@ -5914,8 +5914,8 @@
                                   <rect>
                                    <x>0</x>
                                    <y>0</y>
-                                   <width>233</width>
-                                   <height>307</height>
+                                   <width>409</width>
+                                   <height>652</height>
                                   </rect>
                                  </property>
                                  <layout class="QVBoxLayout" name="verticalLayout_36">
@@ -6442,8 +6442,8 @@
                                   <rect>
                                    <x>0</x>
                                    <y>0</y>
-                                   <width>174</width>
-                                   <height>154</height>
+                                   <width>409</width>
+                                   <height>652</height>
                                   </rect>
                                  </property>
                                  <layout class="QVBoxLayout" name="verticalLayout_16">
@@ -6665,8 +6665,8 @@
                                   <rect>
                                    <x>0</x>
                                    <y>0</y>
-                                   <width>187</width>
-                                   <height>177</height>
+                                   <width>409</width>
+                                   <height>652</height>
                                   </rect>
                                  </property>
                                  <layout class="QVBoxLayout" name="verticalLayout_18">
@@ -7003,8 +7003,8 @@
                                   <rect>
                                    <x>0</x>
                                    <y>0</y>
-                                   <width>219</width>
-                                   <height>170</height>
+                                   <width>409</width>
+                                   <height>652</height>
                                   </rect>
                                  </property>
                                  <layout class="QVBoxLayout" name="verticalLayout_21">
@@ -7191,6 +7191,16 @@
                             </widget>
                            </widget>
                           </item>
+                          <item>
+                           <widget class="QLabel" name="training_warning_label">
+                            <property name="text">
+                             <string>_training_warning_label_</string>
+                            </property>
+                            <property name="alignment">
+                             <set>Qt::AlignCenter</set>
+                            </property>
+                           </widget>
+                          </item>
                          </layout>
                         </widget>
                        </item>
@@ -7344,8 +7354,8 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>289</width>
-                    <height>252</height>
+                    <width>419</width>
+                    <height>768</height>
                    </rect>
                   </property>
                   <layout class="QVBoxLayout" name="verticalLayout_44">
@@ -7385,6 +7395,103 @@
                       <property name="bottomMargin">
                        <number>3</number>
                       </property>
+                      <item>
+                       <widget class="QFrame" name="frame_80">
+                        <property name="frameShape">
+                         <enum>QFrame::StyledPanel</enum>
+                        </property>
+                        <property name="frameShadow">
+                         <enum>QFrame::Raised</enum>
+                        </property>
+                        <layout class="QHBoxLayout" name="horizontalLayout_69">
+                         <property name="leftMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="topMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="rightMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="bottomMargin">
+                          <number>0</number>
+                         </property>
+                         <item>
+                          <widget class="QLabel" name="label_123">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="font">
+                            <font>
+                             <pointsize>14</pointsize>
+                            </font>
+                           </property>
+                           <property name="text">
+                            <string>Experiment</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item>
+                          <widget class="Line" name="line_23">
+                           <property name="frameShadow">
+                            <enum>QFrame::Raised</enum>
+                           </property>
+                           <property name="orientation">
+                            <enum>Qt::Horizontal</enum>
+                           </property>
+                          </widget>
+                         </item>
+                        </layout>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QFrame" name="test_experiment_path_frame">
+                        <property name="frameShape">
+                         <enum>QFrame::StyledPanel</enum>
+                        </property>
+                        <property name="frameShadow">
+                         <enum>QFrame::Raised</enum>
+                        </property>
+                        <layout class="QVBoxLayout" name="verticalLayout_24">
+                         <property name="leftMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="topMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="rightMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="bottomMargin">
+                          <number>0</number>
+                         </property>
+                         <item>
+                          <layout class="QHBoxLayout" name="horizontalLayout_39">
+                           <property name="spacing">
+                            <number>6</number>
+                           </property>
+                           <item>
+                            <widget class="QLineEdit" name="test_experiment_path">
+                             <property name="placeholderText">
+                              <string>Enter experiment directory path...</string>
+                             </property>
+                            </widget>
+                           </item>
+                           <item>
+                            <widget class="QPushButton" name="test_browse_experiment">
+                             <property name="text">
+                              <string>Browse</string>
+                             </property>
+                            </widget>
+                           </item>
+                          </layout>
+                         </item>
+                        </layout>
+                       </widget>
+                      </item>
                       <item>
                        <widget class="QFrame" name="frame_82">
                         <property name="frameShape">
@@ -7548,103 +7655,6 @@
                        </widget>
                       </item>
                       <item>
-                       <widget class="QFrame" name="frame_80">
-                        <property name="frameShape">
-                         <enum>QFrame::StyledPanel</enum>
-                        </property>
-                        <property name="frameShadow">
-                         <enum>QFrame::Raised</enum>
-                        </property>
-                        <layout class="QHBoxLayout" name="horizontalLayout_69">
-                         <property name="leftMargin">
-                          <number>0</number>
-                         </property>
-                         <property name="topMargin">
-                          <number>0</number>
-                         </property>
-                         <property name="rightMargin">
-                          <number>0</number>
-                         </property>
-                         <property name="bottomMargin">
-                          <number>0</number>
-                         </property>
-                         <item>
-                          <widget class="QCheckBox" name="test_override_experiment">
-                           <property name="sizePolicy">
-                            <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-                             <horstretch>0</horstretch>
-                             <verstretch>0</verstretch>
-                            </sizepolicy>
-                           </property>
-                           <property name="font">
-                            <font>
-                             <pointsize>14</pointsize>
-                            </font>
-                           </property>
-                           <property name="text">
-                            <string>Override Experiment</string>
-                           </property>
-                          </widget>
-                         </item>
-                         <item>
-                          <widget class="Line" name="line_23">
-                           <property name="frameShadow">
-                            <enum>QFrame::Raised</enum>
-                           </property>
-                           <property name="orientation">
-                            <enum>Qt::Horizontal</enum>
-                           </property>
-                          </widget>
-                         </item>
-                        </layout>
-                       </widget>
-                      </item>
-                      <item>
-                       <widget class="QFrame" name="test_experiment_path_frame">
-                        <property name="frameShape">
-                         <enum>QFrame::StyledPanel</enum>
-                        </property>
-                        <property name="frameShadow">
-                         <enum>QFrame::Raised</enum>
-                        </property>
-                        <layout class="QVBoxLayout" name="verticalLayout_24">
-                         <property name="leftMargin">
-                          <number>0</number>
-                         </property>
-                         <property name="topMargin">
-                          <number>0</number>
-                         </property>
-                         <property name="rightMargin">
-                          <number>0</number>
-                         </property>
-                         <property name="bottomMargin">
-                          <number>0</number>
-                         </property>
-                         <item>
-                          <layout class="QHBoxLayout" name="horizontalLayout_39">
-                           <property name="spacing">
-                            <number>6</number>
-                           </property>
-                           <item>
-                            <widget class="QLineEdit" name="test_experiment_path">
-                             <property name="placeholderText">
-                              <string>Enter experiment directory path...</string>
-                             </property>
-                            </widget>
-                           </item>
-                           <item>
-                            <widget class="QPushButton" name="test_browse_experiment">
-                             <property name="text">
-                              <string>Browse</string>
-                             </property>
-                            </widget>
-                           </item>
-                          </layout>
-                         </item>
-                        </layout>
-                       </widget>
-                      </item>
-                      <item>
                        <widget class="QFrame" name="frame_81">
                         <property name="frameShape">
                          <enum>QFrame::StyledPanel</enum>
@@ -7759,6 +7769,16 @@
                    </item>
                   </layout>
                  </widget>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLabel" name="test_warning_label">
+                 <property name="text">
+                  <string>_test_warning_label_</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignCenter</set>
+                 </property>
                 </widget>
                </item>
                <item>

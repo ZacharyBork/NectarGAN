@@ -2,7 +2,7 @@ import json
 import pathlib
 from typing import Any
 
-from PySide6.QtCore import QObject, QThread, QSize
+from PySide6.QtCore import QObject, QThread, QSize, QVariantAnimation
 from PySide6.QtGui import QPixmap, QImage
 from PySide6.QtWidgets import (
     QWidget, QFrame, QLabel, QHBoxLayout, QVBoxLayout, QCheckBox, QLineEdit,
@@ -32,10 +32,15 @@ class TesterHelper(QObject):
         self.worker: TesterWorker | None = None
 
         self.results_dir: pathlib.Path | None = None
+        self.results: dict[str, Any] | None = None
         self.previous_tests: dict[str, pathlib.Path] = {}
         
         self.image_layout = self.find(QVBoxLayout, 'test_image_layout')
         self.image_labels = { 'A_real': [], 'B_fake': [], 'B_real': [] }
+        self.warning_label = self.find(QLabel, 'test_warning_label')
+        self.warning_label.setHidden(True)
+        self.warning_anim: QVariantAnimation | None = None
+        self._init_warning_animation()
         self.find(QLabel, 'test_progress_label').setHidden(True)
         self.find(QComboBox, 'previous_tests').activated.connect(
             self._load_test_from_dropdown)
@@ -106,6 +111,29 @@ class TesterHelper(QObject):
         for i in reversed(range(self.image_layout.count())): 
             self.image_layout.itemAt(i).widget().setParent(None) 
 
+        ### WARNING LABEL ###
+
+    ### WARNING LABEL ###
+
+    def _show_warning_label(self, val: int) -> None:
+        show = not val > 0
+        self.warning_label.setHidden(show)
+
+    def _init_warning_animation(self) -> None:
+        if not self.warning_anim is None: 
+            self.warning_anim.deleteLater()
+        self.warning_anim = QVariantAnimation()
+        self.warning_anim.setStartValue(10000)
+        self.warning_anim.setEndValue(0)
+        self.warning_anim.setDuration(3000)
+        self.warning_anim.valueChanged.connect(
+            lambda x : self.warning_label.setHidden(not x > 0))
+
+    def _warn(self, warning: str) -> None:
+        self._init_warning_animation()
+        self.warning_label.setText(warning)
+        self.warning_anim.start()
+
     ### CALLBACKS ###
 
     def change_image_scale(self) -> None:
@@ -170,6 +198,7 @@ class TesterHelper(QObject):
         return frame
     
     def _parse_test_log(self) -> None:
+        if self.results_dir is None: return
         log = pathlib.Path(self.results_dir, 'log.json')
         try: 
             with open(log.as_posix(), 'r') as file:
@@ -184,6 +213,7 @@ class TesterHelper(QObject):
         self._clear_cached_image_labels()
         self._clear_image_layout()
         self._parse_test_log()
+        if self.results is None: return
 
         for result in self.results:
             layout = self.build_results_container()
@@ -218,31 +248,47 @@ class TesterHelper(QObject):
 
     ### HANDLE UI OPTIONS ###
 
-    def _build_worker(self) -> None:
-        experiment_dir = None
-        dataroot = None
-        if self.find(QCheckBox, 'test_override_experiment').isChecked():
-            experiment_dir = pathlib.Path(self.find(
-                QLineEdit, 'test_experiment_path').text())
+    def _build_worker(self) -> bool:
+        exp_dir_path = self.find(QLineEdit, 'test_experiment_path').text()
+        experiment_dir = pathlib.Path(exp_dir_path)
+        if exp_dir_path == '' or not experiment_dir.exists(): 
+            self._warn('Please enter a valid experiment directory path.')
+            return False
 
+        dataroot = None
         if self.find(QCheckBox, 'test_override_dataset').isChecked():
-            dataroot = pathlib.Path(self.find(
-                QLineEdit, 'test_dataset_path').text())
+            dataroot_path = self.find(QLineEdit, 'test_dataset_path').text()
+            dataroot = pathlib.Path(dataroot_path)
+            if dataroot_path == '' or not dataroot.exists(): 
+                self._warn('Please enter a valid dataset directory path.')
+                return False
+        elif self.find(QLineEdit, 'dataroot').text() == '':
+            message = (
+                f'Dataset root is empty and no override selected.\n'
+                f'Please select a dataset to continue.')
+            self._warn(message)
+            return False
         
         load_epoch = self.find(QSpinBox, 'test_load_epoch').value()
+        pth = pathlib.Path(experiment_dir, f'epoch{load_epoch}_netG.pth.tar')
+        if not pth.exists(): 
+            self._warn(f'Unable to locate checkpoint file:\n{pth.as_posix()}')
+            return False
+
         self.image_count = self.find(QSpinBox, 'test_iterations').value()
-        
         self.confighelper._build_launch_config() 
         self.worker = TesterWorker(
             config=self.confighelper.config, image_count=self.image_count,
             experiment_dir=experiment_dir, dataroot=dataroot,
             load_epoch=load_epoch)
+        return True
 
     ### START TEST ###
 
     def start_test(self) -> None:
-        self._build_worker()
-        
+        success = self._build_worker()
+        if not success: return
+
         self.find(QPushButton, 'test_start').setHidden(True)
         self._clear_cached_image_labels()
         self._clear_image_layout() 

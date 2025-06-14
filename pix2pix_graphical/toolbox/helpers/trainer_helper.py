@@ -1,12 +1,13 @@
 from typing import Literal
+from pathlib import Path
 
 import numpy as np
 from torch import Tensor
 
-from PySide6.QtCore import QObject, QThread, Signal
+from PySide6.QtCore import QObject, QThread, Signal, QVariantAnimation
 from PySide6.QtGui import QImage, QPixmap
 from PySide6.QtWidgets import (
-    QWidget, QLCDNumber, QFrame, QPushButton, QSpinBox,
+    QWidget, QLCDNumber, QFrame, QPushButton, QSpinBox, QLineEdit,
     QStatusBar, QCheckBox, QProgressBar, QLabel, QStackedWidget)
 
 from pix2pix_graphical.toolbox.helpers.config_helper import ConfigHelper
@@ -15,6 +16,7 @@ from pix2pix_graphical.toolbox.widgets.graph import Graph
 from pix2pix_graphical.toolbox.widgets.imagelabel import ImageLabel
 from pix2pix_graphical.toolbox.utils.signal_timer import SignalTimer
 from pix2pix_graphical.toolbox.workers.pix2pix_trainerworker import TrainerWorker
+from pix2pix_graphical.toolbox.components.settings_dock import SettingsDock
   
 class TrainerHelper(QObject):
     ### SIGNALS ###
@@ -24,14 +26,16 @@ class TrainerHelper(QObject):
             self, 
             mainwidget: QWidget,
             confighelper: ConfigHelper,
+            settings_dock: SettingsDock,
             log: OutputLog,
             status_msg_length: int=2000
         ) -> None:
         super().__init__()
         self.mainwidget = mainwidget
         self.find = self.mainwidget.findChild
-        
+
         self.confighelper = confighelper
+        self.settings_dock = settings_dock
         self.log = log
         self.status_msg_length = status_msg_length
 
@@ -45,6 +49,10 @@ class TrainerHelper(QObject):
         self.train_timer = SignalTimer()
 
         self._get_widgets()
+        self.warning_label = self.find(QLabel, 'training_warning_label')
+        self.warning_label.setHidden(True)
+        self.warning_anim: QVariantAnimation | None = None
+        self._init_warning_animation()
 
     ### INIT HELPERS ###
 
@@ -64,6 +72,27 @@ class TrainerHelper(QObject):
         self.train_start_btn = self.find(QPushButton, 'train_start')
         self.train_stop_btn = self.find(QPushButton, 'train_stop')
         self.train_pause_btn = self.find(QPushButton, 'train_pause')
+
+    ### WARNING LABEL ###
+
+    def _show_warning_label(self, val: int) -> None:
+        show = not val > 0
+        self.warning_label.setHidden(show)
+
+    def _init_warning_animation(self) -> None:
+        if not self.warning_anim is None: 
+            self.warning_anim.deleteLater()
+        self.warning_anim = QVariantAnimation()
+        self.warning_anim.setStartValue(10000)
+        self.warning_anim.setEndValue(0)
+        self.warning_anim.setDuration(3000)
+        self.warning_anim.valueChanged.connect(
+            lambda x : self.warning_label.setHidden(not x > 0))
+
+    def _warn(self, warning: str) -> None:
+        self._init_warning_animation()
+        self.warning_label.setText(warning)
+        self.warning_anim.start()
 
     ### SEND SIGNALS ###
 
@@ -259,9 +288,38 @@ class TrainerHelper(QObject):
         w.finished.connect(self.safe_cleanup.emit)  # Also request safe cleanup
         w.cancelled.connect(self.safe_cleanup.emit) # for both signals.
 
+    def _preflight_check(self) -> bool:
+        output_directory = self.find(QLineEdit, 'output_directory').text()
+        if not output_directory == '':
+            output_directory = Path(output_directory)
+            if not output_directory.exists():
+                self._warn('Please enter a valid Output Root to continue.')
+                return False
+        else: 
+            self._warn('Please enter a valid Output Root to continue.')
+            return False
+        experiment_name = self.find(QLineEdit, 'experiment_name').text() 
+        if experiment_name == '':
+            self._warn('Please enter a valid Experiment Name to continue.')
+            return False
+        dataroot = self.find(QLineEdit, 'dataroot').text()
+        if not dataroot == '':
+            dataroot = Path(dataroot)
+            if not dataroot.exists():
+                self._warn('Please enter a valid Dataset Root to continue.')
+                return False
+        else: 
+            self._warn('Please enter a valid Dataset Root to continue.') 
+            return False 
+        return True
+
     def start_train(self) -> None:
         '''Creates a QThread and starts a pix2pix training loop inside of it. 
         '''
+        success = self._preflight_check()
+        if not success: return
+        self.settings_dock.set_state('training')
+
         self._set_ui_state(state='train_start') # First, init the UI state
         self.find(QStackedWidget, 'train_page_state_swap').setCurrentIndex(1)
 
@@ -298,6 +356,7 @@ class TrainerHelper(QObject):
     def _cleanup(self) -> None:
         '''Cleanup when training is finished.'''
         self._set_ui_state(state='train_end')
+        self.settings_dock.set_state('init')
         self.find( # Reset train settings page
             QStackedWidget, 'train_page_state_swap').setCurrentIndex(0)
         self.statusbar.showMessage(

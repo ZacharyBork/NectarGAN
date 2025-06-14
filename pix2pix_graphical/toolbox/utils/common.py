@@ -2,7 +2,6 @@ from pathlib import Path
 from os import PathLike
 from PIL import Image
 from importlib.resources import files
-from typing import Literal
 
 import cv2
 import numpy as np
@@ -14,6 +13,22 @@ def browse_directory(lineedit: QLineEdit) -> None:
     directory = Path(QFileDialog.getExistingDirectory())
     if directory is None or directory.as_posix() == '.': return
     lineedit.setText(directory.as_posix())
+
+def get_latest_checkpoint_epoch(directory: PathLike) -> int:
+    '''Finds the epoch of the latest G checkpoint in an experiment directory.
+    
+    Args:
+        directory : The experiment directory to search.
+
+    Returns:
+        int : The epoch number of the highest checkpoint file found, or 1 if no
+            checkpoint files are found.
+    '''
+    directory = Path(directory)
+    epochs = [int(i.name.split('_')[0].replace('epoch', '')) 
+        for i in list(directory.glob('*.pth.tar'))]
+    if not directory.exists() or len(epochs) == 0: return 1
+    else: return sorted(epochs)[-1]
 
 def get_icon_file(filename: str) -> PathLike:
     try: 

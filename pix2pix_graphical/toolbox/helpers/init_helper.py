@@ -30,9 +30,9 @@ class InitHelper():
         self.find(QProgressBar, 'train_progress').setValue(0)
         self.find(QProgressBar, 'epoch_progress').setValue(0)
         self.find(QPushButton, 'train_start').clicked.connect(
-            lambda : self.callbacks._start_train(trainerhelper, settings_dock))
+            lambda : trainerhelper.start_train())
         self.find(QPushButton, 'train_stop').clicked.connect(
-            lambda : self.callbacks._stop_train(trainerhelper, settings_dock))
+            lambda : trainerhelper.stop_train())
         self.find(QPushButton, 'train_stop').setHidden(True)
 
         self.find(QPushButton, 'train_pause').setHidden(True)

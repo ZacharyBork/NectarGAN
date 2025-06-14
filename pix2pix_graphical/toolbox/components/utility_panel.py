@@ -16,6 +16,7 @@ from PySide6.QtWidgets import (
 from pix2pix_graphical.toolbox.workers.utility_worker import (
     UtilityWorker, SignalHandler)
 from pix2pix_graphical.onnx.converter import ONNXConverter
+import pix2pix_graphical.toolbox.utils.common as utils
 
 class UtilityPanel():
     def __init__(self, mainwidget: QWidget) -> None:
@@ -42,6 +43,8 @@ class UtilityPanel():
         onnx_opset.setCurrentIndex(5)
         self.find(QPushButton, 'browse_onnx_model_path'
             ).clicked.connect(self._browse_for_onnx_model)
+        self.find(QPushButton, 'convert_onnx_load_latest_epoch'
+            ).clicked.connect(self._onnx_get_latest_epoch)
         
 
         self.find(QComboBox, 'pair_images_direction'
@@ -210,6 +213,11 @@ class UtilityPanel():
             self._warn(no_files_warning)
             return (False, [])
         return (True, files)
+    
+    def _onnx_get_latest_epoch(self) -> None:
+        exp_path = self.find(QLineEdit, 'convert_onnx_experiment').text()
+        latest_epoch = utils.get_latest_checkpoint_epoch(exp_path)
+        self.find(QSpinBox, 'convert_onnx_load_epoch').setValue(latest_epoch)
 
     ### WORKER ###
 

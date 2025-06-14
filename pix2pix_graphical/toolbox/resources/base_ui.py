@@ -1593,7 +1593,7 @@ class Ui_MainWindow(object):
         self.scrollArea.setWidgetResizable(True)
         self.experiment_settings_container = QWidget()
         self.experiment_settings_container.setObjectName(u"experiment_settings_container")
-        self.experiment_settings_container.setGeometry(QRect(0, 0, 310, 318))
+        self.experiment_settings_container.setGeometry(QRect(0, 0, 419, 824))
         self.verticalLayout_11 = QVBoxLayout(self.experiment_settings_container)
         self.verticalLayout_11.setSpacing(6)
         self.verticalLayout_11.setObjectName(u"verticalLayout_11")
@@ -1930,7 +1930,7 @@ class Ui_MainWindow(object):
         self.scrollArea_2.setWidgetResizable(True)
         self.dataloader_settings_container = QWidget()
         self.dataloader_settings_container.setObjectName(u"dataloader_settings_container")
-        self.dataloader_settings_container.setGeometry(QRect(0, 0, 419, 521))
+        self.dataloader_settings_container.setGeometry(QRect(0, 0, 419, 861))
         self.verticalLayout_10 = QVBoxLayout(self.dataloader_settings_container)
         self.verticalLayout_10.setObjectName(u"verticalLayout_10")
         self.verticalLayout_10.setContentsMargins(0, 0, 0, 0)
@@ -2452,7 +2452,7 @@ class Ui_MainWindow(object):
         self.scrollArea_3.setWidgetResizable(True)
         self.training_settings_container_ = QWidget()
         self.training_settings_container_.setObjectName(u"training_settings_container_")
-        self.training_settings_container_.setGeometry(QRect(0, 0, 302, 145))
+        self.training_settings_container_.setGeometry(QRect(0, 0, 419, 754))
         self.verticalLayout_20 = QVBoxLayout(self.training_settings_container_)
         self.verticalLayout_20.setSpacing(0)
         self.verticalLayout_20.setObjectName(u"verticalLayout_20")
@@ -2565,7 +2565,7 @@ class Ui_MainWindow(object):
         self.scrollArea_4.setWidgetResizable(True)
         self.generator_tab = QWidget()
         self.generator_tab.setObjectName(u"generator_tab")
-        self.generator_tab.setGeometry(QRect(0, 0, 191, 273))
+        self.generator_tab.setGeometry(QRect(0, 0, 409, 652))
         self.verticalLayout_15 = QVBoxLayout(self.generator_tab)
         self.verticalLayout_15.setObjectName(u"verticalLayout_15")
         self.verticalLayout_15.setContentsMargins(6, 6, 6, 6)
@@ -2804,7 +2804,7 @@ class Ui_MainWindow(object):
         self.scrollArea_6.setWidgetResizable(True)
         self.discriminator_tab = QWidget()
         self.discriminator_tab.setObjectName(u"discriminator_tab")
-        self.discriminator_tab.setGeometry(QRect(0, 0, 233, 307))
+        self.discriminator_tab.setGeometry(QRect(0, 0, 409, 652))
         self.verticalLayout_36 = QVBoxLayout(self.discriminator_tab)
         self.verticalLayout_36.setObjectName(u"verticalLayout_36")
         self.verticalLayout_36.setContentsMargins(6, 6, 6, 6)
@@ -3076,7 +3076,7 @@ class Ui_MainWindow(object):
         self.scrollArea_5.setWidgetResizable(True)
         self.loss_tab = QWidget()
         self.loss_tab.setObjectName(u"loss_tab")
-        self.loss_tab.setGeometry(QRect(0, 0, 174, 154))
+        self.loss_tab.setGeometry(QRect(0, 0, 409, 652))
         self.verticalLayout_16 = QVBoxLayout(self.loss_tab)
         self.verticalLayout_16.setObjectName(u"verticalLayout_16")
         self.verticalLayout_16.setContentsMargins(6, 6, 6, 6)
@@ -3209,7 +3209,7 @@ class Ui_MainWindow(object):
         self.scrollArea_7.setWidgetResizable(True)
         self.saving_tab = QWidget()
         self.saving_tab.setObjectName(u"saving_tab")
-        self.saving_tab.setGeometry(QRect(0, 0, 187, 177))
+        self.saving_tab.setGeometry(QRect(0, 0, 409, 652))
         self.verticalLayout_18 = QVBoxLayout(self.saving_tab)
         self.verticalLayout_18.setObjectName(u"verticalLayout_18")
         self.verticalLayout_18.setContentsMargins(2, 2, 2, 2)
@@ -3378,7 +3378,7 @@ class Ui_MainWindow(object):
         self.scrollArea_8.setWidgetResizable(True)
         self.visdom_tab = QWidget()
         self.visdom_tab.setObjectName(u"visdom_tab")
-        self.visdom_tab.setGeometry(QRect(0, 0, 219, 170))
+        self.visdom_tab.setGeometry(QRect(0, 0, 409, 652))
         self.verticalLayout_21 = QVBoxLayout(self.visdom_tab)
         self.verticalLayout_21.setObjectName(u"verticalLayout_21")
         self.verticalLayout_21.setContentsMargins(2, 2, 2, 2)
@@ -3478,6 +3478,12 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_54.addWidget(self.tabWidget_2)
 
+        self.training_warning_label = QLabel(self.training_settings_container)
+        self.training_warning_label.setObjectName(u"training_warning_label")
+        self.training_warning_label.setAlignment(Qt.AlignCenter)
+
+        self.verticalLayout_54.addWidget(self.training_warning_label)
+
 
         self.verticalLayout_20.addWidget(self.training_settings_container)
 
@@ -3551,7 +3557,7 @@ class Ui_MainWindow(object):
         self.scrollArea_10.setWidgetResizable(True)
         self.testing_settings_container = QWidget()
         self.testing_settings_container.setObjectName(u"testing_settings_container")
-        self.testing_settings_container.setGeometry(QRect(0, 0, 289, 252))
+        self.testing_settings_container.setGeometry(QRect(0, 0, 419, 768))
         self.verticalLayout_44 = QVBoxLayout(self.testing_settings_container)
         self.verticalLayout_44.setObjectName(u"verticalLayout_44")
         self.verticalLayout_44.setContentsMargins(0, 0, 0, 0)
@@ -3563,6 +3569,60 @@ class Ui_MainWindow(object):
         self.verticalLayout_41.setSpacing(3)
         self.verticalLayout_41.setObjectName(u"verticalLayout_41")
         self.verticalLayout_41.setContentsMargins(3, 3, 3, 3)
+        self.frame_80 = QFrame(self.frame_38)
+        self.frame_80.setObjectName(u"frame_80")
+        self.frame_80.setFrameShape(QFrame.StyledPanel)
+        self.frame_80.setFrameShadow(QFrame.Raised)
+        self.horizontalLayout_69 = QHBoxLayout(self.frame_80)
+        self.horizontalLayout_69.setObjectName(u"horizontalLayout_69")
+        self.horizontalLayout_69.setContentsMargins(0, 0, 0, 0)
+        self.label_123 = QLabel(self.frame_80)
+        self.label_123.setObjectName(u"label_123")
+        sizePolicy17 = QSizePolicy(QSizePolicy.Policy.Maximum, QSizePolicy.Policy.Maximum)
+        sizePolicy17.setHorizontalStretch(0)
+        sizePolicy17.setVerticalStretch(0)
+        sizePolicy17.setHeightForWidth(self.label_123.sizePolicy().hasHeightForWidth())
+        self.label_123.setSizePolicy(sizePolicy17)
+        self.label_123.setFont(font4)
+
+        self.horizontalLayout_69.addWidget(self.label_123)
+
+        self.line_23 = QFrame(self.frame_80)
+        self.line_23.setObjectName(u"line_23")
+        self.line_23.setFrameShadow(QFrame.Raised)
+        self.line_23.setFrameShape(QFrame.Shape.HLine)
+
+        self.horizontalLayout_69.addWidget(self.line_23)
+
+
+        self.verticalLayout_41.addWidget(self.frame_80)
+
+        self.test_experiment_path_frame = QFrame(self.frame_38)
+        self.test_experiment_path_frame.setObjectName(u"test_experiment_path_frame")
+        self.test_experiment_path_frame.setFrameShape(QFrame.StyledPanel)
+        self.test_experiment_path_frame.setFrameShadow(QFrame.Raised)
+        self.verticalLayout_24 = QVBoxLayout(self.test_experiment_path_frame)
+        self.verticalLayout_24.setObjectName(u"verticalLayout_24")
+        self.verticalLayout_24.setContentsMargins(0, 0, 0, 0)
+        self.horizontalLayout_39 = QHBoxLayout()
+        self.horizontalLayout_39.setSpacing(6)
+        self.horizontalLayout_39.setObjectName(u"horizontalLayout_39")
+        self.test_experiment_path = QLineEdit(self.test_experiment_path_frame)
+        self.test_experiment_path.setObjectName(u"test_experiment_path")
+
+        self.horizontalLayout_39.addWidget(self.test_experiment_path)
+
+        self.test_browse_experiment = QPushButton(self.test_experiment_path_frame)
+        self.test_browse_experiment.setObjectName(u"test_browse_experiment")
+
+        self.horizontalLayout_39.addWidget(self.test_browse_experiment)
+
+
+        self.verticalLayout_24.addLayout(self.horizontalLayout_39)
+
+
+        self.verticalLayout_41.addWidget(self.test_experiment_path_frame)
+
         self.frame_82 = QFrame(self.frame_38)
         self.frame_82.setObjectName(u"frame_82")
         self.frame_82.setFrameShape(QFrame.StyledPanel)
@@ -3653,57 +3713,6 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_41.addWidget(self.frame_68)
 
-        self.frame_80 = QFrame(self.frame_38)
-        self.frame_80.setObjectName(u"frame_80")
-        self.frame_80.setFrameShape(QFrame.StyledPanel)
-        self.frame_80.setFrameShadow(QFrame.Raised)
-        self.horizontalLayout_69 = QHBoxLayout(self.frame_80)
-        self.horizontalLayout_69.setObjectName(u"horizontalLayout_69")
-        self.horizontalLayout_69.setContentsMargins(0, 0, 0, 0)
-        self.test_override_experiment = QCheckBox(self.frame_80)
-        self.test_override_experiment.setObjectName(u"test_override_experiment")
-        sizePolicy8.setHeightForWidth(self.test_override_experiment.sizePolicy().hasHeightForWidth())
-        self.test_override_experiment.setSizePolicy(sizePolicy8)
-        self.test_override_experiment.setFont(font4)
-
-        self.horizontalLayout_69.addWidget(self.test_override_experiment)
-
-        self.line_23 = QFrame(self.frame_80)
-        self.line_23.setObjectName(u"line_23")
-        self.line_23.setFrameShadow(QFrame.Raised)
-        self.line_23.setFrameShape(QFrame.Shape.HLine)
-
-        self.horizontalLayout_69.addWidget(self.line_23)
-
-
-        self.verticalLayout_41.addWidget(self.frame_80)
-
-        self.test_experiment_path_frame = QFrame(self.frame_38)
-        self.test_experiment_path_frame.setObjectName(u"test_experiment_path_frame")
-        self.test_experiment_path_frame.setFrameShape(QFrame.StyledPanel)
-        self.test_experiment_path_frame.setFrameShadow(QFrame.Raised)
-        self.verticalLayout_24 = QVBoxLayout(self.test_experiment_path_frame)
-        self.verticalLayout_24.setObjectName(u"verticalLayout_24")
-        self.verticalLayout_24.setContentsMargins(0, 0, 0, 0)
-        self.horizontalLayout_39 = QHBoxLayout()
-        self.horizontalLayout_39.setSpacing(6)
-        self.horizontalLayout_39.setObjectName(u"horizontalLayout_39")
-        self.test_experiment_path = QLineEdit(self.test_experiment_path_frame)
-        self.test_experiment_path.setObjectName(u"test_experiment_path")
-
-        self.horizontalLayout_39.addWidget(self.test_experiment_path)
-
-        self.test_browse_experiment = QPushButton(self.test_experiment_path_frame)
-        self.test_browse_experiment.setObjectName(u"test_browse_experiment")
-
-        self.horizontalLayout_39.addWidget(self.test_browse_experiment)
-
-
-        self.verticalLayout_24.addLayout(self.horizontalLayout_39)
-
-
-        self.verticalLayout_41.addWidget(self.test_experiment_path_frame)
-
         self.frame_81 = QFrame(self.frame_38)
         self.frame_81.setObjectName(u"frame_81")
         self.frame_81.setFrameShape(QFrame.StyledPanel)
@@ -3765,6 +3774,12 @@ class Ui_MainWindow(object):
         self.scrollArea_10.setWidget(self.testing_settings_container)
 
         self.verticalLayout_43.addWidget(self.scrollArea_10)
+
+        self.test_warning_label = QLabel(self.testing_page)
+        self.test_warning_label.setObjectName(u"test_warning_label")
+        self.test_warning_label.setAlignment(Qt.AlignCenter)
+
+        self.verticalLayout_43.addWidget(self.test_warning_label)
 
         self.frame_79 = QFrame(self.testing_page)
         self.frame_79.setObjectName(u"frame_79")
@@ -3936,9 +3951,6 @@ class Ui_MainWindow(object):
 
         self.label_106 = QLabel(self.frame_95)
         self.label_106.setObjectName(u"label_106")
-        sizePolicy17 = QSizePolicy(QSizePolicy.Policy.Maximum, QSizePolicy.Policy.Maximum)
-        sizePolicy17.setHorizontalStretch(0)
-        sizePolicy17.setVerticalStretch(0)
         sizePolicy17.setHeightForWidth(self.label_106.sizePolicy().hasHeightForWidth())
         self.label_106.setSizePolicy(sizePolicy17)
         self.label_106.setFont(font4)
@@ -5007,8 +5019,8 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
 
-        self.centralwidget_pages.setCurrentIndex(3)
-        self.settings_pages.setCurrentIndex(5)
+        self.centralwidget_pages.setCurrentIndex(1)
+        self.settings_pages.setCurrentIndex(2)
         self.direction.setCurrentIndex(-1)
         self.tabWidget_2.setCurrentIndex(0)
         self.pair_images_scale.setCurrentIndex(-1)
@@ -5217,20 +5229,22 @@ class Ui_MainWindow(object):
         self.label_30.setText(QCoreApplication.translate("MainWindow", u"Image Size", None))
         self.label_65.setText(QCoreApplication.translate("MainWindow", u"Update Frequency", None))
         self.tabWidget_2.setTabText(self.tabWidget_2.indexOf(self._visdom_tab), QCoreApplication.translate("MainWindow", u"Visdom", None))
+        self.training_warning_label.setText(QCoreApplication.translate("MainWindow", u"_training_warning_label_", None))
         self.train_page_locked_label.setText(QCoreApplication.translate("MainWindow", u"_TRAIN_PAGE_LOCKED_", None))
         self.train_start.setText(QCoreApplication.translate("MainWindow", u"Begin Training", None))
         self.train_pause.setText(QCoreApplication.translate("MainWindow", u"Pause Training", None))
         self.train_stop.setText(QCoreApplication.translate("MainWindow", u"Stop Training", None))
+        self.label_123.setText(QCoreApplication.translate("MainWindow", u"Experiment", None))
+        self.test_experiment_path.setPlaceholderText(QCoreApplication.translate("MainWindow", u"Enter experiment directory path...", None))
+        self.test_browse_experiment.setText(QCoreApplication.translate("MainWindow", u"Browse", None))
         self.label_98.setText(QCoreApplication.translate("MainWindow", u"Test Settings", None))
         self.label_58.setText(QCoreApplication.translate("MainWindow", u"Test Iterations", None))
         self.label_92.setText(QCoreApplication.translate("MainWindow", u"Load Epoch", None))
         self.test_get_most_recent.setText(QCoreApplication.translate("MainWindow", u"Most Recent", None))
-        self.test_override_experiment.setText(QCoreApplication.translate("MainWindow", u"Override Experiment", None))
-        self.test_experiment_path.setPlaceholderText(QCoreApplication.translate("MainWindow", u"Enter experiment directory path...", None))
-        self.test_browse_experiment.setText(QCoreApplication.translate("MainWindow", u"Browse", None))
         self.test_override_dataset.setText(QCoreApplication.translate("MainWindow", u"Override Dataset", None))
         self.test_dataset_path.setPlaceholderText(QCoreApplication.translate("MainWindow", u"Enter dataset directory path...", None))
         self.test_browse_dataset.setText(QCoreApplication.translate("MainWindow", u"Browse", None))
+        self.test_warning_label.setText(QCoreApplication.translate("MainWindow", u"_test_warning_label_", None))
         self.test_start.setText(QCoreApplication.translate("MainWindow", u"Begin Test", None))
         self.test_progress_label.setText("")
         self.label_100.setText(QCoreApplication.translate("MainWindow", u"Review Experiment", None))

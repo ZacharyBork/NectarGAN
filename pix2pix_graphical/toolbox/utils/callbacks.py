@@ -7,31 +7,11 @@ from PySide6.QtWidgets import (
 )
 
 import pix2pix_graphical.toolbox.utils.common as utils
-from pix2pix_graphical.toolbox.components.settings_dock import SettingsDock
-from pix2pix_graphical.toolbox.helpers.trainer_helper import TrainerHelper
 
 class Callbacks():
     def __init__(self, mainwidget: QWidget):
         self.mainwidget = mainwidget
         self.find = self.mainwidget.findChild
-
-    def _start_train(
-            self, 
-            trainerhelper: TrainerHelper, 
-            settings_dock: SettingsDock
-        ) -> None:
-        '''Starts training and sets settings dock lock state.'''
-        trainerhelper.start_train()
-        settings_dock.set_state('training')
-
-    def _stop_train(
-            self, 
-            trainerhelper: TrainerHelper, 
-            settings_dock: SettingsDock
-    ) -> None:
-        '''Stops training and resets the settings dock state.'''
-        trainerhelper.stop_train()
-        settings_dock.set_state('init')
 
     def _close_settings_dock(self) -> None:
         '''Toggles visibility of the main settings dock.'''
