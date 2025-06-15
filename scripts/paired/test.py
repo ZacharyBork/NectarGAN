@@ -1,4 +1,4 @@
-from pix2pix_graphical.testers.tester import Tester
+from nectargan.testers.tester import Tester
 
 if __name__== "__main__":
     tester = Tester(config=None)

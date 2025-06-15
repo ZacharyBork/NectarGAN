@@ -1,4 +1,4 @@
-from pix2pix_graphical.toolbox.run import Interface
+from nectargan.toolbox.run import Interface
 
 if __name__ == "__main__":
     interface = Interface()

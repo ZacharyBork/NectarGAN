@@ -1,5 +1,5 @@
 import argparse
-from pix2pix_graphical.trainers.pix2pix_trainer import Pix2pixTrainer
+from nectargan.trainers.pix2pix_trainer import Pix2pixTrainer
 
 def init_cli():
     parser = argparse.ArgumentParser()
