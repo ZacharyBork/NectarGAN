@@ -70,7 +70,7 @@
             "generator": {
                 "features": 64,
                 "n_downs": 6,
-                "block_type": "ResidualUnetBlock",
+                "block_type": "UnetBlock",
                 "upsample_type": "Transposed",
                 "learning_rate" : {
                     "epochs": 100,

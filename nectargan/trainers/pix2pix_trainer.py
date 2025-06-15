@@ -26,7 +26,7 @@ class Pix2pixTrainer(Trainer):
             ] = 'basic',
             log_losses: bool=True
         ) -> None:
-        super().__init__(config=config, quicksetup=True)
+        super().__init__(config=config, quicksetup=True, log_losses=log_losses)
 
         self.extend_loss_spec = 'basic' not in loss_subspec 
         self.vgg_loss_enabled = '+vgg' in loss_subspec 

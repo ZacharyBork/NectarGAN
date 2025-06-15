@@ -19,7 +19,8 @@ class Trainer():
     def __init__(
             self, 
             config: str|PathLike|ConfigManager|dict[str, Any]|None=None,
-            quicksetup: bool=True
+            quicksetup: bool=True,
+            log_losses: bool=True
         ) -> None:
         '''Init function for the base Trainer class.
 
@@ -38,7 +39,7 @@ class Trainer():
                 visualize results.
         '''
         # These are either set by child classes, or passed by training script
-        self.log_losses: bool = True
+        self.log_losses = log_losses
         self.current_epoch: int | None = None
         self.last_epoch_time: float = 0.0
         self.train_loader: torch.utils.data.DataLoader | None = None

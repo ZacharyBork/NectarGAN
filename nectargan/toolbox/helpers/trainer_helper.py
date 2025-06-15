@@ -38,7 +38,7 @@ class TrainerHelper(QObject):
         self.settings_dock = settings_dock
         self.log = log
         self.status_msg_length = status_msg_length
-        
+
         self.worker: TrainerWorker | None = None
         self.pixmaps: list[QPixmap] = []
         self.last_epoch: int=0
@@ -334,12 +334,13 @@ class TrainerHelper(QObject):
         
         # Start thread, create worker, move worker to new thread
         self.train_thread = QThread() 
+        log_losses = self.find(QCheckBox, 'log_losses').isChecked()
+        log_dump_freq = self.find(QSpinBox, 'loss_dump_frequency').value()
         try:
             self.worker = TrainerWorker(
                 config=self.confighelper.config,
-                log_losses=self.find(QCheckBox, 'log_losses').isChecked(),
-                loss_dump_frequency=self.find(
-                    QSpinBox, 'loss_dump_frequency').value())
+                log_losses=log_losses,
+                loss_dump_frequency=log_dump_freq)
         except ValueError as e: return self._warn(str(e))
         self.worker.moveToThread(self.train_thread)
 
