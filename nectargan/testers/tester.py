@@ -41,7 +41,10 @@ class Tester(Trainer):
         self.gen = UnetGenerator( # Init Generator
             input_size=self.config.dataloader.load.crop_size, 
             in_channels=self.config.dataloader.load.input_nc,
-            upconv_type=tg.upsample_block_type)
+            features=tg.features,
+            n_downs=tg.n_downs,
+            block_type=tg.block_type,
+            upconv_type=tg.upsample_type)
         self.gen.to(self.device)  # Cast to current device
         self.load_checkpoint('G', self.gen)
         self.gen.eval() # Switch generator into eval mode

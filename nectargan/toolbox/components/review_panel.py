@@ -5,8 +5,7 @@ from pathlib import Path
 from PySide6.QtGui import QPixmap, QImage
 from PySide6.QtWidgets import (
     QWidget, QFrame, QLineEdit, QLabel, QVBoxLayout, QHBoxLayout, QTextEdit,
-    QComboBox
-)
+    QComboBox, QSpinBox, QPushButton)
 
 from nectargan.toolbox.widgets.graph import Graph
 
@@ -20,11 +19,17 @@ class ReviewPanel():
             QTextEdit, 'review_train_config')
         self.select_config = self.find(
             QComboBox, 'review_select_train_config')
+        
+        self.find(QPushButton, 'review_load_experiment').clicked.connect(
+            self.load_experiment)
+        self.find(QSpinBox, 'review_graph_sample_rate').valueChanged.connect(
+            lambda x : self.set_graph_sample_rate(x))
+        self.find(QComboBox, 'review_select_train_config').activated.connect(
+            self.load_train_config)
 
         self.image_size = 300
-        self.image_labels = []
-
         self.graph_sample_rate = 50
+        self.image_labels = []
 
     ### UTILITIES ###
 

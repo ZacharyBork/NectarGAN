@@ -2,10 +2,10 @@ import sys
 import pathlib
 
 from PySide6.QtWidgets import (
-    QPushButton, QSlider, QComboBox, QApplication, QCheckBox, QFrame,
-    QFileDialog, QSpinBox, QLineEdit)
+    QPushButton, QApplication, QFileDialog)
 from PySide6.QtUiTools import QUiLoader
 from PySide6.QtCore import QFile, QObject
+from PySide6.QtGui import QShortcut, QKeySequence
 
 from nectargan.toolbox.helpers.config_helper import ConfigHelper
 from nectargan.toolbox.helpers.trainer_helper import TrainerHelper
@@ -45,75 +45,25 @@ class Interface(QObject):
         if not config_file.suffix == '.json': return
         self.confighelper._init_from_config(config_path=config_file)
 
-    def _testing_get_latest_epoch(self) -> None:
-        exp_path = self.find(QLineEdit, 'test_experiment_path').text()
-        latest_epoch = utils.get_latest_checkpoint_epoch(exp_path)
-        self.find(QSpinBox, 'test_load_epoch').setValue(latest_epoch)
+    def _map_hotkeys(self) -> None:
+        QShortcut(QKeySequence('Ctrl+Shift+R'), self.mainwidget
+            ).activated.connect(self._set_stylesheet)
+        QShortcut(QKeySequence('Ctrl+L'), self.mainwidget
+            ).activated.connect(self._load_from_config_file)
+        names = [
+            'experiment', 'dataset', 'training', 
+            'testing', 'review', 'utils', 'settings']
+        for i in range(7):
+            button = self.find(QPushButton, f'{names[i]}_settings_btn')
+            QShortcut(QKeySequence(f'Ctrl+{i+1}'), self.mainwidget
+                ).activated.connect(button.click)
 
     def init_ui(self) -> None:
         '''Initialized the interface. Links parameters, sets defaults, etc.'''
         self._init_ui_components()
         self.settings_dock.init()
         self.inithelper.init(self.trainerhelper, self.settings_dock)
-
-        self.find(QComboBox, 'direction').addItems(['AtoB', 'BtoA'])
-        self.find( QPushButton, 'reload_stylesheet'
-            ).clicked.connect(self._set_stylesheet)
-        self.find(QComboBox, 'gen_block_type').addItems(
-            ['UnetBlock', 'ResidualUnetBlock'])
-        self.find(QComboBox, 'gen_upsample_type').addItems(
-            ['Transposed', 'Bilinear'])
-        crop_size = self.find(QComboBox, 'crop_size')
-        crop_size.addItems(['16', '32', '64', '128', '256', '512', '1024'])
-        crop_size.setCurrentIndex(4)
-        self.find(QCheckBox, 'log_losses').clicked.connect(
-            lambda x : self.find(QFrame, 'log_loss_settings').setEnabled(x))
-        self.find(QSpinBox, 'input_nc').setEnabled(False)
-
-        self.find(QComboBox, 'grayscale_method').addItems([
-            'Weighted Average', 'From LAB', 'Desaturation', 
-            'Average', 'Max', 'PCA'])
-        self.find(QComboBox, 'compression_type').addItems(
-            ['jpeg', 'webp'])
-        self.find(QComboBox, 'optical_distortion_mode').addItems(
-            ['Camera', 'Fisheye'])
-        
-        input_xforms = self.find(QFrame, 'input_transforms_frame')
-        self.find(QCheckBox, 'show_input_transforms').clicked.connect(
-            lambda x : input_xforms.setVisible(x))
-        input_xforms.setVisible(False)
-
-        both_xforms = self.find(QFrame, 'both_transforms_frame')
-        self.find(QCheckBox, 'show_both_transforms').clicked.connect(
-            lambda x : both_xforms.setVisible(x))
-        both_xforms.setVisible(False)
-        
-        
-        # REVIEW
-
-        self.find(QPushButton, 'review_load_experiment').clicked.connect(
-            self.reviewpanel.load_experiment)
-        self.find(QSpinBox, 'review_graph_sample_rate').valueChanged.connect(
-            lambda x : self.reviewpanel.set_graph_sample_rate(x))
-        self.find(QComboBox, 'review_select_train_config').activated.connect(
-            self.reviewpanel.load_train_config)
-
-        # TESTING
-
-        self.find(QPushButton, 'test_start'
-            ).clicked.connect(self.testerhelper.start_test)
-        self.find(QSlider, 'test_image_scale'
-            ).valueChanged.connect(self.testerhelper.change_image_scale)
-        self.find(QPushButton, 'test_image_scale_reset'
-            ).clicked.connect(self.testerhelper.reset_image_scale)
-        
-        test_dataset_override = self.find(QFrame, 'test_dataset_path_frame')
-        test_dataset_override.setHidden(True)
-        self.find(QCheckBox, 'test_override_dataset').clicked.connect(
-            lambda x : test_dataset_override.setHidden(not x))
-        
-        self.find(QPushButton, 'test_get_most_recent').clicked.connect(
-            self._testing_get_latest_epoch)
+        self._map_hotkeys()
 
         # Init from default config
         self.confighelper._init_from_config(config_path=None)

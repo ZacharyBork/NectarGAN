@@ -11,6 +11,7 @@ from PySide6.QtWidgets import (
 from nectargan.toolbox.helpers.config_helper import ConfigHelper
 from nectargan.toolbox.workers.testerworker import TesterWorker
 from nectargan.toolbox.components.log import OutputLog
+import nectargan.toolbox.utils.common as utils
 
 class TesterHelper(QObject):
     def __init__(
@@ -34,6 +35,20 @@ class TesterHelper(QObject):
         self.results_dir: pathlib.Path | None = None
         self.results: dict[str, Any] | None = None
         self.previous_tests: dict[str, pathlib.Path] = {}
+
+        self.find(QPushButton, 'test_start').clicked.connect(self.start_test)
+        self.find(QSlider, 'test_image_scale'
+            ).valueChanged.connect(self.change_image_scale)
+        self.find(QPushButton, 'test_image_scale_reset'
+            ).clicked.connect(self.reset_image_scale)
+        
+        test_dataset_override = self.find(QFrame, 'test_dataset_path_frame')
+        test_dataset_override.setHidden(True)
+        self.find(QCheckBox, 'test_override_dataset').clicked.connect(
+            lambda x : test_dataset_override.setHidden(not x))
+        
+        self.find(QPushButton, 'test_get_most_recent').clicked.connect(
+            self._testing_get_latest_epoch)
         
         self.image_layout = self.find(QVBoxLayout, 'test_image_layout')
         self.image_labels = { 'A_real': [], 'B_fake': [], 'B_real': [] }
@@ -45,6 +60,11 @@ class TesterHelper(QObject):
         self.find(QComboBox, 'previous_tests').activated.connect(
             self._load_test_from_dropdown)
         self._add_sorting_options()
+
+    def _testing_get_latest_epoch(self) -> None:
+        exp_path = self.find(QLineEdit, 'test_experiment_path').text()
+        latest_epoch = utils.get_latest_checkpoint_epoch(exp_path)
+        self.find(QSpinBox, 'test_load_epoch').setValue(latest_epoch)
 
     ### PREVIOUS TEST HANDLING ###
 

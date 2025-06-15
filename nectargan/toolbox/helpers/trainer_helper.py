@@ -38,8 +38,7 @@ class TrainerHelper(QObject):
         self.settings_dock = settings_dock
         self.log = log
         self.status_msg_length = status_msg_length
-
-
+        
         self.worker: TrainerWorker | None = None
         self.pixmaps: list[QPixmap] = []
         self.last_epoch: int=0
@@ -53,6 +52,10 @@ class TrainerHelper(QObject):
         self.warning_label.setHidden(True)
         self.warning_anim: QVariantAnimation | None = None
         self._init_warning_animation()
+
+        self.find(QCheckBox, 'log_losses').clicked.connect(
+            lambda x : self.find(QFrame, 'log_loss_settings').setEnabled(x))
+        self.find(QSpinBox, 'input_nc').setEnabled(False)
 
     ### INIT HELPERS ###
 

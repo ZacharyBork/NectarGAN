@@ -1,8 +1,7 @@
 from PySide6.QtWidgets import (
     QWidget, QPushButton, QFrame, QCheckBox, QSpinBox, QDoubleSpinBox, QSlider,
     QStackedWidget, QSplitter, QLabel, QLCDNumber, QLineEdit, QVBoxLayout,
-    QProgressBar
-)
+    QProgressBar, QComboBox)
 import PySide6.QtGui as QtGui
 from PySide6.QtCore import Qt
 
@@ -20,6 +19,35 @@ class InitHelper():
         self.mainwidget = mainwidget
         self.find = self.mainwidget.findChild
         self.callbacks = Callbacks(mainwidget=mainwidget)
+
+    def _init_architecture_settings(self) -> None:
+        self.find(QComboBox, 'gen_block_type').addItems(
+            ['UnetBlock', 'ResidualUnetBlock'])
+        self.find(QComboBox, 'gen_upsample_type').addItems(
+            ['Transposed', 'Bilinear'])
+        
+    def _init_dataloader_settings(self) -> None:
+        self.find(QComboBox, 'direction').addItems(['AtoB', 'BtoA'])
+        crop_size = self.find(QComboBox, 'crop_size')
+        crop_size.addItems(['16', '32', '64', '128', '256', '512', '1024'])
+        crop_size.setCurrentIndex(4)
+
+        self.find(QComboBox, 'grayscale_method').addItems([
+            'Weighted Average', 'From LAB', 'Desaturation', 
+            'Average', 'Max', 'PCA'])
+        self.find(QComboBox, 'compression_type').addItems(['jpeg', 'webp'])
+        self.find(QComboBox, 'optical_distortion_mode').addItems(
+            ['Camera', 'Fisheye'])
+        
+        input_xforms = self.find(QFrame, 'input_transforms_frame')
+        self.find(QCheckBox, 'show_input_transforms').clicked.connect(
+            lambda x : input_xforms.setVisible(x))
+        input_xforms.setVisible(False)
+
+        both_xforms = self.find(QFrame, 'both_transforms_frame')
+        self.find(QCheckBox, 'show_both_transforms').clicked.connect(
+            lambda x : both_xforms.setVisible(x))
+        both_xforms.setVisible(False)
 
     def _init_training_controls(
             self,
@@ -257,7 +285,8 @@ class InitHelper():
             trainerhelper: TrainerHelper, 
             settings_dock: SettingsDock
         ) -> None:
-        # Link callbacks for training controls
+        self._init_architecture_settings()
+        self._init_dataloader_settings()
         self._init_training_controls(trainerhelper, settings_dock) 
         self._sliders_to_spinboxes()   # Link sliders to their spinboxes
         self._swap_image_labels()      # Replace QLabels with custom wrappers
