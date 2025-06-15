@@ -308,6 +308,11 @@ class TrainerHelper(QObject):
             if not dataroot.exists():
                 self._warn('Please enter a valid Dataset Root to continue.')
                 return False
+            if not Path(dataroot, 'train').exists(): 
+                self._warn(
+                    f'Unable to locate training dataset files.\n'
+                    f'Please ensure the dataset path is correct.')
+                return False
         else: 
             self._warn('Please enter a valid Dataset Root to continue.') 
             return False 
@@ -319,8 +324,7 @@ class TrainerHelper(QObject):
         success = self._preflight_check()
         if not success: return
         self.last_epoch = 0               # Reset both progress
-        self.current_epoch_progress = 0.0 # tracking variables
-        
+        self.current_epoch_progress = 0.0 # tracking variables        
 
         # Build JSON-like config data from UI settings
         self.confighelper._build_launch_config() 
