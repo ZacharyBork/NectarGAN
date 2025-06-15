@@ -4,7 +4,8 @@ from typing import Union
 class UnetBlock(nn.Module):
     '''Defines a standard UNet block to be used by the generator model.'''
     def __init__(
-            self, in_channels: int, 
+            self, 
+            in_channels: int, 
             out_channels: int, 
             upconv_type: str, 
             activation: Union[str, None], 
@@ -58,45 +59,23 @@ class UnetBlock(nn.Module):
         x = self.conv(x)
         return self.dropout(x) if self.use_dropout else x
     
-class ResidualUnetBlock(nn.Module):
+class ResidualUnetBlock(UnetBlock):
     '''Defines a ResidualUNet block to be used by the generator model.'''
     def __init__(
             self, 
             in_channels: int, 
             out_channels: int, 
+            upconv_type: str, 
+            activation: Union[str, None], 
+            norm: Union[str, None], 
             down: bool=True, 
-            act: str='relu', 
+            bias: bool=True, 
             use_dropout: bool=False
         ) -> None:
-        super().__init__()
-        self.down = down
-        self.use_dropout = use_dropout
-        self.in_channels = in_channels
-        self.out_channels = out_channels
-
-        # Define current activation function
-        self.activation = nn.ReLU() if act == 'relu' else nn.LeakyReLU(0.2)
-
-        # Define normalization
-        norm = nn.InstanceNorm2d
-
-        if down: # Downsampling layer
-            self.conv = nn.Sequential(
-                nn.Conv2d(
-                    in_channels, out_channels, 
-                    kernel_size=4, stride=2, padding=1, 
-                    padding_mode='reflect'),
-                norm(out_channels),
-                self.activation,
-            )
-        else: # Upsampling layer
-            self.conv = nn.Sequential(
-                nn.ConvTranspose2d(
-                    in_channels, out_channels, 
-                    kernel_size=4, stride=2, padding=1),
-                norm(out_channels),
-                self.activation,
-            )
+        super().__init__(
+            in_channels=in_channels, out_channels=out_channels,
+            upconv_type=upconv_type, activation=activation, norm=norm, 
+            down=down, bias=bias, use_dropout=use_dropout)
 
         if in_channels != out_channels or down: # Residual shortcut
             # This will almost always be a 1x1 conv with stride=2 except at the 
@@ -111,11 +90,8 @@ class ResidualUnetBlock(nn.Module):
                     kernel_size=1, stride=2, output_padding=1)
         else: self.residual = nn.Identity() # Residual=Identity if we hit max 
 
-        if use_dropout: # Define dropout if applicable
-            self.dropout = nn.Dropout(0.5)
-
     def forward(self, x):
         # Add conv output and residual
-        out = self.conv(x) + self.residual(x)
+        x = self.conv(x) + self.residual(x)
         # Apply dropout if applicable
-        return self.dropout(out) if self.use_dropout else out
+        return self.dropout(x) if self.use_dropout else x

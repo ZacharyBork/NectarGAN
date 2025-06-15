@@ -68,6 +68,7 @@ class Interface(QObject):
         crop_size.setCurrentIndex(4)
         self.find(QCheckBox, 'log_losses').clicked.connect(
             lambda x : self.find(QFrame, 'log_loss_settings').setEnabled(x))
+        self.find(QSpinBox, 'input_nc').setEnabled(False)
 
         self.find(QComboBox, 'grayscale_method').addItems([
             'Weighted Average', 'From LAB', 'Desaturation', 

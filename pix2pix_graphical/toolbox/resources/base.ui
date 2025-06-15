@@ -4214,7 +4214,7 @@
                   <property name="geometry">
                    <rect>
                     <x>0</x>
-                    <y>-187</y>
+                    <y>0</y>
                     <width>437</width>
                     <height>1251</height>
                    </rect>
@@ -4485,6 +4485,9 @@
                           <horstretch>0</horstretch>
                           <verstretch>0</verstretch>
                          </sizepolicy>
+                        </property>
+                        <property name="readOnly">
+                         <bool>false</bool>
                         </property>
                         <property name="minimum">
                          <number>1</number>
