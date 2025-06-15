@@ -110,6 +110,7 @@ class ConfigDiscriminator:
 class ConfigLoss:
     lambda_gan: float
     lambda_l1: float
+    lambda_l2: float
     lambda_sobel: float
     lambda_laplacian: float
     lambda_vgg: float

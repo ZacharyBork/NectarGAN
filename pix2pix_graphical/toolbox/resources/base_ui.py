@@ -1967,7 +1967,7 @@ class Ui_MainWindow(object):
         self.scrollArea_2.setWidgetResizable(True)
         self.dataloader_settings_container = QWidget()
         self.dataloader_settings_container.setObjectName(u"dataloader_settings_container")
-        self.dataloader_settings_container.setGeometry(QRect(0, 0, 437, 1228))
+        self.dataloader_settings_container.setGeometry(QRect(0, -187, 437, 1251))
         self.verticalLayout_10 = QVBoxLayout(self.dataloader_settings_container)
         self.verticalLayout_10.setObjectName(u"verticalLayout_10")
         self.verticalLayout_10.setContentsMargins(0, 0, 0, 0)
@@ -2208,13 +2208,15 @@ class Ui_MainWindow(object):
         self.horizontalLayout_51 = QHBoxLayout(self.frame_52)
         self.horizontalLayout_51.setObjectName(u"horizontalLayout_51")
         self.horizontalLayout_51.setContentsMargins(0, 0, 0, 0)
-        self.label_69 = QLabel(self.frame_52)
-        self.label_69.setObjectName(u"label_69")
-        sizePolicy1.setHeightForWidth(self.label_69.sizePolicy().hasHeightForWidth())
-        self.label_69.setSizePolicy(sizePolicy1)
-        self.label_69.setFont(font2)
+        self.show_input_transforms = QCheckBox(self.frame_52)
+        self.show_input_transforms.setObjectName(u"show_input_transforms")
+        sizePolicy8.setHeightForWidth(self.show_input_transforms.sizePolicy().hasHeightForWidth())
+        self.show_input_transforms.setSizePolicy(sizePolicy8)
+        font12 = QFont()
+        font12.setPointSize(13)
+        self.show_input_transforms.setFont(font12)
 
-        self.horizontalLayout_51.addWidget(self.label_69)
+        self.horizontalLayout_51.addWidget(self.show_input_transforms)
 
         self.line_4 = QFrame(self.frame_52)
         self.line_4.setObjectName(u"line_4")
@@ -2226,21 +2228,21 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_60.addWidget(self.frame_52)
 
-        self.frame_65 = QFrame(self.groupBox_2)
-        self.frame_65.setObjectName(u"frame_65")
-        self.frame_65.setFrameShape(QFrame.StyledPanel)
-        self.frame_65.setFrameShadow(QFrame.Raised)
-        self.formLayout_20 = QFormLayout(self.frame_65)
+        self.input_transforms_frame = QFrame(self.groupBox_2)
+        self.input_transforms_frame.setObjectName(u"input_transforms_frame")
+        self.input_transforms_frame.setFrameShape(QFrame.StyledPanel)
+        self.input_transforms_frame.setFrameShadow(QFrame.Raised)
+        self.formLayout_20 = QFormLayout(self.input_transforms_frame)
         self.formLayout_20.setObjectName(u"formLayout_20")
         self.formLayout_20.setHorizontalSpacing(6)
         self.formLayout_20.setVerticalSpacing(6)
         self.formLayout_20.setContentsMargins(0, 0, 0, 0)
-        self.label_74 = QLabel(self.frame_65)
+        self.label_74 = QLabel(self.input_transforms_frame)
         self.label_74.setObjectName(u"label_74")
 
         self.formLayout_20.setWidget(0, QFormLayout.ItemRole.LabelRole, self.label_74)
 
-        self.frame_66 = QFrame(self.frame_65)
+        self.frame_66 = QFrame(self.input_transforms_frame)
         self.frame_66.setObjectName(u"frame_66")
         self.frame_66.setFrameShape(QFrame.StyledPanel)
         self.frame_66.setFrameShadow(QFrame.Raised)
@@ -2265,12 +2267,12 @@ class Ui_MainWindow(object):
 
         self.formLayout_20.setWidget(0, QFormLayout.ItemRole.FieldRole, self.frame_66)
 
-        self.label_75 = QLabel(self.frame_65)
+        self.label_75 = QLabel(self.input_transforms_frame)
         self.label_75.setObjectName(u"label_75")
 
         self.formLayout_20.setWidget(1, QFormLayout.ItemRole.LabelRole, self.label_75)
 
-        self.frame_67 = QFrame(self.frame_65)
+        self.frame_67 = QFrame(self.input_transforms_frame)
         self.frame_67.setObjectName(u"frame_67")
         self.frame_67.setFrameShape(QFrame.StyledPanel)
         self.frame_67.setFrameShadow(QFrame.Raised)
@@ -2296,12 +2298,12 @@ class Ui_MainWindow(object):
 
         self.formLayout_20.setWidget(1, QFormLayout.ItemRole.FieldRole, self.frame_67)
 
-        self.label_127 = QLabel(self.frame_65)
+        self.label_127 = QLabel(self.input_transforms_frame)
         self.label_127.setObjectName(u"label_127")
 
         self.formLayout_20.setWidget(2, QFormLayout.ItemRole.LabelRole, self.label_127)
 
-        self.frame_115 = QFrame(self.frame_65)
+        self.frame_115 = QFrame(self.input_transforms_frame)
         self.frame_115.setObjectName(u"frame_115")
         self.frame_115.setFrameShape(QFrame.StyledPanel)
         self.frame_115.setFrameShadow(QFrame.Raised)
@@ -2326,12 +2328,12 @@ class Ui_MainWindow(object):
 
         self.formLayout_20.setWidget(2, QFormLayout.ItemRole.FieldRole, self.frame_115)
 
-        self.label_128 = QLabel(self.frame_65)
+        self.label_128 = QLabel(self.input_transforms_frame)
         self.label_128.setObjectName(u"label_128")
 
         self.formLayout_20.setWidget(3, QFormLayout.ItemRole.LabelRole, self.label_128)
 
-        self.frame_116 = QFrame(self.frame_65)
+        self.frame_116 = QFrame(self.input_transforms_frame)
         self.frame_116.setObjectName(u"frame_116")
         self.frame_116.setFrameShape(QFrame.StyledPanel)
         self.frame_116.setFrameShadow(QFrame.Raised)
@@ -2357,12 +2359,12 @@ class Ui_MainWindow(object):
 
         self.formLayout_20.setWidget(3, QFormLayout.ItemRole.FieldRole, self.frame_116)
 
-        self.label_129 = QLabel(self.frame_65)
+        self.label_129 = QLabel(self.input_transforms_frame)
         self.label_129.setObjectName(u"label_129")
 
         self.formLayout_20.setWidget(4, QFormLayout.ItemRole.LabelRole, self.label_129)
 
-        self.frame_117 = QFrame(self.frame_65)
+        self.frame_117 = QFrame(self.input_transforms_frame)
         self.frame_117.setObjectName(u"frame_117")
         self.frame_117.setFrameShape(QFrame.StyledPanel)
         self.frame_117.setFrameShadow(QFrame.Raised)
@@ -2387,24 +2389,24 @@ class Ui_MainWindow(object):
 
         self.formLayout_20.setWidget(4, QFormLayout.ItemRole.FieldRole, self.frame_117)
 
-        self.label_130 = QLabel(self.frame_65)
+        self.label_130 = QLabel(self.input_transforms_frame)
         self.label_130.setObjectName(u"label_130")
 
         self.formLayout_20.setWidget(5, QFormLayout.ItemRole.LabelRole, self.label_130)
 
-        self.motionblur_limit = QSpinBox(self.frame_65)
+        self.motionblur_limit = QSpinBox(self.input_transforms_frame)
         self.motionblur_limit.setObjectName(u"motionblur_limit")
         self.motionblur_limit.setMinimum(3)
         self.motionblur_limit.setValue(7)
 
         self.formLayout_20.setWidget(5, QFormLayout.ItemRole.FieldRole, self.motionblur_limit)
 
-        self.label_131 = QLabel(self.frame_65)
+        self.label_131 = QLabel(self.input_transforms_frame)
         self.label_131.setObjectName(u"label_131")
 
         self.formLayout_20.setWidget(6, QFormLayout.ItemRole.LabelRole, self.label_131)
 
-        self.frame_118 = QFrame(self.frame_65)
+        self.frame_118 = QFrame(self.input_transforms_frame)
         self.frame_118.setObjectName(u"frame_118")
         self.frame_118.setFrameShape(QFrame.StyledPanel)
         self.frame_118.setFrameShadow(QFrame.Raised)
@@ -2429,12 +2431,12 @@ class Ui_MainWindow(object):
 
         self.formLayout_20.setWidget(6, QFormLayout.ItemRole.FieldRole, self.frame_118)
 
-        self.label_133 = QLabel(self.frame_65)
+        self.label_133 = QLabel(self.input_transforms_frame)
         self.label_133.setObjectName(u"label_133")
 
         self.formLayout_20.setWidget(7, QFormLayout.ItemRole.LabelRole, self.label_133)
 
-        self.frame_119 = QFrame(self.frame_65)
+        self.frame_119 = QFrame(self.input_transforms_frame)
         self.frame_119.setObjectName(u"frame_119")
         self.frame_119.setFrameShape(QFrame.StyledPanel)
         self.frame_119.setFrameShadow(QFrame.Raised)
@@ -2460,12 +2462,12 @@ class Ui_MainWindow(object):
 
         self.formLayout_20.setWidget(7, QFormLayout.ItemRole.FieldRole, self.frame_119)
 
-        self.label_132 = QLabel(self.frame_65)
+        self.label_132 = QLabel(self.input_transforms_frame)
         self.label_132.setObjectName(u"label_132")
 
         self.formLayout_20.setWidget(8, QFormLayout.ItemRole.LabelRole, self.label_132)
 
-        self.frame_120 = QFrame(self.frame_65)
+        self.frame_120 = QFrame(self.input_transforms_frame)
         self.frame_120.setObjectName(u"frame_120")
         self.frame_120.setFrameShape(QFrame.StyledPanel)
         self.frame_120.setFrameShadow(QFrame.Raised)
@@ -2490,32 +2492,32 @@ class Ui_MainWindow(object):
 
         self.formLayout_20.setWidget(8, QFormLayout.ItemRole.FieldRole, self.frame_120)
 
-        self.label_134 = QLabel(self.frame_65)
+        self.label_134 = QLabel(self.input_transforms_frame)
         self.label_134.setObjectName(u"label_134")
 
         self.formLayout_20.setWidget(9, QFormLayout.ItemRole.LabelRole, self.label_134)
 
-        self.grayscale_method = QComboBox(self.frame_65)
+        self.grayscale_method = QComboBox(self.input_transforms_frame)
         self.grayscale_method.setObjectName(u"grayscale_method")
 
         self.formLayout_20.setWidget(9, QFormLayout.ItemRole.FieldRole, self.grayscale_method)
 
-        self.label_135 = QLabel(self.frame_65)
+        self.label_135 = QLabel(self.input_transforms_frame)
         self.label_135.setObjectName(u"label_135")
 
         self.formLayout_20.setWidget(10, QFormLayout.ItemRole.LabelRole, self.label_135)
 
-        self.label_136 = QLabel(self.frame_65)
+        self.label_136 = QLabel(self.input_transforms_frame)
         self.label_136.setObjectName(u"label_136")
 
         self.formLayout_20.setWidget(11, QFormLayout.ItemRole.LabelRole, self.label_136)
 
-        self.label_137 = QLabel(self.frame_65)
+        self.label_137 = QLabel(self.input_transforms_frame)
         self.label_137.setObjectName(u"label_137")
 
         self.formLayout_20.setWidget(12, QFormLayout.ItemRole.LabelRole, self.label_137)
 
-        self.frame_121 = QFrame(self.frame_65)
+        self.frame_121 = QFrame(self.input_transforms_frame)
         self.frame_121.setObjectName(u"frame_121")
         self.frame_121.setFrameShape(QFrame.StyledPanel)
         self.frame_121.setFrameShadow(QFrame.Raised)
@@ -2540,12 +2542,12 @@ class Ui_MainWindow(object):
 
         self.formLayout_20.setWidget(10, QFormLayout.ItemRole.FieldRole, self.frame_121)
 
-        self.compression_type = QComboBox(self.frame_65)
+        self.compression_type = QComboBox(self.input_transforms_frame)
         self.compression_type.setObjectName(u"compression_type")
 
         self.formLayout_20.setWidget(11, QFormLayout.ItemRole.FieldRole, self.compression_type)
 
-        self.frame_122 = QFrame(self.frame_65)
+        self.frame_122 = QFrame(self.input_transforms_frame)
         self.frame_122.setObjectName(u"frame_122")
         self.frame_122.setFrameShape(QFrame.StyledPanel)
         self.frame_122.setFrameShadow(QFrame.Raised)
@@ -2570,7 +2572,15 @@ class Ui_MainWindow(object):
         self.formLayout_20.setWidget(12, QFormLayout.ItemRole.FieldRole, self.frame_122)
 
 
-        self.verticalLayout_60.addWidget(self.frame_65)
+        self.verticalLayout_60.addWidget(self.input_transforms_frame)
+
+        self.line_6 = QFrame(self.groupBox_2)
+        self.line_6.setObjectName(u"line_6")
+        self.line_6.setMinimumSize(QSize(0, 10))
+        self.line_6.setFrameShape(QFrame.Shape.HLine)
+        self.line_6.setFrameShadow(QFrame.Shadow.Sunken)
+
+        self.verticalLayout_60.addWidget(self.line_6)
 
         self.frame_51 = QFrame(self.groupBox_2)
         self.frame_51.setObjectName(u"frame_51")
@@ -2579,13 +2589,13 @@ class Ui_MainWindow(object):
         self.horizontalLayout_30 = QHBoxLayout(self.frame_51)
         self.horizontalLayout_30.setObjectName(u"horizontalLayout_30")
         self.horizontalLayout_30.setContentsMargins(0, 0, 0, 0)
-        self.label_68 = QLabel(self.frame_51)
-        self.label_68.setObjectName(u"label_68")
-        sizePolicy1.setHeightForWidth(self.label_68.sizePolicy().hasHeightForWidth())
-        self.label_68.setSizePolicy(sizePolicy1)
-        self.label_68.setFont(font2)
+        self.show_both_transforms = QCheckBox(self.frame_51)
+        self.show_both_transforms.setObjectName(u"show_both_transforms")
+        sizePolicy8.setHeightForWidth(self.show_both_transforms.sizePolicy().hasHeightForWidth())
+        self.show_both_transforms.setSizePolicy(sizePolicy8)
+        self.show_both_transforms.setFont(font12)
 
-        self.horizontalLayout_30.addWidget(self.label_68)
+        self.horizontalLayout_30.addWidget(self.show_both_transforms)
 
         self.line_3 = QFrame(self.frame_51)
         self.line_3.setObjectName(u"line_3")
@@ -2597,21 +2607,21 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_60.addWidget(self.frame_51)
 
-        self.frame_61 = QFrame(self.groupBox_2)
-        self.frame_61.setObjectName(u"frame_61")
-        self.frame_61.setFrameShape(QFrame.StyledPanel)
-        self.frame_61.setFrameShadow(QFrame.Raised)
-        self.formLayout = QFormLayout(self.frame_61)
+        self.both_transforms_frame = QFrame(self.groupBox_2)
+        self.both_transforms_frame.setObjectName(u"both_transforms_frame")
+        self.both_transforms_frame.setFrameShape(QFrame.StyledPanel)
+        self.both_transforms_frame.setFrameShadow(QFrame.Raised)
+        self.formLayout = QFormLayout(self.both_transforms_frame)
         self.formLayout.setObjectName(u"formLayout")
         self.formLayout.setHorizontalSpacing(6)
         self.formLayout.setVerticalSpacing(6)
         self.formLayout.setContentsMargins(0, 0, 0, 0)
-        self.label_71 = QLabel(self.frame_61)
+        self.label_71 = QLabel(self.both_transforms_frame)
         self.label_71.setObjectName(u"label_71")
 
         self.formLayout.setWidget(0, QFormLayout.ItemRole.LabelRole, self.label_71)
 
-        self.frame_62 = QFrame(self.frame_61)
+        self.frame_62 = QFrame(self.both_transforms_frame)
         self.frame_62.setObjectName(u"frame_62")
         self.frame_62.setFrameShape(QFrame.StyledPanel)
         self.frame_62.setFrameShadow(QFrame.Raised)
@@ -2636,17 +2646,17 @@ class Ui_MainWindow(object):
 
         self.formLayout.setWidget(0, QFormLayout.ItemRole.FieldRole, self.frame_62)
 
-        self.label_72 = QLabel(self.frame_61)
+        self.label_72 = QLabel(self.both_transforms_frame)
         self.label_72.setObjectName(u"label_72")
 
         self.formLayout.setWidget(1, QFormLayout.ItemRole.LabelRole, self.label_72)
 
-        self.label_73 = QLabel(self.frame_61)
+        self.label_73 = QLabel(self.both_transforms_frame)
         self.label_73.setObjectName(u"label_73")
 
         self.formLayout.setWidget(2, QFormLayout.ItemRole.LabelRole, self.label_73)
 
-        self.frame_64 = QFrame(self.frame_61)
+        self.frame_64 = QFrame(self.both_transforms_frame)
         self.frame_64.setObjectName(u"frame_64")
         self.frame_64.setFrameShape(QFrame.StyledPanel)
         self.frame_64.setFrameShadow(QFrame.Raised)
@@ -2671,7 +2681,7 @@ class Ui_MainWindow(object):
 
         self.formLayout.setWidget(1, QFormLayout.ItemRole.FieldRole, self.frame_64)
 
-        self.frame_63 = QFrame(self.frame_61)
+        self.frame_63 = QFrame(self.both_transforms_frame)
         self.frame_63.setObjectName(u"frame_63")
         self.frame_63.setFrameShape(QFrame.StyledPanel)
         self.frame_63.setFrameShadow(QFrame.Raised)
@@ -2696,12 +2706,12 @@ class Ui_MainWindow(object):
 
         self.formLayout.setWidget(2, QFormLayout.ItemRole.FieldRole, self.frame_63)
 
-        self.label_138 = QLabel(self.frame_61)
+        self.label_138 = QLabel(self.both_transforms_frame)
         self.label_138.setObjectName(u"label_138")
 
         self.formLayout.setWidget(3, QFormLayout.ItemRole.LabelRole, self.label_138)
 
-        self.frame_123 = QFrame(self.frame_61)
+        self.frame_123 = QFrame(self.both_transforms_frame)
         self.frame_123.setObjectName(u"frame_123")
         self.frame_123.setFrameShape(QFrame.StyledPanel)
         self.frame_123.setFrameShadow(QFrame.Raised)
@@ -2726,17 +2736,17 @@ class Ui_MainWindow(object):
 
         self.formLayout.setWidget(3, QFormLayout.ItemRole.FieldRole, self.frame_123)
 
-        self.label_139 = QLabel(self.frame_61)
+        self.label_139 = QLabel(self.both_transforms_frame)
         self.label_139.setObjectName(u"label_139")
 
         self.formLayout.setWidget(4, QFormLayout.ItemRole.LabelRole, self.label_139)
 
-        self.label_140 = QLabel(self.frame_61)
+        self.label_140 = QLabel(self.both_transforms_frame)
         self.label_140.setObjectName(u"label_140")
 
         self.formLayout.setWidget(5, QFormLayout.ItemRole.LabelRole, self.label_140)
 
-        self.frame_125 = QFrame(self.frame_61)
+        self.frame_125 = QFrame(self.both_transforms_frame)
         self.frame_125.setObjectName(u"frame_125")
         self.frame_125.setFrameShape(QFrame.StyledPanel)
         self.frame_125.setFrameShadow(QFrame.Raised)
@@ -2765,7 +2775,7 @@ class Ui_MainWindow(object):
 
         self.formLayout.setWidget(4, QFormLayout.ItemRole.FieldRole, self.frame_125)
 
-        self.frame_124 = QFrame(self.frame_61)
+        self.frame_124 = QFrame(self.both_transforms_frame)
         self.frame_124.setObjectName(u"frame_124")
         self.frame_124.setFrameShape(QFrame.StyledPanel)
         self.frame_124.setFrameShadow(QFrame.Raised)
@@ -2795,12 +2805,12 @@ class Ui_MainWindow(object):
 
         self.formLayout.setWidget(5, QFormLayout.ItemRole.FieldRole, self.frame_124)
 
-        self.label_141 = QLabel(self.frame_61)
+        self.label_141 = QLabel(self.both_transforms_frame)
         self.label_141.setObjectName(u"label_141")
 
         self.formLayout.setWidget(6, QFormLayout.ItemRole.LabelRole, self.label_141)
 
-        self.frame_126 = QFrame(self.frame_61)
+        self.frame_126 = QFrame(self.both_transforms_frame)
         self.frame_126.setObjectName(u"frame_126")
         self.frame_126.setFrameShape(QFrame.StyledPanel)
         self.frame_126.setFrameShadow(QFrame.Raised)
@@ -2825,12 +2835,12 @@ class Ui_MainWindow(object):
 
         self.formLayout.setWidget(6, QFormLayout.ItemRole.FieldRole, self.frame_126)
 
-        self.label_142 = QLabel(self.frame_61)
+        self.label_142 = QLabel(self.both_transforms_frame)
         self.label_142.setObjectName(u"label_142")
 
         self.formLayout.setWidget(7, QFormLayout.ItemRole.LabelRole, self.label_142)
 
-        self.frame_127 = QFrame(self.frame_61)
+        self.frame_127 = QFrame(self.both_transforms_frame)
         self.frame_127.setObjectName(u"frame_127")
         self.frame_127.setFrameShape(QFrame.StyledPanel)
         self.frame_127.setFrameShadow(QFrame.Raised)
@@ -2858,37 +2868,37 @@ class Ui_MainWindow(object):
 
         self.formLayout.setWidget(7, QFormLayout.ItemRole.FieldRole, self.frame_127)
 
-        self.label_143 = QLabel(self.frame_61)
+        self.label_143 = QLabel(self.both_transforms_frame)
         self.label_143.setObjectName(u"label_143")
 
         self.formLayout.setWidget(8, QFormLayout.ItemRole.LabelRole, self.label_143)
 
-        self.optical_distortion_mode = QComboBox(self.frame_61)
+        self.optical_distortion_mode = QComboBox(self.both_transforms_frame)
         self.optical_distortion_mode.setObjectName(u"optical_distortion_mode")
 
         self.formLayout.setWidget(8, QFormLayout.ItemRole.FieldRole, self.optical_distortion_mode)
 
-        self.label_144 = QLabel(self.frame_61)
+        self.label_144 = QLabel(self.both_transforms_frame)
         self.label_144.setObjectName(u"label_144")
 
         self.formLayout.setWidget(9, QFormLayout.ItemRole.LabelRole, self.label_144)
 
-        self.label_145 = QLabel(self.frame_61)
+        self.label_145 = QLabel(self.both_transforms_frame)
         self.label_145.setObjectName(u"label_145")
 
         self.formLayout.setWidget(10, QFormLayout.ItemRole.LabelRole, self.label_145)
 
-        self.label_146 = QLabel(self.frame_61)
+        self.label_146 = QLabel(self.both_transforms_frame)
         self.label_146.setObjectName(u"label_146")
 
         self.formLayout.setWidget(11, QFormLayout.ItemRole.LabelRole, self.label_146)
 
-        self.label_147 = QLabel(self.frame_61)
+        self.label_147 = QLabel(self.both_transforms_frame)
         self.label_147.setObjectName(u"label_147")
 
         self.formLayout.setWidget(12, QFormLayout.ItemRole.LabelRole, self.label_147)
 
-        self.frame_128 = QFrame(self.frame_61)
+        self.frame_128 = QFrame(self.both_transforms_frame)
         self.frame_128.setObjectName(u"frame_128")
         self.frame_128.setFrameShape(QFrame.StyledPanel)
         self.frame_128.setFrameShadow(QFrame.Raised)
@@ -2913,7 +2923,7 @@ class Ui_MainWindow(object):
 
         self.formLayout.setWidget(9, QFormLayout.ItemRole.FieldRole, self.frame_128)
 
-        self.frame_129 = QFrame(self.frame_61)
+        self.frame_129 = QFrame(self.both_transforms_frame)
         self.frame_129.setObjectName(u"frame_129")
         self.frame_129.setFrameShape(QFrame.StyledPanel)
         self.frame_129.setFrameShadow(QFrame.Raised)
@@ -2936,7 +2946,7 @@ class Ui_MainWindow(object):
 
         self.formLayout.setWidget(10, QFormLayout.ItemRole.FieldRole, self.frame_129)
 
-        self.frame_130 = QFrame(self.frame_61)
+        self.frame_130 = QFrame(self.both_transforms_frame)
         self.frame_130.setObjectName(u"frame_130")
         self.frame_130.setFrameShape(QFrame.StyledPanel)
         self.frame_130.setFrameShadow(QFrame.Raised)
@@ -2962,7 +2972,7 @@ class Ui_MainWindow(object):
 
         self.formLayout.setWidget(11, QFormLayout.ItemRole.FieldRole, self.frame_130)
 
-        self.frame_131 = QFrame(self.frame_61)
+        self.frame_131 = QFrame(self.both_transforms_frame)
         self.frame_131.setObjectName(u"frame_131")
         self.frame_131.setFrameShape(QFrame.StyledPanel)
         self.frame_131.setFrameShadow(QFrame.Raised)
@@ -2989,7 +2999,7 @@ class Ui_MainWindow(object):
         self.formLayout.setWidget(12, QFormLayout.ItemRole.FieldRole, self.frame_131)
 
 
-        self.verticalLayout_60.addWidget(self.frame_61)
+        self.verticalLayout_60.addWidget(self.both_transforms_frame)
 
 
         self.verticalLayout_10.addWidget(self.groupBox_2)
@@ -3023,7 +3033,7 @@ class Ui_MainWindow(object):
         self.scrollArea_3.setWidgetResizable(True)
         self.training_settings_container_ = QWidget()
         self.training_settings_container_.setObjectName(u"training_settings_container_")
-        self.training_settings_container_.setGeometry(QRect(0, 0, 419, 754))
+        self.training_settings_container_.setGeometry(QRect(0, 0, 449, 754))
         self.verticalLayout_20 = QVBoxLayout(self.training_settings_container_)
         self.verticalLayout_20.setSpacing(0)
         self.verticalLayout_20.setObjectName(u"verticalLayout_20")
@@ -3048,12 +3058,12 @@ class Ui_MainWindow(object):
         sizePolicy8.setHeightForWidth(self.continue_train.sizePolicy().hasHeightForWidth())
         self.continue_train.setSizePolicy(sizePolicy8)
         self.continue_train.setMinimumSize(QSize(0, 0))
-        font12 = QFont()
-        font12.setPointSize(11)
-        font12.setBold(False)
-        font12.setUnderline(False)
-        font12.setKerning(True)
-        self.continue_train.setFont(font12)
+        font13 = QFont()
+        font13.setPointSize(11)
+        font13.setBold(False)
+        font13.setUnderline(False)
+        font13.setKerning(True)
+        self.continue_train.setFont(font13)
         self.continue_train.setLayoutDirection(Qt.RightToLeft)
         self.continue_train.setTristate(False)
 
@@ -3083,9 +3093,9 @@ class Ui_MainWindow(object):
         self.label_16.setObjectName(u"label_16")
         sizePolicy1.setHeightForWidth(self.label_16.sizePolicy().hasHeightForWidth())
         self.label_16.setSizePolicy(sizePolicy1)
-        font13 = QFont()
-        font13.setPointSize(11)
-        self.label_16.setFont(font13)
+        font14 = QFont()
+        font14.setPointSize(11)
+        self.label_16.setFont(font14)
 
         self.horizontalLayout_58.addWidget(self.label_16)
 
@@ -3136,7 +3146,7 @@ class Ui_MainWindow(object):
         self.scrollArea_4.setWidgetResizable(True)
         self.generator_tab = QWidget()
         self.generator_tab.setObjectName(u"generator_tab")
-        self.generator_tab.setGeometry(QRect(0, 0, 409, 652))
+        self.generator_tab.setGeometry(QRect(0, 0, 439, 652))
         self.verticalLayout_15 = QVBoxLayout(self.generator_tab)
         self.verticalLayout_15.setObjectName(u"verticalLayout_15")
         self.verticalLayout_15.setContentsMargins(6, 6, 6, 6)
@@ -3151,7 +3161,7 @@ class Ui_MainWindow(object):
         self.label_57.setObjectName(u"label_57")
         sizePolicy1.setHeightForWidth(self.label_57.sizePolicy().hasHeightForWidth())
         self.label_57.setSizePolicy(sizePolicy1)
-        self.label_57.setFont(font13)
+        self.label_57.setFont(font14)
         self.label_57.setFrameShape(QFrame.NoFrame)
         self.label_57.setFrameShadow(QFrame.Raised)
 
@@ -3216,7 +3226,7 @@ class Ui_MainWindow(object):
         self.label_60.setObjectName(u"label_60")
         sizePolicy1.setHeightForWidth(self.label_60.sizePolicy().hasHeightForWidth())
         self.label_60.setSizePolicy(sizePolicy1)
-        self.label_60.setFont(font13)
+        self.label_60.setFont(font14)
         self.label_60.setFrameShape(QFrame.NoFrame)
         self.label_60.setFrameShadow(QFrame.Raised)
 
@@ -3309,7 +3319,7 @@ class Ui_MainWindow(object):
         self.label_59.setObjectName(u"label_59")
         sizePolicy1.setHeightForWidth(self.label_59.sizePolicy().hasHeightForWidth())
         self.label_59.setSizePolicy(sizePolicy1)
-        self.label_59.setFont(font13)
+        self.label_59.setFont(font14)
         self.label_59.setFrameShape(QFrame.NoFrame)
         self.label_59.setFrameShadow(QFrame.Raised)
 
@@ -3375,7 +3385,7 @@ class Ui_MainWindow(object):
         self.scrollArea_6.setWidgetResizable(True)
         self.discriminator_tab = QWidget()
         self.discriminator_tab.setObjectName(u"discriminator_tab")
-        self.discriminator_tab.setGeometry(QRect(0, 0, 409, 652))
+        self.discriminator_tab.setGeometry(QRect(0, 0, 439, 652))
         self.verticalLayout_36 = QVBoxLayout(self.discriminator_tab)
         self.verticalLayout_36.setObjectName(u"verticalLayout_36")
         self.verticalLayout_36.setContentsMargins(6, 6, 6, 6)
@@ -3388,7 +3398,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout_79.setContentsMargins(0, 0, 0, 0)
         self.separate_lr_schedules = QCheckBox(self.frame_76)
         self.separate_lr_schedules.setObjectName(u"separate_lr_schedules")
-        self.separate_lr_schedules.setFont(font13)
+        self.separate_lr_schedules.setFont(font14)
 
         self.horizontalLayout_79.addWidget(self.separate_lr_schedules)
 
@@ -3420,7 +3430,7 @@ class Ui_MainWindow(object):
         self.label_61.setObjectName(u"label_61")
         sizePolicy1.setHeightForWidth(self.label_61.sizePolicy().hasHeightForWidth())
         self.label_61.setSizePolicy(sizePolicy1)
-        self.label_61.setFont(font13)
+        self.label_61.setFont(font14)
         self.label_61.setFrameShape(QFrame.NoFrame)
         self.label_61.setFrameShadow(QFrame.Raised)
 
@@ -3485,7 +3495,7 @@ class Ui_MainWindow(object):
         self.label_62.setObjectName(u"label_62")
         sizePolicy1.setHeightForWidth(self.label_62.sizePolicy().hasHeightForWidth())
         self.label_62.setSizePolicy(sizePolicy1)
-        self.label_62.setFont(font13)
+        self.label_62.setFont(font14)
         self.label_62.setFrameShape(QFrame.NoFrame)
         self.label_62.setFrameShadow(QFrame.Raised)
 
@@ -3581,7 +3591,7 @@ class Ui_MainWindow(object):
         self.label_63.setObjectName(u"label_63")
         sizePolicy1.setHeightForWidth(self.label_63.sizePolicy().hasHeightForWidth())
         self.label_63.setSizePolicy(sizePolicy1)
-        self.label_63.setFont(font13)
+        self.label_63.setFont(font14)
         self.label_63.setFrameShape(QFrame.NoFrame)
         self.label_63.setFrameShadow(QFrame.Raised)
 
@@ -3647,7 +3657,7 @@ class Ui_MainWindow(object):
         self.scrollArea_5.setWidgetResizable(True)
         self.loss_tab = QWidget()
         self.loss_tab.setObjectName(u"loss_tab")
-        self.loss_tab.setGeometry(QRect(0, 0, 409, 652))
+        self.loss_tab.setGeometry(QRect(0, 0, 439, 652))
         self.verticalLayout_16 = QVBoxLayout(self.loss_tab)
         self.verticalLayout_16.setObjectName(u"verticalLayout_16")
         self.verticalLayout_16.setContentsMargins(6, 6, 6, 6)
@@ -3661,7 +3671,7 @@ class Ui_MainWindow(object):
         self.label_13 = QLabel(self.frame_25)
         self.label_13.setObjectName(u"label_13")
 
-        self.formLayout_2.setWidget(0, QFormLayout.ItemRole.LabelRole, self.label_13)
+        self.formLayout_2.setWidget(1, QFormLayout.ItemRole.LabelRole, self.label_13)
 
         self.horizontalLayout_10 = QHBoxLayout()
         self.horizontalLayout_10.setObjectName(u"horizontalLayout_10")
@@ -3682,12 +3692,12 @@ class Ui_MainWindow(object):
         self.horizontalLayout_10.addWidget(self.lambda_l1)
 
 
-        self.formLayout_2.setLayout(0, QFormLayout.ItemRole.FieldRole, self.horizontalLayout_10)
+        self.formLayout_2.setLayout(1, QFormLayout.ItemRole.FieldRole, self.horizontalLayout_10)
 
         self.label_17 = QLabel(self.frame_25)
         self.label_17.setObjectName(u"label_17")
 
-        self.formLayout_2.setWidget(1, QFormLayout.ItemRole.LabelRole, self.label_17)
+        self.formLayout_2.setWidget(3, QFormLayout.ItemRole.LabelRole, self.label_17)
 
         self.horizontalLayout_11 = QHBoxLayout()
         self.horizontalLayout_11.setObjectName(u"horizontalLayout_11")
@@ -3706,17 +3716,17 @@ class Ui_MainWindow(object):
         self.horizontalLayout_11.addWidget(self.lambda_sobel)
 
 
-        self.formLayout_2.setLayout(1, QFormLayout.ItemRole.FieldRole, self.horizontalLayout_11)
+        self.formLayout_2.setLayout(3, QFormLayout.ItemRole.FieldRole, self.horizontalLayout_11)
 
         self.label_37 = QLabel(self.frame_25)
         self.label_37.setObjectName(u"label_37")
 
-        self.formLayout_2.setWidget(2, QFormLayout.ItemRole.LabelRole, self.label_37)
+        self.formLayout_2.setWidget(4, QFormLayout.ItemRole.LabelRole, self.label_37)
 
         self.label_38 = QLabel(self.frame_25)
         self.label_38.setObjectName(u"label_38")
 
-        self.formLayout_2.setWidget(3, QFormLayout.ItemRole.LabelRole, self.label_38)
+        self.formLayout_2.setWidget(5, QFormLayout.ItemRole.LabelRole, self.label_38)
 
         self.horizontalLayout_28 = QHBoxLayout()
         self.horizontalLayout_28.setObjectName(u"horizontalLayout_28")
@@ -3735,14 +3745,14 @@ class Ui_MainWindow(object):
         self.horizontalLayout_28.addWidget(self.lambda_laplacian)
 
 
-        self.formLayout_2.setLayout(2, QFormLayout.ItemRole.FieldRole, self.horizontalLayout_28)
+        self.formLayout_2.setLayout(4, QFormLayout.ItemRole.FieldRole, self.horizontalLayout_28)
 
         self.horizontalLayout_27 = QHBoxLayout()
         self.horizontalLayout_27.setObjectName(u"horizontalLayout_27")
         self.lambda_vgg_slider = QSlider(self.frame_25)
         self.lambda_vgg_slider.setObjectName(u"lambda_vgg_slider")
         self.lambda_vgg_slider.setMaximum(100)
-        self.lambda_vgg_slider.setValue(10)
+        self.lambda_vgg_slider.setValue(0)
         self.lambda_vgg_slider.setOrientation(Qt.Horizontal)
 
         self.horizontalLayout_27.addWidget(self.lambda_vgg_slider)
@@ -3750,12 +3760,60 @@ class Ui_MainWindow(object):
         self.lambda_vgg = QDoubleSpinBox(self.frame_25)
         self.lambda_vgg.setObjectName(u"lambda_vgg")
         self.lambda_vgg.setMaximum(500.000000000000000)
-        self.lambda_vgg.setValue(10.000000000000000)
+        self.lambda_vgg.setValue(0.000000000000000)
 
         self.horizontalLayout_27.addWidget(self.lambda_vgg)
 
 
-        self.formLayout_2.setLayout(3, QFormLayout.ItemRole.FieldRole, self.horizontalLayout_27)
+        self.formLayout_2.setLayout(5, QFormLayout.ItemRole.FieldRole, self.horizontalLayout_27)
+
+        self.label_28 = QLabel(self.frame_25)
+        self.label_28.setObjectName(u"label_28")
+
+        self.formLayout_2.setWidget(0, QFormLayout.ItemRole.LabelRole, self.label_28)
+
+        self.horizontalLayout_52 = QHBoxLayout()
+        self.horizontalLayout_52.setObjectName(u"horizontalLayout_52")
+        self.lambda_gan_slider = QSlider(self.frame_25)
+        self.lambda_gan_slider.setObjectName(u"lambda_gan_slider")
+        self.lambda_gan_slider.setMaximum(100)
+        self.lambda_gan_slider.setValue(1)
+        self.lambda_gan_slider.setOrientation(Qt.Horizontal)
+
+        self.horizontalLayout_52.addWidget(self.lambda_gan_slider)
+
+        self.lambda_gan = QDoubleSpinBox(self.frame_25)
+        self.lambda_gan.setObjectName(u"lambda_gan")
+        self.lambda_gan.setMaximum(100.000000000000000)
+        self.lambda_gan.setValue(1.000000000000000)
+
+        self.horizontalLayout_52.addWidget(self.lambda_gan)
+
+
+        self.formLayout_2.setLayout(0, QFormLayout.ItemRole.FieldRole, self.horizontalLayout_52)
+
+        self.label_29 = QLabel(self.frame_25)
+        self.label_29.setObjectName(u"label_29")
+
+        self.formLayout_2.setWidget(2, QFormLayout.ItemRole.LabelRole, self.label_29)
+
+        self.horizontalLayout_78 = QHBoxLayout()
+        self.horizontalLayout_78.setObjectName(u"horizontalLayout_78")
+        self.lambda_l2_slider = QSlider(self.frame_25)
+        self.lambda_l2_slider.setObjectName(u"lambda_l2_slider")
+        self.lambda_l2_slider.setOrientation(Qt.Horizontal)
+
+        self.horizontalLayout_78.addWidget(self.lambda_l2_slider)
+
+        self.lambda_l2 = QDoubleSpinBox(self.frame_25)
+        self.lambda_l2.setObjectName(u"lambda_l2")
+        self.lambda_l2.setMaximum(500.000000000000000)
+        self.lambda_l2.setSingleStep(5.000000000000000)
+
+        self.horizontalLayout_78.addWidget(self.lambda_l2)
+
+
+        self.formLayout_2.setLayout(2, QFormLayout.ItemRole.FieldRole, self.horizontalLayout_78)
 
 
         self.verticalLayout_16.addWidget(self.frame_25)
@@ -3773,21 +3831,21 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_16.addWidget(self.log_losses)
 
-        self.frame_114 = QFrame(self.loss_tab)
-        self.frame_114.setObjectName(u"frame_114")
-        self.frame_114.setFrameShape(QFrame.StyledPanel)
-        self.frame_114.setFrameShadow(QFrame.Raised)
-        self.horizontalLayout_108 = QHBoxLayout(self.frame_114)
+        self.log_loss_settings = QFrame(self.loss_tab)
+        self.log_loss_settings.setObjectName(u"log_loss_settings")
+        self.log_loss_settings.setFrameShape(QFrame.StyledPanel)
+        self.log_loss_settings.setFrameShadow(QFrame.Raised)
+        self.horizontalLayout_108 = QHBoxLayout(self.log_loss_settings)
         self.horizontalLayout_108.setObjectName(u"horizontalLayout_108")
         self.horizontalLayout_108.setContentsMargins(0, 0, 0, 0)
-        self.label_18 = QLabel(self.frame_114)
+        self.label_18 = QLabel(self.log_loss_settings)
         self.label_18.setObjectName(u"label_18")
         sizePolicy1.setHeightForWidth(self.label_18.sizePolicy().hasHeightForWidth())
         self.label_18.setSizePolicy(sizePolicy1)
 
         self.horizontalLayout_108.addWidget(self.label_18)
 
-        self.loss_dump_frequency = QSpinBox(self.frame_114)
+        self.loss_dump_frequency = QSpinBox(self.log_loss_settings)
         self.loss_dump_frequency.setObjectName(u"loss_dump_frequency")
         self.loss_dump_frequency.setMinimum(1)
         self.loss_dump_frequency.setMaximum(999)
@@ -3797,7 +3855,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout_108.addWidget(self.loss_dump_frequency)
 
 
-        self.verticalLayout_16.addWidget(self.frame_114)
+        self.verticalLayout_16.addWidget(self.log_loss_settings)
 
         self.verticalSpacer_5 = QSpacerItem(20, 356, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
 
@@ -3819,7 +3877,7 @@ class Ui_MainWindow(object):
         self.scrollArea_7.setWidgetResizable(True)
         self.saving_tab = QWidget()
         self.saving_tab.setObjectName(u"saving_tab")
-        self.saving_tab.setGeometry(QRect(0, 0, 409, 652))
+        self.saving_tab.setGeometry(QRect(0, 0, 439, 652))
         self.verticalLayout_18 = QVBoxLayout(self.saving_tab)
         self.verticalLayout_18.setObjectName(u"verticalLayout_18")
         self.verticalLayout_18.setContentsMargins(2, 2, 2, 2)
@@ -3834,7 +3892,7 @@ class Ui_MainWindow(object):
         self.save_model.setObjectName(u"save_model")
         sizePolicy8.setHeightForWidth(self.save_model.sizePolicy().hasHeightForWidth())
         self.save_model.setSizePolicy(sizePolicy8)
-        self.save_model.setFont(font13)
+        self.save_model.setFont(font14)
         self.save_model.setChecked(True)
 
         self.horizontalLayout_63.addWidget(self.save_model)
@@ -3900,7 +3958,7 @@ class Ui_MainWindow(object):
         self.save_examples.setObjectName(u"save_examples")
         sizePolicy8.setHeightForWidth(self.save_examples.sizePolicy().hasHeightForWidth())
         self.save_examples.setSizePolicy(sizePolicy8)
-        self.save_examples.setFont(font13)
+        self.save_examples.setFont(font14)
         self.save_examples.setChecked(True)
 
         self.horizontalLayout_59.addWidget(self.save_examples)
@@ -3977,114 +4035,6 @@ class Ui_MainWindow(object):
         self.verticalLayout_17.addWidget(self.scrollArea_7)
 
         self.tabWidget_2.addTab(self._saving_tab, "")
-        self._visdom_tab = QWidget()
-        self._visdom_tab.setObjectName(u"_visdom_tab")
-        self.verticalLayout_19 = QVBoxLayout(self._visdom_tab)
-        self.verticalLayout_19.setObjectName(u"verticalLayout_19")
-        self.verticalLayout_19.setContentsMargins(0, 0, 0, 0)
-        self.scrollArea_8 = QScrollArea(self._visdom_tab)
-        self.scrollArea_8.setObjectName(u"scrollArea_8")
-        self.scrollArea_8.setFrameShadow(QFrame.Raised)
-        self.scrollArea_8.setWidgetResizable(True)
-        self.visdom_tab = QWidget()
-        self.visdom_tab.setObjectName(u"visdom_tab")
-        self.visdom_tab.setGeometry(QRect(0, 0, 409, 652))
-        self.verticalLayout_21 = QVBoxLayout(self.visdom_tab)
-        self.verticalLayout_21.setObjectName(u"verticalLayout_21")
-        self.verticalLayout_21.setContentsMargins(2, 2, 2, 2)
-        self.frame_48 = QFrame(self.visdom_tab)
-        self.frame_48.setObjectName(u"frame_48")
-        self.frame_48.setFrameShape(QFrame.StyledPanel)
-        self.frame_48.setFrameShadow(QFrame.Raised)
-        self.horizontalLayout_78 = QHBoxLayout(self.frame_48)
-        self.horizontalLayout_78.setObjectName(u"horizontalLayout_78")
-        self.horizontalLayout_78.setContentsMargins(0, 0, 0, 0)
-        self.visdom_enable = QCheckBox(self.frame_48)
-        self.visdom_enable.setObjectName(u"visdom_enable")
-        sizePolicy8.setHeightForWidth(self.visdom_enable.sizePolicy().hasHeightForWidth())
-        self.visdom_enable.setSizePolicy(sizePolicy8)
-        self.visdom_enable.setFont(font13)
-
-        self.horizontalLayout_78.addWidget(self.visdom_enable)
-
-        self.line_20 = QFrame(self.frame_48)
-        self.line_20.setObjectName(u"line_20")
-        self.line_20.setFrameShadow(QFrame.Raised)
-        self.line_20.setFrameShape(QFrame.Shape.HLine)
-
-        self.horizontalLayout_78.addWidget(self.line_20)
-
-
-        self.verticalLayout_21.addWidget(self.frame_48)
-
-        self.visdom_settings = QFrame(self.visdom_tab)
-        self.visdom_settings.setObjectName(u"visdom_settings")
-        self.visdom_settings.setFrameShape(QFrame.StyledPanel)
-        self.visdom_settings.setFrameShadow(QFrame.Raised)
-        self.formLayout_6 = QFormLayout(self.visdom_settings)
-        self.formLayout_6.setObjectName(u"formLayout_6")
-        self.formLayout_6.setContentsMargins(0, 0, 0, 0)
-        self.label_28 = QLabel(self.visdom_settings)
-        self.label_28.setObjectName(u"label_28")
-
-        self.formLayout_6.setWidget(0, QFormLayout.ItemRole.LabelRole, self.label_28)
-
-        self.visdom_env_name = QLineEdit(self.visdom_settings)
-        self.visdom_env_name.setObjectName(u"visdom_env_name")
-
-        self.formLayout_6.setWidget(0, QFormLayout.ItemRole.FieldRole, self.visdom_env_name)
-
-        self.label_29 = QLabel(self.visdom_settings)
-        self.label_29.setObjectName(u"label_29")
-
-        self.formLayout_6.setWidget(1, QFormLayout.ItemRole.LabelRole, self.label_29)
-
-        self.visdom_port = QSpinBox(self.visdom_settings)
-        self.visdom_port.setObjectName(u"visdom_port")
-        self.visdom_port.setMinimum(1)
-        self.visdom_port.setMaximum(65535)
-        self.visdom_port.setValue(8097)
-
-        self.formLayout_6.setWidget(1, QFormLayout.ItemRole.FieldRole, self.visdom_port)
-
-        self.label_30 = QLabel(self.visdom_settings)
-        self.label_30.setObjectName(u"label_30")
-
-        self.formLayout_6.setWidget(2, QFormLayout.ItemRole.LabelRole, self.label_30)
-
-        self.visdom_image_size = QSpinBox(self.visdom_settings)
-        self.visdom_image_size.setObjectName(u"visdom_image_size")
-        self.visdom_image_size.setMinimum(32)
-        self.visdom_image_size.setMaximum(4096)
-        self.visdom_image_size.setValue(400)
-
-        self.formLayout_6.setWidget(2, QFormLayout.ItemRole.FieldRole, self.visdom_image_size)
-
-        self.label_65 = QLabel(self.visdom_settings)
-        self.label_65.setObjectName(u"label_65")
-
-        self.formLayout_6.setWidget(3, QFormLayout.ItemRole.LabelRole, self.label_65)
-
-        self.visdom_update_frequency = QSpinBox(self.visdom_settings)
-        self.visdom_update_frequency.setObjectName(u"visdom_update_frequency")
-        self.visdom_update_frequency.setMinimum(1)
-        self.visdom_update_frequency.setMaximum(99999)
-        self.visdom_update_frequency.setValue(100)
-
-        self.formLayout_6.setWidget(3, QFormLayout.ItemRole.FieldRole, self.visdom_update_frequency)
-
-
-        self.verticalLayout_21.addWidget(self.visdom_settings)
-
-        self.verticalSpacer_11 = QSpacerItem(20, 344, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
-
-        self.verticalLayout_21.addItem(self.verticalSpacer_11)
-
-        self.scrollArea_8.setWidget(self.visdom_tab)
-
-        self.verticalLayout_19.addWidget(self.scrollArea_8)
-
-        self.tabWidget_2.addTab(self._visdom_tab, "")
 
         self.verticalLayout_54.addWidget(self.tabWidget_2)
 
@@ -4111,10 +4061,10 @@ class Ui_MainWindow(object):
         self.train_page_locked_label.setObjectName(u"train_page_locked_label")
         sizePolicy3.setHeightForWidth(self.train_page_locked_label.sizePolicy().hasHeightForWidth())
         self.train_page_locked_label.setSizePolicy(sizePolicy3)
-        font14 = QFont()
-        font14.setPointSize(12)
-        font14.setBold(True)
-        self.train_page_locked_label.setFont(font14)
+        font15 = QFont()
+        font15.setPointSize(12)
+        font15.setBold(True)
+        self.train_page_locked_label.setFont(font15)
         self.train_page_locked_label.setAlignment(Qt.AlignCenter)
 
         self.verticalLayout_56.addWidget(self.train_page_locked_label)
@@ -4135,19 +4085,19 @@ class Ui_MainWindow(object):
         self.verticalLayout_33.setContentsMargins(3, 3, 3, 3)
         self.train_start = QPushButton(self.train_functions_frame)
         self.train_start.setObjectName(u"train_start")
-        self.train_start.setFont(font14)
+        self.train_start.setFont(font15)
 
         self.verticalLayout_33.addWidget(self.train_start)
 
         self.train_pause = QPushButton(self.train_functions_frame)
         self.train_pause.setObjectName(u"train_pause")
-        self.train_pause.setFont(font14)
+        self.train_pause.setFont(font15)
 
         self.verticalLayout_33.addWidget(self.train_pause)
 
         self.train_stop = QPushButton(self.train_functions_frame)
         self.train_stop.setObjectName(u"train_stop")
-        self.train_stop.setFont(font14)
+        self.train_stop.setFont(font15)
 
         self.verticalLayout_33.addWidget(self.train_stop)
 
@@ -4401,7 +4351,7 @@ class Ui_MainWindow(object):
         self.verticalLayout_57.setContentsMargins(3, 3, 3, 3)
         self.test_start = QPushButton(self.frame_79)
         self.test_start.setObjectName(u"test_start")
-        self.test_start.setFont(font14)
+        self.test_start.setFont(font15)
 
         self.verticalLayout_57.addWidget(self.test_start)
 
@@ -4476,10 +4426,10 @@ class Ui_MainWindow(object):
 
         self.review_load_experiment = QPushButton(self.review_settings_container)
         self.review_load_experiment.setObjectName(u"review_load_experiment")
-        font15 = QFont()
-        font15.setPointSize(12)
-        font15.setBold(False)
-        self.review_load_experiment.setFont(font15)
+        font16 = QFont()
+        font16.setPointSize(12)
+        font16.setBold(False)
+        self.review_load_experiment.setFont(font16)
 
         self.verticalLayout_46.addWidget(self.review_load_experiment)
 
@@ -5771,7 +5721,7 @@ class Ui_MainWindow(object):
         self.direction.setCurrentText("")
         self.label_8.setText(QCoreApplication.translate("MainWindow", u"Batch Size", None))
         self.groupBox_2.setTitle(QCoreApplication.translate("MainWindow", u"Augmentations", None))
-        self.label_69.setText(QCoreApplication.translate("MainWindow", u"Input", None))
+        self.show_input_transforms.setText(QCoreApplication.translate("MainWindow", u"Input", None))
         self.label_74.setText(QCoreApplication.translate("MainWindow", u"Colorjitter", None))
         self.colorjitter_chance.setSuffix(QCoreApplication.translate("MainWindow", u"%", None))
         self.label_75.setText(QCoreApplication.translate("MainWindow", u"Colorjitter Range", None))
@@ -5791,7 +5741,7 @@ class Ui_MainWindow(object):
         self.label_136.setText(QCoreApplication.translate("MainWindow", u"Compression Type", None))
         self.label_137.setText(QCoreApplication.translate("MainWindow", u"Compression Quality", None))
         self.compression_chance.setSuffix(QCoreApplication.translate("MainWindow", u"%", None))
-        self.label_68.setText(QCoreApplication.translate("MainWindow", u"Both", None))
+        self.show_both_transforms.setText(QCoreApplication.translate("MainWindow", u"Both", None))
         self.label_71.setText(QCoreApplication.translate("MainWindow", u"Horizontal Flip", None))
         self.h_flip_chance.setSuffix(QCoreApplication.translate("MainWindow", u"%", None))
         self.label_72.setText(QCoreApplication.translate("MainWindow", u"Vertical Flip", None))
@@ -5838,6 +5788,8 @@ class Ui_MainWindow(object):
         self.label_17.setText(QCoreApplication.translate("MainWindow", u"Sobel", None))
         self.label_37.setText(QCoreApplication.translate("MainWindow", u"Laplacian", None))
         self.label_38.setText(QCoreApplication.translate("MainWindow", u"VGG", None))
+        self.label_28.setText(QCoreApplication.translate("MainWindow", u"GAN", None))
+        self.label_29.setText(QCoreApplication.translate("MainWindow", u"L2", None))
         self.log_losses.setText(QCoreApplication.translate("MainWindow", u"Log Losses During Training", None))
         self.label_18.setText(QCoreApplication.translate("MainWindow", u"Log Dump Frequency (epochs)", None))
         self.tabWidget_2.setTabText(self.tabWidget_2.indexOf(self._loss_tab), QCoreApplication.translate("MainWindow", u"Loss", None))
@@ -5849,13 +5801,6 @@ class Ui_MainWindow(object):
         self.label_43.setText(QCoreApplication.translate("MainWindow", u"Epochs", None))
         self.label_27.setText(QCoreApplication.translate("MainWindow", u"Count", None))
         self.tabWidget_2.setTabText(self.tabWidget_2.indexOf(self._saving_tab), QCoreApplication.translate("MainWindow", u"Saving", None))
-        self.visdom_enable.setText(QCoreApplication.translate("MainWindow", u"Visdom", None))
-        self.label_28.setText(QCoreApplication.translate("MainWindow", u"Environment Name", None))
-        self.visdom_env_name.setText(QCoreApplication.translate("MainWindow", u"main", None))
-        self.label_29.setText(QCoreApplication.translate("MainWindow", u"Port", None))
-        self.label_30.setText(QCoreApplication.translate("MainWindow", u"Image Size", None))
-        self.label_65.setText(QCoreApplication.translate("MainWindow", u"Update Frequency", None))
-        self.tabWidget_2.setTabText(self.tabWidget_2.indexOf(self._visdom_tab), QCoreApplication.translate("MainWindow", u"Visdom", None))
         self.training_warning_label.setText(QCoreApplication.translate("MainWindow", u"_training_warning_label_", None))
         self.train_page_locked_label.setText(QCoreApplication.translate("MainWindow", u"_TRAIN_PAGE_LOCKED_", None))
         self.train_start.setText(QCoreApplication.translate("MainWindow", u"Begin Training", None))

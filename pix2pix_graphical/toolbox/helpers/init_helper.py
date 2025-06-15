@@ -79,11 +79,6 @@ class InitHelper():
         save_examples_settings = self.find(QFrame, 'save_examples_settings')
         self.find(QCheckBox, 'save_examples').clicked.connect(
             lambda value : save_examples_settings.setHidden(not value))
-        
-        visdom_settings = self.find(QFrame, 'visdom_settings')
-        visdom_settings.setHidden(True)
-        self.find(QCheckBox, 'visdom_enable').clicked.connect(
-            lambda value : visdom_settings.setHidden(not value))
 
     def _init_current_epoch_display(self) -> None:
         '''Initializes the current epoch display QLCD widget.'''
@@ -179,6 +174,7 @@ class InitHelper():
             ('disc_lr_target_slider', 'disc_lr_target', 0.0001),
             ('disc_optim_beta1_slider', 'disc_optim_beta1', 0.01),
             
+            ('lambda_gan_slider', 'lambda_gan', 1.0),
             ('lambda_l1_slider', 'lambda_l1', 1.0),
             ('lambda_sobel_slider', 'lambda_sobel', 1.0),
             ('lambda_laplacian_slider', 'lambda_laplacian', 1.0),
@@ -228,6 +224,7 @@ class InitHelper():
         loss_g = Graph(window_title='loss_g', bottom_label='Epoch')
         loss_g.add_line(name='G_GAN', color=(255, 0, 0))
         loss_g.add_line(name='G_L1', color=(0, 255, 0))
+        loss_g.add_line(name='G_L2', color=(0, 255, 255))
         loss_g.add_line(name='G_SOBEL', color=(0, 0, 255))
         loss_g.add_line(name='G_LAP', color=(255, 255, 0))
         loss_g.add_line(name='G_VGG', color=(255, 0, 255))

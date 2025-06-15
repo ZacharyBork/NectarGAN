@@ -219,7 +219,7 @@ class TrainerHelper(QObject):
     def _get_losses(self, losses: dict[str, float]) -> None:
         loss_g_graph = self.find(Graph, 'loss_g_graph')
         loss_d_graph = self.find(Graph, 'loss_d_graph')
-        losses_g = ['G_GAN', 'G_L1', 'G_SOBEL', 'G_LAP', 'G_VGG']
+        losses_g = ['G_GAN', 'G_L1', 'G_L2', 'G_SOBEL', 'G_LAP', 'G_VGG']
         losses_d = ['D_real', 'D_fake']
 
         step = 1.0 + self.current_epoch_progress + float(self.last_epoch)

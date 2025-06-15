@@ -99,6 +99,7 @@
             "loss": {
                 "lambda_gan": 1.0,
                 "lambda_l1": 100.0,
+                "lambda_l2": 0.0,
                 "lambda_sobel": 0.0,
                 "lambda_laplacian": 0.0,
                 "lambda_vgg": 0.0

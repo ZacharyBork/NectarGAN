@@ -11,7 +11,6 @@ class TrainerWorker(QObject, Pix2pixTrainer):
     finished = Signal()
     epoch_progress = Signal(float)
     train_progress = Signal(list)
-    epoch_time = Signal(float)
     tensors = Signal(torch.Tensor)
     losses = Signal(dict)
     log = Signal(str)
@@ -140,7 +139,6 @@ class TrainerWorker(QObject, Pix2pixTrainer):
             end_time = time.perf_counter()
             self.last_epoch_time = end_time-start_time
             self.train_progress.emit([epoch, self.last_epoch_time])
-            # self.epoch_time.emit(self.last_epoch_time)
             self.log.emit(self.print_end_of_epoch(capture=True))
             
 

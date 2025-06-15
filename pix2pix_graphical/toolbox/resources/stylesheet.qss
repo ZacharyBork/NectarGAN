@@ -451,6 +451,10 @@ QSpinBox, QDoubleSpinBox {
     border-bottom-left-radius: 5px;
     border-top-left-radius: 5px;
 }
+QSpinBox::disabled, QDoubleSpinBox::disabled {
+    color: rgb(120, 120, 120);
+    border: 1px solid rgb(100, 100, 100);
+}
 QSpinBox::hover, QDoubleSpinBox::hover {
     background-color: rgb(80, 80, 80);
 }

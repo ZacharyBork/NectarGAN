@@ -351,11 +351,14 @@ class Pix2pixTrainer(Trainer):
         lm = self.loss_manager # Get loss manager and compute L1 loss
         loss_G_L1 = lm.compute_loss_xy('G_L1', y_fake, y, self.current_epoch)
 
-        loss_G_SOBEL = torch.zeros_like(loss_G_L1) # Dummy tensor for sobel
-        loss_G_LAP = torch.zeros_like(loss_G_L1)   # And for Laplacian
+        loss_G_L2 = torch.zeros_like(loss_G_L1)    # Dummy tensor for MSE
+        loss_G_SOBEL = torch.zeros_like(loss_G_L1) # And for sobel
+        loss_G_LAP = torch.zeros_like(loss_G_L1)   # And Laplacian
         loss_G_VGG = torch.zeros_like(loss_G_L1)   # And also for VGG
         
         if self.extend_loss_spec: # Extended losses, if enabled 
+            loss_G_SOBEL = lm.compute_loss_xy(
+                'G_L2', y_fake, y, self.current_epoch)
             loss_G_SOBEL = lm.compute_loss_xy(
                 'G_SOBEL', y_fake, y, self.current_epoch)
             loss_G_LAP = lm.compute_loss_xy(

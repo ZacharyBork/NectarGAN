@@ -66,6 +66,8 @@ class Interface(QObject):
         crop_size = self.find(QComboBox, 'crop_size')
         crop_size.addItems(['16', '32', '64', '128', '256', '512', '1024'])
         crop_size.setCurrentIndex(4)
+        self.find(QCheckBox, 'log_losses').clicked.connect(
+            lambda x : self.find(QFrame, 'log_loss_settings').setEnabled(x))
 
         self.find(QComboBox, 'grayscale_method').addItems([
             'Weighted Average', 'From LAB', 'Desaturation', 
@@ -74,6 +76,17 @@ class Interface(QObject):
             ['jpeg', 'webp'])
         self.find(QComboBox, 'optical_distortion_mode').addItems(
             ['Camera', 'Fisheye'])
+        
+        input_xforms = self.find(QFrame, 'input_transforms_frame')
+        self.find(QCheckBox, 'show_input_transforms').clicked.connect(
+            lambda x : input_xforms.setVisible(x))
+        input_xforms.setVisible(False)
+
+        both_xforms = self.find(QFrame, 'both_transforms_frame')
+        self.find(QCheckBox, 'show_both_transforms').clicked.connect(
+            lambda x : both_xforms.setVisible(x))
+        both_xforms.setVisible(False)
+        
         
         # REVIEW
 

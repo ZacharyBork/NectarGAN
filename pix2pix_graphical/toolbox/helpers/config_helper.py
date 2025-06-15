@@ -314,8 +314,12 @@ class ConfigHelper:
                 'train.discriminator.optimizer.beta1', 'QDoubleSpinBox'),
 
             # Loss
+            'lambda_gan': (
+                'train.loss.lambda_gan', 'QDoubleSpinBox'),
             'lambda_l1': (
                 'train.loss.lambda_l1', 'QDoubleSpinBox'),
+            'lambda_l2': (
+                'train.loss.lambda_l2', 'QDoubleSpinBox'),
             'lambda_sobel': (
                 'train.loss.lambda_sobel', 'QDoubleSpinBox'),
             'lambda_laplacian': (
@@ -333,17 +337,4 @@ class ConfigHelper:
             'example_save_rate': (
                 'save.example_save_rate', 'QSpinBox'),
             'num_examples': (
-                'save.num_examples', 'QSpinBox'),
-
-            # Visdom
-            'visdom_enable': (
-                'visualizer.visdom.enable', 'QCheckBox'),
-            'visdom_env_name': (
-                'visualizer.visdom.env_name', 'QLineEdit'),
-            'visdom_port': (
-                'visualizer.visdom.port', 'QSpinBox'),
-            'visdom_image_size': (
-                'visualizer.visdom.image_size', 'QSpinBox'),
-            'visdom_update_frequency': (
-                'visualizer.visdom.update_frequency', 'QSpinBox')}
-        
+                'save.num_examples', 'QSpinBox')}

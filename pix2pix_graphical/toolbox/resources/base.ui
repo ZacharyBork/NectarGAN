@@ -4214,9 +4214,9 @@
                   <property name="geometry">
                    <rect>
                     <x>0</x>
-                    <y>0</y>
+                    <y>-187</y>
                     <width>437</width>
-                    <height>1228</height>
+                    <height>1251</height>
                    </rect>
                   </property>
                   <layout class="QVBoxLayout" name="verticalLayout_10">
@@ -4689,16 +4689,16 @@
                           <number>0</number>
                          </property>
                          <item>
-                          <widget class="QLabel" name="label_69">
+                          <widget class="QCheckBox" name="show_input_transforms">
                            <property name="sizePolicy">
-                            <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+                            <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
                              <horstretch>0</horstretch>
                              <verstretch>0</verstretch>
                             </sizepolicy>
                            </property>
                            <property name="font">
                             <font>
-                             <pointsize>12</pointsize>
+                             <pointsize>13</pointsize>
                             </font>
                            </property>
                            <property name="text">
@@ -4720,7 +4720,7 @@
                        </widget>
                       </item>
                       <item>
-                       <widget class="QFrame" name="frame_65">
+                       <widget class="QFrame" name="input_transforms_frame">
                         <property name="frameShape">
                          <enum>QFrame::StyledPanel</enum>
                         </property>
@@ -5351,6 +5351,19 @@
                        </widget>
                       </item>
                       <item>
+                       <widget class="Line" name="line_6">
+                        <property name="minimumSize">
+                         <size>
+                          <width>0</width>
+                          <height>10</height>
+                         </size>
+                        </property>
+                        <property name="orientation">
+                         <enum>Qt::Horizontal</enum>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
                        <widget class="QFrame" name="frame_51">
                         <property name="frameShape">
                          <enum>QFrame::StyledPanel</enum>
@@ -5372,16 +5385,16 @@
                           <number>0</number>
                          </property>
                          <item>
-                          <widget class="QLabel" name="label_68">
+                          <widget class="QCheckBox" name="show_both_transforms">
                            <property name="sizePolicy">
-                            <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+                            <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
                              <horstretch>0</horstretch>
                              <verstretch>0</verstretch>
                             </sizepolicy>
                            </property>
                            <property name="font">
                             <font>
-                             <pointsize>12</pointsize>
+                             <pointsize>13</pointsize>
                             </font>
                            </property>
                            <property name="text">
@@ -5403,7 +5416,7 @@
                        </widget>
                       </item>
                       <item>
-                       <widget class="QFrame" name="frame_61">
+                       <widget class="QFrame" name="both_transforms_frame">
                         <property name="frameShape">
                          <enum>QFrame::StyledPanel</enum>
                         </property>
@@ -6227,7 +6240,7 @@
                        <rect>
                         <x>0</x>
                         <y>0</y>
-                        <width>419</width>
+                        <width>449</width>
                         <height>754</height>
                        </rect>
                       </property>
@@ -6481,7 +6494,7 @@
                                   <rect>
                                    <x>0</x>
                                    <y>0</y>
-                                   <width>409</width>
+                                   <width>439</width>
                                    <height>652</height>
                                   </rect>
                                  </property>
@@ -6939,7 +6952,7 @@
                                   <rect>
                                    <x>0</x>
                                    <y>0</y>
-                                   <width>409</width>
+                                   <width>439</width>
                                    <height>652</height>
                                   </rect>
                                  </property>
@@ -7467,7 +7480,7 @@
                                   <rect>
                                    <x>0</x>
                                    <y>0</y>
-                                   <width>409</width>
+                                   <width>439</width>
                                    <height>652</height>
                                   </rect>
                                  </property>
@@ -7505,14 +7518,14 @@
                                      <property name="bottomMargin">
                                       <number>0</number>
                                      </property>
-                                     <item row="0" column="0">
+                                     <item row="1" column="0">
                                       <widget class="QLabel" name="label_13">
                                        <property name="text">
                                         <string>L1</string>
                                        </property>
                                       </widget>
                                      </item>
-                                     <item row="0" column="1">
+                                     <item row="1" column="1">
                                       <layout class="QHBoxLayout" name="horizontalLayout_10">
                                        <item>
                                         <widget class="QSlider" name="lambda_l1_slider">
@@ -7542,14 +7555,14 @@
                                        </item>
                                       </layout>
                                      </item>
-                                     <item row="1" column="0">
+                                     <item row="3" column="0">
                                       <widget class="QLabel" name="label_17">
                                        <property name="text">
                                         <string>Sobel</string>
                                        </property>
                                       </widget>
                                      </item>
-                                     <item row="1" column="1">
+                                     <item row="3" column="1">
                                       <layout class="QHBoxLayout" name="horizontalLayout_11">
                                        <item>
                                         <widget class="QSlider" name="lambda_sobel_slider">
@@ -7573,21 +7586,21 @@
                                        </item>
                                       </layout>
                                      </item>
-                                     <item row="2" column="0">
+                                     <item row="4" column="0">
                                       <widget class="QLabel" name="label_37">
                                        <property name="text">
                                         <string>Laplacian</string>
                                        </property>
                                       </widget>
                                      </item>
-                                     <item row="3" column="0">
+                                     <item row="5" column="0">
                                       <widget class="QLabel" name="label_38">
                                        <property name="text">
                                         <string>VGG</string>
                                        </property>
                                       </widget>
                                      </item>
-                                     <item row="2" column="1">
+                                     <item row="4" column="1">
                                       <layout class="QHBoxLayout" name="horizontalLayout_28">
                                        <item>
                                         <widget class="QSlider" name="lambda_laplacian_slider">
@@ -7611,7 +7624,7 @@
                                        </item>
                                       </layout>
                                      </item>
-                                     <item row="3" column="1">
+                                     <item row="5" column="1">
                                       <layout class="QHBoxLayout" name="horizontalLayout_27">
                                        <item>
                                         <widget class="QSlider" name="lambda_vgg_slider">
@@ -7619,7 +7632,7 @@
                                           <number>100</number>
                                          </property>
                                          <property name="value">
-                                          <number>10</number>
+                                          <number>0</number>
                                          </property>
                                          <property name="orientation">
                                           <enum>Qt::Horizontal</enum>
@@ -7632,7 +7645,69 @@
                                           <double>500.000000000000000</double>
                                          </property>
                                          <property name="value">
-                                          <double>10.000000000000000</double>
+                                          <double>0.000000000000000</double>
+                                         </property>
+                                        </widget>
+                                       </item>
+                                      </layout>
+                                     </item>
+                                     <item row="0" column="0">
+                                      <widget class="QLabel" name="label_28">
+                                       <property name="text">
+                                        <string>GAN</string>
+                                       </property>
+                                      </widget>
+                                     </item>
+                                     <item row="0" column="1">
+                                      <layout class="QHBoxLayout" name="horizontalLayout_52">
+                                       <item>
+                                        <widget class="QSlider" name="lambda_gan_slider">
+                                         <property name="maximum">
+                                          <number>100</number>
+                                         </property>
+                                         <property name="value">
+                                          <number>1</number>
+                                         </property>
+                                         <property name="orientation">
+                                          <enum>Qt::Horizontal</enum>
+                                         </property>
+                                        </widget>
+                                       </item>
+                                       <item>
+                                        <widget class="QDoubleSpinBox" name="lambda_gan">
+                                         <property name="maximum">
+                                          <double>100.000000000000000</double>
+                                         </property>
+                                         <property name="value">
+                                          <double>1.000000000000000</double>
+                                         </property>
+                                        </widget>
+                                       </item>
+                                      </layout>
+                                     </item>
+                                     <item row="2" column="0">
+                                      <widget class="QLabel" name="label_29">
+                                       <property name="text">
+                                        <string>L2</string>
+                                       </property>
+                                      </widget>
+                                     </item>
+                                     <item row="2" column="1">
+                                      <layout class="QHBoxLayout" name="horizontalLayout_78">
+                                       <item>
+                                        <widget class="QSlider" name="lambda_l2_slider">
+                                         <property name="orientation">
+                                          <enum>Qt::Horizontal</enum>
+                                         </property>
+                                        </widget>
+                                       </item>
+                                       <item>
+                                        <widget class="QDoubleSpinBox" name="lambda_l2">
+                                         <property name="maximum">
+                                          <double>500.000000000000000</double>
+                                         </property>
+                                         <property name="singleStep">
+                                          <double>5.000000000000000</double>
                                          </property>
                                         </widget>
                                        </item>
@@ -7659,7 +7734,7 @@
                                    </widget>
                                   </item>
                                   <item>
-                                   <widget class="QFrame" name="frame_114">
+                                   <widget class="QFrame" name="log_loss_settings">
                                     <property name="frameShape">
                                      <enum>QFrame::StyledPanel</enum>
                                     </property>
@@ -7760,7 +7835,7 @@
                                   <rect>
                                    <x>0</x>
                                    <y>0</y>
-                                   <width>409</width>
+                                   <width>439</width>
                                    <height>652</height>
                                   </rect>
                                  </property>
@@ -8058,222 +8133,6 @@
                                      <size>
                                       <width>20</width>
                                       <height>270</height>
-                                     </size>
-                                    </property>
-                                   </spacer>
-                                  </item>
-                                 </layout>
-                                </widget>
-                               </widget>
-                              </item>
-                             </layout>
-                            </widget>
-                            <widget class="QWidget" name="_visdom_tab">
-                             <attribute name="title">
-                              <string>Visdom</string>
-                             </attribute>
-                             <layout class="QVBoxLayout" name="verticalLayout_19">
-                              <property name="leftMargin">
-                               <number>0</number>
-                              </property>
-                              <property name="topMargin">
-                               <number>0</number>
-                              </property>
-                              <property name="rightMargin">
-                               <number>0</number>
-                              </property>
-                              <property name="bottomMargin">
-                               <number>0</number>
-                              </property>
-                              <item>
-                               <widget class="QScrollArea" name="scrollArea_8">
-                                <property name="frameShadow">
-                                 <enum>QFrame::Raised</enum>
-                                </property>
-                                <property name="widgetResizable">
-                                 <bool>true</bool>
-                                </property>
-                                <widget class="QWidget" name="visdom_tab">
-                                 <property name="geometry">
-                                  <rect>
-                                   <x>0</x>
-                                   <y>0</y>
-                                   <width>409</width>
-                                   <height>652</height>
-                                  </rect>
-                                 </property>
-                                 <layout class="QVBoxLayout" name="verticalLayout_21">
-                                  <property name="leftMargin">
-                                   <number>2</number>
-                                  </property>
-                                  <property name="topMargin">
-                                   <number>2</number>
-                                  </property>
-                                  <property name="rightMargin">
-                                   <number>2</number>
-                                  </property>
-                                  <property name="bottomMargin">
-                                   <number>2</number>
-                                  </property>
-                                  <item>
-                                   <widget class="QFrame" name="frame_48">
-                                    <property name="frameShape">
-                                     <enum>QFrame::StyledPanel</enum>
-                                    </property>
-                                    <property name="frameShadow">
-                                     <enum>QFrame::Raised</enum>
-                                    </property>
-                                    <layout class="QHBoxLayout" name="horizontalLayout_78">
-                                     <property name="leftMargin">
-                                      <number>0</number>
-                                     </property>
-                                     <property name="topMargin">
-                                      <number>0</number>
-                                     </property>
-                                     <property name="rightMargin">
-                                      <number>0</number>
-                                     </property>
-                                     <property name="bottomMargin">
-                                      <number>0</number>
-                                     </property>
-                                     <item>
-                                      <widget class="QCheckBox" name="visdom_enable">
-                                       <property name="sizePolicy">
-                                        <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-                                         <horstretch>0</horstretch>
-                                         <verstretch>0</verstretch>
-                                        </sizepolicy>
-                                       </property>
-                                       <property name="font">
-                                        <font>
-                                         <pointsize>11</pointsize>
-                                        </font>
-                                       </property>
-                                       <property name="text">
-                                        <string>Visdom</string>
-                                       </property>
-                                      </widget>
-                                     </item>
-                                     <item>
-                                      <widget class="Line" name="line_20">
-                                       <property name="frameShadow">
-                                        <enum>QFrame::Raised</enum>
-                                       </property>
-                                       <property name="orientation">
-                                        <enum>Qt::Horizontal</enum>
-                                       </property>
-                                      </widget>
-                                     </item>
-                                    </layout>
-                                   </widget>
-                                  </item>
-                                  <item>
-                                   <widget class="QFrame" name="visdom_settings">
-                                    <property name="frameShape">
-                                     <enum>QFrame::StyledPanel</enum>
-                                    </property>
-                                    <property name="frameShadow">
-                                     <enum>QFrame::Raised</enum>
-                                    </property>
-                                    <layout class="QFormLayout" name="formLayout_6">
-                                     <property name="leftMargin">
-                                      <number>0</number>
-                                     </property>
-                                     <property name="topMargin">
-                                      <number>0</number>
-                                     </property>
-                                     <property name="rightMargin">
-                                      <number>0</number>
-                                     </property>
-                                     <property name="bottomMargin">
-                                      <number>0</number>
-                                     </property>
-                                     <item row="0" column="0">
-                                      <widget class="QLabel" name="label_28">
-                                       <property name="text">
-                                        <string>Environment Name</string>
-                                       </property>
-                                      </widget>
-                                     </item>
-                                     <item row="0" column="1">
-                                      <widget class="QLineEdit" name="visdom_env_name">
-                                       <property name="text">
-                                        <string>main</string>
-                                       </property>
-                                      </widget>
-                                     </item>
-                                     <item row="1" column="0">
-                                      <widget class="QLabel" name="label_29">
-                                       <property name="text">
-                                        <string>Port</string>
-                                       </property>
-                                      </widget>
-                                     </item>
-                                     <item row="1" column="1">
-                                      <widget class="QSpinBox" name="visdom_port">
-                                       <property name="minimum">
-                                        <number>1</number>
-                                       </property>
-                                       <property name="maximum">
-                                        <number>65535</number>
-                                       </property>
-                                       <property name="value">
-                                        <number>8097</number>
-                                       </property>
-                                      </widget>
-                                     </item>
-                                     <item row="2" column="0">
-                                      <widget class="QLabel" name="label_30">
-                                       <property name="text">
-                                        <string>Image Size</string>
-                                       </property>
-                                      </widget>
-                                     </item>
-                                     <item row="2" column="1">
-                                      <widget class="QSpinBox" name="visdom_image_size">
-                                       <property name="minimum">
-                                        <number>32</number>
-                                       </property>
-                                       <property name="maximum">
-                                        <number>4096</number>
-                                       </property>
-                                       <property name="value">
-                                        <number>400</number>
-                                       </property>
-                                      </widget>
-                                     </item>
-                                     <item row="3" column="0">
-                                      <widget class="QLabel" name="label_65">
-                                       <property name="text">
-                                        <string>Update Frequency</string>
-                                       </property>
-                                      </widget>
-                                     </item>
-                                     <item row="3" column="1">
-                                      <widget class="QSpinBox" name="visdom_update_frequency">
-                                       <property name="minimum">
-                                        <number>1</number>
-                                       </property>
-                                       <property name="maximum">
-                                        <number>99999</number>
-                                       </property>
-                                       <property name="value">
-                                        <number>100</number>
-                                       </property>
-                                      </widget>
-                                     </item>
-                                    </layout>
-                                   </widget>
-                                  </item>
-                                  <item>
-                                   <spacer name="verticalSpacer_11">
-                                    <property name="orientation">
-                                     <enum>Qt::Vertical</enum>
-                                    </property>
-                                    <property name="sizeHint" stdset="0">
-                                     <size>
-                                      <width>20</width>
-                                      <height>344</height>
                                      </size>
                                     </property>
                                    </spacer>

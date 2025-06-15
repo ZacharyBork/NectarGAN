@@ -39,6 +39,10 @@ def pix2pix(
     but it will also register some additional loss functions that can sometimes 
     produce fun and interesting results. These are:
 
+        - MSELoss:
+            Squared pixel-wise loss. Punishes larger deviations from the ground
+            truth much more harshly than standard L1 loss.
+            - Generator: 'G_L2'
         - SobelLoss:
             Sobel based structural loss, which tries to encourage the 
             generator to better preserve large scale features and patterns.
@@ -84,6 +88,10 @@ def pix2pix(
         'D_fake': LMLoss(
             name='D_fake', function=BCE, tags=['D'])}
     if 'extended' in subspec:
+        L2 = nn.MSELoss().to(device)
+        loss_fns['G_L2'] = LMLoss(
+            name='G_L2',function=L2, 
+            loss_weight=config.train.loss.lambda_l2, tags=['G'])
         SOBEL = Sobel().to(device)
         loss_fns['G_SOBEL'] = LMLoss(
             name='G_SOBEL',function=SOBEL, 
