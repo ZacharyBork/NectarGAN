@@ -1,13 +1,12 @@
 # NectarGAN
 
->NectarGAN is a graphical GAN development environment and model assembly framework for Pix2pix-style conditional generative adversarial networks.
-
-![alt text](/docs/resources/gifs/output.gif)
+>![toolbox_training_gif](/docs/resources/gifs/toolbox_training.gif)
+>A full-featured graphical development environment and model assembly framework for Pix2pix-style conditional GANs.
 
 ## Features
 ### Training Framework
 - **Fully modular, PyTorch-based GAN training framework**.
-- **Configurable Unet-style generator** with support for multiple UNet block types, and drop-in support for your own custom blocks.
+- **Configurable UNet-style generator** with support for multiple UNet block types, and drop-in support for your own custom blocks.
 - **Easy loss tracking and logging** during and after training with a custom LossManager system.
 - **Modular loss spec system** allows you to quickly define reusable objective functions which can be loaded by the LossManager. Also included is a [prebuilt Pix2pix objective function](/nectargan/losses/pix2pix_objective.py) with a number of additional subspecs which add some extra loss functions for rapid prototyping.
 - **The LossManager also supports a custom loss weight scheduling system** allowing you to apply one of the included weight schedules, or to easily drop your own custom scheduling function in and have the LossManager take care of the rest.
@@ -30,23 +29,43 @@
 - **Load and visualize your model's training example images and loss log data** with the review panel. All [x, y, y_fake] example sets will be automatically loaded, and each loss in the log will be graphed with a configurable sample rate.
 - **View time statistics during training** including slowest, fastest, and average epoch and iteration time, total train time, and a real time time graph of all previous epoch times.
 ### Easy Dataset Augmentation
-- **A simple but powerful augmentation UI** allows you to quickly apply a variety of Albumentations-based augmentations to your datasets at training-time to help expand small datasets and improve model generalization.
-- **Anything from random flipping and rotation, to optical distortion and random grayscale** can be applied by just dragging a slider.
+**A simple but powerful augmentation UI** allows you to quickly apply a variety of Albumentations-based augmentations to your datasets at training-time to help expand small datasets and improve model generalization. Anything from random flipping and rotation, to optical distortion and random grayscale can be applied by just dragging a slider.
 ### ONNX Conversion and Testing
-- **The Toolbox UI also has a tool to convert your trained model to ONNX format.** There is also a developer friendly converter class which you can plug in to your custom pipeline to convert your models.
-- **Also included is a tool to test your converted ONNX models.** It will take your model and a provided folder of test images, and it will run the model's inference on each image in the test directory, displaying the (A | B) results live in the UI.
+**Easily convert you models to ONNX** from either the toolbox UI, or from your own pipeline via the ONNXConverter, and test the resulting model immediately on real images with a live dashboard to display the results.
 ### Dataset Tools
 **NectarGAN Toolbox also includes a set of helpful dataset processing tools. Currently, these are:** 
 - **A tool to pair (A | B) images into Pix2pix input data**, extremely quickly, with control over direction and optional image scaling.
 - **A tool to sort image files by various metrics** (white pixel count, black pixel count, mean pixel value, various types of contrast), and then two related tools. One to unsort the files back to their original order, and one to copy to sorting order of one directory of files to another. These can be used to help process and find bad images in large datasets.
 - **A tool to automatically build train/test/val splits for dataset images** with easy control over split percentages.
 
+## Getting Started
+1. Clone the repository: `git clone https://github.com/ZacharyBork/NectarGAN.git`
+
+## Who is this for?
+- Artists wanting to experiment with paired image translation tasks (why I first starting experimenting with Pix2pix).
+- Reseachers who want a flexible environment in which to explore conditional GAN behavior.
+- Startups looking for an easy and flexible way to experiment with and deploy image translation models.
+- Students wishing to learn about and explore GANs in a visual, easy to use environment.
+- Engineers/TDs wanting to painlessly integrate paired image-to-image models into their pre-existing pipelines.
+
 ## Project Status
 **NectarGAN is under active development.** In its current state, however, it already offers:
 - A robust framework for running and tracking experiments.
+- An interactive dashboard for visualizing experiment results.
 - A developer friendly API for constructing, training, and testing paired image-to-image adversarial models.
 - An expansive and easy to use data augmentation pipeline and a variety of dataset processing tools.
-- And interface to test your trained models, both as a `.pth` and as a `.onnx` to ensure consistency at deployment time.
-## References
+- An interface to test your trained models, both as a `.pth` and as a `.onnx` to ensure consistency at deployment time.
 
+**Planned future updates include:**
+- Unpaired model assembly and training. More core trainer/tester classes.
+- More standard loss functions, scheduling functions, and LossManager specifications.
+- Live (and maybe interactive) architecture diagram.
+- Loss monitoring and early stopping.
+- Houdini tooling. I'd like to build an HDA that lets you run NectarGAN training steps as PDG work items.
+
+## Acknowledgements
+This project is inspired by Jun-Yan Zhu's [PyTorch-CycleGAN-and-pix2pix](https://github.com/junyanz/pytorch-CycleGAN-and-pix2pix) implementation.
+
+## References
 - [Pix2Pix: Image-to-Image Translation with Conditional Adversarial Networks (Isola et al., 2017)](https://arxiv.org/abs/1611.07004)
+
