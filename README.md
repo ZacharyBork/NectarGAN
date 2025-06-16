@@ -3,6 +3,28 @@
 >![toolbox_training_gif](/docs/resources/gifs/toolbox_training.gif)
 >A full-featured graphical development environment and model assembly framework for Pix2pix-style conditional GANs.
 
+## What is NectarGAN?
+NectarGAN is comprised of two core components:
+
+1. **The NectarGAN Toolbox.** A modern, high performance interface encapsulating a full end-to-end, production-ready cGAN pipeline. From assembling and managing Pix2pix-style datasets, to building and training conditional GAN models, to tracking and reviewing experiments, to testing trained models and preparing them for deployment. Your models can go from an idea to production, all without leaving the Toolbox.
+
+2. **The NectarGAN API.** A fully modular, highly extensible PyTorch-based framework comprised of easy to use building blocks for assembling, testing, and training conditional GAN models. The API offers developers the tools needed to quickly write cGAN training/testing scripts with maximum functionality and minimal boilerplate.
+
+>By way of example, this is a complete (albeit relatively minimal) Pix2pix training script using the NectarGAN API:
+>```python
+>from nectargan.trainers.pix2pix_trainer import Pix2pixTrainer
+>
+>if __name__ == "__main__":
+>    trainer = Pix2pixTrainer(config='/path/to/config/file.json', loss_subspec='extended', log_losses=True)
+>
+>    for epoch in range(100):
+>        trainer.train_paired(epoch) 
+>        trainer.save_checkpoint() 
+>        trainer.save_examples()
+>        trainer.print_end_of_epoch()
+>```
+> The core [NectarGAN paired training script](/scripts/paired/train.py) is not much larger than this
+
 ## Features
 ### Training Framework
 - **Fully modular, PyTorch-based GAN training framework**.
@@ -46,7 +68,7 @@
 - Reseachers who want a flexible environment in which to explore conditional GAN behavior.
 - Startups looking for an easy and flexible way to experiment with and deploy image translation models.
 - Students wishing to learn about and explore GANs in a visual, easy to use environment.
-- Engineers/TDs wanting to painlessly integrate paired image-to-image models into their pre-existing pipelines.
+- Engineers/TDs wanting to painlessly integrate paired image translation models into their pre-existing pipelines.
 
 ## Project Status
 **NectarGAN is under active development.** In its current state, however, it already offers:
@@ -58,9 +80,14 @@
 
 **Planned future updates include:**
 - Unpaired model assembly and training. More core trainer/tester classes.
-- More standard loss functions, scheduling functions, and LossManager specifications.
+- Multi-GPU support.
+- More CLI support.
+- Exposed normalization options in the Toolbox interface.
+- More block types, standard loss functions, scheduling functions, and LossManager specifications.
 - Live (and maybe interactive) architecture diagram.
+- ONNX vs. PyTorch inference comparison.
 - Loss monitoring and early stopping.
+- Dataset augmentations preview.
 - Houdini tooling. I'd like to build an HDA that lets you run NectarGAN training steps as PDG work items.
 
 ## Acknowledgements

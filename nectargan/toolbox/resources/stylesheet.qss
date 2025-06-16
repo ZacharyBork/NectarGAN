@@ -342,6 +342,9 @@ QLabel#test_warning_label {
 QLabel#utils_warning_label {
     color: rgb(255, 158, 31);
 }
+QLabel#image_utils_warning {
+    color: rgb(120, 120, 120);
+}
 
 QLabel#experiment_section_header {
     background-color: rgb(40, 40, 40);
