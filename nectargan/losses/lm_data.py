@@ -62,7 +62,7 @@ class LMLoss:
     def __post_init__(self) -> None:
         '''Post-init function for `LMLoss`.
         
-        This function is will:
+        This function will:
             A.) Set the starting value of `self.schedule`'s `current_value` to 
                 `self.loss_weight` if the user didn't initialize the `Schedule` 
                 with their own values.

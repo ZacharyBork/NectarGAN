@@ -141,7 +141,7 @@ class LossManager():
         if not spec is None: 
             try: # If spec != None, try to run spec function 
                 _spec = spec(*args, **kwargs)
-                assert isinstance(next(iter(_spec.values())), LMLoss)
+                for i in _spec.values(): assert isinstance(i, LMLoss)
             except Exception as e: 
                 message = (
                     f'Unable to initialize LossManager from provided spec. '

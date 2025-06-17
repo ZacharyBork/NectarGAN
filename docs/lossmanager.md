@@ -1,17 +1,15 @@
 # NectarGAN - LossManager
 #### The loss manager is one of the core features of the NectarGAN API. It is a drop-in solution for managing, tracking, and logging everything related to loss in your model.
-
-Source: [nectargan.losses.loss_manager.LossManager](/nectargan/losses/loss_manager.py)
-
-## Key Features
+##### Source: [nectargan.losses.loss_manager.LossManager](/nectargan/losses/loss_manager.py)
+### Key Features
 - **Builds an easy to use wrapper around around any loss function,** allowing you to evaluate loss functions in your training script in a way which is as easy as calling loss functions traditionally, but which dramatically expands the backend functionality of any loss function registered with the `LossManager`.
 - **Caches loss function results in multiple formats** with easy to use mechanisms for recalling the values during training.
 - **An intelligent cache management system** allows mean loss values to be cached to memory, and dumped to a JSON log at your discretion, or automatically if a configurable cache limit is reached.
 - **Quickly initialize a configurable objective function with a pre-built loss spec,** or register your own loss functions with the `LossManager` to build your own model objective from scratch, while still being able to use all the QOL features that the LossManager offers. You can even define your own reusable loss specs to feed to the `LossManager`, and it will take care of the rest. 
 ## LossManager Dataclasses
-To understand how the loss manager functions and how it manages the data for the losses that are registered with it, we first have to take a quick look at two dataclasses which are at the core of it's functionality. These are:
+To understand how the `LossManager` functions, and how it manages the data for the losses that are registered with it, we first have to take a quick look at two dataclasses which are at the core of it's functionality. These are:
 
-### 1. [`nectargan.losses.lm_data.LMHistory`](/nectargan/losses/lm_data.py)
+### 1. [`nectargan.losses.lm_data.LMHistory`](/nectargan/losses/lm_data.py#L8)
 
 **Starting with the simpler of the two dataclasses, `LMHistory` only has one job:** ***store previous loss value history.***
 
@@ -19,7 +17,7 @@ Every loss function registered with a `LossManager` instance has an `LMHistory` 
 
 If logging is disabled, however, each time `LossManager.compute_loss_xy()` is called for a given loss, both lists in that loss's `LMHistory` are cleared, after which time the new values are appending to each list. In practice, this means that if `enable_logging=False` each list will only store a single value, the most recent loss mean and weight respectively, at any given time.
 
-### 2. [`nectargan.losses.lm_data.LMLoss`](/nectargan/losses/lm_data.py)
+### 2. [`nectargan.losses.lm_data.LMLoss`](/nectargan/losses/lm_data.py#L26)
 
 ***This dataclass is responsible for storing all information about a registered loss.*** For every loss function that is registered with a `LossManager` instance via `LossManager.register_loss_fn()`, an `LMLoss` instance is created which describes the loss function. A full description of the values contained with an `LMLoss` instance can be seen by clicking on the above link, but here is a rough outline:
 
@@ -67,7 +65,7 @@ y_fake = torch.Tensor() # Generator output
 result: torch.Tensor = loss_manager.compute_loss_xy(loss_name='mylossfunction', x=y_fake, y=y)
 ```
 ## Querying Registered Loss Data
-Data relating to losses registered with a given `LossManager` instance can be retrived in a variety of ways, dependent upon exactly what data you are trying to query, and what format you would like it returned in.
+#### Data relating to losses registered with a given `LossManager` instance can be retrived in a variety of ways, dependent upon exactly what data you are trying to query, and what format you would like it returned in.
 
 ### Querying LMLoss Objects Directly
 The most flexible method is to just query the raw `LMLoss` objects directly. This can be done as follows:
@@ -87,9 +85,9 @@ loss_map = mylossfn.last_lost_map           # Get the most recent loss result as
 > values : dict[str, float] = mylossfn.history.losses
 > weights: dict[str, float] = mylossfn.history.weights
 > ```
->You would find that `weights` and `values` are empty lists. **This is intentional**. `LossManager.get_registered_losses()` has an optional flag called `strip` which defaults to `True`. If this flag is not overridden with a value false, the losses `history.values` and `history.weights` lists are cleared. 
+>You would find that `weights` and `values` are empty lists. **This is intentional**. `LossManager.get_registered_losses()` has an optional flag called `strip` which defaults to `True`. If this flag is not overridden with a value `Dalse`, the losses `history.values` and `history.weights` lists are cleared. 
 >
->The reasoning behind this is that dependent upon what the `history_buffer_size` of the `LossManager` is set at, these lists can get fairly long. And if you have a significant amount of registered losses, passing them around can become a fairly heavy task, so they are stripped by default to reduce the memory overhead. If you need these values for whatever reason, though, just call `LossManager.get_registered_losses()` with `strip=False`. As long as the `LossManager`'s `history_buffer_size` is kept to below a reasonable value (i.e. ~100,000), the cost realistically isn't all that concerning.
+>The reasoning behind this is that dependent upon what the `history_buffer_size` of the `LossManager` is set at, these lists can get fairly long. And if you have a significant amount of registered losses, passing them around can become a fairly heavy task, so they are stripped by default to reduce the memory overhead. If you need these values for whatever reason, though, just call `LossManager.get_registered_losses()` with `strip=False`. All that said, however, as long as the `LossManager`'s `history_buffer_size` is kept to below a reasonable value (i.e. ~100,000), the cost realistically isn't all that concerning.
 ### Querying Loss Values (as a dict)
 Loss values can be retrieved in dictionary form as follows:
 ```python
@@ -119,7 +117,9 @@ This will return a dictionary of floating point values with lookup keys matching
 > `LossManager.get_loss_weights()` uses the last weight value stored in `LossManager.schedule.current_value`. Since this value is updated immediately after the associated loss has been run, the weight values that this function returns are the ones which will be applied the next time the loss is run.
 
 ### Using Tags to Query Registered Losses
-All of the above loss querying functions accept an optional argument called `query`, which is a list of strings. This can be used to query loss values by tag; only loss values which have a tag matching one of the strings in the input `query` argument will be returned. For example, when we registered our loss function above, we assigned it a tag of `descriptive_lookup_tag`. Were we to then want to query losses with that tag, it would look something like this:
+**All of the above loss querying functions accept an optional argument called `query`,** which is a list of strings. This can be used to query loss values by tag; only loss values which have a tag matching one of the strings in the input `query` argument will be returned. 
+
+For example, when we registered our loss function above, we assigned it a tag of `descriptive_lookup_tag`. Were we to then want to query losses with that tag, it would look something like this:
 ```python
 lossfns: dict[str, LMLoss] = loss_manager.get_registered_losses(query=['descriptive_lookup_tag'])
 values : dict[str, float]  = loss_manager.get_loss_values(query=['descriptive_lookup_tag'])
@@ -131,17 +131,69 @@ weights: dict[str, float]  = loss_manager.get_loss_weights(query=['descriptive_l
 > [!NOTE]
 > This section is only applicable if the given `LossManager` instance was intialized with `enable_logging=True`.
 
-When a `LossManager` instance is initialized, and optional argument can be passed called `history_buffer_size`. This value defines how many values (stored as 32bit floating point values) can be stored in ***each list*** (i.e. `losses`, `weights`) of ***each LMLoss's*** LMHistory container. By default, this is `50000`. So, with the default value, each registed loss is allowed to store 50,000 unique previous loss values and 50,000 unique previous loss weight values. 100,000 32bit floats per registered loss. This is a totally acceptable fallback value on any modern system, but you are also welcome to set the value higher when you initialize the `LossManager`.
+When a `LossManager` instance is initialized, an optional argument can be passed called `history_buffer_size`. This value defines how many values (stored as 32bit floating point values) can be stored in ***each list*** (i.e. `losses`, `weights`) of ***each LMLoss's*** LMHistory container. By default, this is `50000`. So, with the default value, each registed loss is allowed to store 50,000 unique previous loss values and 50,000 unique previous loss weight values. 100,000 32bit floats per registered loss. This is a totally acceptable fallback value on any modern system (you could mutiply this value by 100 and still be totally safe) and this value felt fine on every dataset I tested it on, but you are also welcome to set the value higher when you initialize the `LossManager`. The Toolbox [`Pix2pixTrainerWorker`](/nectargan/toolbox/workers/pix2pix_trainerworker.py) actually bypasses this cap altogether by always setting the buffer size to a value that is slightly higher than what would be dictated by the options selected in the UI.
 
-Whenever any registered loss is run from any `LossManager` instance, the `LossManager` first does a quick check to see if the buffer for that loss is full. If it is, it will dump the loss's buffer to the log, clear the buffer, then run the loss function it was originally going to run and appends the result to the now freed up buffer. This is a fine way to handle loss logging with the `LossManager`. It is set and forget, just give it a value for the `history_buffer_size` (or don't even, and just use the default `50000`) and the `LossManager` will take care of the memory management from there.
+Whenever any registered loss is run from any `LossManager` instance, the `LossManager` first does a quick check to see if the buffer for that loss is full. If it is, it will dump the loss's buffer to the log, clear the buffer, then run the loss function it was originally going to run and appends the result to the now freed up buffer. This is a fine way to handle loss logging with the `LossManager`. It is set and forget, just give it a value for the `history_buffer_size` and the `LossManager` will take care of the loss logging and memory management from there.
 
-However, if you would like more control over when exactly the logs are dumped (at the end of each epoch, or each x number of epochs, for example), you can instead force the `LossManager` to dump its buffers to the loss log with:
+However, if you would like more control over when exactly the logs are dumped (at the end of each epoch, for example, as in the core [`Pix2pixTrainer`](/nectargan/trainers/pix2pix_trainer.py)'s `on_epoch_end()` function. Or maybe each `x` number of epochs, as in the Toolbox [`Pix2pixTrainerWorker`](/nectargan/toolbox/workers/pix2pix_trainerworker.py)'s `run()` function), you can instead force the `LossManager` to dump its buffers to the loss log with:
 ```python
 loss_manager.update_loss_log(silent=True, capture=False)
 ```
 
 > [!TIP]
-> `LossManager.update_loss_log()` has two optional boolean arguments, `silent` (default=True) and `capture` (default=False). If `silent` if `False`, the `LossManager` will print a string to the console after it has dumped it values to the log with a timestamp showing how long it took to perform the operation. If silent is `False` and the other optional argument, `capture`, is `True` however, the string that would have been printed is instead returned by the function. 
+> `LossManager.update_loss_log()` has two optional boolean arguments, `silent` (default=True) and `capture` (default=False). If `silent` is `False`, the `LossManager` will print a string to the console after it has dumped it values to the log with a timestamp showing how long it took to perform the operation. If silent is `False` and the other optional argument, `capture`, is `True` however, the string that would have been printed is instead returned by the function. 
+
+## Loss Specs?
+**Loss specifications (specs) are a novel way to define reusable objective functions for your models. At their core, loss specs are just standard Python functions but with one specific requirement, the must return a dictionary of string-mapped `LMLoss` objects.**
+
+To better explain the concept, let's first have a quick look at an example loss spec function: [`nectargan.losses.pix2pix_objective`](/nectargan/losses/pix2pix_objective.py)
+
+Let's quickly break down exactly what this function is doing:
+
+1. We grab the current device from the config so that we can cast our loss functions to it.
+2. We instantiate the core losses from the original Pix2pix paper[^1], BCEWithLogits for cGAN, L1 for G pixel-wise loss (casting each to our current device).
+3. We create a dictionary, and add our base loss functions.
+    - We set the dict key for each to the name we want to use for lookup (equivalent to `LossManager.register_loss_fn(loss_name='loss_fns_dict_key')`).
+    - We instantiate an `LMLoss` object, setting the name to the same value as the dict key, the function to the `nn.Module` of the associated loss function (i.e. 'G_GAN'=BCE, 'G_L1'=L1, etc.).
+    - We assign loss weights, if applicable. `D_real` and `D_fake` do not have lambda functions so we do not set the value of the `loss_weight` argument for either, giving them the default weight of `1.0`.
+    - We assign tags for each. In this spec, the tags are utilized to differentiate which network the given loss belongs to, so that they can be looked up by group for Visdom/Toolbox visualization. You can have as many tags as you want and use them for whatever you want though.
+4. Then, we do a couple checks on the value of the `subspec` argument. If the requested subspec is `extended`, we also add `MSE`, `Sobel`, and `Laplacian` losses to the dictionary, and if `+vgg` was in the `subspec` value, we also add `VGGPerceptual`. 
+> [!NOTE]
+>`VGGPerceptual` is in a separate category here because, the first time a user runs it, it will download the VGG19-basic weights from Torch so I opted to make it separate.
+5. We return the dictionary of LMLoss'.
+
+Pretty simple, right? Just a function which defines a dict containing all the losses you want to use for your model. Now let's have a look at how they're used. First, we will create a `LossManager` instance: 
+
+```python
+from nectargan.config.config_manager import ConfigManager
+from nectargan.losses.loss_manager import LossManager
+
+config_manager = ConfigManager('path/to/config.json')
+loss_manager = LossManager(
+    config=config_manager.data,
+    experiment_dir='/path/to/experiment/output/directory')
+```
+Should look pretty familiar from the first section. However, in the first section, we then went on to register a loss function with `loss_manager.register_loss_fn()`. And that is fine for quickly building model objectives or experimenting with different losses, but now we have a known objective that we want to use, and a function that defines it. So, instead of registering all of our losses one by one, now, we can instead just do this:
+```python
+import nectargan.losses.pix2pix_objective as spec # Import our loss spec function
+loss_subspec = 'extended+vgg' # Define a subspec, since our loss spec expects one
+
+loss_manager.init_from_spec(  # Run 'LossManager.init_from_spec()'
+    spec.pix2pix,             # Pass it a reference to our loss spec function,
+    config_manager.data,      # our config data, since the spec is expecting it,
+    loss_subspec)             # and our string defining the subspec
+```
+And that's it, now the `LossManager` will run that function, parse the returned dict, and register all of the losses contained within it, then you are free to use them how you would with any other loss registered with a `LossManager` instance. And you also now have a loss spec which can be reused whenever you'd like to perfectly replicate that objective function.
+
+Now let's have a quick look at [`LossManager.init_from_spec()`](/nectargan/losses/loss_manager.py#L116) to see what it's doing. It serves one main purpose, setting the value of the `LossManager`'s `self.loss_fns`. Let break down exactly how it does that, though:
+
+1. We have a few input arguments, one required argument, `spec`, which takes a `Callable` (our loss spec function), and also optional `*args` and `**kwargs`. **This allows you to pass whatever extra arguments you want to your loss spec function. This is how the `pix2pix_objective` loss spec is passed the `config` and `subspec`.** ***These are not required arguments. The only requirement for a loss spec is that is be a `Callable` that returns a `dict[str, LMLoss]`.***
+2. We first do a quick check to see if the value of the `spec` argument is `None`. If it is, we just set `self.loss_fns` to an empty dict. This is done when the `LossManager` if first instatiated to initialize it's base loss dict, which is what losses are added to when you call `LossManager.register_loss_fn()`.
+3. If `spec` is not `None`, however, we then try to run the loss spec function, then we loop through all the values in the spec function's return dict and assert that they are `LMLoss` instances.
+4. If the return dict values check out, we then assign the return values to `self.loss_fns` and run a helper function which creates dummy tensors for each `LMLoss`'s `last_loss_map`.
+
+#### **So, in short, loss specs let you pre-define model objectives quickly and in a format that encourages reproducability. From a technical standpoint, they are just Python functions that return a `dict[str, LMLoss]`. What arguments those functions take, though, and how they construct that return value are entirely up to you. They are extremely open-ended.**
+
 ## Convenience Functions
 #### The `LossManager` includes two convenience functions for printing debug values to the console during training. These are:
 ### `LossManager.print_losses()`
@@ -184,4 +236,5 @@ loss_manager.update_loss_log(silent=True, capture=False)
     Key:
         L_X_N : Loss X name
         L_X_W : Loss X weight
-## Loss Specs?
+
+[^1]: [Pix2Pix: Image-to-Image Translation with Conditional Adversarial Networks (Isola et al., 2017)](https://arxiv.org/abs/1611.07004)
