@@ -20,7 +20,6 @@ class LossManager():
         config: Config,
         experiment_dir: PathLike,
         enable_logging: bool=True,
-        store_history_frequency: int=1,
         history_buffer_size: int=50000
     ) -> None:
         '''Init function for the LossManager class.
@@ -33,12 +32,6 @@ class LossManager():
                 the experiment_dir. Loss values and weights will be stored over
                 time, and can be dumped to the loss log with:
                     - LossManager.update_loss_log()
-            store_history_frequency : The frequency in iterations (or batches, 
-                if batch_size>1) to append loss info to history. Default (and 
-                minimum) is 1, but increasing this can lead to smaller loss_log
-                files, and reduce time spent dumping loss information to large
-                logs, at the cost of a portion of the history being discarded.
-                Values smaller than 1 will be clamped at 
             history_buffer_size: The max length of each list (losses, weights)
                 for any LMHistory object managed by the LossManager. This is a
                 sort of fallback, the stored losses will be dumped to the loss
@@ -51,7 +44,6 @@ class LossManager():
         self.experiment_dir = pathlib.Path(experiment_dir)
         self.enable_logging = enable_logging
         
-        self.store_history_frequency = max(1, store_history_frequency)
         self.buffer_size = history_buffer_size
 
         # Stores registered losses with str keys for easy lookup
@@ -392,6 +384,7 @@ class LossManager():
             loss_name: str,
             loss_fn: nn.Module,
             loss_weight: float = 1.0,
+            schedule: Schedule=Schedule(),
             tags: list[str] = []) -> None:
         '''Registers a loss function with the loss manager.
 
@@ -413,6 +406,11 @@ class LossManager():
                 loss function can be basically any type of nn.Module as long as
                 it has a forward function that returns a torch.Tensor.
             loss_weight : Lambda value for the loss function.
+            schedule : A `nectargan.scheduling.scheduler.Scheduler` instance
+                defining a weight schedule for the current loss. If not set,
+                it will use a schedule that applies no growth or decay, in
+                effect just using the input `loss_weight` for the full training
+                duration.
             tags : Tags for the new loss value, used to query the loss objects
                 in various forms.
 
@@ -424,6 +422,7 @@ class LossManager():
                 name=loss_name,
                 function=loss_fn.to(self.device), 
                 loss_weight=loss_weight,
+                schedule=schedule,
                 last_loss_map=self.dummy.clone(), 
                 history=LMHistory([], []),
                 tags=tags)
@@ -473,9 +472,6 @@ class LossManager():
             ValueError : If silent=False and the requested LMloss's history is 
                 greater than self.buffer_size.
         '''
-        # Check history freq to make sure we should store this iter
-        # if not idx % self.store_history_frequency == 0: return # Return if not
-        
         loss_fn = self.loss_fns[name] # Lookup requested loss function
         if len(loss_fn.history.losses) >= self.buffer_size:
             if silent: # Dump to log if history >= buffer size

@@ -357,7 +357,7 @@ class Pix2pixTrainer(Trainer):
         loss_G_VGG = torch.zeros_like(loss_G_L1)   # And also for VGG
         
         if self.extend_loss_spec: # Extended losses, if enabled 
-            loss_G_SOBEL = lm.compute_loss_xy(
+            loss_G_L2 = lm.compute_loss_xy(
                 'G_L2', y_fake, y, self.current_epoch)
             loss_G_SOBEL = lm.compute_loss_xy(
                 'G_SOBEL', y_fake, y, self.current_epoch)
@@ -366,7 +366,7 @@ class Pix2pixTrainer(Trainer):
         if self.vgg_loss_enabled: # VGG perceptual, if enabled
             loss_G_VGG = lm.compute_loss_xy('G_VGG', y_fake, y)          
 
-        return (loss_G_L1, loss_G_SOBEL, loss_G_LAP, loss_G_VGG)
+        return (loss_G_L1, loss_G_L2, loss_G_SOBEL, loss_G_LAP, loss_G_VGG)
         
     def forward_G(
             self, 

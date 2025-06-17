@@ -403,11 +403,13 @@ class Trainer():
         if multithreaded: 
             try:
                 self.vis.start_thread()
-                self._train_paired_core(train_fn, callback_kwargs.get('train_step', {}))
+                self._train_paired_core(
+                    train_fn, callback_kwargs.get('train_step', {}))
             except KeyboardInterrupt:
                 sys.exit('Interrupt Recieved: Stopping training...')
             finally: self.vis.stop_thread()
-        else: self._train_paired_core(train_fn, callback_kwargs.get('train_step', {}))
+        else: self._train_paired_core(
+            train_fn, callback_kwargs.get('train_step', {}))
         
         # Run post-train function
         end_fn(**callback_kwargs.get('on_epoch_end', {})) 

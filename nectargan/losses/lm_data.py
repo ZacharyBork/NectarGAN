@@ -56,7 +56,6 @@ class LMLoss:
     loss_weight: float=1.0
     schedule: Schedule=field(default_factory=Schedule)
     last_loss_map: Tensor = field(default_factory=lambda: empty(0))
-    store_history: bool=False
     history: LMHistory = field(default_factory=LMHistory)
     tags: list[str] = field(default_factory=list)
 
