@@ -123,3 +123,4 @@ class Config:
 config_manager = ConfigManager('/path/to/your/updated/config.json')
 value = config_manager.data.my_cool_group.my_cool_variable
 ```
+---
