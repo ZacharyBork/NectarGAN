@@ -1,4 +1,4 @@
-# NectarGAN - LossManager
+# NectarGAN API - LossManager
 #### The loss manager is one of the core features of the NectarGAN API. It is a drop-in solution for managing, tracking, and logging everything related to loss in your model.
 ##### Source: [nectargan.losses.loss_manager.LossManager](/nectargan/losses/loss_manager.py)
 ### Key Features
