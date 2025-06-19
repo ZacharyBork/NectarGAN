@@ -51,7 +51,7 @@ class Pix2pixTrainer(Trainer):
     def _init_lr_scheduling(self) -> None:
         '''If not using separate LR schedules, overrides D LR with G LR.'''
         train = self.config.train
-        if train.separate_lr_schedules:
+        if not train.separate_lr_schedules:
             train.discriminator.learning_rate = train.generator.learning_rate
 
     def _init_generator(self) -> None:
@@ -117,9 +117,6 @@ class Pix2pixTrainer(Trainer):
         This function will init the GradScaler device based on the device
         specified in the config file.
         '''
-        # if self.config.common.device == 'cpu':
-        #     self.g_scaler = self.d_scaler = torch.amp.GradScaler('cpu')
-        # else: self.g_scaler = self.d_scaler = torch.amp.GradScaler('cuda')
         self.g_scaler = self.d_scaler = torch.amp.GradScaler(self.device)
 
     def _init_losses(self, loss_subspec: str) -> None:

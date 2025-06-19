@@ -18,12 +18,12 @@ First, let's have a quick look at the base `Trainer` [`__init__()` function](/ne
 
 **However, one thing to note is that, when initializing a `Trainer`, you may also pass it a pre-constructed `ConfigManager`. In this case, the `Trainer` will just replace its internal `ConfigManager` with the one it's passed.**
 
-When a `Trainer` subclass is initialized, the base `Trainer` class will perform a series of convenience functions:
+When a `Trainer` subclass is initialized, the base `Trainer` class will perform a series of setup functions:
 1. It will initialize a number of core member variable, all of which will be discussed in more detail below.
 2. Take the input config, whatever form that might take, and use it to initialize its internal ConfigManager.
 3. Extract the selected device from the config's `config.common.device` and assign it to `self.device` since it's needed so frequently.
 
-If the trainer was initialized with `quicksetup=False`, then the `Trainer` init function ends here. However, if `quicksetup=True` (default), the `Trainer` init performs a few extra convenience steps. This will be expanded upon in a later section but, generally speaking, a `Trainer` will almost always be initialized with `quicksetup=True`. For now, though, these are the additional steps taken if `quicksetup=True`:
+**If the trainer was initialized with `quicksetup=False`, then the `Trainer` init function ends here.** However, if `quicksetup=True` (default), the `Trainer` init performs a few extra convenience steps. This will be expanded upon in a later section but, generally speaking, a `Trainer` will almost always be initialized with `quicksetup=True`. For now, though, these are the additional steps taken if `quicksetup=True`:
 
 4. The `Trainer` will build an output directory for the current experiment based on the output and experiment settings in the config. Or if `continue_train` is `True` in the `config` it was passed, it will instead just overwrite its `self.experiment_dir` with the path to the selected experiment to continue.
 5. It will then initialize a [`LossManager`](/docs/api/losses/lossmanager.md) to manage all of the losses during training.
@@ -34,7 +34,7 @@ If the trainer was initialized with `quicksetup=False`, then the `Trainer` init 
 | Variable | Description |
 | :---: | --- |
 `self.log_losses` | This is a boolean variable which is set based on the value of the `log_losses` input argument in `Trainer.__init__()`. It defines whether losses run in the context of the given `Trainer` instance should be cached and occasionally dumped to the loss log (see [here](/docs/api/losses/lossmanager.md) for more info).
-`self.current_epoch` | An integer value which keeps track of the current epoch. At init, this is `None`. Then, each time the `Trainer`'s [`train_paired()`](/nectargan/trainers/trainer.py#L353) function is called, the value which is passed for the `epoch` argument has `1` added to it and then it is assigned to `self.current_epoch`
+`self.current_epoch` | An integer value which keeps track of the current epoch. At init, this is `None`. Then, each time the `Trainer`'s [`train_paired()`](/nectargan/trainers/trainer.py#L353) function is called, the value which is passed for the `epoch` argument first has `1` added to it, then it is assigned to `self.current_epoch`. This `+1` operation is just so that you can pass the raw iter variable from the training loop, and still have the first epoch be called `Epoch 1` everywhere where that would be relevant, like strings printed to the console for example.
 `self.last_epoch_time` | A floating point variable used to keep track of the time each epoch takes. The time is checked at the beginning and end of each epoch (in [`Trainer.train_paired()`](/nectargan/trainers/trainer.py#L353)), then the start is subtracted from the end and the results is assigned to this variable.
 `self.train_loader` | A `torch.utils.data.DataLoader` representing the training dataset. This is expected to be set by the `Trainer` subclass, although the base `Trainer` class provides a utility function to perform the heavy lifting. See [here](/nectargan/trainers/pix2pix_trainer.py#L109) and [here](/nectargan/trainers/trainer.py#L217) for more info.
 `self.val_loader` | Exactly the same as `self.train_loader`, but for the validation dataset.
@@ -59,7 +59,7 @@ What follows is an exhaustive list of all of the member functions of the `Traine
 [`build_optimizer`](/nectargan/trainers/trainer.py#L243) | Simple helper function initialize an optimizer for a given network.
 
 ### Training Callbacks
-***Training callbacks are a core feature of training with the NectarGAN API. They are exremely flexible override methods that allow you to define complex training loops for your custom `Trainer` class with just a few simple function. See [here](/docs/api/trainers/callbacks.md) for more information.***
+***Training callbacks are a core feature of training with the NectarGAN API. They are exremely flexible override methods that allow you to define complex training loops for your custom `Trainer` class with just a few simple function. See [here](/docs/api/trainers/building_a_trainer.md) for more information.***
 | Function | Description |
 | :---: | --- |
 [`on_epoch_start`](/nectargan/trainers/trainer.py#L262) | Run at the very beginning of an epoch in [`Trainer.train_paired()`](/nectargan/trainers/trainer.py#L353), before the training loop begins.
