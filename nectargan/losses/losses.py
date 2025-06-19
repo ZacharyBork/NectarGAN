@@ -1,5 +1,4 @@
 import torch
-import torch.nn as nn
 import torch.nn.functional as F
 from torchvision import models
 
@@ -21,7 +20,7 @@ class Sobel(torch.nn.Module):
     penalty, can lead the generator to create fairly believable images which 
     occasionally exibit some interesting hallucinated details.
     '''
-    def __init__(self):
+    def __init__(self) -> None:
         '''Init for Sobel loss function.
 
         Defines and registers the Sobel kernels.
@@ -36,7 +35,7 @@ class Sobel(torch.nn.Module):
         self.register_buffer('sobel_x', sobel_x.view(1, 1, 3, 3))
         self.register_buffer('sobel_y', sobel_y.view(1, 1, 3, 3))
 
-    def forward(self, fake, real):
+    def forward(self, fake: torch.Tensor, real: torch.Tensor) -> torch.Tensor:
         '''Forward step for Sobel module.
         
         Converts tensors to grayscale, applies sobel filter, compares result.
@@ -63,7 +62,7 @@ class Laplacian(torch.nn.Module):
     - https://www.nv5geospatialsoftware.com/docs/LaplacianFilters.html
     - https://en.wikipedia.org/wiki/Discrete_Laplace_operator
     '''
-    def __init__(self):
+    def __init__(self) -> None:
         '''Init for Laplacian loss.
         
         Defines and registers a Laplacian kernal.
@@ -77,7 +76,7 @@ class Laplacian(torch.nn.Module):
         kernel = kernel.view(1, 1, 3, 3)
         self.register_buffer('kernel', kernel)
 
-    def forward(self, fake, real):
+    def forward(self, fake: torch.Tensor, real: torch.Tensor) -> torch.Tensor:
         '''Forward step for Laplacian module.
         
         Converts tensors to grayscale and applies Laplacian filter, then 
@@ -92,7 +91,7 @@ class Laplacian(torch.nn.Module):
 
         return F.l1_loss(fake_lap, real_lap)
     
-class VGGPerceptual(nn.Module):
+class VGGPerceptual(torch.nn.Module):
     '''Implements a VGG19-based perceptual loss function.
 
     Note: Running this loss function for the first time, or registering it with
@@ -111,7 +110,7 @@ class VGGPerceptual(nn.Module):
     Datasets (facades/cityscapes):
     - https://efrosgans.eecs.berkeley.edu/pix2pix/datasets/
     '''
-    def __init__(self):
+    def __init__(self) -> None:
         '''Init for VGGPerceptual loss.
         
         Initializes VGG19 with default weights, 
@@ -120,12 +119,12 @@ class VGGPerceptual(nn.Module):
         vgg19_weights = models.VGG19_Weights.DEFAULT
         vgg = models.vgg19(weights=vgg19_weights).features.eval()
         vgg.requires_grad_(False)
-        self.blocks = nn.ModuleList([vgg[:4], vgg[4:9], vgg[9:16],])
+        self.blocks = torch.nn.ModuleList([vgg[:4], vgg[4:9], vgg[9:16],])
 
         self.layer_weights = [1.0, 1.0, 1.0]
-        self.L1 = nn.L1Loss()
+        self.L1 = torch.nn.L1Loss()
 
-    def forward(self, fake, real):
+    def forward(self, fake: torch.Tensor, real: torch.Tensor) -> torch.Tensor:
         fake, real = fake.clone(), real.clone()
         loss = 0.0
         for i, block in enumerate(self.blocks):

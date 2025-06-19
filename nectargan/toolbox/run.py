@@ -16,8 +16,6 @@ from nectargan.toolbox.components.settings_dock import SettingsDock
 from nectargan.toolbox.components.review_panel import ReviewPanel
 from nectargan.toolbox.components.utility_panel import UtilityPanel
 
-import nectargan.toolbox.utils.common as utils
-
 class Interface(QObject):    
     def __init__(self) -> None:
         '''Init function for the `Interface` class.'''
