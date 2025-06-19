@@ -406,7 +406,7 @@ class Trainer():
         
         # Run pre-train function
         start_fn(**callback_kwargs.get('on_epoch_start', {})) 
-        if multithreaded: 
+        if multithreaded and self.config.visualizer.visdom.enable: 
             try:
                 self.vis.start_thread()
                 self._train_paired_core(
