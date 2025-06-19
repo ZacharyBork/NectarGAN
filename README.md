@@ -8,25 +8,29 @@ NectarGAN is comprised of two core components:
 
 1. **The NectarGAN Toolbox.** A modern, high performance interface encapsulating a full end-to-end, production-ready cGAN pipeline. From assembling and managing Pix2pix-style datasets, to building and training conditional GAN models, to tracking and reviewing experiments, to testing trained models and preparing them for deployment. Your models can go from an idea to production, all without leaving the Toolbox.
 
+    **For more information, please see the [NectarGAN Toolbox documentation](/docs/toolbox.md).**
+
 2. **The NectarGAN API.** A fully modular, highly extensible PyTorch-based framework comprised of easy to use building blocks for assembling, training, and testing conditional GAN models. The API offers developers the tools needed to quickly write cGAN training/testing scripts with maximum functionality and minimal boilerplate.
 
->By way of example, this is a complete (albeit relatively minimal) Pix2pix training script using the NectarGAN API:
->```python
->from nectargan.trainers.pix2pix_trainer import Pix2pixTrainer
->
->if __name__ == "__main__":
->    trainer = Pix2pixTrainer(
->        config='/path/to/config/file.json', 
->        loss_subspec='extended', log_losses=True)
->
->    for epoch in range(100):
->        trainer.train_paired(epoch) 
->        trainer.save_checkpoint() 
->        trainer.save_examples()
->        trainer.print_end_of_epoch()
->```
-> The core [NectarGAN paired training script](/scripts/paired/train.py) is not much larger than this.
+    By way of example, this is a complete (albeit relatively minimal) Pix2pix training script using the NectarGAN API:
+    ```python
+    from nectargan.trainers.pix2pix_trainer import Pix2pixTrainer
 
+    if __name__ == "__main__":
+        trainer = Pix2pixTrainer(
+        config='/path/to/config/file.json', 
+            loss_subspec='extended', log_losses=True)
+
+        for epoch in range(100):
+            trainer.train_paired(epoch) 
+            trainer.save_checkpoint() 
+            trainer.save_examples()
+            trainer.print_end_of_epoch()
+    ```
+    The core [NectarGAN paired training script](/scripts/paired/train.py) is not much larger than this.
+    
+    **For more information, please see the [NectarGAN API documentation](/docs/api.md).**
+    
 ## Features
 ### Training Framework
 - **Fully modular, PyTorch-based GAN training framework**.

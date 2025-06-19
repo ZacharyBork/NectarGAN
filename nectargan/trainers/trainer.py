@@ -37,6 +37,9 @@ class Trainer():
                 directory, create and assign a `LossManager` instance to 
                 manager manage losses during training, and initialize Visdom to 
                 visualize results.
+            log_losses : If enabled (default) for a given `Trainer` instance, 
+                losses run within the context of the `Trainer` will be cached
+                and periodically dumped to the loss log JSON.
         '''
         # These are either set by child classes, or passed by training script
         self.log_losses = log_losses
@@ -365,6 +368,9 @@ class Trainer():
         name.
 
         Args:
+            epoch : The iteration value of the training loop at the time this
+                function is called. Used to set the `Trainer`'s `current_epoch`
+                value (i.e. `Trainer.current_epoch == 1+epoch`)
             on_epoch_start : Run once, right before the training loop begins.
             train_step : Run once per batch in the dataset.
             on_epoch_end : Run once, after all batches have been completed.
