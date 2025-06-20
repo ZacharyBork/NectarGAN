@@ -1,7 +1,8 @@
 # NectarGAN Toolbox - Utilities
+> [*`NectarGAN Toolbox - Home`*](/docs/toolbox.md)
 #### Here you will find some general utitilies related to ONNX conversion and testing, and various dataset processing tools.
 
-### Convert to ONNX
+## Convert to ONNX
 This utility allows you to convert your trained model to ONNX format to allow for easier deployment into pipelines which support the ONNX runtime. 
 
 > [!NOTE]
@@ -20,7 +21,7 @@ This utility allows you to convert your trained model to ONNX format to allow fo
 | Export Params | Decides whether model weights should be exported. |
 | Fold Constants | Decides whether constants should be folded during conversion for optimization. |
 | Convert Model | Runs the ONNX conversion process and exported the converted model. |
-### Test ONNX Model
+## Test ONNX Model
 **This utility allows you to test the inference capabilities of your converted ONNX model.** By feeding it a path to a model and hitting `Test Model`, Toolbox will load the ONNX model in inference mode and run it on every image in the provided `Test Images` directory, displaying the (input, output) results in the interface.
 | Setting | Description |
 | :---: | --- |
@@ -41,7 +42,7 @@ This utility allows you to convert your trained model to ONNX format to allow fo
 | Direction | What direction to pair the images. As the names suggest, `AtoB` will put the input A images on the left and the input B images on the right. `BtoA` will do the opposite. This is sort of arbitrary if you're training with NectarGAN since you can select the direction at train time, but some may find it useful for their pipelines so I've decided to include it. |
 | Scale Images | If this checkbox is ticked, the images will first be scaled to the resolution defined by the accompanying dropdown list before being paired. ***Scaling is applied to an image copy in memory at script runtime and will not affect your original image files.*** |
 | Image Scale | If the `Scale Images` checkbox is enabled, this dropdown allows you to select a resolution to scale each image to before pairing. The final resolution of each paired output image will be (`Image Scale`*2, `Image Scale`). |
-### Image Sorting Utilities
+## Image Sorting Utilities
 **These three utilities, `Sort Images`, `Remove Sorting Tags`, and `Copy Sort`, allow you to sort image files non-destructively by various metrics, unsort them back to their original order, or copy the sorting order of one directory to another.** This is useful for managing very large datasets and helping to pull bad images to the top so you can more easily find ones that should be discarded. This tool functions in the same way as the pairing utility and as such, is very efficient, even on extremely large datasets.
 
 **Some things to be aware of when using these tools:**
@@ -52,7 +53,7 @@ This utility allows you to convert your trained model to ONNX format to allow fo
 > 2. ***Each of these tools provides you with a `Preview` button accompanying the start button.*** This will dry-run the operation, but where it gets to the point of actually performing it's file-altering function, it instead displays a preview of what the result would be if it were to run. **I strongly encourage you to use this before running any of these tools.** They perform file altering actions, and they do so extremely quickly. Again, these actions are generally reversable via `Remove Sorting Tags`, but always better to be safe than sorry.
 > 3. ***The only files in the directory you are sorting should be the images you want to sort.*** If it encounters non-image files, it will raise an exception outside the main thread which currently is not reprocessed in the interface meaning the program will need to be restarted afterwards. This will be updated in the future once I have a more solid plan for these add-on utilities, but for now just make sure the only files in the directory are the images you want to sort.
 
-#### Sort Images
+### Sort Images
 | Setting | Description |
 | :---: | --- |
 | Input | The system path to the directory containing the image files you would like to sort. |
@@ -60,13 +61,13 @@ This utility allows you to convert your trained model to ONNX format to allow fo
 | Direction | What direction to sort (i.e. Ascending, Descending) |
 | Start | Begins the sorting operation. |
 | Preview | Displays a preview in the interface of what the results would be if the current sorting operation was run. |
-#### Remove Sorting Tags
+### Remove Sorting Tags
 | Setting | Description |
 | :---: | --- |
 | Input | The system path to the directory containing images which have previously been sorted with `Sort Images`, and which currently have sorting tags which you wish to remove (e.g. `1_myfile543.png`, `2_myfile198.png`, `3_myfile31.png`). |
 | Start | Start the remove tags operation. **This is not threaded and will lock the UI until it is completed**, but behind the scenes, it is just a sequential pathlib rename operation so even for fairly large datasets, it should be very quick. |
 | Preview | Display a preview of what the result of the current `Remove Tags` operation would be. |
-#### Copy Sort
+### Copy Sort
 This utility allows you to copy the sorting order from one directory of pre-sorted (with `Sort Images`) images, to the paired set of images. Helpful to see how eliminating some datapoints from A would affect the data in B.
 > [!NOTE]
 > This utility relies on the original file names (before sorting tags are prepended) of the images in the input and target directory to be the same, i.e. if an image from the input directory was original called `myfile153.png` before it was sorted, its twin in the target directory should also be called `myfile153.png`.

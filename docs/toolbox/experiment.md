@@ -1,4 +1,5 @@
 # NectarGAN Toolbox - Experiment
+> [*`NectarGAN Toolbox - Home`*](/docs/toolbox.md)
 #### Here you will initialize output settings and architectural settings for the generator and discriminator.
 
 | Setting | Description |

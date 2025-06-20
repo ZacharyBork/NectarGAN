@@ -1,4 +1,5 @@
 # NectarGAN Toolbox - Settings
+> [*`NectarGAN Toolbox - Home`*](/docs/toolbox.md)
 #### This panel contains general interface settings. There is not much here currently, but more will likely be added in the future.
 
 > [!IMPORTANT]

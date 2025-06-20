@@ -1,4 +1,5 @@
 # NectarGAN API - Config
+> [*`NectarGAN API - Home`*](/docs/api.md)
 #### The NectarGAN API is entirely driven by JSON configuration files. All data related to training, testing and testing models and visualizing results (with the exception of some Toolbox wrappers) is managed by these config files.
 
 #### Configuration files in NectarGAN are managed by two core components, the [`ConfigManager`](/nectargan/config/config_manager.py) class, and the [`Config`](/nectargan/config/config_data.py#L148) dataclass, both of which will be explained in this document.

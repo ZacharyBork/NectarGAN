@@ -1,4 +1,5 @@
 # NectarGAN Toolbox - Training
+> [*`NectarGAN Toolbox - Home`*](/docs/toolbox.md)
 #### Here you will find settings related to model training, loss weighting and logging, and example and checkpoint saving.
 
 ### Continue Training

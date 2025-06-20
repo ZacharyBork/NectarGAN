@@ -1,6 +1,6 @@
 # NectarGAN API - Loss Specs
+> [*`NectarGAN API - Home`*](/docs/api.md)
 #### Loss specifications (specs) are a novel way to define reusable objective functions for your models. At their core, loss specs are just standard Python functions but with one specific requirement, the must return a dictionary of string-mapped `LMLoss` objects.
-
 ## What is a loss spec?
 To better explain the concept, let's first have a quick look at an example loss spec function: [`nectargan.losses.pix2pix_objective`](/nectargan/losses/pix2pix_objective.py)
 

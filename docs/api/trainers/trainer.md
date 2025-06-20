@@ -1,6 +1,6 @@
 # NectarGAN API - Trainers
+> [*`NectarGAN API - Home`*](/docs/api.md)
 #### The [`Trainer`](/nectargan/trainers/trainer.py) class is one of the core components of the NectarGAN API.
-
 ## Intro
 The NectarGAN API provides a base [`Trainer`](/nectargan/trainers/trainer.py) class which you can inherit from to create your own model-specific trainers. The base class provides a number of convenience functions to speed up the process of building and deploying new trainers. 
 

@@ -1,4 +1,5 @@
 # NectarGAN API - Loss Functions
+> [*`NectarGAN API - Home`*](/docs/api.md)
 #### The NectarGAN API currently includes three non-standard loss functions (with more planned in the near future). These are:
 ## Sobel Loss
 Reference: [`nectargan.losses.losses.Sobel`](/nectargan/losses/losses.py#L5)

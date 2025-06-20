@@ -1,4 +1,5 @@
 # NectarGAN API - Building a Trainer
+> [*`NectarGAN API - Home`*](/docs/api.md)
 #### The base `Trainer` class in the NectarGAN API is intended to be inherited from to allow for the easy creation of new `Trainer` subclasses for models with different requirements. 
 ###### Strap in, this one is dense :)
 
