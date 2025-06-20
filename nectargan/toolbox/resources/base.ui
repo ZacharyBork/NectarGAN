@@ -3469,7 +3469,7 @@
            <item>
             <widget class="QStackedWidget" name="settings_pages">
              <property name="currentIndex">
-              <number>3</number>
+              <number>5</number>
              </property>
              <widget class="QWidget" name="experiment_page">
               <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -9022,7 +9022,7 @@
                   <property name="geometry">
                    <rect>
                     <x>0</x>
-                    <y>-828</y>
+                    <y>0</y>
                     <width>420</width>
                     <height>1634</height>
                    </rect>

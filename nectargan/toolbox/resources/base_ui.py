@@ -4486,7 +4486,7 @@ class Ui_MainWindow(object):
         self.scrollArea_12.setWidgetResizable(True)
         self.utilities_settings_container = QWidget()
         self.utilities_settings_container.setObjectName(u"utilities_settings_container")
-        self.utilities_settings_container.setGeometry(QRect(0, -828, 420, 1634))
+        self.utilities_settings_container.setGeometry(QRect(0, 0, 420, 1634))
         self.verticalLayout_48 = QVBoxLayout(self.utilities_settings_container)
         self.verticalLayout_48.setObjectName(u"verticalLayout_48")
         self.frame_95 = QFrame(self.utilities_settings_container)
@@ -5564,7 +5564,7 @@ class Ui_MainWindow(object):
         self.retranslateUi(MainWindow)
 
         self.centralwidget_pages.setCurrentIndex(2)
-        self.settings_pages.setCurrentIndex(3)
+        self.settings_pages.setCurrentIndex(5)
         self.direction.setCurrentIndex(-1)
         self.tabWidget_2.setCurrentIndex(0)
         self.pair_images_scale.setCurrentIndex(-1)

@@ -53,9 +53,9 @@ Reference: [`nectargan.dataset.augmentations`](/nectargan/dataset/augmentations.
 
 The NectarGAN API manages train-time dataset augmentations via a helper class called `Augmentations`. This class is not meant to be interacted with directly. It is instead used by the `PairedDataset` class to apply augmentations to images at run time based on the [dataset augmentations settings](/nectargan/config/default.json#L20) in the config file. The `Augmentations` class is very simple, consisting only of a few private functions to build an Albumentations `Compose` for transformations applied to both images, another for transformations applied only to the input images, and another still for those transforms which are only applied to the target image (although that's not particularly common in image-to-image tasks so all that one actually does in its standard implementation is normalizes the input and converts it to a tensor).
 
-The only public function is [`apply_transforms()`](/nectargan/dataset/augmentations.py#L135). It takes two `numpy.ndarrays` as input (the input and target image from the dataset file, as passed to it via the `PairedDataset`'s [`__getitem__`](/nectargan/dataset/paired_dataset.py#L39) method). It takes those two `ndarrays`, applies the relevant transforms to each, and returns them as a tuple of `torch.Tensors`: (`input`, `target`).
+The only public function is [`apply_transforms()`](/nectargan/dataset/augmentations.py#L135). It takes two `numpy.ndarrays` as input (the input and target image from the dataset file, as passed to it via the `PairedDataset`'s [`__getitem__`](/nectargan/dataset/paired_dataset.py#L39) method), applies the relevant transforms to each, and returns them as a tuple of `torch.Tensors`: (`input`, `target`).
 
-**Following are a list of currently supported transforms, broken down by category. Note that while they are not listed, both the input and the target image are also normalized (-1, 1) and converted to tensors.**
+**Following are a list of currently supported transforms, broken down by category. Note that while they are not listed, both the input and the target image are also normalized (-1, 1) and converted to tensors as part of their corresponding transform function.**
 
 ### Augmentations (Input)
 - Colorjitter

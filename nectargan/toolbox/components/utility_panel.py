@@ -1,7 +1,7 @@
 import shutil
 import random
 from pathlib import Path
-from typing import Any, Literal
+from typing import Any, Literal, Callable
 
 import cv2
 import numpy as np
@@ -64,6 +64,9 @@ class UtilityPanel():
             'Contrast (RMS)', 'Contrast (Haziness)'])
         self.find(QComboBox, 'sort_images_direction').addItems([
             'Ascending', 'Descending'])
+        
+    def _link_function_preview(self, fn: Callable) -> Callable:
+        return lambda : fn(dry_run=True)
 
     def _init_utilities_buttons(self) -> None:
         groups = {
@@ -118,8 +121,8 @@ class UtilityPanel():
             self.find(QPushButton, value['start']
                 ).clicked.connect(value['lambda'])
             if not value['preview'] is None:
-                self.find(QPushButton, value['preview']
-                    ).clicked.connect(lambda : value['lambda'](dry_run=True))
+                self.find(QPushButton, value['preview']).clicked.connect(
+                    self._link_function_preview(value['lambda']))
 
     ### PROGRESS DISPLAY ###
 
@@ -265,6 +268,13 @@ class UtilityPanel():
             if not experiment.exists():
                 return self._warn(f'Invalid experiment directory.')  
         else: return self._warn(f'Please enter an experiment directory.')
+
+        configs = sorted(list(experiment.glob('train*_config.json')))
+        if len(configs) == 0:
+            return self._warn((
+                f'Unable to convert model. Reason:\n'
+                f'No config files found in experiment directory.'))  
+        config = configs[-1]
         
         load_epoch = self.find(QSpinBox, 'convert_onnx_load_epoch').value()
         checkpoint = Path(experiment, f'epoch{load_epoch}_netG.pth.tar')
@@ -288,6 +298,7 @@ class UtilityPanel():
 
         converter = ONNXConverter(
             experiment_dir=experiment,
+            config=config,
             load_epoch=load_epoch,
             in_channels=in_channels,
             crop_size=crop_size,
