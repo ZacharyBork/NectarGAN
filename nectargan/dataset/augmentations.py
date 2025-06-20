@@ -3,7 +3,7 @@ import numpy as np
 import albumentations as A
 from nectargan.config.config_data import Config
 
-class Transformer():
+class Augmentations():
     '''Manages dataset transforms.
     '''
     def __init__(
@@ -13,7 +13,7 @@ class Transformer():
             std: list[float]=[0.5, 0.5, 0.5],
             max_pixel_value: float=255.0
         ) -> None:
-        '''Init function for Transform manager class.
+        '''Init function for Augmentations manager class.
 
         Args:
             config : The Config object being used for the current training.

@@ -7,7 +7,7 @@ import torch
 from torch.utils.data import Dataset
 
 from nectargan.config.config_data import Config
-from nectargan.dataset.transformer import Transformer
+from nectargan.dataset.augmentations import Augmentations
 
 class PairedDataset(Dataset):
     '''Defines a dataset loader for paired training.
@@ -26,7 +26,7 @@ class PairedDataset(Dataset):
         self.config = config
         self.load_size = config.dataloader.load.load_size
         self.list_files = [i for i in pathlib.Path(root_dir).iterdir()]
-        self.xform = Transformer(config=self.config)
+        self.xform = Augmentations(config=self.config)
 
     def __len__(self) -> int:
         '''Length method override.
@@ -36,7 +36,7 @@ class PairedDataset(Dataset):
         '''
         return len(self.list_files)
     
-    def __getitem__(self, index: int) -> tuple[torch.Tensor]:
+    def __getitem__(self, index: int) -> tuple[torch.Tensor, torch.Tensor]:
         '''Gets an item from the dataset and applies associated transforms.
         
         Args:
