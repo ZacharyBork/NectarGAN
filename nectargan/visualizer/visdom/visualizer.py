@@ -1,4 +1,4 @@
-from typing import Sequence, Any
+from typing import Sequence
 from collections.abc import Mapping
 import threading
 import queue

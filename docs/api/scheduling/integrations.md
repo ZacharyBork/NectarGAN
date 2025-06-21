@@ -114,7 +114,7 @@ from nectargan.scheduling.data import Schedule
 L1 = nn.L1Loss()
 
 schedule = Schedule(
-    schedule='linear',    # Linear decay
+    schedule='linear',   # Linear decay
     start_epoch=100,     # Starting at epoch 100
     end_epoch=200,       # And ending at epoch 200
     initial_value=100.0, # With an initial value of 100.0
