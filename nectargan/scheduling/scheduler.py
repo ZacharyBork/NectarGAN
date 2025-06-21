@@ -1,18 +1,11 @@
 from typing import Callable
 
-from torch import optim
-
 from nectargan.scheduling.data import Schedule
 from nectargan.scheduling.schedules import schedule_map
 
 class Scheduler():
-    def __init__(
-            self, 
-            optimizer: optim.Optimizer, 
-            schedule: Schedule,
-    ) -> None:
+    def __init__(self, schedule: Schedule) -> None:
         '''Initialization function for the Scheduler class.'''
-        self.optimizer = optimizer
         self.schedule = schedule
         self.max_value = max(schedule.initial_value, schedule.target_value)
         self.schedule_fn = self._init_schedule_fn()

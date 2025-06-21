@@ -19,7 +19,7 @@ Schedule functions can be broken down into a few parts:
 3. A start epoch, until which the initial value will be returned.
 4. An end epoch, after which the target value will be returned.
 
-So, up until the input epoch passed to the schedule function is equal to the start epoch, the schedule function returns the initial value. Then, in the epochs between the start and end epoch, the schedule function interpolates from the initial value to the target value. And finally, in the epochs after the end epoch, the function returns the target value.
+***So, up until the input epoch passed to the schedule function is equal to the start epoch, the schedule function returns the initial value. Then, in the epochs between the start and end epoch, the schedule function interpolates from the initial value to the target value. And finally, in the epochs after the end epoch, the function returns the target value.***
 
 ### Let's have a look at an example schedule to help clarify things:
 > ###### From: [`nectargan.scheduling.schedules.ScheduleDefs`](/nectargan/scheduling/schedules.py#L5)

@@ -10,11 +10,10 @@ class TorchScheduler(Scheduler):
             schedule: Schedule=Schedule,
         ) -> None:
         '''Initialization function for the TorchScheduler class.'''
-        super().__init__(optimizer, schedule)
+        super().__init__(schedule)
 
         self.scheduler = optim.lr_scheduler.LambdaLR(
-            self.optimizer, 
-            lr_lambda=self.eval_schedule)
+            optimizer, lr_lambda=self.eval_schedule)
         self._old_lr = self._new_lr = optimizer.param_groups[0]['lr']
 
     def step(self):

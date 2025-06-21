@@ -33,8 +33,8 @@ class Schedule:
         
         start_epoch : Epoch to start increasing or decreasing the loss values.
         end_epoch : Epoch to stop increasing or decreasing the loss values.
-        initial_value : Loss weight value to use until start_epoch.
-        target_value : Weight to interpolate to at, and hold after, end_epoch.
+        initial_value : The value to use until start_epoch.
+        target_value : The value to interpolate to at, and hold after, end_epoch.
         current_value : Not meant to be set directly, this value is instead 
             set by the `Schedule`'s function, and used by the LossManager to 
             weight the return value of registered losses when they are run.
