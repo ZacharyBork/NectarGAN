@@ -33,12 +33,12 @@ class ScheduleDefs:
     
     @staticmethod
     def exponential(
-        schedule: Schedule, 
-        epoch: int,
-        epsilon: float=1e-09,
-        allow_zero_weights: bool=True,
-        silent: bool=False
-    ) -> float:
+            schedule: Schedule, 
+            epoch: int,
+            epsilon: float=1e-09,
+            allow_zero_weights: bool=True,
+            silent: bool=False
+        ) -> float:
         '''Defines a exponential loss weight schedule.
 
         Graph:

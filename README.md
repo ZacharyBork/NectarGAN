@@ -27,7 +27,8 @@ NectarGAN is comprised of two core components:
             trainer.save_examples()
             trainer.print_end_of_epoch()
     ```
-    The core [NectarGAN paired training script](/scripts/paired/train.py) is not much larger than this.
+    > [!NOTE]
+    > The core [NectarGAN paired training script](/scripts/paired/train.py) is not much larger than this.
     
     **For more information, please see the [NectarGAN API documentation](/docs/api.md).**
     
@@ -41,7 +42,7 @@ NectarGAN is comprised of two core components:
 - **Real time inference and loss visualization** during training with Visdom (for headless training), or with the NectarGAN Toolbox GUI.
 - **Hook-based Trainer class** allows you to quickly define a custom training loop for your models.
 - **Easy framework for loading pre-trained model weights** to experiment with new training schedules from a earlier checkpoint, or to fine tune a previously trained model. 
-### Config-Driven Framework
+### Fully Config-Driven
 - **Training and testing settings are all handled by JSON configuration files.**
 - **Config copies are automatically exported and version tagged** for each train allowing for easy experiment tracking and reproducibility.
 - **Toolbox UI settings can be loaded in one click from any previously saved config file** allowing you to easily pick up training with your previous settings.
@@ -67,7 +68,7 @@ NectarGAN is comprised of two core components:
 - **A tool to automatically build train/test/val splits for dataset images** with easy control over split percentages.
 
 ## Getting Started
-1. Clone the repository: `git clone https://github.com/ZacharyBork/NectarGAN.git`
+#### Please refer to the [quickstart documentation](/docs/getting_started.md) for information on how to get started using NectarGAN.
 
 ## Who is this for?
 - Artists wanting to experiment with paired image translation tasks (why I first starting experimenting with Pix2pix).

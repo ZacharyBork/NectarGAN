@@ -623,7 +623,8 @@ class LossManager():
         
         # Otherwise get and apply currently scheduled weights
         fn = s.schedule # Schedule function definition
-        if isinstance(fn, Callable): s.current_value = fn(s, epoch)
+        if isinstance(fn, Callable): 
+            s.current_value = fn(s, epoch, **weight_kwargs)
         elif isinstance(fn, str) and fn in schedule_map.keys():
             s.current_value = schedule_map[fn](s, epoch, **weight_kwargs)
         else: 
@@ -631,7 +632,7 @@ class LossManager():
                 f'Invalid schedule type: {type(fn)}: ({fn})\n'
                 f'Valid types are: Literal["linear"] | '
                 f'Callable[[Schedule, int], None]')
-            raise TypeError(message)
+            raise KeyError(message)
         return loss_value * s.current_value
 
     ### REGISTERED LOSS EXECUTION ###
