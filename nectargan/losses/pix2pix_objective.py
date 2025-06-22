@@ -1,5 +1,6 @@
-import torch.nn as nn
 from typing import Literal
+
+import torch.nn as nn
 
 from nectargan.config.config_data import Config
 from nectargan.losses.losses import Sobel, Laplacian, VGGPerceptual

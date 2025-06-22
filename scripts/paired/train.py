@@ -10,8 +10,8 @@ def init_cli():
         '-lss', '--loss_subspec', type=str, default='basic', 
         help='Loss subspec for pix2pix LossManager. ("basic", "extended")')
     parser.add_argument(
-        '-log', '--log_losses', type=bool,
-        help='Enables loss history logging. (default=True)')
+        '-log', '--log_losses', action='store_true',
+        help='Enables loss history logging.')
     return parser.parse_args()
 
 if __name__ == "__main__":

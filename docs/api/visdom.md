@@ -26,7 +26,7 @@ vis = VisdomVisualizer(
     port=8097          # 8097 is Visdom's default port number
 ) 
 ```
-If you are reusing the same environment for multiple tests (as is done in the base `Trainer` class), it is generall best to also clear any old data after initialization. This can be done like so:
+If you are reusing the same environment for multiple tests (as is done in the base `Trainer` class), it is generally best to also clear any old data after initialization. This can be done like so:
 ```python
 vis.clear_env()
 ```
