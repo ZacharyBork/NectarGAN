@@ -1,5 +1,6 @@
 import sys
 import pathlib
+from importlib.resources import files
 
 from PySide6.QtWidgets import (
     QPushButton, QApplication, QFileDialog)
@@ -82,8 +83,8 @@ class Interface(QObject):
         Raises:
             FileNotFoundError : If unable to locate UI file.
         '''
-        root = pathlib.Path(__file__).parent
-        file = pathlib.Path(root, 'resources', 'base.ui')
+        path = files('nectargan.toolbox.resources').joinpath('base.ui')
+        file = pathlib.Path(path)
         if not file.exists():
             msg = f'Unable to locate UI file: {file.resolve().as_posix()}'
             raise FileNotFoundError(msg)
@@ -100,8 +101,8 @@ class Interface(QObject):
         self.mainwidget.setWindowTitle('NectarGAN Toolbox')
 
     def _set_stylesheet(self) -> None:
-        root = pathlib.Path(__file__).parent
-        file = pathlib.Path(root, 'resources', 'stylesheet.qss')
+        path = files('nectargan.toolbox.resources').joinpath('stylesheet.qss')
+        file = pathlib.Path(path)
         if not file.exists():
             msg = f'Unable to locate stylesheet: {file.resolve().as_posix()}'
             raise FileNotFoundError(msg)

@@ -191,11 +191,11 @@ class TesterHelper(QObject):
 
     def build_info_container(self, log_entry: dict) -> QWidget:
         rows = [
-            ('Test Iteration:', f'{log_entry['iteration']}', 'test_iterations'),
-            ('Test Image:', log_entry['test_data_path'], 'test_input_file'),
-            ('L1 Loss:', f'{log_entry['losses']['L1']}', 'test_l1_loss'),
-            ('Sobel Loss:', f'{log_entry['losses']['SOBEL']}', 'test_sobel_loss'),
-            ('Laplacian Loss:', f'{log_entry['losses']['LAPLACIAN']}', 'test_laplacian_loss')
+            ('Test Iteration:', f'{log_entry["iteration"]}', 'test_iterations'),
+            ('Test Image:', log_entry["test_data_path"], 'test_input_file'),
+            ('L1 Loss:', f'{log_entry["losses"]["L1"]}', 'test_l1_loss'),
+            ('Sobel Loss:', f'{log_entry["losses"]["SOBEL"]}', 'test_sobel_loss'),
+            ('Laplacian Loss:', f'{log_entry["losses"]["LAPLACIAN"]}', 'test_laplacian_loss')
         ]
 
         layout = QFormLayout()
@@ -240,7 +240,7 @@ class TesterHelper(QObject):
                 label.setObjectName(key)
                 self.image_labels[key].append(label)
                 path = pathlib.Path(
-                    self.results_dir, f'{result['iteration']}_{key}.png')
+                    self.results_dir, f'{result["iteration"]}_{key}.png')
                 pixmap = QPixmap(QImage(path.as_posix()))
                 label.setPixmap(pixmap.scaledToWidth(self.image_load_size))
                 layout.addWidget(label)
@@ -251,7 +251,7 @@ class TesterHelper(QObject):
         self.change_image_scale()
         progress_label.setHidden(True)
         self.find(QPushButton, 'test_start').setHidden(False)
-      
+        
     ### PROCESS SIGNALS ###
 
     def _set_results_dir(self, results_dir: pathlib.Path) -> None:

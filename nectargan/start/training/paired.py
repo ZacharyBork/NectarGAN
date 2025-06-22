@@ -14,7 +14,7 @@ def init_cli():
         help='Enables loss history logging.')
     return parser.parse_args()
 
-if __name__ == "__main__":
+def main():
     args = init_cli()
 
     trainer = Pix2pixTrainer(
@@ -42,4 +42,7 @@ if __name__ == "__main__":
             trainer.save_examples() # Save example images if applicable
 
         trainer.print_end_of_epoch()
+
+if __name__ == "__main__":
+    main()
 

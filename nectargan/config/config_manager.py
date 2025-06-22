@@ -3,6 +3,7 @@ from os import PathLike
 import json
 from typing import Type, TypeVar, Any
 from dataclasses import is_dataclass
+from importlib.resources import files
 
 from nectargan.config import config_data
 T = TypeVar('T')
@@ -48,7 +49,8 @@ class ConfigManager():
     def _validate_config_dict(self, input_data: dict[str, Any]) -> None:
         assert isinstance(input_data, dict)
 
-        script_root = pathlib.Path(__file__).parent
+        path = files('nectargan.config').joinpath('default.json')
+        script_root = pathlib.Path(path).parent
         default_config = pathlib.Path(script_root, 'default.json').resolve()
         with open(default_config.as_posix(), 'r') as file:
             default_data = json.loads(file.read())['config']
@@ -76,8 +78,8 @@ class ConfigManager():
         '''
         config_file = pathlib.Path
         if config_filepath == None:
-            script_root = pathlib.Path(__file__).parent
-            config_file = pathlib.Path(script_root, 'default.json').resolve()
+            path = files('nectargan.config').joinpath('default.json')
+            config_file = pathlib.Path(path).resolve()
         else: config_file = pathlib.Path(config_filepath)
         
         if not config_file.exists():

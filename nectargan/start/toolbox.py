@@ -1,6 +1,8 @@
 from nectargan.toolbox.run import Interface
 
-if __name__ == "__main__":
+def main():
     interface = Interface()
     interface.run()
 
+if __name__ == "__main__":
+    main()    

@@ -143,7 +143,7 @@ DEFINITION = {
     }
 }
 
-if __name__ == "__main__":
+def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
         '-O', '--overwrite_existing', action='store_true',
@@ -163,3 +163,6 @@ if __name__ == "__main__":
             json.dump(DEFINITION, file, indent=4)
     except Exception as e:
         raise RuntimeError('Unable to create default config file.') from e
+
+if __name__ == "__main__":
+    main()
