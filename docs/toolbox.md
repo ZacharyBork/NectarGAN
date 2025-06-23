@@ -1,12 +1,11 @@
 # NectarGAN Toolbox - Home
-#### A graphical tool for training and testing models, reviewing results of previous tests, converting models to ONNX and testing the resulting model, and processing dataset files, all packaged into a single modern and easy to use interface..
+#### A graphical tool for training and testing models, reviewing results of previous tests, converting models to ONNX and testing the resulting model, and processing dataset files, all packaged into a single modern and easy to use interface.
 
-***The Toolbox can be launched by running `python -m scripts.toolbox` from the repository root.***
+> [!TIP]
+> It is recommended to start with the [Toolbox quickstart guide](/docs/getting_started/toolbox_training.md), a short walkthrough which will teach you the basics of training and testing model, and reviewing training data using the NectarGAN Toolbox.
 
 ## Sections
-
-> [!NOTE]
-> The Toolbox interface is broken down into seven core sections, each of which can be accessed via the buttons of the left-hand bar, or by pressing `Ctrl+[1-7]`. These sections are:
+**The Toolbox interface is broken down into seven core sections, each of which can be accessed via the buttons of the left-hand bar, or by pressing `Ctrl+[1-7]`. These sections are:**
 
 ### Experiment
 Here you will find settings related to experiment output, naming, and versioning, as well and settings related to the architecture of the generator and the discriminator. There is also an option on this page to select and load a JSON config file and initialize all of the UI settings from the values defined in the file.
@@ -41,4 +40,4 @@ See the [NectarGAN Toolbox - Settings](/docs/toolbox/settings.md) documentation 
 *Relevant sections:*
 [Experiment](/docs/toolbox/experiment.md) | [Dataset](/docs/toolbox/dataset.md) | [Training](/docs/toolbox/training.md) | [Testing](/docs/toolbox/testing.md) | [Review](/docs/toolbox/review.md) | [Utilities](/docs/toolbox/utilities.md) | [Settings](/docs/toolbox/settings.md) |
 
-###### NOTE: There is currently no developer documentation related to the NectarGAN Toolbox. It will be added in a future update. If you are curious how something behaves or would like to alter the functionality of the interface, the Toolbox source can be found at [`nectargan.toolbox`](/nectargan/toolbox/), and is broken down into various submodules related to UI sections and/or functionality. Much of it is well-documented in-line and in method docstrings.
+###### NOTE: There is currently no developer documentation related to the NectarGAN Toolbox. It will be added in a future update. If you are curious how something behaves or would like to alter the functionality of the interface, the Toolbox source can be found at [`nectargan.toolbox`](/nectargan/toolbox/), and is broken down into various submodules related to UI sections and/or functionality. Much of it is well documented in-line and in method docstrings.

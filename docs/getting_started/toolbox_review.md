@@ -1,4 +1,4 @@
-# NectarGAN - Getting Started (Toolbox Review)
+# NectarGAN - Getting Started (Toolbox | Review)
 ##### Reference: [`NectarGAN Toolbox Documentation`](/docs/toolbox.md)
 > [!NOTE]
 > This file is the third part in the Toolbox quickstart guide. It is recommended to read the first two before this one.
@@ -28,7 +28,7 @@ We will start by inputting the experiment directory for the model we trained in 
 
 ## Conclusion
 
-**And that's it really, those are the core components of the NectarGAN Toolbox. Thank you for reading, and I hope you enjoy working with it :)**
+**And that's it really, those are the core components of the NectarGAN Toolbox. Thank you for reading, I hope you enjoy working with it :)**
 
 If you have suggestions or find any issues, please feel free to let me know!
 

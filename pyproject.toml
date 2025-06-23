@@ -27,3 +27,9 @@ requires-python = ">=3.11"
 
 [tool.setuptools.package-data]
 "*" = ["*.qss", "*.ui", "*.png", "*.svg", "*.gif", "*.json"]
+
+[project.scripts]
+nectargan-toolbox = "nectargan.start.toolbox:main"
+nectargan-train-paired = "nectargan.start.training.paired:main"
+nectargan-test-paired = "nectargan.start.testing.paried:main"
+nectargan-utils-restoreconfig = "nectargan.utils.rebuild_default_config:main"

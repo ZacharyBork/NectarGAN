@@ -8,7 +8,7 @@
 ## Installing NectarGAN
 ### Windows
 > [!TIP]
-> It is recommended to install NectarGAN in a fresh environment to avoid dependency conflicts. 
+> It is recommended to install NectarGAN in a fresh environment to avoid dependency conflicts, especially as it is still in active development. 
 >
 > NectarGAN requires a Python version >= `3.11`.
 
