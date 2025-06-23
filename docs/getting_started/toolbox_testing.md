@@ -24,7 +24,7 @@
 
 ### Test Results
 **After a couple seconds, you should be presented with a screen which looks like this:**
-![_toolbox_testing_example_](/docs/resources/images/toolbox/toolbox_testing_example.png)
+![_toolbox_testing_example_](/docs/resources/images/toolbox/toolbox_testing_example.PNG)
 > [!NOTE]
 > Your images may be larger. Image scale can be controlled with the slider on the bottom of the results panel.
 
@@ -33,7 +33,7 @@
 For each test iteration, before converterting the images for display, we also take the tensors and run a few loss functions on them. You can sort the test results by these metrics, as well as a few others, using the dropdown menus on the bottom right of the results panel.
 
 **Now, let's hit `Begin Test` one more time.** When we do, we see that the model has been run on another random selection of images from the `test` set:
-![_toolbox_testing_example_02_](/docs/resources/images/toolbox/toolbox_testing_example_02.png)
+![_toolbox_testing_example_02_](/docs/resources/images/toolbox/toolbox_testing_example_02.PNG)
 **Now, if we click on the dropdown menu called `Test Version`, located in the bottom left of the results panel, we will see that we have two item, `test_01` and `test_02`.** This allows you to switch back and forth between the tests to compare. Note that sorting settings will also be preserved when switching between them
 ### The `test` Directory
 Now, let's quickly have a look at our experiment output directory for the experiment we are testing. In doing so, we notice a new subdirectory called `test`. Diving inside this new directory, we can see that, for each test we ran, asubdirectory was created inside. 
