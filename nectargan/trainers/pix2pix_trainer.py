@@ -569,7 +569,8 @@ class Pix2pixTrainer(Trainer):
         '''Evaluates model and saves images to example output directory.'''        
         if not silent:
             output = f'Saving example images: {self.examples_dir.as_posix()}'
-            self.save_xyz_examples(network=self.gen, dataloader=self.val_loader)
+            self.save_xyz_examples(
+                network=self.gen, dataloader=self.val_loader)
             if capture: return output
             else: print(output)
         

@@ -9,6 +9,8 @@
 ### Windows
 > [!TIP]
 > It is recommended to install NectarGAN in a fresh environment to avoid dependency conflicts. 
+>
+> NectarGAN requires a Python version >= `3.11`.
 
 1. **Clone the repository:** `git clone https://github.com/ZacharyBork/NectarGAN.git`
 2. **Navigate to the repository root and run:**
@@ -30,11 +32,8 @@ conda env create -f environment.yml
 **CUDA 12.8** | `pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu128`
 
 ## NectarGAN Toolbox
-**For information on getting started with the NectarGAN Toolbox, please see [here](/docs/getting_started/toolbox.md).**
+**For information on getting started with the NectarGAN Toolbox, please see [here](/docs/getting_started/toolbox_training.md).**
 
 ## NectarGAN CLI
 
 ## NectarGAN API
-
-
-[^1]: [Pix2Pix: Image-to-Image Translation with Conditional Adversarial Networks (Isola et al., 2017)](https://arxiv.org/abs/1611.07004)

@@ -1,4 +1,4 @@
-# NectarGAN - Getting Started (Toolbox)
+# NectarGAN - Getting Started (Toolbox Training)
 #### A graphical tool for training and testing models, reviewing results of previous tests, converting models to ONNX and testing the resulting model, and processing dataset files, all packaged into a single modern and easy to use interface..
 > [!NOTE]
 > For this walkthrough, we will be using the ubiquitous `facades` Pix2pix dataset, kindly provided by the University of California, Berkeley. Before beginning, please head to the following link and select `facades.tar.gz` to download this dataset if you would like to follow along:
@@ -8,7 +8,7 @@
 ##### Reference: [`NectarGAN Toolbox Documentation`](/docs/toolbox.md)
 
 ## Launching the ToolBox
-With NectarGAN installed via your preferred method, you can launch the Nectargan Toolbox as follows:
+With NectarGAN installed in your Python environment via your preferred method, you can launch the Nectargan Toolbox using the following command:
 ```bash
 python -m nectargan.start.toolbox
 ```
@@ -16,6 +16,8 @@ The Toolbox will open to a screen which looks like this:
 ![_toolbox_experiment_](/docs/resources/images/toolbox/toolbox_experiment.PNG)
 
 ## Experiment Settings
+##### Reference: [`Toolbox Experiment Panel`](/docs/toolbox/experiment.md)
+
 **On this screen, we can define output settings for our current experiment, and also define architecture options for our generator and discriminator, if we so choose.**
 
 **For now, we will:**
@@ -30,13 +32,25 @@ The Toolbox will open to a screen which looks like this:
 - `Input` : Augmentations applied only to the input image (`A` in `AtoB`, `B` in `BtoA`)
 - &nbsp;`Both`&nbsp; : Augmentation applied to both the input and the target image.
 
-**For now, on this screen, we will:**
+**For now, we will:**
 1. Unzip the `facades` dataset (twice), if we haven't already.
 2. Set the `Dataset Root` to the path to the `facades` dataset folder.
 > [!IMPORTANT]
 > The path we input for `Dataset Root` should be the root directory for the dataset, i.e. the directory which contains the `train`, `test`, and `val` subdirectories.
 3. If we look at one of our dataset images, we can see it has a resolution of `[512x256]`, meaning each image (i.e. `input`, `target`) has a resolution of `[256x256]`. As such, we do not need to change our `Load Size` or `Crop Size` here, as the default values are set to both load and random crop at `256^2` which, with this dataset, will just load images at full resolution and apply no cropping.
 4. We will change the `Direction` to `BtoA`. Looking again at our dataset images, we can see that the image on the right, the `B` image, is the semantic mask. We want to turn that in to the image on the left (`A`), the building facade image. If you'd rather see the model try to learn the semantic segmentation task instead though, feel free to leave it at `AtoB`.
+
+> [!NOTE]
+> A quick note on Pix2pix datasets, and their practical application in NectarGAN:
+>
+> Looking at our `facades` dataset directory, we can see that it has three subdirectories: `train`, `test`, and `val`. This is standard for Pix2pix datasets, though the percentage splits vary based on a number of factors including model application and dataset size.
+>
+> NectarGAN uses these in a very standard way as well:
+> | Set | Usage |
+> | :---: | --- |
+> `train` | The images in this set are used during training to condition the generator and discriminator. 
+> `val` | The images in this set are used during training to generate example outputs. They provide a set of "clean data" which the generator has never seen, upon which to test the generator's inference capabilities.
+> `test` | This set is optional. It is used during testing (addressed in the next section) as another "clean" dataset on which to test previously trained models.
 
 ## Training Settings
 **And finally, we're ready to move on to the training settings, which can be done by clicking on the purple `Training` button on the left-hand bar.** After doing so, you will be greeted with a window which looks like this:
@@ -48,7 +62,7 @@ Also of note is the `Continue Train` checkbox. Clicking this will present you wi
 **For now, we don't need to change anything here.** The default settings will initialize the learning rate schedule and loss weights as they were outlined in the original Pix2pix paper[^1], but you are encouraged to come back after this walkthrough to start playing around with the settings here, they can change the behaviour of the generator in lots of fun and interesting ways depending on the task.
 
 ## Start Training
-> ##### Toolbox training on the `facades` dataset *(epoch 173)*.
+> ##### Toolbox training with the `facades` dataset *(epoch 173)*.
 > ![_toolbox_running_](/docs/resources/gifs/toolbox_training.gif)
 
 
@@ -61,5 +75,23 @@ Also of note is the `Continue Train` checkbox. Clicking this will present you wi
 6. After each epoch, the model will be loaded automatically in eval mode and run on an image from the `val` set, and an example image set will be exported to the `examples` directory in the experiment directory.
 7. After a few epochs (5 if you have followed this guide exactly up until this point), cached loss data will be exported to the loss log.
 
-**And that's really all there is to training with the NectarGAN Toolbox.** Let's let the model train for a bit (maybe 10 or 20 epochs, shown by the epoch counter in the bottom right), then we'll come back once we have some checkpoint files and example images to play with.
+**And that's really all there is to training with the NectarGAN Toolbox.** Let's let the model train for a bit (maybe 10 or 20 epochs, shown by the epoch counter in the bottom right), then we'll come back once we have some checkpoint files and example images to play with. When you are finished, just click the big red `Stop Train` button and the current train will be halted.
+
+## Output
+**If we have a quick look at our experiment output directory, we should see something like this:**
+![_experiment_output_](/docs/resources/images/experiment_output_directory.PNG)
+
+**These are the files which have been created by our training session:**
+1. Every 5 epochs (based on our settings in the `Training` panel), two `.pth.tar` files were exported. These are [tar archives](https://en.wikipedia.org/wiki/Tar_(computing)) containing the model parameters for the generator and discriminator respectively, as denoted by the `G` and `D` in the file names.
+2. `loss_log.json`, a file containing all of the logged loss information (namely mean values and weights, both at `float32`).
+3. `train1_config.json`, a carbon copy of the config that was used to run the training. Were we to continue training on the model, a new file, `train2_config.json` would be created.
+4. A subdirectory called `examples`. Looking inside...<br><br>
+![_examples_output_](/docs/resources/images/examples_output_directory.PNG)
+
+    ... we see that each epoch (at the end of the given epoch), we also were evaluating the model on images from the `eval` set, and then exporting the example [`A_real`, `B_fake`, `B_real`] set.
+
+**In a later section, we will see how we can use the Toolbox to load all of this data for review.** For now though, since we have our `.pth.tar` checkpoint files, let's move on to...
 ## Model Testing
+Click [here](/docs/getting_started/toolbox_testing.md) to proceed to the Toolbox testing quickstart guide.
+
+[^1]: [Pix2Pix: Image-to-Image Translation with Conditional Adversarial Networks (Isola et al., 2017)](https://arxiv.org/abs/1611.07004)

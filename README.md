@@ -27,8 +27,7 @@ NectarGAN is comprised of two core components:
             trainer.save_examples()
             trainer.print_end_of_epoch()
     ```
-    > [!NOTE]
-    > The core [NectarGAN paired training script](/scripts/paired/train.py) is not much larger than this.
+    > *The core [NectarGAN paired training script](/scripts/paired/train.py) is not much larger than this.*
     
     **For more information, please see the [NectarGAN API documentation](/docs/api.md).**
     
