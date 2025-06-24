@@ -4,7 +4,7 @@
             "device": "cuda",
             "gpu_ids": [0],
             "output_directory": "E:/ML/test_data/pix2pix/output",
-            "experiment_name": "facades",
+            "experiment_name": "facades_cli_test",
             "experiment_version": 1
         },
         "dataloader": {
@@ -115,7 +115,7 @@
         },
         "visualizer": {
             "visdom": {
-                "enable": false,
+                "enable": true,
                 "env_name": "main",
                 "port": 8097,
                 "image_size": 400,

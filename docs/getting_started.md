@@ -35,5 +35,7 @@ conda env create -f environment.yml
 **For information on getting started with the NectarGAN Toolbox, please see [here](/docs/getting_started/toolbox_training.md).**
 
 ## NectarGAN CLI
+For more information regarding the CLI options currently offered by NectarGAN, please see the [NectarGAN CLI quickstart]().
 
 ## NectarGAN API
+**Please see the [API documentation](/docs/api.md) for more information on getting started with the NectarGAN API.**
