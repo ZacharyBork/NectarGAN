@@ -146,7 +146,7 @@ DEFINITION = {
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        '-O', '--overwrite_existing', action='store_true',
+        '-o', '--overwrite_existing', action='store_true',
         help='Allows the script to overwrite an existing default config file.')
     args = parser.parse_args()
 
