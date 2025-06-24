@@ -1,10 +1,10 @@
 # NectarGAN - Getting Started (Toolbox | Review)
 ##### Reference: [`NectarGAN Toolbox Documentation`](/docs/toolbox.md)
 > [!NOTE]
-> This file is the third part in the Toolbox quickstart guide. It is recommended to read the first two before this one.
+> This is part two of the three-part Toolbox quickstart guide.
 >
-> Click [here](/docs/getting_started/toolbox_training.md) for part one.<br>
-> Click [here](/docs/getting_started/toolbox_testing.md) for part two.
+> Click [*here*](/docs/getting_started/toolbox_training.md) for part one.<br>
+> Click [*here*](/docs/getting_started/toolbox_testing.md) for part two.
 
 > [!IMPORTANT]
 > The review panel is still relatively early in development. Some features may be a little rough around the edges, and you may experience stalls when loading large experiment outputs. It is functional in its current state, but it will likely be overhauled at some point in the future.

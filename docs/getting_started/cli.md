@@ -1,5 +1,6 @@
 # NectarGAN - Getting Started (CLI)
 #### This section will walk you through the process of using NectarGAN from the command line.
+> [`Getting Started - Home`](/docs/getting_started.md)
 
 > [!NOTE]
 > Up to this point, my focus has primarily been on the Toolbox interface. As such, the CLI options currently are rather limited. What does exist is really just a slightly expanded version of the scripts I originally used for validation of the Pix2pix implementation.

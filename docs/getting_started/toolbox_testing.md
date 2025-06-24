@@ -1,7 +1,10 @@
 # NectarGAN - Getting Started (Toolbox | Testing)
 ##### Reference: [`NectarGAN Toolbox Documentation`](/docs/toolbox.md)
 > [!NOTE]
-> This file is a continuation of the [Toolbox Training quickstart guide](/docs/getting_started/toolbox_training.md). It is recommended to read that first if you have not already done so.
+> This is part two of the three-part Toolbox quickstart guide.
+>
+> Click [*here*](/docs/getting_started/toolbox_training.md) for part one.<br>
+> Click [*here*](/docs/getting_started/toolbox_review.md) for part three.
 
 ## The Testing Panel
 > [!IMPORTANT]

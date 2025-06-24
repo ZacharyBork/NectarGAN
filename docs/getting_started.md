@@ -32,10 +32,16 @@ conda env create -f environment.yml
 **CUDA 12.8** | `pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu128`
 
 ## NectarGAN Toolbox
-**For information on getting started with the NectarGAN Toolbox, please see [here](/docs/getting_started/toolbox_training.md).**
+**The Toolbox quickstart guide is split in to three sections which are intended to be followed in order.**
+
+**Section 1:** [*Training a Model*](/docs/getting_started/toolbox_training.md)<br>
+**Section 2:** [*Testing a Model*](/docs/getting_started/toolbox_testing.md)<br>
+**Section 3:** [*Reviewing Results*](/docs/getting_started/toolbox_training.md)
 
 ## NectarGAN CLI
-For more information regarding the CLI options currently offered by NectarGAN, please see the [NectarGAN CLI quickstart]().
+**For more information regarding the CLI options currently offered by NectarGAN, please see the [*NectarGAN CLI quickstart*](/docs/getting_started/cli.md).**
 
 ## NectarGAN API
-**Please see the [API documentation](/docs/api.md) for more information on getting started with the NectarGAN API.**
+**Please see the [*API documentation*](/docs/api.md) for more information on getting started with the NectarGAN API.**
+
+---

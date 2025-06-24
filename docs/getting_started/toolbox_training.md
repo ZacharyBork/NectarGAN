@@ -1,12 +1,19 @@
 # NectarGAN - Getting Started (Toolbox | Training)
 #### A graphical tool for training and testing models, reviewing results of previous tests, converting models to ONNX and testing the resulting model, and processing dataset files, all packaged into a single modern and easy to use interface..
+##### Reference: [`NectarGAN Toolbox Documentation`](/docs/toolbox.md) 
 > [!NOTE]
+> This is part one of the three-part Toolbox quickstart guide.
+>
+> Click [*here*](/docs/getting_started/toolbox_testing.md) for part two.<br>
+> Click [*here*](/docs/getting_started/toolbox_review.md) for part three.
+>
+> For instructions on how to install NectarGAN, please see [*here*](/docs/getting_started.md).
+
+
+> [!TIP]
 > For this walkthrough, we will be using the ubiquitous `facades` Pix2pix dataset, kindly provided by the University of California, Berkeley. Before beginning, please head to the following link and select `facades.tar.gz` to download this dataset if you would like to follow along:
 >
 > https://efrosgans.eecs.berkeley.edu/pix2pix/datasets/
-
-##### Reference: [`NectarGAN Toolbox Documentation`](/docs/toolbox.md)
-
 ## Launching the ToolBox
 With NectarGAN installed in your Python environment via your preferred method, you can launch the Nectargan Toolbox by running the following command inside of the Python environment where NectarGAN is installed:
 ```bash

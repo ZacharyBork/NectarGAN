@@ -39,7 +39,7 @@ When a `Trainer` subclass is initialized, the base `Trainer` class will perform 
 `self.train_loader` | A `torch.utils.data.DataLoader` representing the training dataset. This is expected to be set by the `Trainer` subclass, although the base `Trainer` class provides a utility function to perform the heavy lifting. See [here](/nectargan/trainers/pix2pix_trainer.py#L109) and [here](/nectargan/trainers/trainer.py#L217) for more info.
 `self.val_loader` | Exactly the same as `self.train_loader`, but for the validation dataset.
 ## Member Functions
-What follows is an exhaustive list of all of the member functions of the `Trainer` class, broken down by category. A brief description of each will be provided. For a more complete decription, please see the docstring for the given function which can be accessed here by clicking on the function's name.
+What follows is an exhaustive list of all of the member functions of the `Trainer` class, broken down by category. A brief description of each will be provided. For a more complete decription, please see the docstring for the given function, which can be accessed here by clicking on the function name.
 
 ### Initialization Functions
 | Function | Description |
@@ -82,12 +82,9 @@ What follows is an exhaustive list of all of the member functions of the `Traine
 | :---: | --- |
 [`export_model_weights`](/nectargan/trainers/trainer.py#L443) | A utility function which will take a network and its associated optimizer, and save a checkpoint for the network as a `.pth.tar` to the current experiment directory, tagged with the current epoch value at the time the function was called.
 [`save_xyz_examples`](/nectargan/trainers/trainer.py#L476) | This function will swap a given network over into eval mode, select a random set of images from the `self.val_loader` dataset (the number of images is defined by the value of ['config']['save']['num_examples'] in the config file), run the network's inference on each image, and for each image, export 3 `.png` files to the current experient directory's example subdirectory. Then it switches the network back in to train mode.
-## The Pix2pixTrainer Class
-#### The [`Pix2pixTrainer`](/nectargan/trainers/pix2pix_trainer.py) is a full-featured implementation of a Pix2pix-style[^1] GAN model using the NectarGAN API.
-
-**Please see [here](/docs/api/trainers/pix2pix_trainer.md) for more information regarding the `Pix2pixTrainer`.**
 ## Building a New Trainer
-#### The base `Trainer` class can be easily inherited from to create new `Trainer` subclasses for additional models.
+**The base `Trainer` class can be easily inherited from to create new `Trainer` subclasses for additional models.**
 
-**Please see [here](/docs/api/trainers/building_a_trainer.md) for more information.**
-[^1]: [Pix2Pix: Image-to-Image Translation with Conditional Adversarial Networks (Isola et al., 2017)](https://arxiv.org/abs/1611.07004)
+*See [here](/docs/api/trainers/building_a_trainer.md) for more information.*
+
+---
