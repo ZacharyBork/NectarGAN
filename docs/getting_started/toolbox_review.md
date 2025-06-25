@@ -18,13 +18,13 @@
 We will start by inputting the experiment directory for the model we trained in [part 1](/docs/getting_started/toolbox_training.md). After that, we can click the `Load Experiment` button to load all the data from our training session. After just a second, we should see the training data loaded up like so:
 ![_toolbox_review_example_](/docs/resources/images/toolbox/toolbox_review_example.PNG)
 
-**On the left side of the results panel, we can see that it has loaded up all of the [`A_real`, `B_fake`, `B_real`] example image sets.**
+**On the left side of the results panel, we can see that it has loaded all of the [`A_real`, `B_fake`, `B_real`] example image sets.**
 
 **Then, on the right, it has also gone through the loss log and graphed all of the loss data for each loss in the loss log,** with the red line being the mean loss value, and the green line being the weight of the loss (more useful if you are scheduling loss weights, here it is just a flat line for each loss).
 > [!NOTE]
 > Graphing every single entry for every single loss can be a heavy task, especially for longer trains and/or larger datasets. For this reason, **by default, the review panel will only graph every 50<sup>th</sup> value.** This can be changed in the main settings panel, accessed via the red `Settings` button on the left-hand bar.
 
-**We also see that, in the review settings panel, below where we input our experiment directory path, it has loaded the train config file from the experiment directory for viewing.** If there are multiple train configs in the experiement directory, all of them will be loaded and you can switch between them with the dropdown meny in the top right of the `Train Config` display.
+**We also see that, in the review settings panel, below where we input our experiment directory path, it has loaded the train config file from the experiment directory for viewing.** If there are multiple train configs in the experiement directory, all of them will be loaded and you can switch between them with the dropdown menu in the top right of the `Train Config` display.
 
 ## Conclusion
 

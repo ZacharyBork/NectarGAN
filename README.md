@@ -8,7 +8,7 @@ NectarGAN is comprised of two core components:
 
 1. **The NectarGAN Toolbox.** A modern, high performance interface encapsulating a full end-to-end, production-ready cGAN pipeline. From assembling and managing Pix2pix-style datasets, to building and training conditional GAN models, to tracking and reviewing experiments, to testing trained models and preparing them for deployment. Your models can go from an idea to production, all without leaving the Toolbox.
 
-    **Check out the [*quickstart guide*](/docs/getting_started/toolbox_training.md) to get started.**
+    **Check out the [*Toolbox quickstart guide*](/docs/getting_started/toolbox_training.md) to get started.**
 
 2. **The NectarGAN API.** A fully modular, highly extensible PyTorch-based framework comprised of easy to use building blocks for assembling, training, and testing conditional GAN models. The API offers developers the tools needed to quickly write cGAN training/testing scripts with maximum functionality and minimal boilerplate.
 

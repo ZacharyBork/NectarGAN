@@ -191,11 +191,16 @@ class TesterHelper(QObject):
 
     def build_info_container(self, log_entry: dict) -> QWidget:
         rows = [
-            ('Test Iteration:', f'{log_entry["iteration"]}', 'test_iterations'),
-            ('Test Image:', log_entry["test_data_path"], 'test_input_file'),
-            ('L1 Loss:', f'{log_entry["losses"]["L1"]}', 'test_l1_loss'),
-            ('Sobel Loss:', f'{log_entry["losses"]["SOBEL"]}', 'test_sobel_loss'),
-            ('Laplacian Loss:', f'{log_entry["losses"]["LAPLACIAN"]}', 'test_laplacian_loss')
+            ('Test Iteration:', 
+             f'{log_entry["iteration"]}', 'test_iterations'),
+            ('Test Image:', 
+             log_entry["test_data_path"], 'test_input_file'),
+            ('L1 Loss:', 
+             f'{log_entry["losses"]["L1"]}', 'test_l1_loss'),
+            ('Sobel Loss:', 
+             f'{log_entry["losses"]["SOBEL"]}', 'test_sobel_loss'),
+            ('Laplacian Loss:', 
+             f'{log_entry["losses"]["LAPLACIAN"]}', 'test_laplacian_loss')
         ]
 
         layout = QFormLayout()

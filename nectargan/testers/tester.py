@@ -77,7 +77,7 @@ class Tester(Trainer):
         self.output_root = test_dir
 
     def _build_output_directory(self) -> None:
-        '''Builds a root test output directory inside the experiment direcotry.
+        '''Builds a root test output directory inside the experiment directory.
         
         This function first calls `Trainer.build_output_directory()`. Since we
         are necessarily loading the weights of a pre-trained model, rather
