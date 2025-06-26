@@ -101,11 +101,17 @@ class SettingsDock(QObject):
                 self.central_pages.setCurrentIndex(index-2)
             case _: pass
 
-    def _set_main_icon(self, size: tuple[int]) -> None:
-        main_icon_pixmap = QPixmap(utils.get_icon_file('drop.svg')).scaled(
-            size[0], size[1],  Qt.AspectRatioMode.KeepAspectRatio, 
-            Qt.TransformationMode.SmoothTransformation)
+    def _set_main_icon(
+            self, 
+            size: tuple[int],
+            file: str='toolbox_icon.png'
+        ) -> None:
+        main_icon_pixmap = QPixmap(
+            utils.get_icon_file(file)).scaled(
+                size[0], size[1],  Qt.AspectRatioMode.KeepAspectRatio, 
+                Qt.TransformationMode.SmoothTransformation)
         self.main_icon.setPixmap(main_icon_pixmap)
+        self.main_icon.setFixedSize(size[0], size[1])
 
     def _swap_btn_label_visibility(
             self, 
@@ -136,11 +142,15 @@ class SettingsDock(QObject):
         if watched == getattr(self, 'btns_frame', None):
             if event.type() == QEvent.Type.Enter:
                 self._animate_nav_panel(expand=True)
+                self._set_main_icon(
+                   size=(220, 55), file='toolbox_icon_text.png')
+                self.main_icon.setFixedSize(170, 55)
                 self._swap_btn_label_visibility('show')
                 self.title_tag.setText('NectarGAN Toolbox')
                 self.creator_tag.setText('Created by Zachary Bork')
             elif event.type() == QEvent.Type.Leave:
                 self._animate_nav_panel(expand=False)
+                self._set_main_icon(size=(55, 55))
                 self._swap_btn_label_visibility('hide')
                 self.title_tag.setText('')
                 self.creator_tag.setText('')
@@ -150,7 +160,7 @@ class SettingsDock(QObject):
         self.dock.setTitleBarWidget(QWidget(None))
         self.title_tag.setText('')
         self.creator_tag.setText('')
-        self._set_main_icon(size=(50, 50))
+        self._set_main_icon(size=(55, 55))
 
         self.btns_frame.setMouseTracking(True)
         self._init_navbar_expansion()

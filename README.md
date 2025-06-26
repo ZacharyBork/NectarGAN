@@ -1,8 +1,7 @@
 # NectarGAN
-
->![*toolbox_training_gif*](/docs/resources/gifs/toolbox_training.gif)
 >A full-featured graphical development environment and model assembly framework for Pix2pix-style conditional GANs.
 
+![_toolbox_training_gif_](/docs/resources/gifs/toolbox_training.gif)
 ## What is NectarGAN?
 NectarGAN is comprised of two core components:
 

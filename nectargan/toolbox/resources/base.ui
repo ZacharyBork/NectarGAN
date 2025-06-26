@@ -617,8 +617,8 @@
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>1273</width>
-                <height>937</height>
+                <width>163</width>
+                <height>34</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_58">
@@ -2404,7 +2404,7 @@
         <item>
          <widget class="QLabel" name="settings_dock_main_icon">
           <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+           <sizepolicy hsizetype="Preferred" vsizetype="Ignored">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
@@ -2426,6 +2426,9 @@
             <bold>true</bold>
            </font>
           </property>
+          <property name="autoFillBackground">
+           <bool>false</bool>
+          </property>
           <property name="text">
            <string>icon</string>
           </property>
@@ -2436,6 +2439,22 @@
            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
           </property>
          </widget>
+        </item>
+        <item>
+         <spacer name="verticalSpacer_11">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeType">
+           <enum>QSizePolicy::Minimum</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>50</height>
+           </size>
+          </property>
+         </spacer>
         </item>
         <item>
          <spacer name="verticalSpacer_12">
@@ -6236,8 +6255,8 @@
                        <rect>
                         <x>0</x>
                         <y>0</y>
-                        <width>437</width>
-                        <height>754</height>
+                        <width>302</width>
+                        <height>172</height>
                        </rect>
                       </property>
                       <layout class="QVBoxLayout" name="verticalLayout_20">
@@ -6490,8 +6509,8 @@
                                   <rect>
                                    <x>0</x>
                                    <y>0</y>
-                                   <width>427</width>
-                                   <height>652</height>
+                                   <width>191</width>
+                                   <height>273</height>
                                   </rect>
                                  </property>
                                  <layout class="QVBoxLayout" name="verticalLayout_15">
@@ -8304,8 +8323,8 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>437</width>
-                    <height>768</height>
+                    <width>289</width>
+                    <height>248</height>
                    </rect>
                   </property>
                   <layout class="QVBoxLayout" name="verticalLayout_44">
@@ -8816,8 +8835,8 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>437</width>
-                    <height>861</height>
+                    <width>210</width>
+                    <height>230</height>
                    </rect>
                   </property>
                   <layout class="QVBoxLayout" name="verticalLayout_46">
@@ -10701,8 +10720,8 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>437</width>
-                    <height>861</height>
+                    <width>303</width>
+                    <height>139</height>
                    </rect>
                   </property>
                   <layout class="QVBoxLayout" name="verticalLayout_50">
