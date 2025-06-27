@@ -2,11 +2,12 @@ from typing import Literal
 from importlib.resources import files
 
 from PySide6.QtCore import (
-    Qt, QSize, QEvent, QObject, QPropertyAnimation, QEasingCurve)
+    Qt, QSize, QEvent, QObject, QPropertyAnimation,
+    QVariantAnimation, QEasingCurve)
 from PySide6.QtGui import QPixmap, QTransform, QMovie
 from PySide6.QtWidgets import (
     QWidget, QDockWidget, QLabel, QFrame, QPushButton, 
-    QDockWidget, QStackedWidget)
+    QDockWidget, QStackedWidget,)
 
 import nectargan.toolbox.utils.common as utils
 
@@ -101,11 +102,39 @@ class SettingsDock(QObject):
                 self.central_pages.setCurrentIndex(index-2)
             case _: pass
 
+    def _show_logo_animation(self) -> None:
+        self.logo_anim = QMovie(str(files(
+            'nectargan.toolbox.resources.gifs').joinpath('logo_anim.gif')))
+        self.main_icon.setMovie(self.logo_anim)
+        self.logo_anim.setCacheMode(QMovie.CacheMode.CacheAll)
+        self.logo_anim.setSpeed(100)
+        self.logo_anim.setScaledSize(QSize(165, 55))
+        self.logo_anim.start()
+        
+        self.main_icon.setFixedSize(170, 55)
+
+        self.logo_anim_timer = QVariantAnimation()
+        self.logo_anim_timer.setStartValue(10000)
+        self.logo_anim_timer.setEndValue(0)
+        self.logo_anim_timer.setDuration(1100)
+        self.logo_anim_timer.valueChanged.connect(
+            lambda x : self._swap_animation(value=x))
+        self.logo_anim_timer.start()
+    
+    def _swap_animation(self, value: int) -> None:
+        if value <= 0:
+            self.logo_anim.stop()
+            self.logo_anim_timer.stop()
+            self._set_main_icon(size=(220, 55), file='toolbox_icon_text.png')
+            self.main_icon.setFixedSize(170, 55)
+            
     def _set_main_icon(
             self, 
             size: tuple[int],
             file: str='toolbox_icon.png'
         ) -> None:
+        try: self.logo_anim_timer.stop()
+        except: pass
         main_icon_pixmap = QPixmap(
             utils.get_icon_file(file)).scaled(
                 size[0], size[1],  Qt.AspectRatioMode.KeepAspectRatio, 
@@ -142,9 +171,10 @@ class SettingsDock(QObject):
         if watched == getattr(self, 'btns_frame', None):
             if event.type() == QEvent.Type.Enter:
                 self._animate_nav_panel(expand=True)
-                self._set_main_icon(
-                   size=(220, 55), file='toolbox_icon_text.png')
-                self.main_icon.setFixedSize(170, 55)
+                # self._set_main_icon(
+                #    size=(220, 55), file='toolbox_icon_text.png')
+                self._show_logo_animation()
+                # self.main_icon.setFixedSize(170, 55)
                 self._swap_btn_label_visibility('show')
                 self.title_tag.setText('NectarGAN Toolbox')
                 self.creator_tag.setText('Created by Zachary Bork')
