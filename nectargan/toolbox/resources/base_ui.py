@@ -5568,7 +5568,7 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
 
-        self.centralwidget_pages.setCurrentIndex(2)
+        self.centralwidget_pages.setCurrentIndex(0)
         self.settings_pages.setCurrentIndex(5)
         self.direction.setCurrentIndex(-1)
         self.tabWidget_2.setCurrentIndex(0)
@@ -5585,9 +5585,9 @@ class Ui_MainWindow(object):
         self.close_experiment_settings.setToolTip(QCoreApplication.translate("MainWindow", u"Close settings panel", None))
 #endif // QT_CONFIG(tooltip)
         self.close_experiment_settings.setText("")
-        self.label_19.setText(QCoreApplication.translate("MainWindow", u"A_real", None))
-        self.label_20.setText(QCoreApplication.translate("MainWindow", u"B_fake", None))
-        self.label_21.setText(QCoreApplication.translate("MainWindow", u"B_real", None))
+        self.label_19.setText(QCoreApplication.translate("MainWindow", u"Input", None))
+        self.label_20.setText(QCoreApplication.translate("MainWindow", u"Generated", None))
+        self.label_21.setText(QCoreApplication.translate("MainWindow", u"Target", None))
         self.x_label.setText("")
         self.y_fake_label.setText("")
         self.y_label.setText("")

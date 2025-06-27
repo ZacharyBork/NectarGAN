@@ -73,7 +73,7 @@ Also of note is the `Continue Train` checkbox. Clicking this will present you wi
 **For now, we don't need to change anything here.** The default settings will initialize the learning rate schedule and loss weights as they were outlined in the original Pix2pix paper[^1], but you are encouraged to come back after this walkthrough to start playing around with the settings here, they can change the behaviour of the generator in lots of fun and interesting ways depending on the task.
 
 ## Start Training
-> ##### Toolbox training with the `facades` dataset *(epoch 173)*.
+> ##### Toolbox training with the `facades` dataset *(epoch 196)*.
 > ![_toolbox_running_](/docs/resources/gifs/toolbox_training.gif)
 
 

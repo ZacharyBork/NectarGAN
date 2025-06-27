@@ -99,7 +99,7 @@
        <item>
         <widget class="QStackedWidget" name="centralwidget_pages">
          <property name="currentIndex">
-          <number>2</number>
+          <number>0</number>
          </property>
          <widget class="QWidget" name="central_train_page">
           <layout class="QVBoxLayout" name="verticalLayout_25">
@@ -239,7 +239,7 @@
                            </font>
                           </property>
                           <property name="text">
-                           <string>A_real</string>
+                           <string>Input</string>
                           </property>
                           <property name="alignment">
                            <set>Qt::AlignCenter</set>
@@ -262,7 +262,7 @@
                            </font>
                           </property>
                           <property name="text">
-                           <string>B_fake</string>
+                           <string>Generated</string>
                           </property>
                           <property name="alignment">
                            <set>Qt::AlignCenter</set>
@@ -285,7 +285,7 @@
                            </font>
                           </property>
                           <property name="text">
-                           <string>B_real</string>
+                           <string>Target</string>
                           </property>
                           <property name="alignment">
                            <set>Qt::AlignCenter</set>
