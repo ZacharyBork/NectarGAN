@@ -44,6 +44,7 @@ class SettingsDock(QObject):
         self.train_lock_label.setMovie(self.train_lock_anim)
 
         width = self.find(QWidget, 'train_page_state_locked').width() * 0.5
+        width *= 1.2
         self.train_lock_anim.setScaledSize(QSize(width, width*2))
         self.train_lock_anim.setCacheMode(QMovie.CacheMode.CacheAll)
         self.train_lock_anim.setSpeed(100)
@@ -171,10 +172,7 @@ class SettingsDock(QObject):
         if watched == getattr(self, 'btns_frame', None):
             if event.type() == QEvent.Type.Enter:
                 self._animate_nav_panel(expand=True)
-                # self._set_main_icon(
-                #    size=(220, 55), file='toolbox_icon_text.png')
                 self._show_logo_animation()
-                # self.main_icon.setFixedSize(170, 55)
                 self._swap_btn_label_visibility('show')
                 self.title_tag.setText('NectarGAN Toolbox')
                 self.creator_tag.setText('Created by Zachary Bork')
