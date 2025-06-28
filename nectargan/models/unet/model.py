@@ -25,7 +25,7 @@ import torch
 import torch.nn as nn
 import torch.nn.init as init
 
-from nectargan.models.unet.blocks import UnetBlock, ResidualUnetBlock
+from nectargan.models.unet.blocks import UnetBlock
 
 class UnetGenerator(nn.Module):
     '''Defines a modular UNet style generator with a configurable layer count.
@@ -37,7 +37,7 @@ class UnetGenerator(nn.Module):
             features: int=64, 
             n_downs: int=6, 
             use_dropout_layers: int=3, 
-            block_type='UnetBlock', 
+            block_type=UnetBlock, 
             upconv_type: str='Transposed'
         ) -> None:
         super().__init__()
@@ -46,9 +46,7 @@ class UnetGenerator(nn.Module):
         self.features = features
         self.use_dropout_layers = use_dropout_layers
         self.n_down = n_downs
-        match block_type:
-            case 'UnetBlock': self.block_type = UnetBlock
-            case 'ResidualUnetBlock': self.block_type = ResidualUnetBlock
+        self.block_type = block_type
         self.upconv_type = upconv_type
 
         self.build_model() # Initialize generator model

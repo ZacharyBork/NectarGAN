@@ -10,6 +10,7 @@ from torchvision.utils import save_image
 from nectargan.trainers.trainer import Trainer
 from nectargan.config.config_manager import ConfigManager
 from nectargan.models.unet.model import UnetGenerator
+from nectargan.models.unet.blocks import UnetBlock, ResidualUnetBlock
 from nectargan.losses import losses
 
 class Tester(Trainer):
@@ -38,12 +39,17 @@ class Tester(Trainer):
     def _init_generator(self) -> None:
         '''Initializes generator.'''
         tg = self.config.train.generator # Get config train data
+        match tg.block_type:
+            case 'UnetBlock':
+                block_type = UnetBlock
+            case 'ResidualUnetBlock':
+                block_type = ResidualUnetBlock
         self.gen = UnetGenerator( # Init Generator
             input_size=self.config.dataloader.load.crop_size, 
             in_channels=self.config.dataloader.load.input_nc,
             features=tg.features,
             n_downs=tg.n_downs,
-            block_type=tg.block_type,
+            block_type=block_type,
             upconv_type=tg.upsample_type)
         self.gen.to(self.device)  # Cast to current device
         self.load_checkpoint('G', self.gen)
