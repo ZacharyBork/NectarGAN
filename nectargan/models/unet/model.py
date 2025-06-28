@@ -29,6 +29,18 @@ from nectargan.models.unet.blocks import UnetBlock
 
 class UnetGenerator(nn.Module):
     '''Defines a modular UNet style generator with a configurable layer count.
+
+    Args:
+        input_size : The resolution (^2) of the training input images.
+        in_channels : The number of input channels in the training input images
+            (i.e. 1 for mono, 3 for RGB).
+        features : The number of features on the first downsampling layer.
+        n_downs : The number of downsampling layers to add the the model.
+        use_dropout_layers : The number of upsampling layers (starting from the
+            deepest) to apply dropout on.
+        block_type : What UNet block type to use when assembling the model.
+        upconv_type : What upsampling type to use (i.e. 'Transposed', 
+            'bilinear').
     '''
     def __init__(
             self, 
@@ -51,7 +63,8 @@ class UnetGenerator(nn.Module):
 
         self.build_model() # Initialize generator model
 
-    def build_model(self):
+    def build_model(self) -> None:
+        '''Wrapper function to assemble a full UNet generator model.'''
         self.validate_layer_count()       # Validate layer count for in shape
         self.build_channel_map()          # Build channel map
         self.define_downsampling_blocks() # Define downsampling blocks
@@ -106,6 +119,7 @@ class UnetGenerator(nn.Module):
         }
     
     def define_downsampling_blocks(self) -> None:
+        '''Defines the layers in the downsampling path.'''
         # Define initial downsampling layer
         self.initial_down = self.block_type(
             self.channel_map['initial_down'][0], 
@@ -123,6 +137,7 @@ class UnetGenerator(nn.Module):
                     norm='instance', down=True, bias=False, use_dropout=False))
 
     def define_bottleneck(self) -> None:
+        '''Defines the bottleneck layer.'''
         # Define bottleneck
         self.bottleneck = self.block_type(
             self.channel_map['bottleneck'][0], 
@@ -131,6 +146,7 @@ class UnetGenerator(nn.Module):
             norm=None, down=True, bias=True, use_dropout=False)
 
     def define_upsampling_blocks(self) -> None:
+        '''Defines the layers in the upsampling path.'''
         # Define upsampling layers
         self.ups = nn.ModuleList()
         for i, (in_ch, out_ch) in enumerate(self.channel_map['ups']):
@@ -146,7 +162,11 @@ class UnetGenerator(nn.Module):
             norm=None, down=False, bias=True, use_dropout=False)
 
     def init_weights(self, m: nn.Module) -> None:
-        '''Initializes layer weights based on layer type.'''
+        '''Initializes layer weights based on layer type.
+        
+        Args:
+            m : The module to initialize weights for.
+        '''
         if isinstance(m, (nn.Conv2d, nn.ConvTranspose2d)):
             init.normal_(m.weight, 0.0, 0.02)
             if m.bias is not None:
@@ -158,6 +178,11 @@ class UnetGenerator(nn.Module):
                 init.constant_(m.bias, 0)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
+        '''Forward function for UnetGenerator class.
+        
+        Args:
+            x : The input tensor to run the generator's inference on.
+        '''
         x = self.initial_down(x) # Run downsampling layer
         skips = [x] # Store outputs for skip connections
         for down in self.downs:

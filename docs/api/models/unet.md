@@ -15,7 +15,7 @@ We'll start by having a look at the `UnetGenerator`. Looking at it's `__init__` 
 `n_downs` | The number of downsampling layers (*Note: This value does not include the first layer or the bottleneck. This will be explained in greater detail below.*).
 `use_dropout_layers` | The number of upsampling layers (starting from the deepest layer) to apply dropout on.
 `block_type` | What block type to use when assembling the generator model.
-`upconv_type` | What upsampling method to use:<br><br>- `Transposed` : Transposed convolution.<br>- `Bilinear` : Bilinear upsampling, then convolution.<br><br>Transposed convolution is the upsampling method tranditionally used in the Pix2pix model. However, bilinear upsampling + convolution can help to eliminate the checkboard artifacting which is commonly seen in these models. See [here](https://github.com/junyanz/pytorch-CycleGAN-and-pix2pix/issues/190) for more info.
+`upconv_type` | What upsampling method to use:<br><br>- `Transposed` : Transposed convolution.<br>- `Bilinear` : Bilinear upsampling, then convolution.<br><br>Transposed convolution is the upsampling method traditionally used in the Pix2pix model. However, bilinear upsampling + convolution can help to eliminate the checkboard artifacting which is commonly seen in these models. See [here](https://github.com/junyanz/pytorch-CycleGAN-and-pix2pix/issues/190) for more info.
 
 **So then, with these arguments in mind, a `UnetGenerator` can be instantiated as follows:** 
 ```python
@@ -70,7 +70,7 @@ This is a diagram I made to help me conceptualize the tensor shapes of the input
 > [!NOTE]
 > **Skip connections:** *(This is explained in more depth below, but here is a quick explanation to start.)*
 >
->  For every `down` layer, the output tensor is passed to the next down layer as input, but it is also passed via the skip connection to the corresponding `up` layer (**not directly, but concatenated with the output tensor of the up layer below**), as denoted by the rightward facing arrows. So, the output tensor from `init_down` is passed to the `final_up`, same for `down1` and `up7`, etc.
+>  For every `down` layer, the output tensor is passed to the next down layer as input, but it is also passed via the skip connection to the corresponding `up` layer, as denoted by the rightward facing arrows (**not directly passed as input, but concatenated with the output tensor of the up layer below**). So, the output tensor from `init_down` is passed to the `final_up`, same for `down1` and `up7`, etc.
 - We take our input (`[1, 3, 512, 512]`) and feed it into the `init_down` layer. This gives us an output tensor with the shape `[1, 64, 256, 256]`. So we halved the spatial resolution of the tensor, and increased the feature count to `64`, as defined by the generator's `features` value. 
 - We take that output tensor (`[1, 64, 256, 256]`) and feed it in to `down1`, giving us an output shape of `[1, 128, 128, 128]`. Double the features, halve the resolution.
 - We do this again for `down2` and `down3`. Now, though, we've hit our feature cap (`features * 8`, or `512`).
@@ -91,9 +91,68 @@ We can see that, were we to use just directly use the result of the upsampling p
 > The above is just a visual example. This isn't exactly what's happening, but the concept and result are very similar.
 
 ### Channel Mapping
+> **Reference:** [`nectargan.models.unet.model.UnetGenerator.build_channel_map()`](/nectargan/models/unet/model.py#L94)
+
+Alright, now that we've covered the basics of how the UNet architecture functions, let's now have a look at how it's implemented in NectarGAN. The core of this is the channel mapping function. This function assembles two lists of tuples, one for the downsampling channels, and another for the upsampling channels. Each tuple in each list corresponds to a layer, and contains two `int` values:
+
+1. The number of input channels for the layer.
+2. The number of output channels for the layer.
+
+Let's walk through the function step by step to understand how those lists are created:
+1. We create the first of our two lists, `down_channels`. In doing so, we also add the first tuple to it with the input and output channel counts for the first downsampling layer, since we know this is always going to be (`in_channels`, `features`).
+2. We create two variables, `in_features` and `out_features`, and initialize both to the `features` value used when initializing the `UnetGenerator`.
+3. We create a loop with an iteration count of `n_downs`, in which we:
+    - First, set `in_features` to the max of `out_features`, and `features*8`, because we want to make sure it doesn't go beyond that hard cap.
+    - Then, we set `out_features` to the min of `out_features*2` and `features*8`. **This defines the doubling of the feature maps with each encoder layer.**
+    - We append a new entry to `down_channels` containing our new `in_channels` and `out_channels`. Then do it again for the next layer, and the next, and so on. So the `out_channels` value of the previous iteration becomes the `in_channels` value of the next iteration. Up to the point where they cap out at `features*8`. The best way to illustrate this is just to list the results for each iteration, like so:
+    ```json
+    NOTE: This example assumes an `input_channels` value of `3` and a `features` value of 64.
+
+    **First Layer:** (3, 64)
+    **Iteration 1:** (64, 128)
+    **Iteration 2:** (128,256)
+    **Iteration 3:** (256, 512)
+    **Iteration 4:** (512, 512)
+
+    And now we've reached our maximum feature count, all subsequent layers will have a value of (512, 512).
+    ```
+4. Now, we create a list for our skip connection channel sizes. To do this, we perform two operations at once:
+    - We reverse the list of `down_channels`.
+    - While doing so, we also flip the `in_channels` and `out_channels` of each entry, since the direction is reversed on the upsampling path and the channel sizes need to reflect that.
+5. Now, we create our other list, `up_channels`, which holds the channel sizes for the layers in the upsampling path. To do this, we just make a new list from our `skip_channels` list, but for each entry, we double the `in_channels` value, to reflect the fact that we are going to be concatenting the skip tensor with the previous upsampling tensor for the input of each of these layers.
+6. Finally, we insert one additional layer at the beginning of `up_channels`. This represents the deepest upsampling layer, which takes its input directly from the bottleneck layer.
+
+Then at the very end, we make a dictionary from the lists to make it a bit easier to look up our values when defining our actual layers.
+
+### Layer Definitions
+The layers in the `UnetGenerator` are defined by these three functions:
+
+1. [`define_downsampling_blocks`](/nectargan/models/unet/model.py#L121)
+2. [`define_bottleneck`](/nectargan/models/unet/model.py#L139)
+3. [`define_upsampling_blocks`](/nectargan/models/unet/model.py#L148)
+
+We won't go too deep in to these, this document is getting long enough as it is. But in short, these three functions use the channel map which we discussed above to define the blocks in the upsampling, downsampling, and bottleneck layers, setting the correct values based on layer type and depth. The default configuration sets the values exactly as a traditional UNet does.
+
+### Forward
+> **Reference:** [`nectargan.models.unet.model.UnetGenerator.forward()`](/nectargan/models/unet/model.py#L180)
+
+Lastly, we will have a look at the `forward` function for the `UnetGenerator` class. This function uses the layers defined by the above three functions to assemble a UNet style architecture and passes the input tensor `x` through it.
+
+**Walking through this function, we:**
+1. Run the tensor through the initial downsampling layer, halving the spatial resolution, and taking the feature count from the value of `in_channels` to the value of `features`.
+2. Create a new list, `skips`, to store our skip connection tensors, and add the result of the initial downsampling layer to it.
+3. We loop through all of our additional downsampling layers, running the tensor through each subsequent one and appending the resulting tensor to our list of `skips`.
+4. Reverse our list of skips to align them with the input tensors in the upsampling path.
+5. Run our `x` tensor through the bottleneck layer. Note that we do not append the result to `skips`, since the bottleneck just passes its results directly to the first upsampling layer.
+6. Loop through all of our sampling layers. For the first layer, we just run it through the layer directly, for the reason just noted. Then for each layer after that, we first grab the corresponding skip connection, then we concatenate the `x` tensor with the correspondinding skip tensor along the channel dimension. Then, finally, we input that concatenated tensor into the upsampling layer.
+7. After we finish the loop of upsampling layers, we take the resulting `x` tensor, concatenate it with the final skip tensor, and feed it in to the final upsampling layer, returning the result.
+
+**And that's basically all there is to the `UnetGenerator`. We've now seen how the channel map and layers are assembled when the generator is initialized, and we've seen how that architecture is used whenever the generator's `forward` function is called. The last note to touch on is...**
 
 ## UNet Blocks
 > **Reference**: [`nectargan.models.unet.blocks`](/nectargan/models/unet/blocks.py)
+
+Please see [here](/docs/api/models/unet_blocks.md) for more information about the drop-in block system used by the `UnetGenerator`.
 
 ## References
 - [*U-Net: Convolutional Networks for Biomedical Image Segmentation (Ronneberger et al., 2015)*](https://arxiv.org/pdf/1505.04597)

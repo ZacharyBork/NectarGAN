@@ -1,5 +1,8 @@
-import torch.nn as nn
+import copy
 from typing import Union
+
+import  torch
+import torch.nn as nn
 
 class UnetBlock(nn.Module):
     '''Defines a standard UNet block to be used by the generator model.'''
@@ -33,9 +36,10 @@ class UnetBlock(nn.Module):
                         scale_factor=2, 
                         mode='bilinear', 
                         align_corners=False))
+                    modules.append(nn.ReflectionPad2d(1))
                     modules.append(nn.Conv2d(
                         in_channels, out_channels, 
-                        kernel_size=3, stride=1, padding=1))
+                        kernel_size=3, stride=1, padding=0))
                 case _: raise ValueError('Invalid upsampling type.')
         
         match norm:
@@ -55,7 +59,7 @@ class UnetBlock(nn.Module):
         self.use_dropout = use_dropout
         self.dropout = nn.Dropout(0.5)
 
-    def forward(self, x):
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
         x = self.conv(x)
         return self.dropout(x) if self.use_dropout else x
 
@@ -75,7 +79,7 @@ class ResidualUnetBlock(UnetBlock):
         super().__init__(
             in_channels=in_channels, out_channels=out_channels,
             upconv_type=upconv_type, activation=activation, norm=norm, 
-            down=down, bias=True, use_dropout=use_dropout)
+            down=down, bias=bias, use_dropout=use_dropout)
         
         modules = []
         if in_channels != out_channels or down: # Residual shortcut
@@ -85,19 +89,19 @@ class ResidualUnetBlock(UnetBlock):
                 modules.append(nn.Conv2d(
                     in_channels, out_channels, 
                     kernel_size=1, stride=2))
-                modules.append(nn.ReLU(inplace=True))
             else: 
                 modules.append(nn.ConvTranspose2d(
                     in_channels, out_channels, 
                     kernel_size=1, stride=2, output_padding=1))
-                modules.append(nn.ReLU(inplace=True))
+            modules.append(nn.ReLU(inplace=True))
         else: modules.append(nn.Identity()) # Residual=Identity if we hit max 
 
+        
         self.residual = nn.Sequential(*modules)
 
-    def forward(self, x):
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
         # Add conv output and residual
         x = self.conv(x) + self.residual(x)
         # Apply dropout if applicable
         return self.dropout(x) if self.use_dropout else x
-                
+
