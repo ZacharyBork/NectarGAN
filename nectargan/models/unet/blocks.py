@@ -43,14 +43,14 @@ class UnetBlock(nn.Module):
         
         match norm:
             case 'instance': modules.append(nn.InstanceNorm2d(out_channels))
-            case None: pass
+            case None: modules.append(nn.Identity())
             case _: raise ValueError('Invalid normalization type.')
 
         match activation:
             case 'leaky': modules.append(nn.LeakyReLU(0.2))
             case 'relu': modules.append(nn.ReLU())
             case 'tanh': modules.append(nn.Tanh())
-            case None: pass
+            case None: modules.append(nn.Identity())
             case _: raise ValueError('Invalid activation function.')
 
         self.conv = nn.Sequential(*modules)
@@ -95,7 +95,6 @@ class ResidualUnetBlock(UnetBlock):
             modules.append(nn.ReLU(inplace=True))
         else: modules.append(nn.Identity()) # Residual=Identity if we hit max 
 
-        
         self.residual = nn.Sequential(*modules)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:

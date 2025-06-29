@@ -8,10 +8,10 @@ class Discriminator(nn.Module):
     '''
     def __init__(
             self, 
-            in_channels=3, 
-            base_channels=64, 
-            n_layers=3, 
-            max_channels=512
+            in_channels: int=3, 
+            base_channels: int=64, 
+            n_layers: int=3, 
+            max_channels: int=512
         ) -> None:
         super().__init__()
 

@@ -1,7 +1,13 @@
+import torch
 import torch.nn as nn
     
 class CNNBlock(nn.Module):
-    def __init__(self, in_channels, out_channels, stride=2):
+    def __init__(
+            self, 
+            in_channels: int, 
+            out_channels: int, 
+            stride: int=2
+        ) -> None:
         super().__init__()
         self.conv = nn.Sequential(
             nn.Conv2d(
@@ -15,6 +21,6 @@ class CNNBlock(nn.Module):
             nn.LeakyReLU(0.2, inplace=True),
         )
 
-    def forward(self, x):
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
         return self.conv(x)
     
