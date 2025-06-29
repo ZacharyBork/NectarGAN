@@ -3,7 +3,7 @@
 #### NectarGAN includes a modular, configurable PatchGAN-style discriminator model.
 
 ## What is a PatchGAN?
-**A PatchGAN is essentially just a convolutional neural network.** Where a traditional GAN disciminator reduces input to a single scaler value (real or fake), a PatchGAN instead convolves the input to an array of values, each of which represents whether the corresponding patch (a 70x70 pixel square by default) in the image is real or fake.
+**A PatchGAN is essentially just a convolutional neural network.** Where a traditional GAN disciminator reduces input to a single scalar value (real or fake), a PatchGAN instead convolves the input to an array of values, each of which represents whether the corresponding patch (a 70x70 pixel square by default) in the image is real or fake.
 
 **I strongly encourage you to read this [article](https://sahiltinky94.medium.com/understanding-patchgan-9f3c8380c207).** The author provides a fantastic visual walkthrough of the inner workings of the architecture.
 ## PatchGAN Model
@@ -28,22 +28,22 @@ Let's first look at the `Discriminator` class's [`__init__`](/nectargan/models/p
     - Appends a `torch.nn.LeakyReLU` for activation. 
 4. We initialize a member variable, `self.in_ch`, to keep track of the current channel counts in the next stage, and set its value to the value of the `base_channels` argument.
 5. We then run the function [`add_n_layers()`](/nectargan/models/patchgan/model.py#L33). This function adds `n_layers-1` conv layers to the discriminator. In does this in a loop, where each iteration:
-    - Creates a variable, `out_channels`, and set's it to the min of `self.in_ch * 2`, and `max_channels`, doubling the channel count while enforcing the hard channel cap.
+    - Creates a variable, `out_channels`, and sets it to the min of `self.in_ch * 2`, and `max_channels`, doubling the channel count while enforcing the hard channel cap.
     - Picks a stride value for the current iteration's conv layer. This value is `2` for every layer except the final one, which instead uses a stride of `1`.
     - Create a `CNNBlock` module (explained below), setting the input channels to `self.in_ch` and the output channels to our new `out_ch` value, and passing it the `stride` value we just discussed. This `CNNBlock` module also uses a `4x4` kernel with reflection padding of `1`. However, it also includes a `torch.nn.InstanceNorm2d` and a `torch.nn.LeakyReLU` module.
     - Then we update `self.in_ch` with the new `out_ch` value for the next iteration.
 6. After that, we add our final conv layer. This layer uses a `4x4` kernel with `stride=1` and `padding=1`. With a 256x256 input resolution, and with the layers we've assembled up to this point, this kernel size corresponds to a 70x70 pixel receptive field on the input image (hence the common name `70×70 PatchGAN`). This layer also reduces the channels from whatever value `self.in_ch` was after the final loop iteration, down to a value of `1`, representing a real/fake prediction on the given patch. 
 7. Then we take our list of layers, unpack them into a `torch.nn.Sequential`, and store the result in `self.model`.
 
-**The best way to illustrate this is by just looking at what exactly happens to a tensor's shape as it is passed through the network.**
-```
-Initial Layer : [1, 6, 256, 256]  -> [1, 64, 128, 128]
-N Layer 1     : [1, 64, 128, 128] -> [1, 128, 64, 64]
-N Layer 2     : [1, 128, 64, 64]  -> [1, 256, 64, 64]
-Final Layer   : [1, 256, 64, 64]  -> [1, 1, 64, 64]
-```
+**The best way to illustrate this is by just looking at what exactly happens to a tensor's shape as it is passed through the network:**
+| Layer | Input Shape | Output Shape | Kernel | Stride | Padding | Receptive Field | Notes |
+| :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+Initial | [1,&nbsp;6,&nbsp;256,&nbsp;256] | [1,&nbsp;64,&nbsp;128,&nbsp;128] | 4x4 | 2 | 1 | 4x4 | Takes channels from `in_channels*2` -> `base_channels` and performs a `4x4` convolution with `stride=2`, halving the tensor's spatial resolution.
+`n_layer`&nbsp;#1 | [1,&nbsp;64,&nbsp;128,&nbsp;128] | [1,&nbsp;128,&nbsp;64,&nbsp;64] | 4x4 | 2 | 1 | 10x10 | Doubles channel count, halves spatial resolution.
+`n_layer`&nbsp;#2 | [1,&nbsp;128,&nbsp;64,&nbsp;64] | [1,&nbsp;256,&nbsp;64,&nbsp;64] | 4x4 | 1 | 1 | 22x22 | Doubles channel count, but since `stride=1` on this final `n_layer`, spatial resolution remains at `64x64`.
+Final | [1,&nbsp;256,&nbsp;64,&nbsp;64] | [1,&nbsp;1,&nbsp;64,&nbsp;64] | 4x4 | 1 | 1 | ***70x70*** | Reduces channel count from `256` (final value from `n_layers` loop) to `1`. And again, since `stride=1`, spatial resolution remains unchanged.
 > [!NOTE]
-> This example assumes RGB input images with a resolution of 256x256, a `base_channels` value of 64, and an `n_layers` value of `3`.
+> This example assumes RGB input images (`in_channels=3`) with a resolution of `256x256`, `base_channels=64`, and `n_layers=3`.
 
 **And that's really all there is to the PatchGAN `Discriminator` model.** When fed a set of input tensors, the class's forward function simply concatenates them together along the channel dimension and runs the resulting tensor through the `Sequential` outlined above, then it returns the final prediction map tensor.
 ## CNNBlock
