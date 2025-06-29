@@ -105,12 +105,12 @@ Let's walk through the function step by step to understand how those lists are c
     - First, set `in_features` to the max of `out_features`, and `features*8`, because we want to make sure it doesn't go beyond that hard cap.
     - Then, we set `out_features` to the min of `out_features*2` and `features*8`. **This defines the doubling of the feature maps with each encoder layer.**
     - We append a new entry to `down_channels` containing our new `in_channels` and `out_channels`. Then do it again for the next layer, and the next, and so on. So the `out_channels` value of the previous iteration becomes the `in_channels` value of the next iteration. Up to the point where they cap out at `features*8`. The best way to illustrate this is just to list the results for each iteration, like so:
-    ```json
+    ```
     NOTE: This example assumes an `input_channels` value of `3` and a `features` value of 64.
 
     First Layer: (3, 64)
     Iteration 1: (64, 128)
-    Iteration 2: (128,256)
+    Iteration 2: (128, 256)
     Iteration 3: (256, 512)
     Iteration 4: (512, 512)
 
@@ -144,7 +144,8 @@ Lastly, we will have a look at the `forward` function for the `UnetGenerator` cl
 3. We loop through all of our additional downsampling layers, running the tensor through each subsequent one and appending the resulting tensor to our list of `skips`.
 4. Reverse our list of skips to align them with the input tensors in the upsampling path.
 5. Run our `x` tensor through the bottleneck layer. Note that we do not append the result to `skips`, since the bottleneck just passes its results directly to the first upsampling layer.
-6. Loop through all of our sampling layers. For the first layer, we just run it through the layer directly, for the reason just noted. Then for each layer after that, we first grab the corresponding skip connection, then we concatenate the `x` tensor with the correspondinding skip tensor along the channel dimension. Then, finally, we input that concatenated tensor into the upsampling layer.
+6. Run out `x` tensor through our first upsampling layer.
+7. Loop through our additional upsampling layers, first grabbing the corresponding skip connection, then concatenating the `x` tensor with the correspondinding skip tensor along the channel dimension and, finally, inputting that concatenated tensor into the given upsampling layer.
 7. After we finish the loop of upsampling layers, we take the resulting `x` tensor, concatenate it with the final skip tensor, and feed it in to the final upsampling layer, returning the result.
 
 **And that's basically all there is to the `UnetGenerator`. We've now seen how the channel map and layers are assembled when the generator is initialized, and we've seen how that architecture is used whenever the generator's `forward` function is called. The last note to touch on is...**

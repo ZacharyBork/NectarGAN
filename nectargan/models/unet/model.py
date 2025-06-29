@@ -191,13 +191,11 @@ class UnetGenerator(nn.Module):
 
         skips.reverse() # Align skips with up conv layer
         x = self.bottleneck(x) # Run bottleneck layer
+        x = self.ups[0](x)
 
-        for i, up in enumerate(self.ups):
-            # No skip connection on first upconv layer
-            if i == 0: x = up(x)
-            else: # Stack x and skip then upsample
-                skip = skips[i-1]
-                x = up(torch.cat([x, skip], dim=1))
+        for i, up in enumerate(self.ups[1:]):
+            skip = skips[i]
+            x = up(torch.cat([x, skip], dim=1))
 
         # Return result of final upsampling layer
         return self.final_up(torch.cat([x, skips[-1]], dim=1))
