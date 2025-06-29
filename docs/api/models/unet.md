@@ -14,7 +14,7 @@ We'll start by having a look at the `UnetGenerator`. Looking at it's `__init__` 
 `features` | The number of features on the first downsampling layer. Feature count for any given conv layer is capped at `features * 8`. 
 `n_downs` | The number of downsampling layers (*Note: This value does not include the first layer or the bottleneck. This will be explained in greater detail below.*).
 `use_dropout_layers` | The number of upsampling layers (starting from the deepest layer) to apply dropout on.
-`block_type` | What block type to use when assembling the generator model.
+`block_type` | What block type to use when assembling the generator model (see [here](/docs/api/models/unet_blocks.md) for more info).
 `upconv_type` | What upsampling method to use:<br><br>- `Transposed` : Transposed convolution.<br>- `Bilinear` : Bilinear upsampling, then convolution.<br><br>Transposed convolution is the upsampling method traditionally used in the Pix2pix model. However, bilinear upsampling + convolution can help to eliminate the checkboard artifacting which is commonly seen in these models. See [here](https://github.com/junyanz/pytorch-CycleGAN-and-pix2pix/issues/190) for more info.
 
 **So then, with these arguments in mind, a `UnetGenerator` can be instantiated as follows:** 
@@ -108,11 +108,11 @@ Let's walk through the function step by step to understand how those lists are c
     ```json
     NOTE: This example assumes an `input_channels` value of `3` and a `features` value of 64.
 
-    **First Layer:** (3, 64)
-    **Iteration 1:** (64, 128)
-    **Iteration 2:** (128,256)
-    **Iteration 3:** (256, 512)
-    **Iteration 4:** (512, 512)
+    First Layer: (3, 64)
+    Iteration 1: (64, 128)
+    Iteration 2: (128,256)
+    Iteration 3: (256, 512)
+    Iteration 4: (512, 512)
 
     And now we've reached our maximum feature count, all subsequent layers will have a value of (512, 512).
     ```

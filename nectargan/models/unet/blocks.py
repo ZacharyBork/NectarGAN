@@ -11,8 +11,8 @@ class UnetBlock(nn.Module):
             in_channels: int, 
             out_channels: int, 
             upconv_type: str, 
-            activation: Union[str, None], 
-            norm: Union[str, None], 
+            activation: str | None, 
+            norm: str | None, 
             down: bool=True, 
             bias: bool=True, 
             use_dropout: bool=False
@@ -20,11 +20,10 @@ class UnetBlock(nn.Module):
         super().__init__()
         modules = []
         if down:
-            modules.append(
-                nn.Conv2d(
-                    in_channels, out_channels, 
-                    kernel_size=4, stride=2, padding=1, 
-                    bias=bias, padding_mode='reflect'))
+            modules.append(nn.Conv2d(
+                in_channels, out_channels, 
+                kernel_size=4, stride=2, padding=1, 
+                bias=bias, padding_mode='reflect'))
         else:
             match upconv_type:
                 case 'Transposed':
@@ -70,8 +69,8 @@ class ResidualUnetBlock(UnetBlock):
             in_channels: int, 
             out_channels: int, 
             upconv_type: str, 
-            activation: Union[str, None], 
-            norm: Union[str, None], 
+            activation: str | None, 
+            norm: str | None, 
             down: bool=True, 
             bias: bool=True, 
             use_dropout: bool=False
