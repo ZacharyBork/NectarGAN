@@ -44,4 +44,7 @@ conda env create -f environment.yml
 ## NectarGAN API
 **Please see the [*API documentation*](/docs/api.md) for more information on getting started with the NectarGAN API.**
 
+## Testing your installation
+**If you would like to test whether your installation is working correctly,** NectarGAN includes a number of prebuilt tests which are run in different ways depending upon your installation type. See [here](/docs/testing_your_installation.md) for more information.
+
 ---
