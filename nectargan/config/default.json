@@ -1,15 +1,15 @@
 {
     "config": {
         "common": {
-            "device": "cuda",
+            "device": "cpu",
             "gpu_ids": [0],
-            "output_directory": "E:/ML/test_data/pix2pix/output",
-            "experiment_name": "facades_cli_test",
+            "output_directory": "",
+            "experiment_name": "",
             "experiment_version": 1
         },
         "dataloader": {
-            "dataroot": "E:/ML/test_data/pix2pix/datasets/facades",
-            "direction": "BtoA",
+            "dataroot": "",
+            "direction": "AtoB",
             "batch_size": 1,
             "num_workers": 0,
             "load" : {
