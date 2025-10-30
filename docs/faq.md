@@ -39,6 +39,12 @@ pip install -r requirements.dev.txt
 ### 4) How can I verify my installation works?
 Run the test suite with pytest. See [here](/docs/testing_your_installation.md) for more information.
 
+### 5) I tried running the Toolbox/CLI, but it says I'm missing PyTorch?
+PyTorch is not included in the core dependencies. It must be installed separately. PyTorch has multiple versions, each tied to a compute platform, and you should choose the one that best suits your needs based on the system you are running NectarGAN on. Installation instructions for PyTorch can be found [on their website](https://pytorch.org/get-started/locally/).
+
+> [!NOTE]
+> At this time, NectarGAN has been tested on the CUDA 12.6, CUDA 12.8, and CPU compute platforms.
+
 ## Dataset & Configuration
 
 ### 1) What dataset layout does paired training expect?
@@ -197,3 +203,4 @@ All files related to a given training session will be exported to your `Output R
 
 ### 3) CLI won’t see my config. What’s used by default?
 If the `-f` flag isn't used, the training/testing scripts will instead use the default config file located at [`/nectargan/config/default.json`](/nectargan/config/default.json).
+

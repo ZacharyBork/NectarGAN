@@ -47,4 +47,9 @@ conda env create -f environment.yml
 ## Testing your installation
 **If you would like to test whether your installation is working correctly,** NectarGAN includes a number of prebuilt tests which are run in different ways depending upon your installation type. See [here](/docs/testing_your_installation.md) for more information.
 
+## Downloading a premade dataset
+**NectarGAN includes a script that allows you to automatically download a number of premade datasets to test your models on.** 
+
+Please see [here](/docs/scripts.md) for more information. 
+
 ---

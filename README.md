@@ -68,6 +68,9 @@ NectarGAN is comprised of two core components:
 ## Getting Started
 #### Please refer to the [*quickstart documentation*](/docs/getting_started.md) for information on how to get started using NectarGAN.
 
+## Frequently Asked Questions
+#### Please see [*here*](/docs/faq.md).
+
 ## Who is this for?
 - Artists wanting to experiment with paired image translation tasks (why I first starting experimenting with Pix2pix).
 - Reseachers who want a flexible environment in which to explore conditional GAN behavior.
