@@ -12,7 +12,9 @@ pip install -r requirements.dev.txt
 ```
 - **Anaconda:**
 ```bash
-conda env create -f environment-dev.yml
+conda env create -f environment.yml
+conda activate nectargan
+pip install -e ".[dev]"
 ```
 **In addition to the core NectarGAN dependencies, this will also install [pytest](https://pypi.org/project/pytest/) and [pytest-cov](https://pypi.org/project/pytest-cov/)**. After installation has completed, we can run:
 ```bash

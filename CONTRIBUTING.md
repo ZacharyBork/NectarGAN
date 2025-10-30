@@ -64,7 +64,7 @@ When opening a bug report, please include:
 - [ ] No secrets or private data in logs/configs
 
 > [!WARNING]
-> If the issue may be a **security vulnerability**, please do **not** open a public. Please instead submit a report to the following email with the above data: `nectargan.dev@gmail.com`.
+> If the bug may be a **security vulnerability**, do **not** open a public issue. Please instead submit a report to the following email with the above data: `nectargan.dev@gmail.com`.
 
 ## Getting Help vs. Opening an Issue
 
