@@ -5,10 +5,14 @@ def test_import_top_level() -> None:
     pkg = importlib.import_module('nectargan')
     assert hasattr(pkg, '__version__') or hasattr(pkg, '__file__')
 
-def import_packages(packages: list[str]) -> None:
+def _import_packages(packages: list[str]) -> None:
+    '''Test imports a list of packages by their path.
+    
+    Args:
+        packages : List of submodule paths to import.
+    '''
     for i, mod in enumerate(packages):
         importlib.import_module(mod)
-        print(f'Import Successful [{i+1}/{len(packages)}]: {mod}')
 
 def test_import_core_submodules():
     '''Ensure all main submodules import cleanly.'''
@@ -27,9 +31,7 @@ def test_import_core_submodules():
         'nectargan.visualizer',
         'nectargan.visualizer.visdom',
     ]
-    print('Testing import of core NectarGAN submodules.')
-    import_packages(modules)
-    print('Finished importing core submodules.')
+    _import_packages(modules)
 
 def test_import_key_files() -> None:
     '''Import individual key components directly.'''
@@ -52,9 +54,7 @@ def test_import_key_files() -> None:
         'nectargan.trainers.trainer',
         'nectargan.trainers.pix2pix_trainer',
     ]
-    print('Testing import of key files.')
-    import_packages(key_files)
-    print('Finished importing key files.')
+    _import_packages(key_files)
 
 def test_import_toolbox_components() -> None:
     '''Ensure all toolbox submodules import cleanly.'''
@@ -66,13 +66,5 @@ def test_import_toolbox_components() -> None:
         'nectargan.toolbox.widgets',
         'nectargan.toolbox.workers',
     ]
-    print('Testing import of Toolbox submodules.')
-    import_packages(modules)
-    print('Finished importing Toolbox submodules.')
+    _import_packages(modules)
 
-if __name__ == "__main__":
-    test_import_top_level()
-    test_import_core_submodules()
-    test_import_key_files()
-    test_import_toolbox_components()
-    print('Import test successful!')

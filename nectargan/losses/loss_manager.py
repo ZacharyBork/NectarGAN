@@ -691,8 +691,7 @@ class LossManager():
             **loss_kwargs.get('weight_kwargs', {}))
 
         # Then update the corresponding last_loss_map tensor
-        self.loss_fns[loss_name].last_loss_map = loss_value.clone()
-        self.loss_fns[loss_name].last_loss_map.detach().cpu()
+        loss_entry.last_loss_map = loss_value.clone().detach().cpu()
 
         # Then update loss history
         if self.enable_logging:

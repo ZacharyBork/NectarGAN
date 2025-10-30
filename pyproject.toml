@@ -10,20 +10,24 @@ readme = "README.md"
 license = { file = "LICENSE" }
 authors = [{ name = "Zachary Bork" }]
 dependencies = [
-    "albumentations",
-    "matplotlib",
-    "numpy",
-    "opencv-python",
-    "visdom",
-    "onnxruntime",
-    "opencv-python",
-    "Pillow",
-    "pyqtgraph",
-    "PySide6",
-    "PySide6-Addons",
-    "PySide6-Essentials"
+    "albumentations==2.0.8",
+    "matplotlib==3.10.3",
+    "numpy==2.3.1",
+    "onnxruntime==1.21.0",
+    "opencv-python==4.11.0.86",
+    "visdom==0.2.4",
+    "Pillow==11.2.1",
+    "pyqtgraph==0.13.7",
+    "PySide6==6.9.0"
 ]
-requires-python = ">=3.11"
+requires-python = ">=3.12"
+
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0"
+]
 
 [tool.setuptools.package-data]
 "*" = ["*.qss", "*.ui", "*.png", "*.svg", "*.gif", "*.json"]
