@@ -12,13 +12,38 @@ Thank you for your interest in contributing to NectarGAN! This guide will explai
 - **Tests:** *add or improve unit/integration tests.*
 - **Examples:** *config files, loss specifications, etc.*
 
-##  Contribution workflow:
+##  Contribution workflow
 
 1. Fork the project.
 2. Create a new branch for your changes.
 3. Commit your changes when finished.
 4. Create a new pull request with tests/docs (if applicable).
 5. Wait for review.
+
+## Style guide
+
+### Roughly follow [PEP 8](https://peps.python.org/pep-0008/) for code style:
+- 4 spaces per indentation level.
+- Line length: code ≤ 79.
+- Individual package imports on separate lines.
+- Avoid extra white space.
+
+**Docstrings do not follow PEP 8.** See below.
+
+### Imports should be grouped in the following order:
+1) **Native libraries** (built-ins)  
+2) **Third-party packages** (from PyPI)  
+3) **Local/project modules** (this repo)
+
+### Type hints:
+- All public functions and class methods should have both their **input arguments**, and their **return value** type hinted in any API code.
+- Private methods do not need to be type hinted.
+
+### Docstrings ([Google](https://google.github.io/styleguide/pyguide.html#s3.8-comments-and-docstrings)):
+- One-line summary on its own line.
+- Sections: Args, Returns, Raises, Examples, etc.
+- Public API functions and methods should have thorough docstrings. Please see [here](/nectargan/losses/loss_manager.py) and [here](/nectargan/trainers/pix2pix_trainer.py) for docstring examples.
+- Docstrings should be wrapped to 79 characters for consistancy.
 
 ## Reporting Bugs
 
