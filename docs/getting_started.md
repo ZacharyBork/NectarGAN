@@ -10,7 +10,7 @@
 > [!TIP]
 > It is recommended to install NectarGAN in a fresh environment to avoid dependency conflicts, especially as it is still in active development. 
 >
-> NectarGAN requires a Python version >= `3.11`.
+> NectarGAN requires a Python version >= `3.12`.
 
 1. **Clone the repository:** `git clone https://github.com/ZacharyBork/NectarGAN.git`
 2. **Navigate to the repository root and run:**
