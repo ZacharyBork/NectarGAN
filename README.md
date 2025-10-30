@@ -69,7 +69,10 @@ NectarGAN is comprised of two core components:
 #### Please refer to the [*quickstart documentation*](/docs/getting_started.md) for information on how to get started using NectarGAN.
 
 ## Frequently Asked Questions
-#### Please see [*here*](/docs/faq.md).
+#### Please see [*the FAQs page*](/docs/faq.md).
+
+## Looking to contribute?
+#### Please see [*the contribution guide*](/docs/faq.md) for more information.
 
 ## Who is this for?
 - Artists wanting to experiment with paired image translation tasks (why I first starting experimenting with Pix2pix).
