@@ -1,22 +1,12 @@
 # NectarGAN - Testing Your Installation
 #### This document will guide you through the process of testing your NectarGAN installation to ensure the various components are functioning correctly.
 
-Before we can run the tests, we first need to install the requisite packages. This is done in different ways depending upon how you installed NectarGAN:
-- **Pip:**
+Before we can run the tests, we first need to install the requisite packages. This can be accomplished by running the following command inside of the environment in which you installed NectarGAN:
 ```bash
 pip install -e ".[dev]"
-
--- or --
-
-pip install -r requirements.dev.txt
 ```
-- **Anaconda:**
-```bash
-conda env create -f environment.yml
-conda activate nectargan
-pip install -e ".[dev]"
-```
-**In addition to the core NectarGAN dependencies, this will also install [pytest](https://pypi.org/project/pytest/) and [pytest-cov](https://pypi.org/project/pytest-cov/)**. After installation has completed, we can run:
+
+**This command will install the [pytest](https://pypi.org/project/pytest/) and [pytest-cov](https://pypi.org/project/pytest-cov/) packages**. After installation has completed, we can run:
 ```bash
 pytest
 ```

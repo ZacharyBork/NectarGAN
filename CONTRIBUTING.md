@@ -84,12 +84,12 @@ Before filing, please search existing issues and discussions.
 ```bash
 # venv
 python -m venv .venv
-source .venv/bin/activate   # Windows: .venv\Scripts\activate
+source .venv/bin/activate             # Windows: .venv\Scripts\activate
 python -m pip install --upgrade pip
-pip install -r requirements.dev.txt
+pip install -e ".[dev]"               # Install with dev packages
 
 # conda
-conda env create -f environment.yml
+conda env create -f environment.yml   # Create base environment
 conda activate nectargan
-pip install -e .[dev]
+pip install -r requirements.dev.txt   # Install extra dev packages
 ```

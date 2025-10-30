@@ -26,10 +26,10 @@ conda env create -f environment.yml
 > ###### From: https://pytorch.org/get-started/locally/
 | Version | Command |
 | :---: | --- |
-**CPU-Only** | `pip install torch torchvision torchaudio`
-**CUDA 11.8** | `pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118`
-**CUDA 12.6** | `pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu126`
-**CUDA 12.8** | `pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu128`
+**CPU-Only** | `pip install torch torchvision`
+**CUDA 11.8** | `pip install torch torchvision --index-url https://download.pytorch.org/whl/cu118`
+**CUDA 12.6** | `pip install torch torchvision --index-url https://download.pytorch.org/whl/cu126`
+**CUDA 12.8** | `pip install torch torchvision --index-url https://download.pytorch.org/whl/cu128`
 
 ## NectarGAN Toolbox
 **The Toolbox quickstart guide is split in to three sections which are intended to be followed in order.**

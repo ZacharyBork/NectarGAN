@@ -8,7 +8,7 @@ version = "0.1.0"
 description = "A graphical GAN development environment and model assembly framework."
 readme = "README.md"
 license = { file = "LICENSE" }
-authors = [{ name = "Zachary Bork" }]
+authors = [{ name = "Zachary Bork", email = "nectargan.dev@gmail.com" }]
 dependencies = [
     "albumentations==2.0.8",
     "matplotlib==3.10.3",
@@ -21,7 +21,6 @@ dependencies = [
     "PySide6==6.9.0"
 ]
 requires-python = ">=3.12"
-
 
 [project.optional-dependencies]
 dev = [
