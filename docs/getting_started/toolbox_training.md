@@ -1,20 +1,20 @@
 # NectarGAN - Getting Started (Toolbox | Training)
 #### A graphical tool for training and testing models, reviewing results of previous tests, converting models to ONNX and testing the resulting model, and processing dataset files, all packaged into a single modern and easy to use interface..
-##### Reference: [`NectarGAN Toolbox Documentation`](/docs/toolbox.md) 
+##### Reference: [`NectarGAN Toolbox Documentation`](../toolbox.md) 
 > [!NOTE]
 > This is part one of the three-part Toolbox quickstart guide.
 >
-> Click [*here*](/docs/getting_started/toolbox_testing.md) for part two.<br>
-> Click [*here*](/docs/getting_started/toolbox_review.md) for part three.
+> Click [*here*](toolbox_testing.md) for part two.<br>
+> Click [*here*](toolbox_review.md) for part three.
 >
-> For instructions on how to install NectarGAN, please see [*here*](/docs/getting_started.md).
+> For instructions on how to install NectarGAN, please see [*here*](../getting_started.md).
 
 
 > [!TIP]
-> For this walkthrough, we will be using the ubiquitous `facades` Pix2pix dataset, kindly provided by the University of California, Berkeley. If you would like to follow along using this dataset, please see [here](/docs/scripts.md) for information regarding the dataset download script which will allow you to automatically download this and other Pix2pix-style datasets.
+> For this walkthrough, we will be using the ubiquitous `facades` Pix2pix dataset, kindly provided by the University of California, Berkeley. If you would like to follow along using this dataset, please see [here](../scripts.md) for information regarding the dataset download script which will allow you to automatically download this and other Pix2pix-style datasets.
 
 > [!IMPORTANT]
-> Currently, it is not possible to set the PyTorch target device from the Toolbox UI. The default is `cuda`. If you intend to do your training on the CPU only, please first find the config file located at [`/nectargan/config/default.json`](/nectargan/config/default.json) and set the value of `config.common.device` to `cpu`.
+> Currently, it is not possible to set the PyTorch target device from the Toolbox UI. The default is `cuda`. If you intend to do your training on the CPU only, please first find the config file located at [`nectargan/config/default.json`](https://github.com/ZacharyBork/NectarGAN/blob/main/nectargan/config/default.json) and set the value of `config.common.device` to `cpu`.
 >
 > This was an oversight and will be fixed in a future UI update.
 
@@ -28,10 +28,10 @@ Or, alternatively, by this command from the repository root (i.e. `NectarGAN/`):
 python -m nectargan.start.toolbox
 ```
 The Toolbox will open to a screen which looks like this:
-![_toolbox_experiment_](/docs/resources/images/toolbox/toolbox_experiment.PNG)
+![_toolbox_experiment_](../resources/images/toolbox/toolbox_experiment.PNG)
 
 ## Experiment Settings
-##### Reference: [`Toolbox Experiment Panel`](/docs/toolbox/experiment.md)
+##### Reference: [`Toolbox Experiment Panel`](../toolbox/experiment.md)
 
 **On this screen, we can define output settings for our current experiment, and also define architecture options for our generator and discriminator, if we so choose.**
 
@@ -42,7 +42,7 @@ The Toolbox will open to a screen which looks like this:
 
 ## Dataset Settings
 **Then, we will move on to `Dataset` options by clicking the blue `Dataset` button on the left hand bar.** After doing so, you will be presented with a screen that looks like this:
-![_toolbox_dataset_](/docs/resources/images/toolbox/toolbox_dataset.PNG)
+![_toolbox_dataset_](../resources/images/toolbox/toolbox_dataset.PNG)
 **Here, you can control settings related to your dataset, including load and crop size, load direction, and a full suite of built in augmentation options.** Clicking on the check box next to the augmentation type will expand the augmentation options for that type. The names are fairly self-explanatory, but just to be sure:
 - `Input` : Augmentations applied only to the input image (`A` in `AtoB`, `B` in `BtoA`)
 - &nbsp;`Both`&nbsp; : Augmentation applied to both the input and the target image.
@@ -69,7 +69,7 @@ The Toolbox will open to a screen which looks like this:
 
 ## Training Settings
 **And finally, we're ready to move on to the training settings, which can be done by clicking on the purple `Training` button on the left-hand bar.** After doing so, you will be greeted with a window which looks like this:
-![_toolbox_training_](/docs/resources/images/toolbox/toolbox_training.PNG)
+![_toolbox_training_](../resources/images/toolbox/toolbox_training.PNG)
 **Here, you can set various options related to learning rate schedules for the generator and discriminator, settings related to loss weighting and logging, and also some options related to checkpoint and example image saving during training.**
 
 Also of note is the `Continue Train` checkbox. Clicking this will present you with the option to select an epoch to load, and then when you click train, the checkpoint file for that epoch will be loaded to continue model training.
@@ -78,7 +78,7 @@ Also of note is the `Continue Train` checkbox. Clicking this will present you wi
 
 ## Start Training
 > ##### Toolbox training with the `facades` dataset *(epoch 196)*.
-> ![_toolbox_running_](/docs/resources/gifs/toolbox_training.gif)
+> ![_toolbox_running_](../resources/gifs/toolbox_training.gif)
 
 
 ***So then with all that done, we are ready to start training!*** This can be done by clicking the `Begin Training` training button. When we do, a few things will happen:
@@ -94,19 +94,19 @@ Also of note is the `Continue Train` checkbox. Clicking this will present you wi
 
 ## Output
 **If we have a quick look at our experiment output directory, we should see something like this:**
-![_experiment_output_](/docs/resources/images/experiment_output_directory.PNG)
+![_experiment_output_](../resources/images/experiment_output_directory.PNG)
 
 **These are the files which have been created by our training session:**
 1. Every 5 epochs (based on our settings in the `Training` panel), two `.pth.tar` files were exported. These are [tar archives](https://en.wikipedia.org/wiki/Tar_(computing)) containing the model parameters for the generator and discriminator respectively, as denoted by the `G` and `D` in the file names.
 2. `loss_log.json`, a file containing all of the logged loss information (namely mean values and weights, both at `float32`).
 3. `train1_config.json`, a carbon copy of the config that was used to run the training. Were we to continue training on the model, a new file, `train2_config.json` would be created.
 4. A subdirectory called `examples`. Looking inside...<br><br>
-![_examples_output_](/docs/resources/images/examples_output_directory.PNG)
+![_examples_output_](../resources/images/examples_output_directory.PNG)
 
     ... we see that each epoch (at the end of the given epoch), we also were evaluating the model on images from the `eval` set, and then exporting the example [`A_real`, `B_fake`, `B_real`] set.
 
 **In a later section, we will see how we can use the Toolbox to load all of this data for review.** For now though, since we have our `.pth.tar` checkpoint files, let's move on to...
 ## Model Testing
-Click [here](/docs/getting_started/toolbox_testing.md) to proceed to the Toolbox testing quickstart guide.
+Click [here](../getting_started/toolbox_testing.md) to proceed to the Toolbox testing quickstart guide.
 
 [^1]: [Pix2Pix: Image-to-Image Translation with Conditional Adversarial Networks (Isola et al., 2017)](https://arxiv.org/abs/1611.07004)

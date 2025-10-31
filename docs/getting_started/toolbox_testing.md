@@ -1,10 +1,10 @@
 # NectarGAN - Getting Started (Toolbox | Testing)
-##### Reference: [`NectarGAN Toolbox Documentation`](/docs/toolbox.md)
+##### Reference: [`NectarGAN Toolbox Documentation`](../toolbox.md)
 > [!NOTE]
 > This is part two of the three-part Toolbox quickstart guide.
 >
-> Click [*here*](/docs/getting_started/toolbox_training.md) for part one.<br>
-> Click [*here*](/docs/getting_started/toolbox_review.md) for part three.
+> Click [*here*](../getting_started/toolbox_training.md) for part one.<br>
+> Click [*here*](../getting_started/toolbox_review.md) for part three.
 
 ## The Testing Panel
 > [!IMPORTANT]
@@ -12,11 +12,11 @@
 > 
 > If these UI settings have changed since you trained the model, you can load the settings used for training by clicking the `Load Setting from Config File` button on the bottom of the `Experiment` panel, and selecting the config file from the given experiment directory, which is exported automatically at the beginning of each train.
 
-##### Reference: [`Toolbox Testing Panel`](/docs/toolbox/testing.md)
+##### Reference: [`Toolbox Testing Panel`](../toolbox/testing.md)
 ### Testing a Model
 
 **The `Testing` panel can be accessed by clicking on the green `Testing` button on the left-hand bar.** After doing so, you will be presented with a screen which looks like this:
-![_toolbox_testing_](/docs/resources/images/toolbox/toolbox_testing.PNG)
+![_toolbox_testing_](../resources/images/toolbox/toolbox_testing.PNG)
 **Here, you can load your generator checkpoints which were exported during training and evaluate them on real test images.**
 
 **To test our model, we will:**
@@ -27,7 +27,7 @@
 
 ### Test Results
 **After a couple seconds, you should be presented with a screen which looks like this:**
-![_toolbox_testing_example_](/docs/resources/images/toolbox/toolbox_testing_example.PNG)
+![_toolbox_testing_example_](../resources/images/toolbox/toolbox_testing_example.PNG)
 > [!NOTE]
 > Your images may be larger. Image scale can be controlled with the slider on the bottom of the results panel.
 
@@ -36,7 +36,7 @@
 **We also have some loss values.** For each test iteration, before converting the images for display, we also take the tensors and run a few loss functions on them. You can sort the test results by these metrics, as well as a few others, using the dropdown menus on the bottom right of the results panel.
 
 **Now, let's hit `Begin Test` one more time.** When we do, we see that the model has been run on another random selection of images from the `test` set:
-![_toolbox_testing_example_02_](/docs/resources/images/toolbox/toolbox_testing_example_02.PNG)
+![_toolbox_testing_example_02_](../resources/images/toolbox/toolbox_testing_example_02.PNG)
 **Now, if we click on the dropdown menu called `Test Version`, located in the bottom left of the results panel, we will see that we have two items, `test_01` and `test_02`.** This allows you to switch back and forth between the tests to compare. Note that sorting settings will also be preserved when switching between them
 ### The `test` Directory
 Now, let's quickly have a look at our experiment output directory for the experiment we are testing. In doing so, we notice a new subdirectory called `test`. Diving inside this new directory, we can see that, for each test we ran, asubdirectory was created inside. 
@@ -58,6 +58,6 @@ And then, for each test iteration:
 
 **And that's really all there is to testing models with the NectarGAN Toolbox.** 
 
-#### Next, let's move on to [reviewing training results using the `Review` panel](/docs/getting_started/toolbox_review.md).
+#### Next, let's move on to [reviewing training results using the `Review` panel](../getting_started/toolbox_review.md).
 
 ---

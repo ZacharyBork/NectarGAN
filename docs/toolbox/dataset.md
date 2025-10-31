@@ -1,5 +1,5 @@
 # NectarGAN Toolbox - Dataset
-> [*`NectarGAN Toolbox - Home`*](/docs/toolbox.md)
+> [*`NectarGAN Toolbox - Home`*](../toolbox.md)
 #### This section houses settings related to dataset loading and train-time data augmentations. 
 
 > [!IMPORTANT]
@@ -51,4 +51,4 @@
 
 ---
 *See Also:*
-| [Toolbox - Home](/docs/toolbox.md) | [Experiment](/docs/toolbox/experiment.md) | [Training](/docs/toolbox/training.md) | [Testing](/docs/toolbox/testing.md) | [Review](/docs/toolbox/review.md) | [Utilities](/docs/toolbox/utilities.md) | [Settings](/docs/toolbox/settings.md) |
+| [Toolbox - Home](../toolbox.md) | [Experiment](experiment.md) | [Training](training.md) | [Testing](testing.md) | [Review](review.md) | [Utilities](utilities.md) | [Settings](settings.md) |

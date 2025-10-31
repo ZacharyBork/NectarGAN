@@ -1,8 +1,8 @@
 # NectarGAN API (Scheduling) - Schedule Functions
-> [*`NectarGAN API - Home`*](/docs/api.md)
-> [*`NectarGAN API - Scheduling`*](/docs/api/scheduling.md)
-#### Schedule functions allow you to define simple mathematical functions, which can then by plugged in to the [`Schedule`](/docs/api/scheduling/schedule_dataclass.md) dataclass and used to drive scheduling for any parameter in your model.
-Reference: [`nectargan.scheduling.schedules`](/nectargan/scheduling/schedules.py)
+> [*`NectarGAN API - Home`*](../../api.md)
+> [*`NectarGAN API - Scheduling`*](../scheduling.md)
+#### Schedule functions allow you to define simple mathematical functions, which can then by plugged in to the [`Schedule`](../scheduling/schedule_dataclass.md) dataclass and used to drive scheduling for any parameter in your model.
+Reference: [`nectargan.scheduling.schedules`](https://github.com/ZacharyBork/NectarGAN/blob/main/nectargan/scheduling/schedules.py)
 
 *These are easy to use, but a little complex to understand at first, so let's start slow with...*
 ## What is a Schedule function?
@@ -11,7 +11,7 @@ Reference: [`nectargan.scheduling.schedules`](/nectargan/scheduling/schedules.py
 **Just a simple Python function which itself describes a simple time-dependent mathematical function.** A schedule function has two things passed to it as input arguments any time it is evaluated:
 
 1. **An epoch value.** This is used to define the sample point for the function.
-2. **A `Schedule` object** (see [here](/docs/api/scheduling/schedule_dataclass.md) for more info).
+2. **A `Schedule` object** (see [here](../scheduling/schedule_dataclass.md) for more info).
 
 Schedule functions can be broken down into a few parts:
 1. An initial value.
@@ -22,7 +22,7 @@ Schedule functions can be broken down into a few parts:
 ***So, up until the input epoch passed to the schedule function is equal to the start epoch, the schedule function returns the initial value. Then, in the epochs between the start and end epoch, the schedule function interpolates from the initial value to the target value. And finally, in the epochs after the end epoch, the function returns the target value.***
 
 ### Let's have a look at an example schedule to help clarify things:
-> ###### From: [`nectargan.scheduling.schedules.ScheduleDefs`](/nectargan/scheduling/schedules.py#L5)
+> ###### From: [`nectargan.scheduling.schedules.ScheduleDefs`](https://github.com/ZacharyBork/NectarGAN/blob/main/nectargan/scheduling/schedules.py#L5)
 > ```python
 > def linear(schedule: Schedule, epoch: int) -> float:
 >         '''Defines a linear loss weight schedule.
@@ -63,7 +63,7 @@ Schedule functions can be broken down into a few parts:
 5. Get the lowest allowed value (note that the `linear` schedule function is clamped to a min of `0.0`) and the highest allowed value.
 6. Return the minimum value if value < minimum, the maximum value if value > maximum, or the value itself if neither is true.
 
-**Pretty simple, right?** The other standard decay schedule, [`exponential`](/nectargan/scheduling/scheduler.py#L35), works in much the same way, with only a couple small differences. Since this function uses logorithmic interpolation, which can result in a `ZeroDivisionError`, it provides a couple extra variables:
+**Pretty simple, right?** The other standard decay schedule, [`exponential`](https://github.com/ZacharyBork/NectarGAN/blob/main/nectargan/scheduling/scheduler.py#L35), works in much the same way, with only a couple small differences. Since this function uses logorithmic interpolation, which can result in a `ZeroDivisionError`, it provides a couple extra variables:
 | Variable | Description |
 | :---: | --- |
 `allow_zero_weights` | If `True`, the function will allow a value of `0.0` for initial or target weight, but will add a small epsilon value to the `0.0` value to avoid the `ZeroDivisionError`.

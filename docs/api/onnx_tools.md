@@ -1,5 +1,5 @@
 # NectarGAN API - ONNX Tools
-> [*`NectarGAN API - Home`*](/docs/api.md)
+> [*`NectarGAN API - Home`*](../api.md)
 #### The NectarGAN API includes a simple utility class for converting trained models to ONNX, and a script for testing the resulting model on real test images.
 
 > [!NOTE]
@@ -11,16 +11,16 @@ Reference: https://onnx.ai/
 ONNX (or *Open Neural Network eXchange*) is an inference-only, open source, platform agnostic interchange format for pre-trained neural networks. Models from most any widely used machine learning framework can be converted to `.onnx` files, which can then be run in anything that supports the [ONNX Runtime](https://onnxruntime.ai/). It is a popular solution for sharing and deploying trained models.
 
 ## The ONNXConverter Class
-Reference: [`nectargan.onnx.converter`](/nectargan/onnx/converter.py)
+Reference: [`nectargan.onnx.converter`](https://github.com/ZacharyBork/NectarGAN/blob/main/nectargan/onnx/converter.py)
 
 The `ONNXConverter` class provides a simple wrapper around `torch.onnx.export`, allowing you to more easily convert your models trained with NectarGAN to the `.onnx` format. 
 
 ### Creating an ONNXConverter Instance
-Let's start by briefly going over the class's [`__init__`](/nectargan/onnx/converter.py#L13) function to see how we can create an `ONNXConverter` instance in our own scripts. We will start with the input arguments. Looking at the function, we can see there are only a few of them, and many are optional. Following is a list of all of the possible input arguements, with a short description of what each one is and how it is used:
+Let's start by briefly going over the class's [`__init__`](https://github.com/ZacharyBork/NectarGAN/blob/main/nectargan/onnx/converter.py#L13) function to see how we can create an `ONNXConverter` instance in our own scripts. We will start with the input arguments. Looking at the function, we can see there are only a few of them, and many are optional. Following is a list of all of the possible input arguements, with a short description of what each one is and how it is used:
 | Argument | Description |
 | :---: | --- |
 `experiment_dir` | **Required.** This is an `os.PathLike` object representing the system path to the experiment directory which houses the checkpoint `.pth` you would like to convert to `.onnx`.
-`config` | **Required.** This can be any number of things representing a NectarGAN config (see [here](/docs/api/config.md) for more info).
+`config` | **Required.** This can be any number of things representing a NectarGAN config (see [here](../api/config.md) for more info).
 `load_epoch` | **Optional.** If this is not `None`, it should be an integer representing the epoch value of the checkpoint you would like to load for conversion. However, if it is `None` (default), the `load_epoch` value will instead be taken from the input `config`'s `["config"]["train"]["load"]["load_epoch"]`.
 `in_channels` | **Optional.** If this is not `None`, it should be an integer representing the number of input channels for the generator (i.e. 1 for mono, 3 for RGB). ***Currently, the only number of `in_channels` supported by the API is 3, although there are plans to expand that in the future.*** However, if it is `None` (default), the `in_channels` value will instead be taken from the input `config`'s `["config"]["dataloader"]["load"]["input_nc"]`.
 `crop_size` | **Optional.** If this is not `None`, it should be an integer value representing the desired input tensor width and height of the converted model. However, if it is `None` (default), the `crop_size` value will instead be taken from the input `config`'s `["config"]["dataloader"]["load"]["crop_size"]`.
@@ -46,7 +46,7 @@ converter = ONNXConverter(
 >
 > **Please also note that this is taken a step further in the Toolbox's `ONNXConverter` wrapper**, in that it also requires the `train{x}_config.json` file, which is automatically exported with every train when run from the Toolbox, to be present in the `experiment_dir`. This is because in the Toolbox, everything related to conversion is set in the interface save for the generator architecture settings which are required to remain static across training sessions regardless, so those are just grabbed automatically from the latest config in the `experiment_dir` instead.
 ### Converting a Model
-Great, now we have our `ONNXConverter` instance ready to go. Let's now take a look at how we can use it to convert the model we pointed it to. Looking over the `ONNXConverter` class, we can see that it actually only has one public function that is unique to itself, and not inherited from the `Trainer` class: [`convert_model`](/nectargan/onnx/converter.py#L55)
+Great, now we have our `ONNXConverter` instance ready to go. Let's now take a look at how we can use it to convert the model we pointed it to. Looking over the `ONNXConverter` class, we can see that it actually only has one public function that is unique to itself, and not inherited from the `Trainer` class: [`convert_model`](https://github.com/ZacharyBork/NectarGAN/blob/main/nectargan/onnx/converter.py#L55)
 
 **Let's again start by having a quick look over the input arguments for `convert_model`:**
 | Argument | Description |
@@ -70,11 +70,11 @@ converter.convert_model(
     output_names=['my_output_name'], # Whatever output names you want, or none for default: ['output']
     suppress_onnx_warnings=True)     # Or False if you want it to print the warnings
 ```
-**And that's it. When run, this will export the converted model to the given `experiment_dir`.** The converted file will the called `epoch{load_epoch}.onnx` (this can be changed by altering the `onnx_filename` variable in [`ONNXConverter._build_output_path()`](/nectargan/onnx/converter.py#L51))
+**And that's it. When run, this will export the converted model to the given `experiment_dir`.** The converted file will the called `epoch{load_epoch}.onnx` (this can be changed by altering the `onnx_filename` variable in [`ONNXConverter._build_output_path()`](https://github.com/ZacharyBork/NectarGAN/blob/main/nectargan/onnx/converter.py#L51))
 
 ## ONNX Model Test Script
-Reference: [`nectargan.onnx.tester`](/nectargan/onnx/tester.py)
+Reference: [`nectargan.onnx.tester`](https://github.com/ZacharyBork/NectarGAN/blob/main/nectargan/onnx/tester.py)
 
-There is also a very simple test script your converted models. It will take the path to the `.onnx` model, and the path to a test image you would like to run the model inference on. The script will load the model with `onnxruntime`, run the model's inference on the given test image, and display the result via `matplotlib`. This is just a super simple validator, mostly provided as a convenience. You can also use the [ONNX tester](/docs/toolbox/utilities.md) in the Toolbox to test your converted models, though. It is a bit more full-featured and allows you to test the model on more than a single image at a time.
+There is also a very simple test script your converted models. It will take the path to the `.onnx` model, and the path to a test image you would like to run the model inference on. The script will load the model with `onnxruntime`, run the model's inference on the given test image, and display the result via `matplotlib`. This is just a super simple validator, mostly provided as a convenience. You can also use the [ONNX tester](../toolbox/utilities.md) in the Toolbox to test your converted models, though. It is a bit more full-featured and allows you to test the model on more than a single image at a time.
 
 ---

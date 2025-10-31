@@ -1,5 +1,5 @@
 # NectarGAN Toolbox - Settings
-> [*`NectarGAN Toolbox - Home`*](/docs/toolbox.md)
+> [*`NectarGAN Toolbox - Home`*](../toolbox.md)
 #### This panel contains general interface settings. There is not much here currently, but more will likely be added in the future.
 
 > [!IMPORTANT]
@@ -13,4 +13,4 @@
 
 ---
 *See Also:*
-| [Toolbox - Home](/docs/toolbox.md) | [Experiment](/docs/toolbox/experiment.md) | [Dataset](/docs/toolbox/dataset.md) | [Training](/docs/toolbox/training.md) | [Testing](/docs/toolbox/testing.md) | [Review](/docs/toolbox/review.md) | [Utilities](/docs/toolbox/utilities.md) |
+| [Toolbox - Home](../toolbox.md) | [Experiment](experiment.md) | [Dataset](dataset.md) | [Training](training.md) | [Testing](testing.md) | [Review](review.md) | [Utilities](utilities.md) |

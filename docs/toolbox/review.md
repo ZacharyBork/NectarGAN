@@ -1,5 +1,5 @@
 # NectarGAN Toolbox - Review
-> [*`NectarGAN Toolbox - Home`*](/docs/toolbox.md)
+> [*`NectarGAN Toolbox - Home`*](../toolbox.md)
 #### This section is used for reviewing results of previous experiments. 
 You point it to a previous experiment directory, and it will load all of the example image sets and graph all of the loss log data for review.
 
@@ -11,4 +11,4 @@ You point it to a previous experiment directory, and it will load all of the exa
 
 ---
 *See Also:*
-| [Toolbox - Home](/docs/toolbox.md) | [Experiment](/docs/toolbox/experiment.md) | [Dataset](/docs/toolbox/dataset.md) | [Training](/docs/toolbox/training.md) | [Testing](/docs/toolbox/testing.md) | [Utilities](/docs/toolbox/utilities.md) | [Settings](/docs/toolbox/settings.md) |
+| [Toolbox - Home](../toolbox.md) | [Experiment](experiment.md) | [Dataset](dataset.md) | [Training](training.md) | [Testing](testing.md) | [Utilities](utilities.md) | [Settings](settings.md) |

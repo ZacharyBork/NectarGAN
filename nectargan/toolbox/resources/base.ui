@@ -10684,7 +10684,7 @@
                  </property>
                  <property name="text">
                   <string>Please carefully read the documentation for each of these tools, found at
-(NectarGAN/docs/toolbox.md) before using them.</string>
+(docs/toolbox.md) before using them.</string>
                  </property>
                  <property name="alignment">
                   <set>Qt::AlignCenter</set>
