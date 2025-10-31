@@ -3,10 +3,14 @@
 [![PyTorch](https://img.shields.io/badge/PyTorch-%23EE4C2C.svg?logo=PyTorch&logoColor=white)](https://pytorch.org/)
 [![ONNX](https://img.shields.io/badge/ONNX-%23424242.svg?logo=onnx&logoColor=white)](https://onnx.ai/)
 [![Qt](https://img.shields.io/badge/Qt-%23217346.svg?logo=Qt&logoColor=white)](https://www.qt.io/)
-# NectarGAN
->A full-featured graphical development environment and model assembly framework for Pix2pix-style conditional GANs.
+___
 
-![_toolbox_training_gif_](/docs/resources/gifs/toolbox_training.gif)
+<h1 align="center"><img src="./nectargan/toolbox/resources/icons/toolbox_icon.png" alt="NectarGAN Logo" width="60" style="vertical-align: middle; padding-bottom: 5px;">NectarGAN</h1> 
+
+<h4 align="center">A full-featured graphical development environment and model assembly framework for Pix2pix-style conditional GANs.</h4>
+
+<div align="center"><img src="./docs/resources/gifs/toolbox_training.gif" alt="NectarGAN Logo" width="950" style="vertical-align: middle; padding-bottom: 5px;"></div> 
+
 ## What is NectarGAN?
 NectarGAN is comprised of two core components:
 
