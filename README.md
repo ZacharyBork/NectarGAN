@@ -5,11 +5,12 @@
 [![Qt](https://img.shields.io/badge/Qt-%23217346.svg?logo=Qt&logoColor=white)](https://www.qt.io/)
 ___
 
-<h1 align="center"><img src="./nectargan/toolbox/resources/icons/toolbox_icon.png" alt="NectarGAN Logo" width="60" style="vertical-align: middle; padding-bottom: 5px;">NectarGAN</h1> 
+<div align="center"><img src="./nectargan/toolbox/resources/icons/toolbox_icon.png" alt="NectarGAN Logo" width="100" style="vertical-align: middle;"></div> 
+<h1 align="center">NectarGAN</h1> 
 
 <h4 align="center">A graphical development environment and model assembly framework for Pix2pix-style conditional GANs.</h4>
 
-<div align="center"><img src="./docs/resources/gifs/toolbox_training.gif" alt="NectarGAN Logo" width="950" style="vertical-align: middle; padding-bottom: 5px;"></div> 
+<div align="center"><img src="./docs/resources/gifs/toolbox_training.gif" alt="Toolbox Training GIF" width="950" style="vertical-align: middle;"></div> 
 
 ## What is NectarGAN?
 NectarGAN is comprised of two core components:
