@@ -47,11 +47,16 @@ This utility allows you to convert your trained model to ONNX format to allow fo
 
 **Some things to be aware of when using these tools:**
 
-> [!IMPORTANT]
-> ***These are some things to be aware of before using the image sorting utilities.***
-> 1. ***The image sorting utility will rename the files in the `Input` directory.*** This tool functions by prepending a tag to each file name based on its order in the sorted file list. This tag can removed with the `Remove Sorting Tags` utility to effectively unsort the files back the their original order, even if files have been discarded.
-> 2. ***Each of these tools provides you with a `Preview` button accompanying the start button.*** This will dry-run the operation, but where it gets to the point of actually performing it's file-altering function, it instead displays a preview of what the result would be if it were to run. **I strongly encourage you to use this before running any of these tools.** They perform file altering actions, and they do so extremely quickly. Again, these actions are generally reversable via `Remove Sorting Tags`, but always better to be safe than sorry.
-> 3. ***The only files in the directory you are sorting should be the images you want to sort.*** If it encounters non-image files, it will raise an exception outside the main thread which currently is not reprocessed in the interface meaning the program will need to be restarted afterwards. This will be updated in the future once I have a more solid plan for these add-on utilities, but for now just make sure the only files in the directory are the images you want to sort.
+> [!WARNING]
+> These tools **rename files in-place** and can modify many files very quickly. Please read this section fully and use the **Preview** first. Before working with these tools on real data for the first time, it is advised to duplicate a small portion of your dataset to test their functionality.
+> 1. **Renaming behavior (and undo).**<br>
+   The sorter **renames files in your `Input` directory** by **prepending a tag** that reflects their position in the sorted list. You can reverse this with **Remove Sorting Tags**, which strips the sorting tag from the files, effectively unsorting them, even if some files were removed.
+>
+> 2. **Always run a Preview first (dry run).**<br>
+   Every tool has a **Preview** button. The preview shows **exactly** what would be changed without touching your files. **Run Preview before Start.** These tools are fast and perform bulk file operations. Most actions are reversible via **Remove Sorting Tags**, but it’s always safer to confirm first.
+>
+> 3. **Only include the images you intend to sort.**<br>
+   The directory should contain **image files only**. Non-image files currently trigger an exception that isn’t handled by the UI, requiring an app restart. This will be improved in a future update. For now, **make sure the folder contains only the images you want to sort**.
 
 ### Sort Images
 | Setting | Description |

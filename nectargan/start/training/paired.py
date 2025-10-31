@@ -1,3 +1,6 @@
+from nectargan.start.torch_check import validate_torch
+validate_torch()
+
 import argparse
 from nectargan.trainers.pix2pix_trainer import Pix2pixTrainer
 

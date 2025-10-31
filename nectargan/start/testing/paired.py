@@ -1,3 +1,6 @@
+from nectargan.start.torch_check import validate_torch
+validate_torch()
+
 import argparse
 from pathlib import Path
 from typing import Any

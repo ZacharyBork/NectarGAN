@@ -1,3 +1,6 @@
+from nectargan.start.torch_check import validate_torch
+validate_torch()
+
 from nectargan.toolbox.run import Interface
 
 def main():
