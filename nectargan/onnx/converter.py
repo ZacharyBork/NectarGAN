@@ -7,6 +7,7 @@ import torch
 
 from nectargan.trainers.trainer import Trainer
 from nectargan.models.unet.model import UnetGenerator
+import nectargan.models.unet.blocks as unetblocks 
 from nectargan.config.config_manager import ConfigManager
 
 class ONNXConverter(Trainer):
@@ -36,12 +37,17 @@ class ONNXConverter(Trainer):
 
     def _init_generator(self) -> None:
         '''Initializes generator.'''
+        match self.config.train.generator.block_type:
+            case 'UnetBlock': block_type = unetblocks.UnetBlock
+            case 'ResidualUnetBlock': block_type = unetblocks.ResidualUnetBlock
+            case _: block_type = unetblocks.UnetBlock
+
         self.gen = UnetGenerator(
             input_size=self.crop_size, 
             in_channels=self.in_channels,
             features=self.config.train.generator.features,
             n_downs=self.config.train.generator.n_downs,
-            block_type=self.config.train.generator.block_type,
+            block_type=block_type,
             upconv_type=self.config.train.generator.upsample_type)
         
         self.load_checkpoint('G', self.gen)

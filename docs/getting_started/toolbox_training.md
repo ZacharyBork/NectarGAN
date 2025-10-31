@@ -11,9 +11,13 @@
 
 
 > [!TIP]
-> For this walkthrough, we will be using the ubiquitous `facades` Pix2pix dataset, kindly provided by the University of California, Berkeley. Before beginning, please head to the following link and select `facades.tar.gz` to download this dataset if you would like to follow along:
+> For this walkthrough, we will be using the ubiquitous `facades` Pix2pix dataset, kindly provided by the University of California, Berkeley. If you would like to follow along using this dataset, please see [here](/docs/scripts.md) for information regarding the dataset download script which will allow you to automatically download this and other Pix2pix-style datasets.
+
+> [!IMPORTANT]
+> Currently, it is not possible to set the PyTorch target device from the Toolbox UI. The default is `cuda`. If you intend to do your training on the CPU only, please first find the config file located at [`/nectargan/config/default.json`](/nectargan/config/default.json) and set the value of `config.common.device` to `cpu`.
 >
-> https://efrosgans.eecs.berkeley.edu/pix2pix/datasets/
+> This was an oversight and will be fixed in a future UI update.
+
 ## Launching the ToolBox
 With NectarGAN installed in your Python environment via your preferred method, you can launch the Nectargan Toolbox by running the following command inside of the Python environment where NectarGAN is installed:
 ```bash
