@@ -1,3 +1,8 @@
+[![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/ZacharyBork/NectarGAN?sort=semver)](https://github.com/ZacharyBork/NectarGAN/releases/latest)
+[![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0) 
+[![PyTorch](https://img.shields.io/badge/PyTorch-%23EE4C2C.svg?logo=PyTorch&logoColor=white)](https://pytorch.org/)
+[![ONNX](https://img.shields.io/badge/ONNX-%23424242.svg?logo=onnx&logoColor=white)](https://onnx.ai/)
+[![Qt](https://img.shields.io/badge/Qt-%23217346.svg?logo=Qt&logoColor=white)](https://www.qt.io/)
 # NectarGAN
 >A full-featured graphical development environment and model assembly framework for Pix2pix-style conditional GANs.
 
