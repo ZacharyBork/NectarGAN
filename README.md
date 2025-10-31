@@ -7,7 +7,7 @@ ___
 
 <h1 align="center"><img src="./nectargan/toolbox/resources/icons/toolbox_icon.png" alt="NectarGAN Logo" width="60" style="vertical-align: middle; padding-bottom: 5px;">NectarGAN</h1> 
 
-<h4 align="center">A full-featured graphical development environment and model assembly framework for Pix2pix-style conditional GANs.</h4>
+<h4 align="center">A graphical development environment and model assembly framework for Pix2pix-style conditional GANs.</h4>
 
 <div align="center"><img src="./docs/resources/gifs/toolbox_training.gif" alt="NectarGAN Logo" width="950" style="vertical-align: middle; padding-bottom: 5px;"></div> 
 
