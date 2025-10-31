@@ -1,0 +1,58 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "nectargan"
+version = "0.1.0"
+description = "A graphical GAN development environment and model assembly framework."
+readme = "README.md"
+license = { file = "LICENSE" }
+authors = [{ name = "Zachary Bork", email = "nectargan.dev@gmail.com" }]
+classifiers = [
+    "License :: OSI Approved :: Apache Software License",
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Environment :: GPU",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Multimedia :: Graphics",
+    "Topic :: Multimedia :: Graphics :: Graphics Conversion",
+    "Operating System :: OS Independent",
+    "Natural Language :: English",
+]
+
+dependencies = [
+    "albumentations==2.0.8",
+    "matplotlib==3.10.3",
+    "numpy==2.3.1",
+    "onnxruntime==1.21.0",
+    "opencv-python==4.11.0.86",
+    "visdom==0.2.4",
+    "Pillow==11.2.1",
+    "pyqtgraph==0.13.7",
+    "PySide6==6.9.0"
+]
+requires-python = ">=3.12"
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0"
+]
+
+[project.scripts]
+nectargan-toolbox = "nectargan.start.toolbox:main"
+nectargan-train-paired = "nectargan.start.training.paired:main"
+nectargan-test-paired = "nectargan.start.testing.paired:main"
+nectargan-utils-restoreconfig = "nectargan.utils.rebuild_default_config:main"
+
+[tool.setuptools.package-data]
+"nectargan" = ["py.typed", "*.qss", "*.ui", "*.png", "*.svg", "*.gif", "*.json"]
+
+[tool.setuptools.packages.find]
+where = ["nectargan"]

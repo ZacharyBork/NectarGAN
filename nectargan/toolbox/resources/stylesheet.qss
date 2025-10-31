@@ -1,0 +1,518 @@
+/*---------- BASE ----------*/
+
+QWidget {
+    background-color: rgb(35, 35, 35);
+}
+
+QSplitter::handle {
+    background-color: rgb(50, 50, 50);
+    border: 1px ridge rgb(35, 35, 35);
+}
+
+/*---------- TAB WIDGETS ----------*/
+
+QTabWidget {
+    background-color: #ff3b3b3f;
+    color: rgb(200, 200, 200);
+    
+}
+QTabWidget::pane {
+    background-color: rgb(50, 50, 50);
+    border: 1px ridge rgb(50, 50, 50);
+    padding: 3px;
+}
+QWidget#generator_tab {
+    background-color: #ff3b3b3f;
+}
+QWidget#discriminator_tab {
+    background-color: #ff3b3b3f;
+}
+QWidget#loss_tab {
+    background-color: #ff3b3b3f;
+}
+QWidget#saving_tab {
+    background-color: #ff3b3b3f;
+}
+QWidget#visdom_tab {
+    background-color: #ff3b3b3f;
+}
+
+
+QTabBar {
+    background-color: rgb(50, 50, 50);
+    color: rgb(200, 200, 200);
+}
+QTabBar::tab {
+    background-color: rgb(50, 50, 50);
+    border: 1px solid rgb(50, 50, 50);
+    padding: 5px;
+}
+QTabBar::tab:selected {
+    background-color: rgb(60, 60, 60);
+    border: 1px ridge rgb(50, 50, 50);
+}
+
+
+/*---------- FRAMES ----------*/
+
+QFrame#train_settings {
+    border: 1px solid #ff3b3b3f;
+    background-color: #ff3b3b3f;
+    border-top-right-radius: 10px;
+}
+QFrame#train_settings QFrame {
+    background-color: #ff3b3b3f;
+}
+
+QFrame#test_image_frame {
+    background-color: rgb(50, 50, 50);
+}
+
+QWidget#experiment_page {
+    border: 1px solid #ff3b3b3f; background-color: #ff3b3b3f; border-top-right-radius: 10px;}
+QWidget#experiment_settings_container {
+    border: 1px solid #ff3b3b3f; background-color: #ff3b3b3f; border-top-right-radius: 10px;}
+
+QWidget#dataset_page {
+    border: 1px solid #ff3b3b3f; background-color: #ff3b3b3f; border-top-right-radius: 10px;}
+QWidget#dataloader_settings_container {
+    border: 1px solid #ff3b3b3f; background-color: #ff3b3b3f; border-top-right-radius: 10px; }
+
+QWidget#training_page {border: 1px solid #ff3b3b3f; background-color: #ff3b3b3f; }
+QFrame#training_settings_container {border: 1px solid #ff3b3b3f; background-color: #ff3b3b3f; }
+QWidget#training_page QGroupBox {background-color: #ff3b3b3f; }
+
+
+QWidget#testing_page {
+    border: 1px solid #ff3b3b3f; background-color: #ff3b3b3f; border-top-right-radius: 10px;}
+QWidget#testing_settings_container {
+    border: 1px solid #ff3b3b3f;background-color: #ff3b3b3f;border-top-right-radius: 10px;}
+
+QWidget#review_page {
+    border: 1px solid #ff3b3b3f; background-color: #ff3b3b3f; border-top-right-radius: 10px;}
+QWidget#review_settings_container {
+    border: 1px solid #ff3b3b3f;background-color: #ff3b3b3f;border-top-right-radius: 10px;}
+
+QWidget#utilities_page {
+    border: 1px solid #ff3b3b3f; background-color: #ff3b3b3f; border-top-right-radius: 10px;}
+QWidget#utilities_settings_container {
+    border: 1px solid #ff3b3b3f;background-color: #ff3b3b3f;border-top-right-radius: 10px;}
+
+QWidget#settings_page {
+    border: 1px solid #ff3b3b3f; background-color: #ff3b3b3f; border-top-right-radius: 10px;}
+QWidget#settings_settings_container {
+    border: 1px solid #ff3b3b3f;background-color: #ff3b3b3f;border-top-right-radius: 10px;}
+
+
+
+
+
+QFrame#train_functions_frame {
+    background-color: #ff3b3b3f;
+}
+
+QFrame#settings_btns_frame {
+    background-color: rgb(50, 50, 50);
+}
+
+QFrame#settings_btns_frame QFrame {
+    background-color: rgb(50, 50, 50);
+}
+
+/*---------- GROUPBOXES ----------*/
+
+QGroupBox {
+    border: 1px solid rgb(140, 140, 140);
+    border-radius: 5px;
+    margin-top: 6px;
+    padding-top: 6px;
+}
+
+QGroupBox::title {
+    subcontrol-origin: border;
+    subcontrol-position: top center;
+    padding-left: 5px;
+    padding-right: 5px;
+    top: -9px;
+    color: rgb(200, 200, 200);
+}
+
+QFrame#train_settings QGroupBox {
+    background-color: #ff3b3b3f;
+    font-size: 18px;
+    padding: 5px 1px 1px 1px;
+    margin-top: 4px;
+}
+
+/*---------- DOCKS ----------*/
+
+QDockWidget {
+    color: rgb(200, 200, 200);
+}
+
+/*---------- BUTTONS ----------*/
+QPushButton {
+    background-color: rgb(80, 80, 80);
+    border: 2px double rgb(70, 70, 70);
+    border-radius: 5px;
+    color: rgb(200, 200, 200);
+    padding: 3px 5px 3px 5px;
+}
+QPushButton::disabled {
+    background-color: rgb(50, 50, 50);
+    border-color: rgb(40, 40, 40);
+    color: rgb(120, 120, 120); 
+}
+QPushButton::hover {
+    background-color: rgb(90, 90, 90);
+}
+QPushButton::pressed {
+    background-color: rgb(100, 100, 100); border: none;
+}
+QPushButton::checked {
+    background-color: rgb(255, 158, 31);
+}
+
+QPushButton#train_start {
+    background-color: rgb(50, 150, 50);
+    color: rgb(35, 35, 35);
+    padding: 1px 1px 1px 1px;
+    border: 2px outset rgb(50, 100, 50);
+    border-radius: 12px;
+}
+QPushButton::hover#train_start {
+    background-color: rgb(50, 200, 50); border-color: rgb(50, 150, 50);}
+QPushButton::pressed#train_start {
+    background-color: rgb(200, 200, 200); border-color: rgb(200, 200, 200);}
+QPushButton#train_stop {
+    background-color: rgb(150, 50, 50);
+    color: rgb(35, 35, 35);
+    padding: 1px 1px 1px 1px;
+    border: 2px outset rgb(100, 50, 50);
+    border-radius: 12px;
+}
+QPushButton::hover#train_stop {
+    background-color: rgb(200, 50, 50); border-color: rgb(150, 50, 50);}
+QPushButton::pressed#train_stop {
+    background-color: rgb(200, 200, 200); border-color: rgb(200, 200, 200);}
+QPushButton#train_pause {
+    background-color: rgb(150, 150, 50);
+    color: rgb(35, 35, 35);
+    padding: 1px 1px 1px 1px;
+    border: 2px outset rgb(100, 100, 50);
+    border-radius: 12px;
+}
+QPushButton::hover#train_pause {
+    background-color: rgb(200, 200, 50); border-color: rgb(150, 150, 50);}
+QPushButton::pressed#train_pause {
+    background-color: rgb(200, 200, 200); border-color: rgb(200, 200, 200);}
+
+QPushButton#test_start {
+    background-color: rgb(50, 150, 50);
+    color: rgb(35, 35, 35);
+    padding: 2px 2px 2px 2px;
+    border: 2px outset rgb(50, 100, 50);
+    border-radius: 12px;
+}
+QPushButton::hover#test_start {
+    background-color: rgb(50, 200, 50); border-color: rgb(50, 150, 50);}
+QPushButton::pressed#test_start {
+    background-color: rgb(200, 200, 200); border-color: rgb(200, 200, 200);}
+
+QPushButton#close_experiment_settings {
+    background-color: rgb(50, 50, 50);
+    border: 1px ridge rgb(35, 35, 35);
+}
+QPushButton::hover#close_experiment_settings {
+    background-color: rgb(60, 60, 60);
+}
+QPushButton::pressed#close_experiment_settings {
+    background-color: rgb(70, 70, 70);
+}
+
+QPushButton#experiment_settings_btn {
+    background-color: rgb(40, 40, 40); 
+    border: 1px solid rgb(255, 158, 31); border-radius: 10px;}
+QPushButton::checked#experiment_settings_btn { 
+    border: none; background-color: rgb(255, 158, 31); }
+QPushButton::disabled#experiment_settings_btn { 
+    border: none; background-color: rgb(60, 60, 60); }
+QPushButton#experiment_settings_label {
+    color: rgb(255, 158, 31); background-color: none; border: none; }
+QPushButton::disabled#experiment_settings_label { 
+    color: rgb(80, 80, 80); }
+
+QPushButton#dataset_settings_btn {
+    background-color: rgb(40, 40, 40); 
+    border: 1px solid rgb(31, 184, 255); border-radius: 10px;}
+QPushButton::checked#dataset_settings_btn { 
+    border: none; background-color: rgb(31, 184, 255); }
+QPushButton::disabled#dataset_settings_btn { 
+    border: none; background-color: rgb(60, 60, 60); }
+QPushButton#dataset_settings_label {
+    color: rgb(31, 184, 255); background-color: none; border: none; }
+QPushButton::disabled#dataset_settings_label { 
+    color: rgb(80, 80, 80); }
+
+QPushButton#training_settings_btn {
+    background-color: rgb(40, 40, 40); 
+    border: 1px solid rgb(187, 73, 197); border-radius: 10px;}
+QPushButton::checked#training_settings_btn { 
+    border: none; background-color: rgb(187, 73, 197); }
+QPushButton::disabled#training_settings_btn { 
+    border: none; background-color: rgb(60, 60, 60); }
+QPushButton#training_settings_label {
+    color: rgb(187, 73, 197); background-color: none; border: none; }
+QPushButton::disabled#training_settings_label { 
+    color: rgb(80, 80, 80); }
+
+QPushButton#testing_settings_btn {
+    background-color: rgb(40, 40, 40); 
+    border: 1px solid rgb(137, 209, 44); border-radius: 10px;}
+QPushButton::checked#testing_settings_btn { 
+    border: none; background-color: rgb(137, 209, 44); }
+QPushButton::disabled#testing_settings_btn { 
+    border: none; background-color: rgb(60, 60, 60); }
+QPushButton#testing_settings_label {
+    color: rgb(137, 209, 44); background-color: none; border: none; }
+QPushButton::disabled#testing_settings_label { 
+    color: rgb(80, 80, 80); }
+
+QPushButton#review_settings_btn {
+    background-color: rgb(40, 40, 40); 
+    border: 1px solid rgb(110, 243, 199); border-radius: 10px;}
+QPushButton::checked#review_settings_btn { 
+    border: none; background-color: rgb(110, 243, 199); }
+QPushButton::disabled#review_settings_btn { 
+    border: none; background-color: rgb(60, 60, 60); }
+QPushButton#review_settings_label {
+    color: rgb(110, 243, 199); background-color: none; border: none; }
+QPushButton::disabled#review_settings_label { 
+    color: rgb(80, 80, 80); }
+
+QPushButton#utils_settings_btn {
+    background-color: rgb(40, 40, 40); 
+    border: 1px solid rgb(212, 202, 53); border-radius: 10px;}
+QPushButton::checked#utils_settings_btn { 
+    border: none; background-color: rgb(212, 202, 53); }
+QPushButton::disabled#utils_settings_btn { 
+    border: none; background-color: rgb(60, 60, 60); }
+QPushButton#utils_settings_label {
+    color: rgb(212, 202, 53); background-color: none; border: none; }
+QPushButton::disabled#utils_settings_label { 
+    color: rgb(80, 80, 80); }
+
+QPushButton#settings_settings_btn {
+    background-color: rgb(40, 40, 40); 
+    border: 1px solid rgb(196, 75, 71); border-radius: 10px;}
+QPushButton::checked#settings_settings_btn { 
+    border: none; background-color: rgb(196, 75, 71); }
+QPushButton::disabled#settings_settings_btn { 
+    border: none; background-color: rgb(60, 60, 60); }
+QPushButton#settings_settings_label {
+    color: rgb(196, 75, 71); background-color: none; border: none; }
+QPushButton::disabled#settings_settings_label { 
+    color: rgb(80, 80, 80); }
+
+/*---------- LABELS ----------*/
+
+QLabel {
+    color: rgb(200, 200, 200);
+    border: none;
+}
+QLabel::disabled {
+    color: rgb(120, 120, 120);
+}
+QLabel#x_label {
+    background-color: rgb(50, 50, 50);
+}
+QLabel#y_label {
+    background-color: rgb(50, 50, 50);
+}
+QLabel#y_fake_label {
+    background-color: rgb(50, 50, 50);
+}
+
+QLabel#training_warning_label {
+    color: rgb(255, 158, 31);
+}
+QLabel#test_warning_label {
+    color: rgb(255, 158, 31);
+}
+QLabel#utils_warning_label {
+    color: rgb(255, 158, 31);
+}
+QLabel#image_utils_warning {
+    color: rgb(120, 120, 120);
+}
+
+QLabel#experiment_section_header {
+    background-color: rgb(40, 40, 40);
+    color: rgb(200, 200, 200);
+}
+
+QLabel#title_tag {
+    color: rgb(120, 120, 120);
+}
+QLabel#creator_tag {
+    color: rgb(120, 120, 120);
+}
+
+/*---------- SLIDERS ----------*/
+
+QSlider {
+    background: none;
+}
+QSlider::groove {
+    border: 1px solid #999999;
+    height: 3px; 
+    background: qlineargradient(
+        x1:0, y1:0, x2:0, y2:1, stop:0 #B1B1B1, stop:1 rgb(50, 50, 50));
+    margin: 2px 0;
+}
+
+QSlider::handle {
+    background: qlineargradient(
+        x1:0, y1:0, x2:1, y2:1, stop:0 #999999, stop:1 #818181);
+    border: 1px solid #696969;
+    width: 8px;
+    margin: -9px 0;
+    border-radius: 4px;
+}
+QSlider::handle::hover {
+    background: qlineargradient(
+        x1:0, y1:0, x2:1, y2:1, stop:0 #b4b4b4, stop:1 #8f8f8f);
+}
+
+/*---------- LINE EDITS ----------*/
+
+QLineEdit {
+    color: rgb(200, 200, 200);
+    background-color: rgb(60, 60, 60);
+    padding: 2px 2px 2px 2px;
+    border: 1px solid rgb(140, 140, 140);
+    border-radius: 5;
+}
+
+QLineEdit::disabled {
+    color: rgb(120, 120, 120);
+    background-color: rgb(50, 50, 50);
+    border: 1px solid rgb(100, 100, 100);
+}
+
+QLineEdit::hover {
+    background-color: rgb(80, 80, 80);
+}
+
+QLineEdit::pressed {
+    background-color: rgb(100, 100, 100);
+}
+
+/*---------- TEXT EDITS ----------*/
+
+QTextEdit {
+    background-color: rgb(25, 25, 25);
+    color: rgb(200, 200, 200);
+}
+
+/*---------- SCROLLBARS ----------*/
+
+QScrollBar {
+    background: solid rgb(50, 50, 50);
+
+    /* border: 2px solid rgb(50, 50, 50); */
+    width: 13px;
+    margin: 0px;
+}
+
+QScrollBar::handle {
+    background-color: rgb(100, 100, 100);
+    min-height: 20px;
+    border-radius: 6px;
+}
+QScrollBar::add-page,
+QScrollBar::sub-page {
+    background: none;
+    border: 4px solid rgb(25, 25, 25);
+}
+
+
+QScrollBar::add-line,
+QScrollBar::sub-line {
+    height: 0px;
+    border: none;
+    background: none;
+}
+
+/*---------- SPINBOXES ----------*/
+
+QSpinBox, QDoubleSpinBox {
+    background-color: rgb(60, 60, 60);
+    color: rgb(200, 200, 200);
+    padding: 2px 3px 2px 3px;
+    border: 1px solid rgb(140, 140, 140);
+    border-bottom-left-radius: 5px;
+    border-top-left-radius: 5px;
+}
+QSpinBox::disabled, QDoubleSpinBox::disabled {
+    color: rgb(120, 120, 120);
+    border: 1px solid rgb(100, 100, 100);
+}
+QSpinBox::hover, QDoubleSpinBox::hover {
+    background-color: rgb(80, 80, 80);
+}
+QSpinBox::pressed, QDoubleSpinBox::pressed {
+    background-color: rgb(100, 100, 100);
+}
+
+/*---------- COMBOBOXES ----------*/
+
+QComboBox {
+    background-color: rgb(60, 60, 60);
+    color: rgb(200, 200, 200);
+    padding: 2px 2px 2px 2px;
+    border: 1px solid rgb(140, 140, 140);
+    border-top-left-radius: 5px;
+}
+QComboBox::disabled {
+    color: rgb(120, 120, 120);
+}
+QComboBox::hover {
+    background-color: rgb(80, 80, 80)
+}
+QComboBox QAbstractItemView {
+    color: rgb(200, 200, 200);
+}
+
+/*---------- CHECKBOXES ----------*/
+
+QCheckBox {
+    background: none;
+    color: rgb(200, 200, 200);
+}
+QCheckBox::indicator {
+    padding: 2px 2px 2px 2px;
+}
+QCheckBox::indicator:checked {
+    color: rgb(200, 200, 200); 
+}
+QCheckBox::indicator:unchecked {
+    color: rgb(200, 200, 200);
+}
+QCheckBox::indicator:disabled {
+    background-color: rgb(100, 100, 100);
+}
+
+/*---------- PROGRESS BARS ----------*/
+
+QProgressBar{ 
+    border: 1px solid rgb(80, 80, 80);
+    color: rgb(200, 200, 200);
+    text-align: center; 
+}
+QProgressBar#train_progress::chunk {
+    background-color: rgb(137, 209, 44);
+}
+QProgressBar#epoch_progress::chunk {
+    background-color: rgb(196, 75, 71);
+}
