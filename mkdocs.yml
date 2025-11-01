@@ -1,6 +1,67 @@
 site_name: NectarGAN
 nav:
   - Home: index.md
-  - Getting Started: getting_started.md
-    
-  
+  - Getting Started: 
+    - Install / Setup: getting_started.md
+    - Testing Your Installation: testing_your_installation.md
+  - Toolbox:
+    - Home: toolbox.md
+    - Quickstart:
+      - Pt. 1 - Training: getting_started/toolbox_training.md
+      - Pt. 2 - Testing: getting_started/toolbox_testing.md
+      - Pt. 3 - Review: getting_started/toolbox_review.md
+    - Sections:
+      - Experiment: toolbox/experiment.md
+      - Dataset: toolbox/dataset.md
+      - Training: toolbox/training.md
+      - Testing: toolbox/testing.md
+      - Review: toolbox/review.md
+      - Utilities: toolbox/utilities.md
+      - Settings: toolbox/settings.md
+  - API: 
+    - Home: api.md
+    - Config: api/config.md
+    - Datasets: api/dataset.md
+    - Trainers:
+      - Trainer Class: api/trainers/trainer.md
+      - Building a Trainer: api/trainers/building_a_trainer.md
+    - Models:
+      - UNet:
+        - Model: api/models/unet.md
+        - Blocks: api/models/unet_blocks.md
+      - PatchGAN: api/models/patchgan.md
+    - Losses:
+      - LossManager: api/losses/lossmanager.md
+      - Loss Specs: api/losses/loss_spec.md
+      - Loss Functions: api/losses/loss_functions.md
+    - Scheduling:
+      - Home: api/scheduling.md
+      - Schedulers: api/scheduling/schedulers.md
+      - Schedule Functions: api/scheduling/schedule_functions.md
+      - Schedule Dataclass: api/scheduling/schedule_dataclass.md
+      - Integrations: api/scheduling/integrations.md
+    - Testers: api/testers.md
+    - ONNX Tools: api/onnx_tools.md
+    - Visdom: api/visdom.md
+  - CLI: getting_started/cli.md
+  - Scripts: scripts.md
+  - FAQ: faq.md
+  - Contributing: https://github.com/ZacharyBork/NectarGAN/blob/main/CONTRIBUTING.md
+theme:
+  name: material
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: teal
+      accent: orange
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: teal
+      accent: orange
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode

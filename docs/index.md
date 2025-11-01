@@ -1,17 +1,6 @@
-# Welcome to MkDocs
-
-For full documentation visit [mkdocs.org](https://www.mkdocs.org).
-
-## Commands
-
-* `mkdocs new [dir-name]` - Create a new project.
-* `mkdocs serve` - Start the live-reloading docs server.
-* `mkdocs build` - Build the documentation site.
-* `mkdocs -h` - Print help message and exit.
-
-## Project layout
-
-    mkdocs.yml    # The configuration file.
-    docs/
-        index.md  # The documentation homepage.
-        ...       # Other markdown pages, images and other files.
+<div>
+    <div align="center"><img src="https://raw.githubusercontent.com/ZacharyBork/NectarGAN/main/nectargan/toolbox/resources/icons/toolbox_icon.png" alt="NectarGAN Logo" width="100"></div>
+    <h1 align="center">Welcome to NectarGAN docsite</h1>
+    <h3 align="center" style="color: #f49749; font-weight: bold;">This site is a work in progress.</h3>
+    <div align="center">You may find incorrect formatting or broken links as you read through. If you are interested in helping clean up this site, please refer to the <a href=https://github.com/ZacharyBork/NectarGAN/blob/main/CONTRIBUTING.md>contribution guide</a>.<br><br>Help is always appreciated!</div>
+</div>
