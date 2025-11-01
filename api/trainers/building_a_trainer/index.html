@@ -1,0 +1,2290 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://ZacharyBork.github.io/NectarGAN/api/trainers/building_a_trainer/">
+      
+      
+        <link rel="prev" href="../trainer/">
+      
+      
+        <link rel="next" href="../../models/unet/">
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.22">
+    
+    
+      
+        <title>Building a Trainer - NectarGAN</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.84d31ad4.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="orange">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#nectargan-api-building-a-trainer" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="NectarGAN" class="md-header__button md-logo" aria-label="NectarGAN" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            NectarGAN
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Building a Trainer
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="orange"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="teal" data-md-color-accent="orange"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ZacharyBork/NectarGAN" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="NectarGAN" class="md-nav__button md-logo" aria-label="NectarGAN" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    NectarGAN
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ZacharyBork/NectarGAN" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Getting Started
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Getting Started
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting_started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Install / Setup
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing_your_installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Testing Your Installation
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Toolbox
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Toolbox
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../toolbox/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Quickstart
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            Quickstart
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting_started/toolbox_training/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Pt. 1 - Training
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting_started/toolbox_testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Pt. 2 - Testing
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting_started/toolbox_review/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Pt. 3 - Review
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Sections
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_3">
+            <span class="md-nav__icon md-icon"></span>
+            Sections
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../toolbox/experiment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Experiment
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../toolbox/dataset/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Dataset
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../toolbox/training/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Training
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../toolbox/testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Testing
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../toolbox/review/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Review
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../toolbox/utilities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Utilities
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../toolbox/settings/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Settings
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    API
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            API
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../config/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Config
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../dataset/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Datasets
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4_4" id="__nav_4_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Trainers
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4_4">
+            <span class="md-nav__icon md-icon"></span>
+            Trainers
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../trainer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Trainer Class
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Building a Trainer
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    Building a Trainer
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#the-base-trainer-class-in-the-nectargan-api-is-intended-to-be-inherited-from-to-allow-for-the-easy-creation-of-new-trainer-subclasses-for-models-with-different-requirements" class="md-nav__link">
+    <span class="md-ellipsis">
+      The base Trainer class in the NectarGAN API is intended to be inherited from to allow for the easy creation of new Trainer subclasses for models with different requirements.
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The base Trainer class in the NectarGAN API is intended to be inherited from to allow for the easy creation of new Trainer subclasses for models with different requirements.">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#strap-in-this-one-is-dense" class="md-nav__link">
+    <span class="md-ellipsis">
+      Strap in, this one is dense :)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-pix2pixtrainer-class" class="md-nav__link">
+    <span class="md-ellipsis">
+      The Pix2pixTrainer class
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The Pix2pixTrainer class">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-pix2pixtrainers-__init__-function" class="md-nav__link">
+    <span class="md-ellipsis">
+      The Pix2pixTrainer's __init__() Function
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#training-callbacks" class="md-nav__link">
+    <span class="md-ellipsis">
+      Training Callbacks
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Training Callbacks">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#at-the-heart-of-how-the-trainer-class-and-its-subclasses-function-are-the-three-main-training-loop-override-methods" class="md-nav__link">
+    <span class="md-ellipsis">
+      At the heart of how the Trainer class and its subclasses function are the three main training loop override methods.
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="At the heart of how the Trainer class and its subclasses function are the three main training loop override methods.">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#from-docsapitrainerstrainermd" class="md-nav__link">
+    <span class="md-ellipsis">
+      From docs/api/trainers/trainer.md
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#from-nectarganstarttrainingpairedpy" class="md-nav__link">
+    <span class="md-ellipsis">
+      From /nectargan/start/training/paired.py
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#from-nectargantrainerstrainertrainertrain_paired" class="md-nav__link">
+    <span class="md-ellipsis">
+      From nectargan.trainers.trainer.Trainer.train_paired
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#from-nectargantrainerspix2pix_trainerpix2pixtrainer" class="md-nav__link">
+    <span class="md-ellipsis">
+      From nectargan.trainers.pix2pix_trainer.Pix2pixTrainer
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#from-nectargantrainerspix2pix_trainerpix2pixtrainer_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      From nectargan.trainers.pix2pix_trainer.Pix2pixTrainer
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#recap" class="md-nav__link">
+    <span class="md-ellipsis">
+      Recap
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#on_epoch_start" class="md-nav__link">
+    <span class="md-ellipsis">
+      on_epoch_start
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#train_step" class="md-nav__link">
+    <span class="md-ellipsis">
+      train_step
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#on_epoch_end" class="md-nav__link">
+    <span class="md-ellipsis">
+      on_epoch_end
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_5" id="__nav_4_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Models
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_5">
+            <span class="md-nav__icon md-icon"></span>
+            Models
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_5_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_5_1" id="__nav_4_5_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    UNet
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_5_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_5_1">
+            <span class="md-nav__icon md-icon"></span>
+            UNet
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../models/unet/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Model
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../models/unet_blocks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Blocks
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../models/patchgan/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    PatchGAN
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_6" id="__nav_4_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Losses
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_6">
+            <span class="md-nav__icon md-icon"></span>
+            Losses
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../losses/lossmanager/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    LossManager
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../losses/loss_spec/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Loss Specs
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../losses/loss_functions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Loss Functions
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_7" id="__nav_4_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Scheduling
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_7">
+            <span class="md-nav__icon md-icon"></span>
+            Scheduling
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../scheduling/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../scheduling/schedulers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Schedulers
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../scheduling/schedule_functions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Schedule Functions
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../scheduling/schedule_dataclass/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Schedule Dataclass
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../scheduling/integrations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Integrations
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../testers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Testers
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../onnx_tools/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    ONNX Tools
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../visdom/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Visdom
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting_started/cli/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    CLI
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../scripts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Scripts
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../faq/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    FAQ
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Links
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            Links
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://github.com/ZacharyBork/NectarGAN/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Repository
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://github.com/ZacharyBork/NectarGAN/releases/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Releases
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://github.com/ZacharyBork/NectarGAN/blob/main/CONTRIBUTING.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Contributing
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#the-base-trainer-class-in-the-nectargan-api-is-intended-to-be-inherited-from-to-allow-for-the-easy-creation-of-new-trainer-subclasses-for-models-with-different-requirements" class="md-nav__link">
+    <span class="md-ellipsis">
+      The base Trainer class in the NectarGAN API is intended to be inherited from to allow for the easy creation of new Trainer subclasses for models with different requirements.
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The base Trainer class in the NectarGAN API is intended to be inherited from to allow for the easy creation of new Trainer subclasses for models with different requirements.">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#strap-in-this-one-is-dense" class="md-nav__link">
+    <span class="md-ellipsis">
+      Strap in, this one is dense :)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-pix2pixtrainer-class" class="md-nav__link">
+    <span class="md-ellipsis">
+      The Pix2pixTrainer class
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The Pix2pixTrainer class">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-pix2pixtrainers-__init__-function" class="md-nav__link">
+    <span class="md-ellipsis">
+      The Pix2pixTrainer's __init__() Function
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#training-callbacks" class="md-nav__link">
+    <span class="md-ellipsis">
+      Training Callbacks
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Training Callbacks">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#at-the-heart-of-how-the-trainer-class-and-its-subclasses-function-are-the-three-main-training-loop-override-methods" class="md-nav__link">
+    <span class="md-ellipsis">
+      At the heart of how the Trainer class and its subclasses function are the three main training loop override methods.
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="At the heart of how the Trainer class and its subclasses function are the three main training loop override methods.">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#from-docsapitrainerstrainermd" class="md-nav__link">
+    <span class="md-ellipsis">
+      From docs/api/trainers/trainer.md
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#from-nectarganstarttrainingpairedpy" class="md-nav__link">
+    <span class="md-ellipsis">
+      From /nectargan/start/training/paired.py
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#from-nectargantrainerstrainertrainertrain_paired" class="md-nav__link">
+    <span class="md-ellipsis">
+      From nectargan.trainers.trainer.Trainer.train_paired
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#from-nectargantrainerspix2pix_trainerpix2pixtrainer" class="md-nav__link">
+    <span class="md-ellipsis">
+      From nectargan.trainers.pix2pix_trainer.Pix2pixTrainer
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#from-nectargantrainerspix2pix_trainerpix2pixtrainer_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      From nectargan.trainers.pix2pix_trainer.Pix2pixTrainer
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#recap" class="md-nav__link">
+    <span class="md-ellipsis">
+      Recap
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#on_epoch_start" class="md-nav__link">
+    <span class="md-ellipsis">
+      on_epoch_start
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#train_step" class="md-nav__link">
+    <span class="md-ellipsis">
+      train_step
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#on_epoch_end" class="md-nav__link">
+    <span class="md-ellipsis">
+      on_epoch_end
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="nectargan-api-building-a-trainer">NectarGAN API - Building a Trainer</h1>
+<blockquote>
+<p><a href="../../"><em><code>NectarGAN API - Home</code></em></a></p>
+</blockquote>
+<h4 id="the-base-trainer-class-in-the-nectargan-api-is-intended-to-be-inherited-from-to-allow-for-the-easy-creation-of-new-trainer-subclasses-for-models-with-different-requirements">The base <code>Trainer</code> class in the NectarGAN API is intended to be inherited from to allow for the easy creation of new <code>Trainer</code> subclasses for models with different requirements.</h4>
+<h6 id="strap-in-this-one-is-dense">Strap in, this one is dense :)</h6>
+<blockquote>
+<p>[!NOTE]
+Currently, the <code>Trainer</code> class, and the API as a whole, are intended specifically for paired adversarial training (Pix2pix-style[^1]). This is planned to be expanded to unpaired training in the future but it is worth noting that in it's current state, the framework is mostly suited for paired image translation models.</p>
+<p>[!IMPORTANT]
+This section will largely build upon topics addressed in the <a href="../trainer/">documentation</a> for the base <code>Trainer</code> class. It is advisable to read that before document before beginning this one.</p>
+</blockquote>
+<h2 id="the-pix2pixtrainer-class">The <code>Pix2pixTrainer</code> class</h2>
+<p>The <a href="https://github.com/ZacharyBork/NectarGAN/blob/main/nectargan/trainers/pix2pix_trainer.py"><code>Pix2pixTrainer</code></a> serves as an example implementation of a <code>Trainer</code> subclass, a Pix2pix-style[^1] GAN model in this case.</p>
+<p>Here, we will walk step-by-step though the implementation, to better understand how it works and how we can implement trainers for other models in the same style.</p>
+<h3 id="the-pix2pixtrainers-__init__-function">The Pix2pixTrainer's <code>__init__()</code> Function</h3>
+<p>Starting with our input arguments for  <code>Pix2pixTrainer.__init__()</code>, we can see that, like the base <code>Trainer</code> class, it requires some sort of config object. Makes sense, we need to pass it to the parent <code>Trainer</code> for its init function. We can also see that it takes a <code>log_losses</code> argument for the same reason. It also takes a <code>Literal</code> string called <code>loss_subspec</code>. This is expanded upon in much greater detail <a href="../../losses/loss_spec/">here</a> but in short, this tells the <code>Pix2pixTrainer</code>'s internal <code>LossManager</code> what loss functions to register when it is initialized.</p>
+<p>Then, the first thing we do is initialize the parent <code>Trainer</code> class, passing it the input <code>config</code> and the <code>log_losses</code> boolean. We also pass it a value of <code>True</code> for <code>quicksetup</code>, telling the <code>Trainer</code> that we would like it to automatically build an experiment output directory and export a copy of the config as a <code>.json</code> to it, a <code>LossManager</code>, and a Visdom client, if applicable based on the current config.</p>
+<p>After that, we run a sequence of init functions. In order, these are:
+| Function | Description |
+| :---: | --- |
+<a href="https://github.com/ZacharyBork/NectarGAN/blob/main/nectargan/trainers/pix2pix_trainer.py#L51"><code>_init_lr_scheduling</code></a> | Checks the value of <code>separate_lr_schedules</code> in the current config. If it is <code>True</code>, it does nothing. If it is <code>False</code>, however, it will override the discriminator's learning rate with the value of the generator's learning rate, allowing learning rates for the discriminator to be accessed the same way, regardless of whether it is using a separate schedule.
+<a href="https://github.com/ZacharyBork/NectarGAN/blob/main/nectargan/trainers/pix2pix_trainer.py#L57"><code>_init_generator</code></a> | Initializes a <a href="../../models/unet/"><code>UnetGenerator</code></a> network, and a <code>torch.nn.optim.Adam</code> optimizer for the network.
+<a href="https://github.com/ZacharyBork/NectarGAN/blob/main/nectargan/trainers/pix2pix_trainer.py#L84"><code>_init_disriminator</code></a> | Initializes a PatchGAN-style <a href="../../models/patchgan/"><code>Discriminator</code></a> network, and a <code>torch.nn.optim.Adam</code> optimizer for the network.
+<a href="https://github.com/ZacharyBork/NectarGAN/blob/main/nectargan/trainers/pix2pix_trainer.py#L109"><code>_init_dataloaders</code></a> | Initializes one <code>torch.nn.data.DataLoader</code> each for the <code>train</code> and <code>val</code> dataset.
+<a href="https://github.com/ZacharyBork/NectarGAN/blob/main/nectargan/trainers/pix2pix_trainer.py#L114"><code>_init_gradscalers</code></a> | Initializes a gradient scaler for both G and D based on the device in the current config.</p>
+<p><strong>Once those are completed, we initialize our losses with the <code>Trainer</code>'s <code>LossManager</code>.</strong> This is done here by running the function <a href="https://github.com/ZacharyBork/NectarGAN/blob/main/nectargan/trainers/pix2pix_trainer.py#L122"><code>Pix2pixTrainer._init_losses()</code></a>. You are encouraged to read the docstring for this function as it is extremely thorough, but in short, it takes the <code>loss_subspec</code> argument which was passed to the <code>Pix2pixTrainer</code> at init, validates it against a list of supported subspecs, and then passes that along with the input <code>config</code> and the a reference to the NectarGAN (see <a href="../../losses/loss_spec/">here</a> and <a href="https://github.com/ZacharyBork/NectarGAN/blob/main/nectargan/losses/pix2pix_objective.py">here</a>) to the <code>init_from_spec()</code> function of the <code>Trainer</code>'s internal <a href="../../losses/lossmanager/"><code>LossManager</code></a>. This registers all the losses required loss functions for training.</p>
+<p><strong>Finally, we do a quick check of the current config to see if we are continuing a train on a pre-existing model.</strong> If we are, we run the <a href="https://github.com/ZacharyBork/NectarGAN/blob/main/nectargan/trainers/trainer.py#L159"><code>load_checkpoint()</code></a> function from the parent <code>Trainer</code> class to load the weights for both the generator and the disriminator.</p>
+<p><strong>And that's it really, our <code>Trainer</code> subclass is basically ready for training, save for one small thing...</strong></p>
+<h2 id="training-callbacks">Training Callbacks</h2>
+<h4 id="at-the-heart-of-how-the-trainer-class-and-its-subclasses-function-are-the-three-main-training-loop-override-methods">At the heart of how the <code>Trainer</code> class and its subclasses function are the three main training loop override methods.</h4>
+<hr />
+<p>Here are the three methods with a short description:</p>
+<blockquote>
+<h6 id="from-docsapitrainerstrainermd">From <a href="../trainer/"><code>docs/api/trainers/trainer.md</code></a></h6>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">Function</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;"><a href="https://github.com/ZacharyBork/NectarGAN/blob/main/nectargan/trainers/trainer.py#L262"><code>on_epoch_start</code></a></td>
+<td>Run at the very beginning of an epoch in <a href="https://github.com/ZacharyBork/NectarGAN/blob/main/nectargan/trainers/trainer.py#L353"><code>Trainer.train_paired()</code></a>, before the training loop begins.</td>
+</tr>
+<tr>
+<td style="text-align: center;"><a href="https://github.com/ZacharyBork/NectarGAN/blob/main/nectargan/trainers/trainer.py#L282"><code>train_step</code></a></td>
+<td>Run once per batch in <a href="https://github.com/ZacharyBork/NectarGAN/blob/main/nectargan/trainers/trainer.py#L353"><code>Trainer.train_paired()</code></a> -&gt; <a href="https://github.com/ZacharyBork/NectarGAN/blob/main/nectargan/trainers/trainer.py#L337"><code>Trainer._train_paired_core()</code></a>.</td>
+</tr>
+<tr>
+<td style="text-align: center;"><a href="https://github.com/ZacharyBork/NectarGAN/blob/main/nectargan/trainers/trainer.py#L313"><code>on_epoch_end</code></a></td>
+<td>Run at the very end of an epoch in <a href="https://github.com/ZacharyBork/NectarGAN/blob/main/nectargan/trainers/trainer.py#L353"><code>Trainer.train_paired()</code></a>, after all the batches for the epoch have been completed.</td>
+</tr>
+</tbody>
+</table>
+</blockquote>
+<p>Looking at each of the three functions, a few things stand out:</p>
+<ol>
+<li>In their implementation in the base <code>Trainer</code> class, all they do is raise an exception. This means that any <code>Trainer</code> subclass is expected to override all three methods, otherwise they will raise an exception during the training loop.</li>
+<li><code>on_epoch_start</code> and <code>on_epoch_end</code> have no required arguments apart from a non-descript dict of <code>kwargs</code>. This indicates here that they don't do anything on their own, and that they don't have any <strong><em>required</em></strong> functionality in a <code>Trainer</code> subclass. We will touch on this more in a second.</li>
+<li><code>train_step</code> is different. It does still accept the <code>kwargs</code> dict like the other two, but it also has 3 required arguments, all of which are passed to it during the training loop in <a href="https://github.com/ZacharyBork/NectarGAN/blob/main/nectargan/trainers/trainer.py#L353"><code>Trainer.train_paired()</code></a> -&gt; <a href="https://github.com/ZacharyBork/NectarGAN/blob/main/nectargan/trainers/trainer.py#L337"><code>Trainer._train_paired_core()</code></a>. These are:<ul>
+<li><code>x</code>: A <code>torch.Tensor</code> representing the input(s) for the current batch.</li>
+<li><code>y</code>: A <code>torch.Tensor</code> representing the ground truth(s) for the current batch.</li>
+<li><code>idx</code> : An integer representing the current train loop interation at the time the function was called, indexed from zero.</li>
+</ul>
+</li>
+</ol>
+<hr />
+<p><strong>Now let's have a look at the function that executes all three of the callbacks, <a href="https://github.com/ZacharyBork/NectarGAN/blob/main/nectargan/trainers/trainer.py#L353"><code>Trainer.train_paired()</code></a>, to better contextualize how they function.</strong> </p>
+<p>Looking over the function, we first notice that it takes a slightly strange set of input arguments. Let's start by going through each one to see what it does:
+| Argument | Description |
+| :---: | --- |
+<code>epoch</code> | The iteration value of the training loop at the time this function is called. Used to set the <code>Trainer</code>'s <code>current_epoch</code> value (i.e. <code>Trainer.current_epoch == 1+epoch</code>)
+<code>on_epoch_start</code> | A <code>Callable</code>. Run once, right before the training loop begins.
+<code>train_step</code> | A <code>Callable</code>. Run once per batch in the dataset.
+<code>on_epoch_end</code> | A <code>Callable</code>. Run once, after all batches have been completed.
+<code>multithreaded</code> | If True (default), this function will start a new thread to update the Visdom visualizers. If False, it will update them in the same thread used for training.
+<code>callback_kwargs</code> | A dict[str, dict[str, Any]] with any keyword arguments you would like to pass to the callback functions during training. kwargs are parsed internally and passed to their repective callbacks. The dict should be formatted as follows:<br><br>callback_kwargs = {<br>&nbsp;&nbsp;&nbsp;&nbsp;'on_epoch_start': { 'var1': 1.0 },<br>&nbsp;&nbsp;&nbsp;&nbsp;'train_step': { 'var2': True, 'var3': [1.0, 2.0] },<br>&nbsp;&nbsp;&nbsp;&nbsp;'on_epoch_end': {'var4': { 'x': 1.0, 'y': 2.0 } }<br>}<br><br>See <a href="https://github.com/ZacharyBork/NectarGAN/blob/main/nectargan/trainers/pix2pix_trainer.py#L428"><code>Pix2pixTrainer.on_epoch_start()</code></a> for example implementation.</p>
+<p><strong>Looking at these arguments, we can see that three of them have the same names as our training callbacks.</strong> If we quickly jump down to where we <a href="https://github.com/ZacharyBork/NectarGAN/blob/main/nectargan/trainers/trainer.py#L401">initialize our training functions</a>, we can see that for each of the training loop functions (<code>start_fn</code>, <code>train_fn</code>, <code>end_fn</code>), we first check to see if the input argument for that value is <code>None</code>. If it's not, we use the <code>Callable</code> that was passed as an input to <code>Trainer.train_paired()</code>, but if it is (default), we instead use the corresponding callback function. This allows you to technically bypass the callback override methods altogether. More realistically, though, this can be used to quickly drop in a function for one of the steps to test a change non-destructively.</p>
+<p><strong>Next, let's have a quick look at the <code>callback_kwargs</code>.</strong> As we touched on previously, all three callback methods take a dict of kwargs. These kwargs are first passed to <code>Trainer.train_paired()</code> as one large dict, formatted as shown in the table above, where each callback is a subdict in the main input <code>callback_kwargs</code> dict, whos key is the name of the function, and who's values can be... well, whatever you want really. Let's have a quick look at how this is used. We will use the core paired training script and the <code>on_epoch_start</code> method from the <code>Pix2pixTrainer</code> as an example:</p>
+<blockquote>
+<h5 id="from-nectarganstarttrainingpairedpy">From <a href="https://github.com/ZacharyBork/NectarGAN/blob/main/nectargan/start/training/paired.py"><code>/nectargan/start/training/paired.py</code></a></h5>
+<p>```python
+trainer = Pix2pixTrainer(
+    config=args.config_file, 
+    loss_subspec=args.loss_subspec,
+    log_losses=args.log_losses)</p>
+<p>for epoch in range(epoch_count):
+    trainer.train_paired( # Train generator and discriminator
+        epoch, 
+        callback_kwargs={ 'on_epoch_start': {'print_train_start': True} }) 
+```</p>
+</blockquote>
+<p>Looking at the training script, we can see that, when we called the <code>train_paired</code> function on our <code>Pix2pixTrainer</code>, we pass it a dictionary, structured as follows:</p>
+<pre><code class="language-python">{ 
+    'on_epoch_start': {
+        'print_train_start': True
+    } 
+}
+</code></pre>
+<p>Now, let's have a look at how that dict is handled by the <code>Trainer</code> inside of the <code>train_paired</code> function when we pass it to the <code>callback_kwargs</code> argument:</p>
+<blockquote>
+<h5 id="from-nectargantrainerstrainertrainertrain_paired">From <a href="https://github.com/ZacharyBork/NectarGAN/blob/main/nectargan/trainers/trainer.py#L"><code>nectargan.trainers.trainer.Trainer.train_paired</code></a></h5>
+<p>```python
+[...]</p>
+<p>start_fn = on_epoch_start or self.on_epoch_start # Init pre-train fn</p>
+<p>[...]</p>
+<p>start_fn(**callback_kwargs.get('on_epoch_start', {})) </p>
+<p>[...]
+```</p>
+</blockquote>
+<p>Stripping it down to just the relevant couple lines here, we can see that the <code>train_paired</code> first assigns the current <code>start_fn</code>, as described above. Then later on, it calls that function and, when doing so, gets the <code>on_epoch_start</code> dict from the input <code>callback_kwargs</code> dict (or an empty dict if there were no <code>on_epoch_start</code> dict), unpacks it into keyword arguments, and passes them as the <code>kwargs</code> argument. This same process is also done for <code>train_step</code> and <code>on_epoch_end</code>.</p>
+<p>Finally, let's have a brief look at how to use our <code>print_train_start</code> kwarg inside of our <code>on_epoch_start</code> callback. There are a couple ways to do this, so first, we'll see how it is done in the <code>Pix2pixTrainer</code>, and then we will see an alternative method, then we will discuss why the <code>Pix2pixTrainer</code> does not use this alternative method, despite them both being equally valid.</p>
+<p>First, the <code>Pix2pixTrainer</code>'s <code>on_epoch_start</code> callback:</p>
+<blockquote>
+<h5 id="from-nectargantrainerspix2pix_trainerpix2pixtrainer">From <a href="https://github.com/ZacharyBork/NectarGAN/blob/main/nectargan/trainers/pix2pix_trainer.py#L428"><code>nectargan.trainers.pix2pix_trainer.Pix2pixTrainer</code></a></h5>
+<p><code>python
+def on_epoch_start(self, **kwargs: Any) -&gt; None:
+    if 'print_train_start' in kwargs.items():
+        if kwargs['print_train_start']:
+            print(f'Beginning epoch: {self.current_epoch}')
+            self.loss_manager.print_weights()</code>
+Looking at our callback method, we can see that it treats the incoming <code>kwargs</code> argument as a dict. It first checks the items of the dict to see if <code>print_train_start</code> is present and, if it is, it then checks to see if the value is <code>True</code> or <code>False</code>. It it is <code>False</code>, nothing happens. If it is <code>True</code>, though, it will print a short string showing the index of the epoch which is about to begin, and then calls its <code>LossManager</code>'s <a href="https://github.com/ZacharyBork/NectarGAN/blob/main/nectargan/losses/loss_manager.py#L342"><code>print_weights</code></a> to print all of the loss weights which will be used in the upcoming epoch.</p>
+</blockquote>
+<p>Now, an alternative method:</p>
+<pre><code class="language-python">def on_epoch_start(self, print_train_start: bool) -&gt; None:
+    if print_train_start:
+        print(f'Beginning epoch: {self.current_epoch}')
+        self.loss_manager.print_weights()
+</code></pre>
+<p>We can see that the core functionality is exactly the same, they both print the same values based on the same input <code>print_train_start</code> conditional, but where the method used by the <code>Pix2pixTrainer</code> treats the incoming <code>kwargs</code> as a dict, this one takes advantage of the fact that the <code>Trainer</code>'s <code>train_paired</code> function unpacks the relevant subdict as it passes it to the callback to instead explicitly define the callback method's <code>print_train_start</code> argument.</p>
+<p>The <code>Pix2pixTrainer</code> chooses the first method in an effort to be more open-ended. That method makes the <code>print_train_start</code> argument effectively optional, whereas the second method would raise an exception if the kwarg was not passed when calling <code>train_paired</code>.</p>
+<p><strong>Both approaches are totally valid though. Ultimately, they both acchieve the same goal.</strong></p>
+<hr />
+<p><strong>Lastly, let's have a look at arguably the most important of the three training callbacks, <code>train_step</code>.</strong></p>
+<p>This method houses your core training function (i.e. forward and backward steps for G and D). It takes as input two <code>torch.Tensors</code>, <code>x</code>, the real input image(s) from the current batch of the dataset when the function is called, and <code>y</code>, the real ground truth image(s) from the current batch. It also takes an integer, representing the current training loop iteration at the time the function is called.</p>
+<p>Let's take a quick look at the <code>train_step</code> implementation in the <code>Pix2pixTrainer</code> to better understand exactly how it works.</p>
+<blockquote>
+<h5 id="from-nectargantrainerspix2pix_trainerpix2pixtrainer_1">From <a href="https://github.com/ZacharyBork/NectarGAN/blob/main/nectargan/trainers/pix2pix_trainer.py#L472"><code>nectargan.trainers.pix2pix_trainer.Pix2pixTrainer</code></a></h5>
+<p>```python
+def train_step(
+        self, 
+        x: torch.Tensor, 
+        y: torch.Tensor, 
+        idx: int,
+        **kwargs: Any
+    ) -&gt; None:
+    with torch.amp.autocast('cuda'): 
+        y_fake = self.gen(x)</p>
+<pre><code># Get discriminator losses, apply gradients
+losses_D = self.forward_D(x, y, y_fake)
+self.backward_D(losses_D['loss_D'])
+
+# Get generator losses, apply gradients
+loss_G = self.forward_G(x, y, y_fake)
+self.backward_G(loss_G)
+
+if idx % self.config.visualizer.visdom.update_frequency == 0:
+    self.update_display(x, y, y_fake, idx)
+</code></pre>
+<p><code>``
+Looking at our</code>train_step` method, we can see what looks like a single step of a very standard Pix2pix training loop. We run the generator's inference to create a y_fake, calculate and apply discriminator losses, then do the same for the generator. Then we have a small function to update the display (Visdom and console), if it is applicable this batch. </p>
+</blockquote>
+<p><strong>That is all the <code>train_step</code> callback is. Just a single step of the model's training loop.</strong></p>
+<hr />
+<h3 id="recap">Recap</h3>
+<p><strong>Alright, so we've seen our three different callback functions, and we've had a quick look at the <a href="https://github.com/ZacharyBork/NectarGAN/blob/main/nectargan/trainers/trainer.py#L353">function that invokes them</a>. Now let's briefly recap each, and have a quick look at what is does, how and where exactly each is used in the base <code>Trainer</code>, and how the <code>Pix2pixTrainer</code> handles overriding each method, so that we can better understand how they can be used to quickly prototype training loops for our other models.</strong></p>
+<h3 id="on_epoch_start"><code>on_epoch_start</code></h3>
+<p><strong>Description:</strong> This callback is run once at the <a href="https://github.com/ZacharyBork/NectarGAN/blob/main/nectargan/trainers/trainer.py#L408">very beginning of the epoch</a>, before the actual training loop is started.</p>
+<p><strong>Use:</strong> The <code>Pix2pixTrainer</code> uses this method to print some useful data to the console (i.e. loss weights and current epoch value). </p>
+<h3 id="train_step"><code>train_step</code></h3>
+<p><strong>Description:</strong> Run once per batch during each epoch, not directly by the <code>train_paired</code> function, but instead via the private <a href="https://github.com/ZacharyBork/NectarGAN/blob/main/nectargan/trainers/trainer.py#L337"><code>_train_paired_core</code></a></p>
+<p><strong>Use:</strong> Forward and backward train step.</p>
+<h3 id="on_epoch_end"><code>on_epoch_end</code></h3>
+<p><strong>Description:</strong> This callback is run once at the <a href="https://github.com/ZacharyBork/NectarGAN/blob/main/nectargan/trainers/trainer.py#L408">very end of the epoch</a>, after all of the batches for that epoch have been completed.</p>
+<p><strong>Use:</strong> The <code>Pix2pixTrainer</code> uses this method to dump cached loss values to the <code>.json</code> log and to update the models schedulers.</p>
+<p>[^1]: <a href="https://arxiv.org/abs/1611.07004">Pix2Pix: Image-to-Image Translation with Conditional Adversarial Networks (Isola et al., 2017)</a></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.973d3a69.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.f55a23d4.min.js"></script>
+      
+    
+  </body>
+</html>

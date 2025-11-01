@@ -1,0 +1,2159 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://ZacharyBork.github.io/NectarGAN/api/models/unet/">
+      
+      
+        <link rel="prev" href="../../trainers/building_a_trainer/">
+      
+      
+        <link rel="next" href="../unet_blocks/">
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.22">
+    
+    
+      
+        <title>Model - NectarGAN</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.84d31ad4.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="orange">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#nectargan-api-unet" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="NectarGAN" class="md-header__button md-logo" aria-label="NectarGAN" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            NectarGAN
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Model
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="orange"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="teal" data-md-color-accent="orange"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ZacharyBork/NectarGAN" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="NectarGAN" class="md-nav__button md-logo" aria-label="NectarGAN" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    NectarGAN
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ZacharyBork/NectarGAN" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Getting Started
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Getting Started
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting_started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Install / Setup
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../testing_your_installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Testing Your Installation
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Toolbox
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Toolbox
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../toolbox/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Quickstart
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            Quickstart
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting_started/toolbox_training/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Pt. 1 - Training
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting_started/toolbox_testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Pt. 2 - Testing
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting_started/toolbox_review/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Pt. 3 - Review
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Sections
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_3">
+            <span class="md-nav__icon md-icon"></span>
+            Sections
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../toolbox/experiment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Experiment
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../toolbox/dataset/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Dataset
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../toolbox/training/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Training
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../toolbox/testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Testing
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../toolbox/review/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Review
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../toolbox/utilities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Utilities
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../toolbox/settings/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Settings
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    API
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            API
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../config/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Config
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../dataset/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Datasets
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_4" id="__nav_4_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Trainers
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_4">
+            <span class="md-nav__icon md-icon"></span>
+            Trainers
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../trainers/trainer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Trainer Class
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../trainers/building_a_trainer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Building a Trainer
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_5" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4_5" id="__nav_4_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Models
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_5_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4_5">
+            <span class="md-nav__icon md-icon"></span>
+            Models
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_5_1" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4_5_1" id="__nav_4_5_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    UNet
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_5_1_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4_5_1">
+            <span class="md-nav__icon md-icon"></span>
+            UNet
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Model
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    Model
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#the-nectargan-api-includes-a-modular-configurable-unet-style-generator-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      The NectarGAN API includes a modular, configurable UNet-style generator model.
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#unet-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      UNet Model
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="UNet Model">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#initializing-a-unetgenerator" class="md-nav__link">
+    <span class="md-ellipsis">
+      Initializing a UnetGenerator
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#unet-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      UNet Architecture
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="UNet Architecture">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#from-nectarganmodelsunetmodel" class="md-nav__link">
+    <span class="md-ellipsis">
+      From nectargan.models.unet.model
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#channel-mapping" class="md-nav__link">
+    <span class="md-ellipsis">
+      Channel Mapping
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#layer-definitions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Layer Definitions
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#forward" class="md-nav__link">
+    <span class="md-ellipsis">
+      Forward
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#unet-blocks" class="md-nav__link">
+    <span class="md-ellipsis">
+      UNet Blocks
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#references" class="md-nav__link">
+    <span class="md-ellipsis">
+      References
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../unet_blocks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Blocks
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../patchgan/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    PatchGAN
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_6" id="__nav_4_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Losses
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_6">
+            <span class="md-nav__icon md-icon"></span>
+            Losses
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../losses/lossmanager/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    LossManager
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../losses/loss_spec/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Loss Specs
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../losses/loss_functions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Loss Functions
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_7" id="__nav_4_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Scheduling
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_7">
+            <span class="md-nav__icon md-icon"></span>
+            Scheduling
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../scheduling/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../scheduling/schedulers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Schedulers
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../scheduling/schedule_functions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Schedule Functions
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../scheduling/schedule_dataclass/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Schedule Dataclass
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../scheduling/integrations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Integrations
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../testers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Testers
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../onnx_tools/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    ONNX Tools
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../visdom/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Visdom
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting_started/cli/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    CLI
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../scripts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Scripts
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../faq/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    FAQ
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Links
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            Links
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://github.com/ZacharyBork/NectarGAN/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Repository
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://github.com/ZacharyBork/NectarGAN/releases/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Releases
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://github.com/ZacharyBork/NectarGAN/blob/main/CONTRIBUTING.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Contributing
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#the-nectargan-api-includes-a-modular-configurable-unet-style-generator-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      The NectarGAN API includes a modular, configurable UNet-style generator model.
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#unet-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      UNet Model
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="UNet Model">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#initializing-a-unetgenerator" class="md-nav__link">
+    <span class="md-ellipsis">
+      Initializing a UnetGenerator
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#unet-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      UNet Architecture
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="UNet Architecture">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#from-nectarganmodelsunetmodel" class="md-nav__link">
+    <span class="md-ellipsis">
+      From nectargan.models.unet.model
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#channel-mapping" class="md-nav__link">
+    <span class="md-ellipsis">
+      Channel Mapping
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#layer-definitions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Layer Definitions
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#forward" class="md-nav__link">
+    <span class="md-ellipsis">
+      Forward
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#unet-blocks" class="md-nav__link">
+    <span class="md-ellipsis">
+      UNet Blocks
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#references" class="md-nav__link">
+    <span class="md-ellipsis">
+      References
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="nectargan-api-unet">NectarGAN API - UNet</h1>
+<blockquote>
+<p><a href="../../"><em><code>NectarGAN API - Home</code></em></a></p>
+</blockquote>
+<h4 id="the-nectargan-api-includes-a-modular-configurable-unet-style-generator-model">The NectarGAN API includes a modular, configurable UNet-style generator model.</h4>
+<h2 id="unet-model">UNet Model</h2>
+<blockquote>
+<p><strong>Reference</strong>: <a href="https://github.com/ZacharyBork/NectarGAN/blob/main/nectargan/models/unet/model.py"><code>nectargan.models.unet.model</code></a></p>
+</blockquote>
+<h3 id="initializing-a-unetgenerator">Initializing a <code>UnetGenerator</code></h3>
+<p>We'll start by having a look at the <code>UnetGenerator</code>. Looking at it's <code>__init__</code> function, we can see that it takes the following arguments:
+| Arguments | Description |
+| :---: | --- |
+<code>input_size</code> | The intended input resolution (^2) for the generator. This is used for validation of training image resolution against downsampling layer count.
+<code>in_channels</code> | The number of channels in the input dataset images (i.e. <code>1</code> for <code>mono</code>, <code>3</code> for <code>RGB</code>). <strong><em>Currently, 3 is the only known supported value.</em> Though technically, that's not actually true of the generator model. It should work with other values. The <a href="https://github.com/ZacharyBork/NectarGAN/blob/main/nectargan/dataset/paired_dataset.py"><code>dataset loader</code></a> will not in its current state, however.</strong>
+<code>features</code> | The number of features on the first downsampling layer. Feature count for any given conv layer is capped at <code>features * 8</code>. 
+<code>n_downs</code> | The number of downsampling layers (<em>Note: This value does not include the first layer or the bottleneck. This will be explained in greater detail below.</em>).
+<code>use_dropout_layers</code> | The number of upsampling layers (starting from the deepest layer) to apply dropout on.
+<code>block_type</code> | What block type to use when assembling the generator model (see <a href="../unet_blocks/">here</a> for more info).
+<code>upconv_type</code> | What upsampling method to use:<br><br>- <code>Transposed</code> : Transposed convolution.<br>- <code>Bilinear</code> : Bilinear upsampling, then convolution.<br><br>Transposed convolution is the upsampling method traditionally used in the Pix2pix model. However, bilinear upsampling + convolution can help to eliminate the checkboard artifacting which is commonly seen in these models. See <a href="https://github.com/junyanz/pytorch-CycleGAN-and-pix2pix/issues/190">here</a> for more info.</p>
+<p><strong>So then, with these arguments in mind, a <code>UnetGenerator</code> can be instantiated as follows:</strong> </p>
+<pre><code class="language-python">from nectargan.models.unet.model import UnetGenerator
+from nectargan.models.unet.blocks import UnetBlock
+
+generator = UnetGenerator(
+    input_size=256,          # Train on 256^2 resolution images
+    in_channels=3,           # with 3 channels: (R, G, B)
+    features=64,             # 64 output features on first down layer (with a cap of 512)
+    n_downs=6,               # 6 downsampling layers (+1 for initial, +1 for bottleneck)
+    block_type=UnetBlock,    # Or ResidualUnetBlock
+    upconv_type='Transposed' # Or 'Bilinear'
+)
+</code></pre>
+<h3 id="unet-architecture">UNet Architecture</h3>
+<p><strong>Let's quickly go over how the UNet architecture actually works, so that we can better understand how it's implemented in the <code>UnetGenerator</code>.</strong> This will be a relatively brief explanation, and it will have some prerequisite knowledge, so if you are totally unfamiliar with UNet, I first encourage you to check out the resources below. If you already have a good understanding of the UNet architecture, feel free to skip this section and move on to the NectarGAN implementation.</p>
+<p><strong>Resources:</strong>
+- <a href="https://arxiv.org/pdf/1505.04597">Original UNet Paper</a>
+- Aladdin Persson's Videos on UNet: <a href="https://www.youtube.com/watch?v=oLvmLJkmXuc">1</a>, <a href="https://www.youtube.com/watch?v=IHq1t7NxS8k">2</a>, <a href="https://www.youtube.com/watch?v=SuddDSqGRzg">3</a>
+- <a href="https://towardsdatascience.com/understanding-u-net-61276b10f360/">Towards Data Science | Understanding U-Net</a></p>
+<hr />
+<blockquote>
+<h5 id="from-nectarganmodelsunetmodel">From <a href="https://github.com/ZacharyBork/NectarGAN/blob/main/nectargan/models/unet/model.py"><code>nectargan.models.unet.model</code></a></h5>
+<p>```python
+                UNet-esque generator architecture</p>
+<hr />
+<p>Input: [1, 3, 512, 512] (512^2 RGB)                     Output:  [1, 3, 512, 512]
+                        ↓                                 ↑
+  |Input Shape|    |Down Layer|    |Output/Skip Shape| |Up Layer|  |Output Shape|
+                        ↓                                 ↑
+[1, 3, 512, 512] ---&gt; init_down -&gt; [1, 64, 256, 256] --&gt; final_up --&gt; [1, 3, 512, 512]
+                        ↓                                 ↑
+[1, 64, 256, 256] --&gt; down1 -----&gt; [1, 128, 128, 128] -&gt; up7 -------&gt; [1, 64, 256, 256]
+                        ↓                                 ↑
+[1, 128, 128, 128] -&gt; down2 -----&gt; [1, 256, 64, 64] ---&gt; up6 -------&gt; [1, 128, 128, 128]
+                        ↓                                 ↑
+[1, 256, 64, 64] ---&gt; down3 -----&gt; [1, 512, 32, 32] ---&gt; up5 -------&gt; [1, 256, 64, 64]
+                        ↓                                 ↑
+[1, 512, 32, 32] ---&gt; down4 -----&gt; [1, 512, 16, 16] ---&gt; up4 -------&gt; [1, 512, 32, 32]
+                        ↓                                 ↑
+[1, 512, 16, 16] ---&gt; down5 -----&gt; [1, 512, 8, 8] -----&gt; up3 -------&gt; [1, 512, 16, 16]
+                        ↓                                 ↑ 
+[1, 512, 8, 8] -----&gt; down6 -----&gt; [1, 512, 4, 4] -----&gt; up2 -------&gt; [1, 512, 8, 8]
+                        ↓                                 ↑
+[1, 512, 4, 4] ---&gt; bottleneck --&gt; [1, 512, 2, 2] → → → → up1 -&gt; [1, 512, 4, 4]
+<code>``
+This is a diagram I made to help me conceptualize the tensor shapes of the inputs and skip connections at various depths in a UNet-style architecture (pardon the formatting, I wrote it directly inside of the python file). **This diagram shows a network with an input which has 3</code>in_channels<code>(R, G, B), 64</code>features`, and an input resolution of 512^2.**</p>
+</blockquote>
+<p><strong>Let's walk through it, starting at the top left:</strong></p>
+<blockquote>
+<p>[!NOTE]
+<strong>Skip connections:</strong> <em>(This is explained in more depth below, but here is a quick explanation to start.)</em></p>
+<p>For every <code>down</code> layer, the output tensor is passed to the next down layer as input, but it is also passed via the skip connection to the corresponding <code>up</code> layer, as denoted by the rightward facing arrows (<strong>not directly passed as input, but concatenated with the output tensor of the up layer below</strong>). So, the output tensor from <code>init_down</code> is passed to the <code>final_up</code>, same for <code>down1</code> and <code>up7</code>, etc.
+- We take our input (<code>[1, 3, 512, 512]</code>) and feed it into the <code>init_down</code> layer. This gives us an output tensor with the shape <code>[1, 64, 256, 256]</code>. So we halved the spatial resolution of the tensor, and increased the feature count to <code>64</code>, as defined by the generator's <code>features</code> value. 
+- We take that output tensor (<code>[1, 64, 256, 256]</code>) and feed it in to <code>down1</code>, giving us an output shape of <code>[1, 128, 128, 128]</code>. Double the features, halve the resolution.
+- We do this again for <code>down2</code> and <code>down3</code>. Now, though, we've hit our feature cap (<code>features * 8</code>, or <code>512</code>).
+- So, for <code>down4</code>, <code>down5</code>, and <code>down6</code>, we continue to halve the spatial resolution, but the feature count remains at the cap of <code>512</code>
+- Then we hit the bottleneck. As with the previous few downsampling layers, we halve the resolution, but keep the same feature count. This time, though, note that there is no skip connection, since there's obviously nothing to connect it to, as the output of the bottleneck is fed directly into the first upsampling layer, <code>up1</code>.</p>
+</blockquote>
+<p><strong>Then, we have our upsampling path.</strong> As noted, the first upsampling layer, <code>up1</code>, takes the output tensor of the bottneck layer directly. This layer doubles the spatial resolution of the tensor, but, mirroring the feature counts on the downsampling path, this layer keeps the feature count at the <code>512</code> cap. This results in an output tensor shape of <code>[1, 512, 4, 4]</code>.</p>
+<p><strong>Then things start to become interesting.</strong> Note that the output tensor from <code>down6</code> has the same shape as the output tensor from <code>up1</code>. This allows us to take those two tensors and stack the feature maps before passing them to the next up layer. These <code>skip connections</code> are the magic of the UNet architecture (and a couple others. <a href="https://arxiv.org/pdf/1512.03385">ResNet</a>, for example, also uses skip connections, albeit in a slightly different manner and for a slightly different reason). </p>
+<p>By stacking the feature map taken directly from the corresponding downsampling layer with the one from the previous upsampling layer, we allow the network to preserve sharp or fine details that would otherwise be lost with upsampling alone. </p>
+<p>A visual example of the concept:
+<img alt="_skip_connection_visual_" src="../../../resources/images/skip_connection_visual.png" />
+We can see that, were we to use just directly use the result of the upsampling path, we would lose a significant amount of detail. However, if we concatenate it with the output of the corresponding downsampling layer, we preserve a lot of that fine detail.</p>
+<blockquote>
+<p>[!NOTE]
+The above is just a visual example. This isn't exactly what's happening, but the concept and result are very similar.</p>
+</blockquote>
+<h3 id="channel-mapping">Channel Mapping</h3>
+<blockquote>
+<p><strong>Reference:</strong> <a href="https://github.com/ZacharyBork/NectarGAN/blob/main/nectargan/models/unet/model.py#L94"><code>nectargan.models.unet.model.UnetGenerator.build_channel_map()</code></a></p>
+</blockquote>
+<p>Alright, now that we've covered the basics of how the UNet architecture functions, let's now have a look at how it's implemented in NectarGAN. The core of this is the channel mapping function. This function assembles two lists of tuples, one for the downsampling channels, and another for the upsampling channels. Each tuple in each list corresponds to a layer, and contains two <code>int</code> values:</p>
+<ol>
+<li>The number of input channels for the layer.</li>
+<li>The number of output channels for the layer.</li>
+</ol>
+<p>Let's walk through the function step by step to understand how those lists are created:
+1. We create the first of our two lists, <code>down_channels</code>. In doing so, we also add the first tuple to it with the input and output channel counts for the first downsampling layer, since we know this is always going to be (<code>in_channels</code>, <code>features</code>).
+2. We create two variables, <code>in_features</code> and <code>out_features</code>, and initialize both to the <code>features</code> value used when initializing the <code>UnetGenerator</code>.
+3. We create a loop with an iteration count of <code>n_downs</code>, in which we:
+    - First, set <code>in_features</code> to the max of <code>out_features</code>, and <code>features*8</code>, because we want to make sure it doesn't go beyond that hard cap.
+    - Then, we set <code>out_features</code> to the min of <code>out_features*2</code> and <code>features*8</code>. <strong>This defines the doubling of the feature maps with each encoder layer.</strong>
+    - We append a new entry to <code>down_channels</code> containing our new <code>in_channels</code> and <code>out_channels</code>. Then do it again for the next layer, and the next, and so on. So the <code>out_channels</code> value of the previous iteration becomes the <code>in_channels</code> value of the next iteration. Up to the point where they cap out at <code>features*8</code>. The best way to illustrate this is just to list the results for each iteration, like so:
+    <code>``
+    NOTE: This example assumes an</code>input_channels<code>value of</code>3<code>and a</code>features` value of 64.</p>
+<pre><code>First Layer: (3, 64)
+Iteration 1: (64, 128)
+Iteration 2: (128, 256)
+Iteration 3: (256, 512)
+Iteration 4: (512, 512)
+
+And now we've reached our maximum feature count, all subsequent layers will have a value of (512, 512).
+```
+</code></pre>
+<ol>
+<li>Now, we create a list for our skip connection channel sizes. To do this, we perform two operations at once:<ul>
+<li>We reverse the list of <code>down_channels</code>.</li>
+<li>While doing so, we also flip the <code>in_channels</code> and <code>out_channels</code> of each entry, since the direction is reversed on the upsampling path and the channel sizes need to reflect that.</li>
+</ul>
+</li>
+<li>Now, we create our other list, <code>up_channels</code>, which holds the channel sizes for the layers in the upsampling path. To do this, we just make a new list from our <code>skip_channels</code> list, but for each entry, we double the <code>in_channels</code> value, to reflect the fact that we are going to be concatenting the skip tensor with the previous upsampling tensor for the input of each of these layers.</li>
+<li>Finally, we insert one additional layer at the beginning of <code>up_channels</code>. This represents the deepest upsampling layer, which takes its input directly from the bottleneck layer.</li>
+</ol>
+<p>Then at the very end, we make a dictionary from the lists to make it a bit easier to look up our values when defining our actual layers.</p>
+<h3 id="layer-definitions">Layer Definitions</h3>
+<p>The layers in the <code>UnetGenerator</code> are defined by these three functions:</p>
+<ol>
+<li><a href="https://github.com/ZacharyBork/NectarGAN/blob/main/nectargan/models/unet/model.py#L121"><code>define_downsampling_blocks</code></a></li>
+<li><a href="https://github.com/ZacharyBork/NectarGAN/blob/main/nectargan/models/unet/model.py#L139"><code>define_bottleneck</code></a></li>
+<li><a href="https://github.com/ZacharyBork/NectarGAN/blob/main/nectargan/models/unet/model.py#L148"><code>define_upsampling_blocks</code></a></li>
+</ol>
+<p>We won't go too deep in to these, this document is getting long enough as it is. But in short, these three functions use the channel map which we discussed above to define the blocks in the upsampling, downsampling, and bottleneck layers, setting the correct values based on layer type and depth. The default configuration sets the values exactly as a traditional UNet does.</p>
+<h3 id="forward">Forward</h3>
+<blockquote>
+<p><strong>Reference:</strong> <a href="https://github.com/ZacharyBork/NectarGAN/blob/main/nectargan/models/unet/model.py#L180"><code>nectargan.models.unet.model.UnetGenerator.forward()</code></a></p>
+</blockquote>
+<p>Lastly, we will have a look at the <code>forward</code> function for the <code>UnetGenerator</code> class. This function uses the layers defined by the above three functions to assemble a UNet style architecture and passes the input tensor <code>x</code> through it.</p>
+<p><strong>Walking through this function, we:</strong>
+1. Run the tensor through the initial downsampling layer, halving the spatial resolution, and taking the feature count from the value of <code>in_channels</code> to the value of <code>features</code>.
+2. Create a new list, <code>skips</code>, to store our skip connection tensors, and add the result of the initial downsampling layer to it.
+3. We loop through all of our additional downsampling layers, running the tensor through each subsequent one and appending the resulting tensor to our list of <code>skips</code>.
+4. Reverse our list of skips to align them with the input tensors in the upsampling path.
+5. Run our <code>x</code> tensor through the bottleneck layer. Note that we do not append the result to <code>skips</code>, since the bottleneck just passes its results directly to the first upsampling layer.
+6. Run out <code>x</code> tensor through our first upsampling layer.
+7. Loop through our additional upsampling layers, first grabbing the corresponding skip connection, then concatenating the <code>x</code> tensor with the correspondinding skip tensor along the channel dimension and, finally, inputting that concatenated tensor into the given upsampling layer.
+7. After we finish the loop of upsampling layers, we take the resulting <code>x</code> tensor, concatenate it with the final skip tensor, and feed it in to the final upsampling layer, returning the result.</p>
+<p><strong>And that's basically all there is to the <code>UnetGenerator</code>. We've now seen how the channel map and layers are assembled when the generator is initialized, and we've seen how that architecture is used whenever the generator's <code>forward</code> function is called. The last note to touch on is...</strong></p>
+<h2 id="unet-blocks">UNet Blocks</h2>
+<blockquote>
+<p><strong>Reference</strong>: <a href="https://github.com/ZacharyBork/NectarGAN/blob/main/nectargan/models/unet/blocks.py"><code>nectargan.models.unet.blocks</code></a></p>
+</blockquote>
+<p>Please see <a href="../unet_blocks/">here</a> for more information about the drop-in block system used by the <code>UnetGenerator</code>.</p>
+<h2 id="references">References</h2>
+<ul>
+<li><a href="https://arxiv.org/pdf/1505.04597"><em>U-Net: Convolutional Networks for Biomedical Image Segmentation (Ronneberger et al., 2015)</em></a></li>
+<li><a href="https://arxiv.org/pdf/1802.06955"><em>Recurrent Residual Convolutional Neural Network based on U-Net (R2U-Net) (Md Zahangir Alom et al.)</em></a></li>
+<li><a href="https://arxiv.org/pdf/1904.00592"><em>ResUNet: A Deep Neural Network for Semantic Segmentation of Urban Scenes (Diakogiannis et al.)</em></a></li>
+<li><a href="https://arxiv.org/abs/1611.07004"><em>Pix2Pix: Image-to-Image Translation with Conditional Adversarial Networks (Isola et al., 2017)</em></a></li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.973d3a69.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.f55a23d4.min.js"></script>
+      
+    
+  </body>
+</html>

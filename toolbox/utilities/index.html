@@ -1,0 +1,2178 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://ZacharyBork.github.io/NectarGAN/toolbox/utilities/">
+      
+      
+        <link rel="prev" href="../review/">
+      
+      
+        <link rel="next" href="../settings/">
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.22">
+    
+    
+      
+        <title>Utilities - NectarGAN</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.84d31ad4.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="orange">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#nectargan-toolbox-utilities" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="NectarGAN" class="md-header__button md-logo" aria-label="NectarGAN" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            NectarGAN
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Utilities
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="orange"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="teal" data-md-color-accent="orange"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ZacharyBork/NectarGAN" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="NectarGAN" class="md-nav__button md-logo" aria-label="NectarGAN" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    NectarGAN
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ZacharyBork/NectarGAN" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Getting Started
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Getting Started
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting_started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Install / Setup
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../testing_your_installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Testing Your Installation
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Toolbox
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Toolbox
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Quickstart
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            Quickstart
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting_started/toolbox_training/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Pt. 1 - Training
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting_started/toolbox_testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Pt. 2 - Testing
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting_started/toolbox_review/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Pt. 3 - Review
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Sections
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3_3">
+            <span class="md-nav__icon md-icon"></span>
+            Sections
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../experiment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Experiment
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../dataset/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Dataset
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../training/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Training
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Testing
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../review/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Review
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Utilities
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    Utilities
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#here-you-will-find-some-general-utitilies-related-to-onnx-conversion-and-testing-and-various-dataset-processing-tools" class="md-nav__link">
+    <span class="md-ellipsis">
+      Here you will find some general utitilies related to ONNX conversion and testing, and various dataset processing tools.
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#convert-to-onnx" class="md-nav__link">
+    <span class="md-ellipsis">
+      Convert to ONNX
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Convert to ONNX">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sort-images" class="md-nav__link">
+    <span class="md-ellipsis">
+      Sort Images
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#split-dataset-images" class="md-nav__link">
+    <span class="md-ellipsis">
+      Split Dataset Images
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../settings/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Settings
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    API
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            API
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/config/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Config
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/dataset/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Datasets
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_4" id="__nav_4_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Trainers
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_4">
+            <span class="md-nav__icon md-icon"></span>
+            Trainers
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/trainers/trainer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Trainer Class
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/trainers/building_a_trainer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Building a Trainer
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_5" id="__nav_4_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Models
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_5">
+            <span class="md-nav__icon md-icon"></span>
+            Models
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_5_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_5_1" id="__nav_4_5_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    UNet
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_5_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_5_1">
+            <span class="md-nav__icon md-icon"></span>
+            UNet
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/models/unet/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Model
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/models/unet_blocks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Blocks
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/models/patchgan/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    PatchGAN
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_6" id="__nav_4_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Losses
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_6">
+            <span class="md-nav__icon md-icon"></span>
+            Losses
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/losses/lossmanager/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    LossManager
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/losses/loss_spec/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Loss Specs
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/losses/loss_functions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Loss Functions
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_7" id="__nav_4_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Scheduling
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_7">
+            <span class="md-nav__icon md-icon"></span>
+            Scheduling
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/scheduling/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/scheduling/schedulers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Schedulers
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/scheduling/schedule_functions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Schedule Functions
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/scheduling/schedule_dataclass/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Schedule Dataclass
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/scheduling/integrations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Integrations
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/testers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Testers
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/onnx_tools/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    ONNX Tools
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/visdom/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Visdom
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting_started/cli/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    CLI
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../scripts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Scripts
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../faq/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    FAQ
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Links
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            Links
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://github.com/ZacharyBork/NectarGAN/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Repository
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://github.com/ZacharyBork/NectarGAN/releases/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Releases
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://github.com/ZacharyBork/NectarGAN/blob/main/CONTRIBUTING.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Contributing
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#here-you-will-find-some-general-utitilies-related-to-onnx-conversion-and-testing-and-various-dataset-processing-tools" class="md-nav__link">
+    <span class="md-ellipsis">
+      Here you will find some general utitilies related to ONNX conversion and testing, and various dataset processing tools.
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#convert-to-onnx" class="md-nav__link">
+    <span class="md-ellipsis">
+      Convert to ONNX
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Convert to ONNX">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sort-images" class="md-nav__link">
+    <span class="md-ellipsis">
+      Sort Images
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#split-dataset-images" class="md-nav__link">
+    <span class="md-ellipsis">
+      Split Dataset Images
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="nectargan-toolbox-utilities">NectarGAN Toolbox - Utilities</h1>
+<blockquote>
+<p><a href="../"><em><code>NectarGAN Toolbox - Home</code></em></a></p>
+</blockquote>
+<h4 id="here-you-will-find-some-general-utitilies-related-to-onnx-conversion-and-testing-and-various-dataset-processing-tools">Here you will find some general utitilies related to ONNX conversion and testing, and various dataset processing tools.</h4>
+<h2 id="convert-to-onnx">Convert to ONNX</h2>
+<p>This utility allows you to convert your trained model to ONNX format to allow for easier deployment into pipelines which support the ONNX runtime. </p>
+<blockquote>
+<p>[!NOTE]
+The Pix2pix model uses instance normalization, but PyTorch considers instanceNorm as training so it will print a warning to the console during conversion. This is expected and does not affect the model's inference ability or quality. As such, it is silenced in the Toolbox implementation, along with another irrelevant opset-based constant folding warning. If you are using the ONNXConverter class to convert your model, you can choose to disable the silencing of these warnings with: <code>ONNXConverter.convert_model(suppress_onnx_warnings: bool=True)</code>.</p>
+<p>See <a href="https://github.com/pytorch/pytorch/issues/75252">here</a> for more information on the supressed warning related to instance normalization.</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">Setting</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">Experiment</td>
+<td>The system path to the experiment directory of the model you would like to convert.</td>
+</tr>
+<tr>
+<td style="text-align: center;">Load Epoch</td>
+<td>What epoch checkpoint to load for conversion.</td>
+</tr>
+<tr>
+<td style="text-align: center;">In Channels</td>
+<td>Number of input channels for the model. Currently, the only supported value is 3 but this will be expanded in the future</td>
+</tr>
+<tr>
+<td style="text-align: center;">Width/Height</td>
+<td>The desired width and height of the converted model's model's input tensor.</td>
+</tr>
+<tr>
+<td style="text-align: center;">Target Device</td>
+<td>What device the ONNX model should target (i.e. CPU, CUDA).</td>
+</tr>
+<tr>
+<td style="text-align: center;">Opset Version</td>
+<td>What ONNX opset version to use. See <a href="https://onnx.ai/onnx/api/">here</a> for more information.</td>
+</tr>
+<tr>
+<td style="text-align: center;">Export Params</td>
+<td>Decides whether model weights should be exported.</td>
+</tr>
+<tr>
+<td style="text-align: center;">Fold Constants</td>
+<td>Decides whether constants should be folded during conversion for optimization.</td>
+</tr>
+<tr>
+<td style="text-align: center;">Convert Model</td>
+<td>Runs the ONNX conversion process and exported the converted model.</td>
+</tr>
+<tr>
+<td style="text-align: center;">## Test ONNX Model</td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>This utility allows you to test the inference capabilities of your converted ONNX model.</strong> By feeding it a path to a model and hitting <code>Test Model</code>, Toolbox will load the ONNX model in inference mode and run it on every image in the provided <code>Test Images</code> directory, displaying the (input, output) results in the interface.</td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align: center;">Setting</td>
+<td>Description</td>
+</tr>
+<tr>
+<td style="text-align: center;">:---:</td>
+<td>---</td>
+</tr>
+<tr>
+<td style="text-align: center;">Model</td>
+<td>The system path to the <code>.onnx</code> file to run inference testing on.</td>
+</tr>
+<tr>
+<td style="text-align: center;">Test Images</td>
+<td>The system path to a directory of test images. <strong><em>These should not be paired training-style images. They should just be model input images, on their own, with no ground truth example.</em></strong></td>
+</tr>
+<tr>
+<td style="text-align: center;">Test Model</td>
+<td>Begins the model testing process. This generally only takes a couple seconds for ~50 test images, though it will depend on the input width and height of your specific model.</td>
+</tr>
+<tr>
+<td style="text-align: center;">### Pair Images</td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>This is an extemely fast pairing utility for (A, B) dataset images.</strong> It will take two input directories, one with the input images and the other with the ground truth images, a pairing direction, and, optionally, a target resolution. Then Toolbox will send the task to a worker in another thread which pools the processes to very rapidly scale, if enabled, and pair the images into Pix2pix ready training data. This was very fun to build.</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>[!NOTE]
+This utility expects that the two input directories contain nothing but the image files to be used in the pairing operation, and that the A input images have the same file name as their B input counterpart.</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">Setting</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">Input A</td>
+<td>The system path to the directory containing the first set of images to pair.</td>
+</tr>
+<tr>
+<td style="text-align: center;">Input B</td>
+<td>The system path to the directory containing the second set of images to pair.</td>
+</tr>
+<tr>
+<td style="text-align: center;">Output</td>
+<td>The system path to the directory that you would like the utility to output the paried images to.</td>
+</tr>
+<tr>
+<td style="text-align: center;">Direction</td>
+<td>What direction to pair the images. As the names suggest, <code>AtoB</code> will put the input A images on the left and the input B images on the right. <code>BtoA</code> will do the opposite. This is sort of arbitrary if you're training with NectarGAN since you can select the direction at train time, but some may find it useful for their pipelines so I've decided to include it.</td>
+</tr>
+<tr>
+<td style="text-align: center;">Scale Images</td>
+<td>If this checkbox is ticked, the images will first be scaled to the resolution defined by the accompanying dropdown list before being paired. <strong><em>Scaling is applied to an image copy in memory at script runtime and will not affect your original image files.</em></strong></td>
+</tr>
+<tr>
+<td style="text-align: center;">Image Scale</td>
+<td>If the <code>Scale Images</code> checkbox is enabled, this dropdown allows you to select a resolution to scale each image to before pairing. The final resolution of each paired output image will be (<code>Image Scale</code>*2, <code>Image Scale</code>).</td>
+</tr>
+<tr>
+<td style="text-align: center;">## Image Sorting Utilities</td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>These three utilities, <code>Sort Images</code>, <code>Remove Sorting Tags</code>, and <code>Copy Sort</code>, allow you to sort image files non-destructively by various metrics, unsort them back to their original order, or copy the sorting order of one directory to another.</strong> This is useful for managing very large datasets and helping to pull bad images to the top so you can more easily find ones that should be discarded. This tool functions in the same way as the pairing utility and as such, is very efficient, even on extremely large datasets.</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Some things to be aware of when using these tools:</strong></p>
+<blockquote>
+<p>[!WARNING]
+These tools <strong>rename files in-place</strong> and can modify many files very quickly. Please read this section fully and use the <strong>Preview</strong> first. Before working with these tools on real data for the first time, it is advised to duplicate a small portion of your dataset to test their functionality.
+1. <strong>Renaming behavior (and undo).</strong><br>
+   The sorter <strong>renames files in your <code>Input</code> directory</strong> by <strong>prepending a tag</strong> that reflects their position in the sorted list. You can reverse this with <strong>Remove Sorting Tags</strong>, which strips the sorting tag from the files, effectively unsorting them, even if some files were removed.</p>
+<ol>
+<li>
+<p><strong>Always run a Preview first (dry run).</strong><br>
+   Every tool has a <strong>Preview</strong> button. The preview shows <strong>exactly</strong> what would be changed without touching your files. <strong>Run Preview before Start.</strong> These tools are fast and perform bulk file operations. Most actions are reversible via <strong>Remove Sorting Tags</strong>, but it’s always safer to confirm first.</p>
+</li>
+<li>
+<p><strong>Only include the images you intend to sort.</strong><br>
+   The directory should contain <strong>image files only</strong>. Non-image files currently trigger an exception that isn’t handled by the UI, requiring an app restart. This will be improved in a future update. For now, <strong>make sure the folder contains only the images you want to sort</strong>.</p>
+</li>
+</ol>
+</blockquote>
+<h3 id="sort-images">Sort Images</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">Setting</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">Input</td>
+<td>The system path to the directory containing the image files you would like to sort.</td>
+</tr>
+<tr>
+<td style="text-align: center;">Type</td>
+<td>What image metric to sort by (e.g. # of white or black pixels, mean pixel value, RMS contrast, etc.). These are just a collection of sorting functions that I have found useful in my own time spent processing datasets. When I find more useful ones, they will likely get added as well.</td>
+</tr>
+<tr>
+<td style="text-align: center;">Direction</td>
+<td>What direction to sort (i.e. Ascending, Descending)</td>
+</tr>
+<tr>
+<td style="text-align: center;">Start</td>
+<td>Begins the sorting operation.</td>
+</tr>
+<tr>
+<td style="text-align: center;">Preview</td>
+<td>Displays a preview in the interface of what the results would be if the current sorting operation was run.</td>
+</tr>
+<tr>
+<td style="text-align: center;">### Remove Sorting Tags</td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align: center;">Setting</td>
+<td>Description</td>
+</tr>
+<tr>
+<td style="text-align: center;">:---:</td>
+<td>---</td>
+</tr>
+<tr>
+<td style="text-align: center;">Input</td>
+<td>The system path to the directory containing images which have previously been sorted with <code>Sort Images</code>, and which currently have sorting tags which you wish to remove (e.g. <code>1_myfile543.png</code>, <code>2_myfile198.png</code>, <code>3_myfile31.png</code>).</td>
+</tr>
+<tr>
+<td style="text-align: center;">Start</td>
+<td>Start the remove tags operation. <strong>This is not threaded and will lock the UI until it is completed</strong>, but behind the scenes, it is just a sequential pathlib rename operation so even for fairly large datasets, it should be very quick.</td>
+</tr>
+<tr>
+<td style="text-align: center;">Preview</td>
+<td>Display a preview of what the result of the current <code>Remove Tags</code> operation would be.</td>
+</tr>
+<tr>
+<td style="text-align: center;">### Copy Sort</td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align: center;">This utility allows you to copy the sorting order from one directory of pre-sorted (with <code>Sort Images</code>) images, to the paired set of images. Helpful to see how eliminating some datapoints from A would affect the data in B.</td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align: center;">&gt; [!NOTE]</td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align: center;">&gt; This utility relies on the original file names (before sorting tags are prepended) of the images in the input and target directory to be the same, i.e. if an image from the input directory was original called <code>myfile153.png</code> before it was sorted, its twin in the target directory should also be called <code>myfile153.png</code>.</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">Setting</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">From</td>
+<td>The system path to the directory of sorted images to copy the sorting order from.</td>
+</tr>
+<tr>
+<td style="text-align: center;">To</td>
+<td>The system path to the directory of unsorted images to copy the sorting order to.</td>
+</tr>
+<tr>
+<td style="text-align: center;">Start</td>
+<td>Begins the copy sort operation. <strong>This will lock the UI briefly while it processes,</strong> it is generally fairly quick even on large datasets, though.</td>
+</tr>
+<tr>
+<td style="text-align: center;">Preview</td>
+<td>Preview the result of the current copy operation.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="split-dataset-images">Split Dataset Images</h3>
+<p>This utility takes a directory of pre-paired dataset images, an <code>Output</code> directory, and a percentage for each of <code>train</code>, <code>test</code>, <code>val</code>. It then creates new directories for each category inside out the <code>Output</code> directory and roughly splits the provided dataset images into the new directories based on their respective percentage chance.</p>
+<blockquote>
+<p>[!NOTE]
+There are three percentage sliders, each with a corresponding spinbox. All three go up to 100%. In the split script, they are normalized based on the sum total of the three values, so you can use the sliders to get a rough estimate, or enter precise values in the spinboxes to get a split closer to the exact percentages. The split process is entirely stochastic so the resulting datasets likely will not be split in the exact specified percentage, but it will be within a relatively small margin of error.</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">Setting</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">Input</td>
+<td>The system path to the input directory containing the dataset images you would like to split. <strong>Nothing else should be present in the directory apart from the dataset images.</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;">Output</td>
+<td>The system path to the root output directory where you would like the split dataset to be exported to. A subdirectory each for <code>train</code>, <code>test</code>, and <code>val</code> will be created inside of this directory, into which the images will be placed.</td>
+</tr>
+<tr>
+<td style="text-align: center;">Test</td>
+<td>Split percentage for the <code>test</code> set.</td>
+</tr>
+<tr>
+<td style="text-align: center;">Train</td>
+<td>Split percentage for the <code>train</code> set.</td>
+</tr>
+<tr>
+<td style="text-align: center;">Validate</td>
+<td>Split percentage for the <code>val</code> set.</td>
+</tr>
+<tr>
+<td style="text-align: center;">Start</td>
+<td>Begins the splitting operation. This is also not threaded and, technically speaking, does lock the UI. But it is extremely fast. With smaller datasets, it oftentimes doesn't even appear that the UI locks because the copy operation is over so quickly.</td>
+</tr>
+<tr>
+<td style="text-align: center;">Preview</td>
+<td>Displays a preview of the results of the current copy operation were it to be run.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<p><em>See Also:</em>
+| <a href="../">Toolbox - Home</a> | <a href="../experiment/">Experiment</a> | <a href="../dataset/">Dataset</a> | <a href="../training/">Training</a> | <a href="../testing/">Testing</a> | <a href="../review/">Review</a> | <a href="../settings/">Settings</a> |</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.973d3a69.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.f55a23d4.min.js"></script>
+      
+    
+  </body>
+</html>
