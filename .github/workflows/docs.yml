@@ -1,12 +1,19 @@
 name: Deploy Doc Site
 
 on:
+  pull_request:
+      branches: [ main ]
+      paths: 
+        - 'mkdocs.yml'
+        - 'docs/**'
+        - '.github/workflows/docs.yml'
   push:
     branches: [ main ]
     paths:
       - 'mkdocs.yml'
       - 'docs/**'
-  workflow_dispatch:
+      - '.github/workflows/docs.yml'
+  workflow_dispatch: {}
 
 permissions:
   contents: write
@@ -26,12 +33,13 @@ jobs:
       - name: Install Dependencies
         run: |
           python -m pip install --upgrade pip
-          python -m pip install mkdocs=1.6.1 mkdocs-material=9.6.22
+          python -m pip install mkdocs==1.6.1 mkdocs-material==9.6.22
 
       - name: Build
         run: mkdocs build --clean --strict
 
       - name: Publish
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
