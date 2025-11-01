@@ -1,5 +1,6 @@
 site_name: NectarGAN
 site_url: https://ZacharyBork.github.io/NectarGAN/
+repo_url:  https://github.com/ZacharyBork/NectarGAN
 nav:
   - Home: index.md
   - Getting Started: 
