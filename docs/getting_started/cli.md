@@ -27,8 +27,8 @@ There are currently only three command line arguments, all of which are shown he
 2. `basic+vgg`: `basic`, but with added VGG19-based perceptual loss (see [here](https://github.com/ZacharyBork/NectarGAN/blob/main/nectargan/losses/pix2pix_objective.py#L56)).
 3. `extended`: `basic`, but with a few added loss functions:
     - Mean squared error (L2)
-    - Sobel (large-scale structure, see [here](../api/losses/loss_functions.md#L4))
-    - Laplacian (small-scale structure, see [here](../api/losses/loss_functions.md#L22))
+    - Sobel (large-scale structure, see [here](../api/losses/loss_functions.md#))
+    - Laplacian (small-scale structure, see [here](../api/losses/loss_functions.md))
 4. `extended+vgg`: `extended`, but with added VGG19-based perceptual loss.
 
 *See [`pix2pix_objective`](https://github.com/ZacharyBork/NectarGAN/blob/main/nectargan/losses/pix2pix_objective.py) for more info.*

@@ -1,4 +1,5 @@
 site_name: NectarGAN
+site_url: https://ZacharyBork.github.io/NectarGAN/
 nav:
   - Home: index.md
   - Getting Started: 
@@ -46,7 +47,10 @@ nav:
   - CLI: getting_started/cli.md
   - Scripts: scripts.md
   - FAQ: faq.md
-  - Contributing: https://github.com/ZacharyBork/NectarGAN/blob/main/CONTRIBUTING.md
+  - Links:
+    - Repository: https://github.com/ZacharyBork/NectarGAN/
+    - Releases: https://github.com/ZacharyBork/NectarGAN/releases/
+    - Contributing: https://github.com/ZacharyBork/NectarGAN/blob/main/CONTRIBUTING.md
 theme:
   name: material
   palette:

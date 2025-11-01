@@ -13,7 +13,7 @@
 ## Installation and Environment
 
 ### 1) What platforms are supported?
-NectarGAN has been tested on Windows. Linux support is planned. See the [Getting Started](getting_started.md#L4) page for more info.
+NectarGAN has been tested on Windows. Linux support is planned. See the [Getting Started](getting_started.md) page for more info.
 
 ### 2) What Python versions are supported?
 Python >= 3.12
@@ -111,10 +111,10 @@ Any reasonable resolution. Higher resolutions take longer to train and are often
 
 Just be sure to use a reasonable number of layers for your chosen resolution. Higher resolutions generally require a higher layer count for both generator and discriminator to produce acceptable results. But too many layers will cause training to fail, as the tensor will be downsampled too far before hitting the bottleneck.
 
-See [here](api/models/unet.md#L34) for more information.
+See [here](api/models/unet.md#unet-architecture) for more information.
 
 ### 7) I’m seeing checkerboard artifacts. How can I reduce them?
-These artifacts are incredibly common with pixel to pixel GAN models. Sometimes training longer will help, or just increasing the decay epochs to give the model longer to settle. You can also try using the transposed convolution upsampling method for the generator (see [here](toolbox/experiment.md#L13)), or using the [Residual UNet block](api/models/unet_blocks.md#L27) instead of the standar UNet block. Both of these solutions are frequently able to reduce or completely remove the checkerboarding.
+These artifacts are incredibly common with pixel to pixel GAN models. Sometimes training longer will help, or just increasing the decay epochs to give the model longer to settle. You can also try using the transposed convolution upsampling method for the generator (see [here](toolbox/experiment.md)), or using the [Residual UNet block](api/models/unet_blocks.md) instead of the standar UNet block. Both of these solutions are frequently able to reduce or completely remove the checkerboarding.
 
 If none of the above solutions work, you may also try adjusting your loss values. Sometimes adding L2 or VGG Perceptual, and/or reducing L1, can also help to eliminate this artifacting. 
 
@@ -166,7 +166,7 @@ The Toolbox Review panel offers an easy way to review the results of your model 
 **Custom Script:** See the [ONNX tools documentation](api/onnx_tools.md).
 
 ### 2) Why do I get instance-norm warnings when exporting?
-See [here](toolbox/utilities.md#L7).
+See [here](toolbox/utilities.md).
 
 ### 3) Can I test an exported ONNX model inside the Toolbox?
 Yes, see [here](toolbox/utilities.md).
@@ -187,7 +187,7 @@ Loss specs are drop in objective functions which you can pre-define, and feed in
 See the [Loss Spec documentation](api/losses/loss_spec.md) for more information, and the [Pix2pix Objective Function](https://github.com/ZacharyBork/NectarGAN/blob/main/nectargan/losses/pix2pix_objective.py) for an example of a loss spec.
 
 ### 3) How do schedules integrate with training?
-NectarGAN offers a generic [Scheduler](api/scheduling/schedulers.md#6), and a wrapper around the native PyTorch learning rate scheduler called [TorchScheduler](api/scheduling/schedulers.md#51). This allows you to use the same [Schedule Functions](api/scheduling/schedule_functions.md) for each. 
+NectarGAN offers a generic [Scheduler](api/scheduling/schedulers.md), and a wrapper around the native PyTorch learning rate scheduler called [TorchScheduler](api/scheduling/schedulers.md). This allows you to use the same [Schedule Functions](api/scheduling/schedule_functions.md) for each. 
 
 The TorchScheduler is predominantly used for learning rate, to take advantage of the inherant integration with the PyTorch optimizers. The generic Scheduler is predominantly used for loss weight scheduling, though you could use it for whatever you want in your own models.
 

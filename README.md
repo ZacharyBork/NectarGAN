@@ -1,8 +1,10 @@
-[![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/ZacharyBork/NectarGAN?sort=semver)](https://github.com/ZacharyBork/NectarGAN/releases/latest)
-[![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0) 
-[![PyTorch](https://img.shields.io/badge/PyTorch-%23EE4C2C.svg?logo=PyTorch&logoColor=white)](https://pytorch.org/)
-[![ONNX](https://img.shields.io/badge/ONNX-%23424242.svg?logo=onnx&logoColor=white)](https://onnx.ai/)
-[![Qt](https://img.shields.io/badge/Qt-%23217346.svg?logo=Qt&logoColor=white)](https://www.qt.io/)
+[![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/ZacharyBork/NectarGAN?sort=semver&style=flat)](https://github.com/ZacharyBork/NectarGAN/releases/latest)
+[![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg?style=flat)](https://opensource.org/licenses/Apache-2.0) 
+[![Docs](https://img.shields.io/badge/docs-website-brightgreen?logo=materialformkdocs&style=flat)](https://ZacharyBork.github.io/NectarGAN/)
+[![Python](https://img.shields.io/badge/Python-3.12%2B-gray?logo=python&style=flat&labelColor=3776AB&logoColor=FFD43B)](https://www.python.org/downloads/)
+[![pytorch](https://img.shields.io/badge/PyTorch-2.9.0-EE4C2C.svg?style=flat&logo=pytorch)](https://pytorch.org)
+[![ONNX](https://img.shields.io/badge/ONNX-%23424242.svg?logo=onnx&logoColor=white&style=flat)](https://onnx.ai/)
+[![Qt](https://img.shields.io/badge/Qt-%23217346.svg?logo=Qt&logoColor=white&style=flat)](https://www.qt.io/)
 ___
 
 <div align="center"><img src="./nectargan/toolbox/resources/icons/toolbox_icon.png" alt="NectarGAN Logo" width="100" style="vertical-align: middle;"></div> 
