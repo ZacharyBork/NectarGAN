@@ -1,0 +1,1 @@
+# Updates some values in the train config file to work correctly inside the container
