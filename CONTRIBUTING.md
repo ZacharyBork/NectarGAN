@@ -42,7 +42,7 @@ Thank you for your interest in contributing to NectarGAN! This guide will explai
 ### Docstrings ([Google](https://google.github.io/styleguide/pyguide.html#s3.8-comments-and-docstrings)):
 - One-line summary on its own line.
 - Sections: Args, Returns, Raises, Examples, etc.
-- Public API functions and methods should have thorough docstrings. Please see [here](/nectargan/losses/loss_manager.py) and [here](/nectargan/trainers/pix2pix_trainer.py) for docstring examples.
+- Public API functions and methods should have thorough docstrings. Please see [here](https://github.com/ZacharyBork/NectarGAN/blob/main/nectargan/losses/loss_manager.py) and [here](https://github.com/ZacharyBork/NectarGAN/blob/main/nectargan/trainers/pix2pix_trainer.py) for docstring examples.
 - Docstrings should be wrapped to 79 characters for consistancy.
 
 ## Reporting Bugs

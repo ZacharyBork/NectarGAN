@@ -1,7 +1,7 @@
 # NectarGAN API - LossManager
-> [*`NectarGAN API - Home`*](/docs/api.md)
+> [*`NectarGAN API - Home`*](../../api.md)
 #### The loss manager is one of the core features of the NectarGAN API. It is a drop-in solution for managing, tracking, and logging everything related to loss in your model.
-##### Source: [nectargan.losses.loss_manager.LossManager](/nectargan/losses/loss_manager.py)
+##### Source: [nectargan.losses.loss_manager.LossManager](https://github.com/ZacharyBork/NectarGAN/blob/main/nectargan/losses/loss_manager.py)
 ### Key Features
 - **Builds an easy to use wrapper around around any loss function,** allowing you to evaluate loss functions in your training script in a way which is as easy as calling loss functions traditionally, but which dramatically expands the backend functionality of any loss function registered with the `LossManager`.
 - **Caches loss function results in multiple formats** with easy to use mechanisms for recalling the values during training.
@@ -10,7 +10,7 @@
 ## LossManager Dataclasses
 To understand how the `LossManager` functions, and how it manages the data for the losses that are registered with it, we first have to take a quick look at two dataclasses which are at the core of it's functionality. These are:
 
-### 1. [`nectargan.losses.lm_data.LMHistory`](/nectargan/losses/lm_data.py#L8)
+### 1. [`nectargan.losses.lm_data.LMHistory`](https://github.com/ZacharyBork/NectarGAN/blob/main/nectargan/losses/lm_data.py#L8)
 
 **Starting with the simpler of the two dataclasses, `LMHistory` only has one job:** ***store previous loss value history.***
 
@@ -18,14 +18,14 @@ Every loss function registered with a `LossManager` instance has an `LMHistory` 
 
 If logging is disabled, however, each time `LossManager.compute_loss_xy()` is called for a given loss, both lists in that loss's `LMHistory` are cleared, after which time the new values are appending to each list. In practice, this means that if `enable_logging=False` each list will only store a single value, the most recent loss mean and weight respectively, at any given time.
 
-### 2. [`nectargan.losses.lm_data.LMLoss`](/nectargan/losses/lm_data.py#L26)
+### 2. [`nectargan.losses.lm_data.LMLoss`](https://github.com/ZacharyBork/NectarGAN/blob/main/nectargan/losses/lm_data.py#L26)
 
 ***This dataclass is responsible for storing all information about a registered loss.*** For every loss function that is registered with a `LossManager` instance via `LossManager.register_loss_fn()`, an `LMLoss` instance is created which describes the loss function. A full description of the values contained with an `LMLoss` instance can be seen by clicking on the above link, but here is a rough outline:
 
 - `name`: a string, unique to this registered loss, which is used for lookup by various `LossManager` functions.
 - `function`: a reference to the `torch.nn.Module` for the loss function. This can be almost any `Module` as long as it has a forward function that returns a tensor. One caveat is that, currently, loss functions registered with the `LossManager` can only accept two input tensors for loss computation (`y`, `y_fake`), although I do plan to expand that at some point in the future.
 - `loss_weight`: The weight value (lambda) to apply to the resulting loss tensor when it is called, before the tensor is returned by `LossManager.compute_loss_xy()`.
-- `schedule`: A [`Schedule`](/docs/scheduling.md) object defining a weight schedule for the given loss. If no `Schedule` is provided when the LMLoss is initialized, the provided `loss_weight` will be used for the duration of training.
+- `schedule`: A [`Schedule`](../scheduling.md) object defining a weight schedule for the given loss. If no `Schedule` is provided when the LMLoss is initialized, the provided `loss_weight` will be used for the duration of training.
 - `last_loss_map`: This is not set when initializing an `LMLoss` object. It is instead initialized as a dummy tensor, and then used by the `LossManager` each time the parent loss function is run to store a detached version of the resulting loss tensor so they can be recalled for visualization.
 store history.
 - `history`: This is also not set at init-time. A unique `LMHistory` object is automatically created and assigned to every loss registered with the loss manager.
@@ -132,11 +132,11 @@ weights: dict[str, float]  = loss_manager.get_loss_weights(query=['descriptive_l
 > [!NOTE]
 > This section is only applicable if the given `LossManager` instance was intialized with `enable_logging=True`.
 
-When a `LossManager` instance is initialized, an optional argument can be passed called `history_buffer_size`. This value defines how many values (stored as 32bit floating point values) can be stored in ***each list*** (i.e. `losses`, `weights`) of ***each LMLoss's*** LMHistory container. By default, this is `50000`. So, with the default value, each registed loss is allowed to store 50,000 unique previous loss values and 50,000 unique previous loss weight values. 100,000 32bit floats per registered loss. This is a totally acceptable fallback value on any modern system (you could mutiply this value by 100 and still be totally safe) and this value felt fine on every dataset I tested it on, but you are also welcome to set the value higher when you initialize the `LossManager`. The Toolbox [`Pix2pixTrainerWorker`](/nectargan/toolbox/workers/pix2pix_trainerworker.py) actually bypasses this cap altogether by always setting the buffer size to a value that is slightly higher than what would be dictated by the options selected in the UI.
+When a `LossManager` instance is initialized, an optional argument can be passed called `history_buffer_size`. This value defines how many values (stored as 32bit floating point values) can be stored in ***each list*** (i.e. `losses`, `weights`) of ***each LMLoss's*** LMHistory container. By default, this is `50000`. So, with the default value, each registed loss is allowed to store 50,000 unique previous loss values and 50,000 unique previous loss weight values. 100,000 32bit floats per registered loss. This is a totally acceptable fallback value on any modern system (you could mutiply this value by 100 and still be totally safe) and this value felt fine on every dataset I tested it on, but you are also welcome to set the value higher when you initialize the `LossManager`. The Toolbox [`Pix2pixTrainerWorker`](https://github.com/ZacharyBork/NectarGAN/blob/main/nectargan/toolbox/workers/pix2pix_trainerworker.py) actually bypasses this cap altogether by always setting the buffer size to a value that is slightly higher than what would be dictated by the options selected in the UI.
 
 Whenever any registered loss is run from any `LossManager` instance, the `LossManager` first does a quick check to see if the buffer for that loss is full. If it is, it will dump the loss's buffer to the log, clear the buffer, then run the loss function it was originally going to run and appends the result to the now freed up buffer. This is a fine way to handle loss logging with the `LossManager`. It is set and forget, just give it a value for the `history_buffer_size` and the `LossManager` will take care of the loss logging and memory management from there.
 
-However, if you would like more control over when exactly the logs are dumped (at the end of each epoch, for example, as in the core [`Pix2pixTrainer`](/nectargan/trainers/pix2pix_trainer.py)'s `on_epoch_end()` function. Or maybe each `x` number of epochs, as in the Toolbox [`Pix2pixTrainerWorker`](/nectargan/toolbox/workers/pix2pix_trainerworker.py)'s `run()` function), you can instead force the `LossManager` to dump its buffers to the loss log with:
+However, if you would like more control over when exactly the logs are dumped (at the end of each epoch, for example, as in the core [`Pix2pixTrainer`](https://github.com/ZacharyBork/NectarGAN/blob/main/nectargan/trainers/pix2pix_trainer.py)'s `on_epoch_end()` function. Or maybe each `x` number of epochs, as in the Toolbox [`Pix2pixTrainerWorker`](https://github.com/ZacharyBork/NectarGAN/blob/main/nectargan/toolbox/workers/pix2pix_trainerworker.py)'s `run()` function), you can instead force the `LossManager` to dump its buffers to the loss log with:
 ```python
 loss_manager.update_loss_log(silent=True, capture=False)
 ```
@@ -147,12 +147,12 @@ loss_manager.update_loss_log(silent=True, capture=False)
 ## Loss Specs?
 **Loss specifications (specs) are a novel way to define reusable objective functions for your models. At their core, loss specs are just standard Python functions but with one specific requirement, the must return a dictionary of string-mapped `LMLoss` objects.**
 
-#### See [here](/docs/api/losses/loss_spec.md) for more information on loss specifications
+#### See [here](../losses/loss_spec.md) for more information on loss specifications
 
 ## Convenience Functions
 #### The `LossManager` includes two convenience functions for printing debug values to the console during training. These are:
 ### `LossManager.print_losses()`
-> From: [nectargan.losses.loss_manager.print_losses()](/nectargan/losses/loss_manager.py)
+> From: [nectargan.losses.loss_manager.print_losses()](https://github.com/ZacharyBork/NectarGAN/blob/main/nectargan/losses/loss_manager.py)
 
     Prints (or returns) a string of all the most recent loss values.
 
@@ -173,7 +173,7 @@ loss_manager.update_loss_log(silent=True, capture=False)
         L_X_N : Loss X name
         L_X_V : Loss X value
 ### `LossManager.print_weights()`
-> From: [nectargan.losses.loss_manager.print_weights()](/nectargan/losses/loss_manager.py)
+> From: [nectargan.losses.loss_manager.print_weights()](https://github.com/ZacharyBork/NectarGAN/blob/main/nectargan/losses/loss_manager.py)
 
     Prints (or optionally returns) loss weight information.
 

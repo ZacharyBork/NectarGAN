@@ -1,20 +1,20 @@
 # NectarGAN API - UNet
-> [*`NectarGAN API - Home`*](/docs/api.md)
+> [*`NectarGAN API - Home`*](../../api.md)
 #### The NectarGAN API includes a modular, configurable UNet-style generator model.
 
 ## UNet Model
-> **Reference**: [`nectargan.models.unet.model`](/nectargan/models/unet/model.py)
+> **Reference**: [`nectargan.models.unet.model`](https://github.com/ZacharyBork/NectarGAN/blob/main/nectargan/models/unet/model.py)
 
 ### Initializing a `UnetGenerator`
 We'll start by having a look at the `UnetGenerator`. Looking at it's `__init__` function, we can see that it takes the following arguments:
 | Arguments | Description |
 | :---: | --- |
 `input_size` | The intended input resolution (^2) for the generator. This is used for validation of training image resolution against downsampling layer count.
-`in_channels` | The number of channels in the input dataset images (i.e. `1` for `mono`, `3` for `RGB`). **_Currently, 3 is the only known supported value._ Though technically, that's not actually true of the generator model. It should work with other values. The [`dataset loader`](/nectargan/dataset/paired_dataset.py) will not in its current state, however.**
+`in_channels` | The number of channels in the input dataset images (i.e. `1` for `mono`, `3` for `RGB`). **_Currently, 3 is the only known supported value._ Though technically, that's not actually true of the generator model. It should work with other values. The [`dataset loader`](https://github.com/ZacharyBork/NectarGAN/blob/main/nectargan/dataset/paired_dataset.py) will not in its current state, however.**
 `features` | The number of features on the first downsampling layer. Feature count for any given conv layer is capped at `features * 8`. 
 `n_downs` | The number of downsampling layers (*Note: This value does not include the first layer or the bottleneck. This will be explained in greater detail below.*).
 `use_dropout_layers` | The number of upsampling layers (starting from the deepest layer) to apply dropout on.
-`block_type` | What block type to use when assembling the generator model (see [here](/docs/api/models/unet_blocks.md) for more info).
+`block_type` | What block type to use when assembling the generator model (see [here](../models/unet_blocks.md) for more info).
 `upconv_type` | What upsampling method to use:<br><br>- `Transposed` : Transposed convolution.<br>- `Bilinear` : Bilinear upsampling, then convolution.<br><br>Transposed convolution is the upsampling method traditionally used in the Pix2pix model. However, bilinear upsampling + convolution can help to eliminate the checkboard artifacting which is commonly seen in these models. See [here](https://github.com/junyanz/pytorch-CycleGAN-and-pix2pix/issues/190) for more info.
 
 **So then, with these arguments in mind, a `UnetGenerator` can be instantiated as follows:** 
@@ -40,7 +40,7 @@ generator = UnetGenerator(
 - [Towards Data Science | Understanding U-Net](https://towardsdatascience.com/understanding-u-net-61276b10f360/)
 
 ---
-> ##### From [`nectargan.models.unet.model`](/nectargan/models/unet/model.py)
+> ##### From [`nectargan.models.unet.model`](https://github.com/ZacharyBork/NectarGAN/blob/main/nectargan/models/unet/model.py)
 > ```python
 >                 UNet-esque generator architecture
 > ------------------------------------------------------------------------
@@ -84,14 +84,14 @@ This is a diagram I made to help me conceptualize the tensor shapes of the input
 By stacking the feature map taken directly from the corresponding downsampling layer with the one from the previous upsampling layer, we allow the network to preserve sharp or fine details that would otherwise be lost with upsampling alone. 
 
 A visual example of the concept:
-![_skip_connection_visual_](/docs/resources/images/skip_connection_visual.png)
+![_skip_connection_visual_](../../resources/images/skip_connection_visual.png)
 We can see that, were we to use just directly use the result of the upsampling path, we would lose a significant amount of detail. However, if we concatenate it with the output of the corresponding downsampling layer, we preserve a lot of that fine detail.
 
 > [!NOTE]
 > The above is just a visual example. This isn't exactly what's happening, but the concept and result are very similar.
 
 ### Channel Mapping
-> **Reference:** [`nectargan.models.unet.model.UnetGenerator.build_channel_map()`](/nectargan/models/unet/model.py#L94)
+> **Reference:** [`nectargan.models.unet.model.UnetGenerator.build_channel_map()`](https://github.com/ZacharyBork/NectarGAN/blob/main/nectargan/models/unet/model.py#L94)
 
 Alright, now that we've covered the basics of how the UNet architecture functions, let's now have a look at how it's implemented in NectarGAN. The core of this is the channel mapping function. This function assembles two lists of tuples, one for the downsampling channels, and another for the upsampling channels. Each tuple in each list corresponds to a layer, and contains two `int` values:
 
@@ -127,14 +127,14 @@ Then at the very end, we make a dictionary from the lists to make it a bit easie
 ### Layer Definitions
 The layers in the `UnetGenerator` are defined by these three functions:
 
-1. [`define_downsampling_blocks`](/nectargan/models/unet/model.py#L121)
-2. [`define_bottleneck`](/nectargan/models/unet/model.py#L139)
-3. [`define_upsampling_blocks`](/nectargan/models/unet/model.py#L148)
+1. [`define_downsampling_blocks`](https://github.com/ZacharyBork/NectarGAN/blob/main/nectargan/models/unet/model.py#L121)
+2. [`define_bottleneck`](https://github.com/ZacharyBork/NectarGAN/blob/main/nectargan/models/unet/model.py#L139)
+3. [`define_upsampling_blocks`](https://github.com/ZacharyBork/NectarGAN/blob/main/nectargan/models/unet/model.py#L148)
 
 We won't go too deep in to these, this document is getting long enough as it is. But in short, these three functions use the channel map which we discussed above to define the blocks in the upsampling, downsampling, and bottleneck layers, setting the correct values based on layer type and depth. The default configuration sets the values exactly as a traditional UNet does.
 
 ### Forward
-> **Reference:** [`nectargan.models.unet.model.UnetGenerator.forward()`](/nectargan/models/unet/model.py#L180)
+> **Reference:** [`nectargan.models.unet.model.UnetGenerator.forward()`](https://github.com/ZacharyBork/NectarGAN/blob/main/nectargan/models/unet/model.py#L180)
 
 Lastly, we will have a look at the `forward` function for the `UnetGenerator` class. This function uses the layers defined by the above three functions to assemble a UNet style architecture and passes the input tensor `x` through it.
 
@@ -151,9 +151,9 @@ Lastly, we will have a look at the `forward` function for the `UnetGenerator` cl
 **And that's basically all there is to the `UnetGenerator`. We've now seen how the channel map and layers are assembled when the generator is initialized, and we've seen how that architecture is used whenever the generator's `forward` function is called. The last note to touch on is...**
 
 ## UNet Blocks
-> **Reference**: [`nectargan.models.unet.blocks`](/nectargan/models/unet/blocks.py)
+> **Reference**: [`nectargan.models.unet.blocks`](https://github.com/ZacharyBork/NectarGAN/blob/main/nectargan/models/unet/blocks.py)
 
-Please see [here](/docs/api/models/unet_blocks.md) for more information about the drop-in block system used by the `UnetGenerator`.
+Please see [here](../models/unet_blocks.md) for more information about the drop-in block system used by the `UnetGenerator`.
 
 ## References
 - [*U-Net: Convolutional Networks for Biomedical Image Segmentation (Ronneberger et al., 2015)*](https://arxiv.org/pdf/1505.04597)

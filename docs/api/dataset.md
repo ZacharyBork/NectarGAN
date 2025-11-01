@@ -1,14 +1,14 @@
 # NectarGAN API - Dataset
-> [*`NectarGAN API - Home`*](/docs/api.md)
+> [*`NectarGAN API - Home`*](../api.md)
 #### The NectarGAN API currently provides a dataset helper class and a robust Albumentations transform wrapper geared towards paired image translation tasks. There are plans to expand this for unpaired training in the near future.
 
 ## The PairedDataset class
-Reference: [`nectargan.dataset.paired_dataset`](/nectargan/dataset/paired_dataset.py)
+Reference: [`nectargan.dataset.paired_dataset`](https://github.com/ZacharyBork/NectarGAN/blob/main/nectargan/dataset/paired_dataset.py)
 
-This is a simple helper class for loading and processing dataset images for paired adversarial training. As with most components of the NectarGAN API, the `PairedDataset` class takes a `Config` at init (see [here](/docs/api/config.md) for more info). It also takes an `os.Pathlike` object for its `root_dir` argument. This `PathLike` should point to the root directory of your dataset, the directory which contains your `train`, `val`, and, optionally, `test` subdirectories housing your dataset image files. 
+This is a simple helper class for loading and processing dataset images for paired adversarial training. As with most components of the NectarGAN API, the `PairedDataset` class takes a `Config` at init (see [here](../api/config.md) for more info). It also takes an `os.Pathlike` object for its `root_dir` argument. This `PathLike` should point to the root directory of your dataset, the directory which contains your `train`, `val`, and, optionally, `test` subdirectories housing your dataset image files. 
 
 > [!NOTE]
-> If you are using a [`Trainer` subclass](/docs/api/trainers/trainer.md), the base `Trainer` class provides the [`build_dataloader()`](/nectargan/trainers/trainer.py#L217) wrapper for convenience. This function will use the values in the `Trainer`'s config to build a `PairedDataset`, and from it, a `torch.utils.data.Dataloader`. All you need to tell it is what type of loader (i.e. `test`, `train`, `val`) to create so it knows which dataset subdirectory to load the images from.
+> If you are using a [`Trainer` subclass](../api/trainers/trainer.md), the base `Trainer` class provides the [`build_dataloader()`](https://github.com/ZacharyBork/NectarGAN/blob/main/nectargan/trainers/trainer.py#L217) wrapper for convenience. This function will use the values in the `Trainer`'s config to build a `PairedDataset`, and from it, a `torch.utils.data.Dataloader`. All you need to tell it is what type of loader (i.e. `test`, `train`, `val`) to create so it knows which dataset subdirectory to load the images from.
 
 ### Creating a PairedDataset instance
 **A `PairedDataset` can be instantiated as follows:**
@@ -35,7 +35,7 @@ loader = DataLoader(
 ```
 
 ### Dataset Image Loading
-Reference: [`nectargan.dataset.paired_dataset`](/nectargan/dataset/paired_dataset.py#L39)
+Reference: [`nectargan.dataset.paired_dataset`](https://github.com/ZacharyBork/NectarGAN/blob/main/nectargan/dataset/paired_dataset.py#L39)
 
 The following are the exact steps which are taken when a `PairedDataset` loads an image:
 
@@ -47,14 +47,14 @@ The following are the exact steps which are taken when a `PairedDataset` loads a
 6. Returns the two images as a tuple of `torch.Tensors` (i.e. (`input_image`, `target_image`))
 
 ## The Augmentations class
-Reference: [`nectargan.dataset.augmentations`](/nectargan/dataset/augmentations.py)
+Reference: [`nectargan.dataset.augmentations`](https://github.com/ZacharyBork/NectarGAN/blob/main/nectargan/dataset/augmentations.py)
 
 > [!NOTE]
 > This class used to be called `Transformer` until I decided that probably wasn't a great name. Some things in the class's code still reflect this old name though.
 
-The NectarGAN API manages train-time dataset augmentations via a helper class called `Augmentations`. This class is not meant to be interacted with directly. It is instead used by the `PairedDataset` class to apply augmentations to images at run time based on the [dataset augmentations settings](/nectargan/config/default.json#L20) in the config file. The `Augmentations` class is very simple, consisting only of a few private functions to build an Albumentations `Compose` for transformations applied to both images, another for transformations applied only to the input images, and another still for those transforms which are only applied to the target image (although that's not particularly common in image-to-image tasks so all that one actually does in its standard implementation is normalizes the input and converts it to a tensor).
+The NectarGAN API manages train-time dataset augmentations via a helper class called `Augmentations`. This class is not meant to be interacted with directly. It is instead used by the `PairedDataset` class to apply augmentations to images at run time based on the [dataset augmentations settings](https://github.com/ZacharyBork/NectarGAN/blob/main/nectargan/config/default.json#L20) in the config file. The `Augmentations` class is very simple, consisting only of a few private functions to build an Albumentations `Compose` for transformations applied to both images, another for transformations applied only to the input images, and another still for those transforms which are only applied to the target image (although that's not particularly common in image-to-image tasks so all that one actually does in its standard implementation is normalizes the input and converts it to a tensor).
 
-The only public function is [`apply_transforms()`](/nectargan/dataset/augmentations.py#L135). It takes two `numpy.ndarrays` as input (the input and target image from the dataset file, as passed to it via the `PairedDataset`'s [`__getitem__`](/nectargan/dataset/paired_dataset.py#L39) method), applies the relevant transforms to each, and returns them as a tuple of `torch.Tensors`: (`input`, `target`).
+The only public function is [`apply_transforms()`](https://github.com/ZacharyBork/NectarGAN/blob/main/nectargan/dataset/augmentations.py#L135). It takes two `numpy.ndarrays` as input (the input and target image from the dataset file, as passed to it via the `PairedDataset`'s [`__getitem__`](https://github.com/ZacharyBork/NectarGAN/blob/main/nectargan/dataset/paired_dataset.py#L39) method), applies the relevant transforms to each, and returns them as a tuple of `torch.Tensors`: (`input`, `target`).
 
 **Following are a list of currently supported transforms, broken down by category. Note that while they are not listed, both the input and the target image are also normalized (-1, 1) and converted to tensors as part of their corresponding transform function.**
 

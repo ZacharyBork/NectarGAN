@@ -1,9 +1,9 @@
 # NectarGAN API - UNet Blocks
-> [*`NectarGAN API - Home`*](/docs/api.md)
+> [*`NectarGAN API - Home`*](../../api.md)
 #### The NectarGAN UNet generator accepts drop-in convolutional blocks which which can dramatically change the behaviour of the model. Currently, there are two built in block types.
 
 > [!NOTE]
-> This document is intended as a followup of the [UNet API documentation](/docs/api/models/unet.md). It is advisable to read that document before beginning this one.
+> This document is intended as a followup of the [UNet API documentation](../models/unet.md). It is advisable to read that document before beginning this one.
 
 ## What is a UNet Block?
 In the simplest terms, a Unet block in NectarGAN is just a class which inherits from `torch.nn.Module`, and which has a forward function that takes a tensor as input, and which returns a tensor. However, there are a few additional requirements.
@@ -14,7 +14,7 @@ In the simplest terms, a Unet block in NectarGAN is just a class which inherits 
     | :---: | :---: | --- |
     `in_channels` | `int` | The input channel count for the layer. Defined by the layer type and depth based on the result of the `UnetGenerator` channel mapping function.
     `out_channels` | `int` | The output channel count for the layer. Defined by the layer type and depth based on the result of the `UnetGenerator` channel mapping function.
-    `upconv_type` | `str` | What upsampling method to use:<br><br>- `Transposed` : Transposed convolution.<br>- `Bilinear` : Bilinear upsampling, then convolution.<br><br>Transposed convolution is the upsampling method traditionally used in the Pix2pix model. However, bilinear upsampling + convolution can help to eliminate the checkboard artifacting which is commonly seen in these models. See [here](https://github.com/junyanz/pytorch-CycleGAN-and-pix2pix/issues/190) for more info.<br><br>**Note, though, that bilinear upsampling is static. Unlike `torch.nn.ConvTranspose2d`, no filters are learned during bilinear upsampling.** This can cause the model to have a more difficult time learning fine details and, depending on the use case, can stop it from doing so altogether. To help alleviate this, consider pairing bilinear upsampling with a perceptual loss, like the included [`VGGPerceptual`](/nectargan/losses/losses.py#L94).
+    `upconv_type` | `str` | What upsampling method to use:<br><br>- `Transposed` : Transposed convolution.<br>- `Bilinear` : Bilinear upsampling, then convolution.<br><br>Transposed convolution is the upsampling method traditionally used in the Pix2pix model. However, bilinear upsampling + convolution can help to eliminate the checkboard artifacting which is commonly seen in these models. See [here](https://github.com/junyanz/pytorch-CycleGAN-and-pix2pix/issues/190) for more info.<br><br>**Note, though, that bilinear upsampling is static. Unlike `torch.nn.ConvTranspose2d`, no filters are learned during bilinear upsampling.** This can cause the model to have a more difficult time learning fine details and, depending on the use case, can stop it from doing so altogether. To help alleviate this, consider pairing bilinear upsampling with a perceptual loss, like the included [`VGGPerceptual`](https://github.com/ZacharyBork/NectarGAN/blob/main/nectargan/losses/losses.py#L94).
     `activation` | `str\|None` | The activation type for the layer. There are four values which are passed to the blocks by the generator, and which should be processed accordingly by the block. These are:<br><br>- `'leaky'` : `torch.nn.LeakyReLu()`<br>- `'relu'` : `torch.nn.ReLU()`<br>- `'tanh'` : `torch.nn.Tanh()`<br>- `None` : `torch.nn.Identity()`<br><br>*Technically, these can be processed however you want. The generator model passes each at the stages they are supposed to be used in the UNet architecture though,* **so using modules which behave differently will likely cause strange behaviour.**
     `norm` | `str\|None` | What type of normalization to use. Currently, there are only two values which will ever be passed by the UNet generator model:<br><br>- `'instance'` : `torch.nn.InstanceNorm2d()`<br>- `None` : `torch.nn.Identity()`<br><br>*Again, these can techincally be whatever, but these values are what the model is expecting it to be.* **This will also likely change in the future once normalization methods get plugged in to the Toolbox UI.**
     `down` | `bool` | On downsampling layers (including the bottleneck layer), the `UnetGenerator` will pass a value of `True` for this argument. On upsampling layers, it will pass a value of `False`. This should be used to determine whether to run convolution or transposed convolution (or bilinear + conv2d) when the block is called.
@@ -23,7 +23,7 @@ In the simplest terms, a Unet block in NectarGAN is just a class which inherits 
     
 **Now then, let's have a quick look at the two block types currently included in the NectarGAN API.**
 ## UnetBlock
-> **Reference:** [`nectargan.models.unet.blocks.UnetBlock`](/nectargan/models/unet/blocks.py#L7)
+> **Reference:** [`nectargan.models.unet.blocks.UnetBlock`](https://github.com/ZacharyBork/NectarGAN/blob/main/nectargan/models/unet/blocks.py#L7)
 ### `UnetBlock.__init__()`
 This is a very standard UNet block. Walking through it, we:
 1. Super init the `torch.nn.Module` parent class.
@@ -48,11 +48,11 @@ It takes a `torch.Tensor`, `x`, as input, generally intended to be an input imag
 Then we check if we are using dropout for the current layer and, if so, apply dropout to the `x` tensor, then return it. Otherwise we just return it directly.
 
 ## ResidualUnetBlock
-> **Reference:** [`nectargan.models.unet.blocks.ResidualUnetBlock`](/nectargan/models/unet/blocks.py#L65)
+> **Reference:** [`nectargan.models.unet.blocks.ResidualUnetBlock`](https://github.com/ZacharyBork/NectarGAN/blob/main/nectargan/models/unet/blocks.py#L65)
 
 The `ResidualUnetBlock` is very similar to the `UnetBlock`. In fact, it actually inherits from the `UnetBlock` class, and just uses its `self.conv` directly for upsampling and downsampling. The only difference is that this block also includes a [residual connection](https://en.wikipedia.org/wiki/Residual_neural_network).
 
-**You can think of these like the skip connections we discussed in the [previous document](/docs/api/models/unet.md),** only "shorter". Where the skip connections in the UNet architecture skip over all layers deeper than themselves, these residual connections skip only over the current layer's convolution or transposed convolution operation. They instead apply the same spatial transform operation, but with a `1x1` kernel, to match the main path's tensor shape, or just return a `torch.nn.Identity` in cases where the input and output channel counts are the same. This is often the case at the bottleneck, and is always the case once the generator's feature cap has been reached.
+**You can think of these like the skip connections we discussed in the [previous document](../models/unet.md),** only "shorter". Where the skip connections in the UNet architecture skip over all layers deeper than themselves, these residual connections skip only over the current layer's convolution or transposed convolution operation. They instead apply the same spatial transform operation, but with a `1x1` kernel, to match the main path's tensor shape, or just return a `torch.nn.Identity` in cases where the input and output channel counts are the same. This is often the case at the bottleneck, and is always the case once the generator's feature cap has been reached.
 
 **Residual connections are used for different things in different architectures.** [ResNet](https://arxiv.org/pdf/1512.03385), the origin of residual connections in deep learning, primarily uses them to stabilize training, and to help avoid the [vanishing gradient problem](https://en.wikipedia.org/wiki/Vanishing_gradient_problem). ResNets are ***extremely*** deep networks, with popular variants having [34](https://huggingface.co/microsoft/resnet-34) and [50](https://huggingface.co/microsoft/resnet-50) layers, and with some even having upwards of [150](https://huggingface.co/microsoft/resnet-152). This presents a challenge, as the large number of sequential activation functions causes the backpropagation gradients to shrink to effectively nothing. This, in turn, causes the shallower layers in the network to learn at a slower and slower rate, until they eventually stop learning altogether. The residual connections in ResNet provide an alternate route for gradients to flow which avoids this shrinkage.
 

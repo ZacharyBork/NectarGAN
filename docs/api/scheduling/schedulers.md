@@ -1,9 +1,9 @@
 # NectarGAN API (Scheduling) - Schedulers
-> [*`NectarGAN API - Home`*](/docs/api.md)
-> [*`NectarGAN API - Scheduling`*](/docs/api/scheduling.md)
+> [*`NectarGAN API - Home`*](../../api.md)
+> [*`NectarGAN API - Scheduling`*](../scheduling.md)
 #### The NectarGAN API provides two classes for managing schedules, depending on the objective. These are:
 ## The Scheduler class
-**The `Scheduler` is a wrapper class to simplify the process of interacting with [`Schedule`](/docs/api/scheduling/schedule_dataclass.md) objects.**
+**The `Scheduler` is a wrapper class to simplify the process of interacting with [`Schedule`](../scheduling/schedule_dataclass.md) objects.**
 ### Creating a Scheduler instance
  A `Scheduler` can be created as follows. First, we will create a `Schedule` object:
 ```python
@@ -26,9 +26,9 @@ from nectargan.scheduling.scheduler import Scheduler
 
 scheduler = Scheduler(schedule)
 ```
-**Pretty simple. Behind the scenes, this will do some quick schedule validation. Then, assuming the current schedule is valid, we're ready to use it.** This is also very simple, although there is some pre-requisite knowledge which is required to better understand how we use `Schedules` in NectarGAN, so you are encouraged to quickly read through the [schedule function documentation](/docs/api/scheduling/schedule_functions.md) before continuing here.
+**Pretty simple. Behind the scenes, this will do some quick schedule validation. Then, assuming the current schedule is valid, we're ready to use it.** This is also very simple, although there is some pre-requisite knowledge which is required to better understand how we use `Schedules` in NectarGAN, so you are encouraged to quickly read through the [schedule function documentation](../scheduling/schedule_functions.md) before continuing here.
 
-Now that we have created a `Scheduler` instance and assigned it our linear decay `Schedule`, we can evaluate our schedule function with [`Scheduler.eval_schedule()`](/nectargan/scheduling/scheduler.py#L32) as follows:
+Now that we have created a `Scheduler` instance and assigned it our linear decay `Schedule`, we can evaluate our schedule function with [`Scheduler.eval_schedule()`](https://github.com/ZacharyBork/NectarGAN/blob/main/nectargan/scheduling/scheduler.py#L32) as follows:
 ```python
 for epoch in range(200):
     current_value = scheduler.eval_schedule(epoch)
@@ -49,7 +49,7 @@ for epoch in range(200):
     Epoch: 200 - Value: 0.0
 
 ## The TorchScheduler class
-**The [`TorchScheduler`](/nectargan/scheduling/scheduler_torch.py) is a compatibility wrapper around the native [`torch.optim.lr_scheduler`](https://docs.pytorch.org/docs/stable/optim.html#how-to-adjust-learning-rate), allowing you to use scheduling functions interchangeably while retaining the native scheduler's deep integration with the native optimizers.**
+**The [`TorchScheduler`](https://github.com/ZacharyBork/NectarGAN/blob/main/nectargan/scheduling/scheduler_torch.py) is a compatibility wrapper around the native [`torch.optim.lr_scheduler`](https://docs.pytorch.org/docs/stable/optim.html#how-to-adjust-learning-rate), allowing you to use scheduling functions interchangeably while retaining the native scheduler's deep integration with the native optimizers.**
 
 A `TorchScheduler` instance can be created as follows. First, we create a schedule in the same way we did for the base `Scheduler`:
 ```python
@@ -74,11 +74,11 @@ scheduler = TorchScheduler( # Create a TorchScheduler
     schedule=schedule       # and the schedule
 )
 ```
-Then you can just call the [`TorchScheduler.step()`](/nectargan/scheduling/scheduler_torch.py#L19) wrapper at the end of each epoch to update the learning rate as follows:
+Then you can just call the [`TorchScheduler.step()`](https://github.com/ZacharyBork/NectarGAN/blob/main/nectargan/scheduling/scheduler_torch.py#L19) wrapper at the end of each epoch to update the learning rate as follows:
 ```python
 scheduler.step() # Simple wrapper around torch.optim.lr_scheduler.LRScheduler.step()
 ```
-### [`get_lr()`](/nectargan/scheduling/scheduler_torch.py#L27) Utility
+### [`get_lr()`](https://github.com/ZacharyBork/NectarGAN/blob/main/nectargan/scheduling/scheduler_torch.py#L27) Utility
 The `TorchScheduler` also provides a utility function called `get_lr`, which is intended to be called after `TorchScheduler.step()`, and will return a tuple of the previous learning rate, from before the most recent `step()` call, and the current learning rate, after it has been updated by `step()`
 
 ---

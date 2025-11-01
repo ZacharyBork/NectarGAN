@@ -34,22 +34,22 @@ conda env create -f environment.yml
 ## NectarGAN Toolbox
 **The Toolbox quickstart guide is split in to three sections which are intended to be followed in order.**
 
-**Section 1:** [*Training a Model*](/docs/getting_started/toolbox_training.md)<br>
-**Section 2:** [*Testing a Model*](/docs/getting_started/toolbox_testing.md)<br>
-**Section 3:** [*Reviewing Results*](/docs/getting_started/toolbox_training.md)
+**Section 1:** [*Training a Model*](getting_started/toolbox_training.md)<br>
+**Section 2:** [*Testing a Model*](getting_started/toolbox_testing.md)<br>
+**Section 3:** [*Reviewing Results*](getting_started/toolbox_training.md)
 
 ## NectarGAN CLI
-**For more information regarding the CLI options currently offered by NectarGAN, please see the [*NectarGAN CLI quickstart*](/docs/getting_started/cli.md).**
+**For more information regarding the CLI options currently offered by NectarGAN, please see the [*NectarGAN CLI quickstart*](getting_started/cli.md).**
 
 ## NectarGAN API
-**Please see the [*API documentation*](/docs/api.md) for more information on getting started with the NectarGAN API.**
+**Please see the [*API documentation*](api.md) for more information on getting started with the NectarGAN API.**
 
 ## Testing your installation
-**If you would like to test whether your installation is working correctly,** NectarGAN includes a number of prebuilt tests which are run in different ways depending upon your installation type. See [here](/docs/testing_your_installation.md) for more information.
+**If you would like to test whether your installation is working correctly,** NectarGAN includes a number of prebuilt tests which are run in different ways depending upon your installation type. See [here](testing_your_installation.md) for more information.
 
 ## Downloading a premade dataset
 **NectarGAN includes a script that allows you to automatically download a number of premade datasets to test your models on.** 
 
-Please see [here](/docs/scripts.md) for more information. 
+Please see [here](scripts.md) for more information. 
 
 ---

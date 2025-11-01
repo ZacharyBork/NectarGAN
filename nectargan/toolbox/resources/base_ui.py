@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'base.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.9.0
+## Created by: Qt User Interface Compiler version 6.9.1
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -5918,7 +5918,7 @@ class Ui_MainWindow(object):
         self.preview_split_dataset.setText(QCoreApplication.translate("MainWindow", u"Preview", None))
         self.utils_warning_label.setText(QCoreApplication.translate("MainWindow", u"_utils_warning_label_", None))
         self.image_utils_warning.setText(QCoreApplication.translate("MainWindow", u"Please carefully read the documentation for each of these tools, found at\n"
-"(NectarGAN/docs/toolbox.md) before using them.", None))
+"(docs/toolbox.md) before using them.", None))
         self.always_on_top.setText(QCoreApplication.translate("MainWindow", u"Always on Top", None))
         self.label_40.setText(QCoreApplication.translate("MainWindow", u"Review Graph Sample Rate", None))
         self.label_44.setText(QCoreApplication.translate("MainWindow", u"Training Update Rate (Iters)", None))

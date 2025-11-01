@@ -1,8 +1,8 @@
 # NectarGAN API - Loss Specs
-> [*`NectarGAN API - Home`*](/docs/api.md)
+> [*`NectarGAN API - Home`*](../../api.md)
 #### Loss specifications (specs) are a novel way to define reusable objective functions for your models. At their core, loss specs are just standard Python functions but with one specific requirement, the must return a dictionary of string-mapped `LMLoss` objects.
 ## What is a loss spec?
-To better explain the concept, let's first have a quick look at an example loss spec function: [`nectargan.losses.pix2pix_objective`](/nectargan/losses/pix2pix_objective.py)
+To better explain the concept, let's first have a quick look at an example loss spec function: [`nectargan.losses.pix2pix_objective`](https://github.com/ZacharyBork/NectarGAN/blob/main/nectargan/losses/pix2pix_objective.py)
 
 Let's quickly break down exactly what this function is doing:
 
@@ -41,7 +41,7 @@ loss_manager.init_from_spec(  # Run 'LossManager.init_from_spec()'
 ```
 And that's it, now the `LossManager` will run that function, parse the returned dict, and register all of the losses contained within it, then you are free to use them how you would with any other loss registered with a `LossManager` instance. And you also now have a loss spec which can be reused whenever you'd like to perfectly replicate that objective function.
 
-Now let's have a quick look at [`LossManager.init_from_spec()`](/nectargan/losses/loss_manager.py#L116) to see what it's doing. It serves one main purpose, setting the value of the `LossManager`'s `self.loss_fns`. Let break down exactly how it does that, though:
+Now let's have a quick look at [`LossManager.init_from_spec()`](https://github.com/ZacharyBork/NectarGAN/blob/main/nectargan/losses/loss_manager.py#L116) to see what it's doing. It serves one main purpose, setting the value of the `LossManager`'s `self.loss_fns`. Let break down exactly how it does that, though:
 
 1. We have a few input arguments, one required argument, `spec`, which takes a `Callable` (our loss spec function), and also optional `*args` and `**kwargs`. **This allows you to pass whatever extra arguments you want to your loss spec function. This is how the `pix2pix_objective` loss spec is passed the `config` and `subspec`.** ***These are not required arguments. The only requirement for a loss spec is that is be a `Callable` that returns a `dict[str, LMLoss]`.***
 2. We first do a quick check to see if the value of the `spec` argument is `None`. If it is, we just set `self.loss_fns` to an empty dict. This is done when the `LossManager` if first instatiated to initialize it's base loss dict, which is what losses are added to when you call `LossManager.register_loss_fn()`.

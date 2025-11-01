@@ -1,5 +1,5 @@
 # NectarGAN Toolbox - Test
-> [*`NectarGAN Toolbox - Home`*](/docs/toolbox.md)
+> [*`NectarGAN Toolbox - Home`*](../toolbox.md)
 #### Here you will find settings related to testing previously trained models.
 
 | Setting | Description |
@@ -17,4 +17,4 @@
 
 ---
 *See Also:*
-| [Toolbox - Home](/docs/toolbox.md) | [Experiment](/docs/toolbox/experiment.md) | [Dataset](/docs/toolbox/dataset.md) | [Training](/docs/toolbox/training.md) | [Review](/docs/toolbox/review.md) | [Utilities](/docs/toolbox/utilities.md) | [Settings](/docs/toolbox/settings.md) |
+| [Toolbox - Home](../toolbox.md) | [Experiment](experiment.md) | [Dataset](dataset.md) | [Training](training.md) | [Review](review.md) | [Utilities](utilities.md) | [Settings](settings.md) |
