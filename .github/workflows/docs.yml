@@ -1,12 +1,19 @@
 name: Deploy Doc Site
 
 on:
+  pull_request:
+      branches: [ main ]
+      paths: 
+        - 'mkdocs.yml'
+        - 'docs/**'
+        - '.github/workflows/docs.yml'
   push:
     branches: [ main ]
     paths:
       - 'mkdocs.yml'
       - 'docs/**'
-  workflow_dispatch:
+      - '.github/workflows/docs.yml'
+  workflow_dispatch: {}
 
 permissions:
   contents: write
@@ -32,6 +39,7 @@ jobs:
         run: mkdocs build --clean --strict
 
       - name: Publish
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
