@@ -1,38 +1,68 @@
 ARG TORCH_TYPE="cpu"
 
-FROM python:3.12-bookworm AS builder
+FROM python:3.12-slim-bookworm AS base
 
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    PIP_NO_CACHE_DIR=1
 
-RUN apt-get update \
- && apt-get upgrade -y \
- && rm -rf /var/lib/apt/lists/*
+RUN python -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+
+FROM base AS pytorch
+ARG TORCH_TYPE
+
+RUN if [ "$TORCH_TYPE" != "cpu" ] \
+    && [ "$TORCH_TYPE" != "cu126" ] \
+    && [ "$TORCH_TYPE" != "cu128" ]; \
+        then echo "Invalid TORCH_TYPE:$TORCH_TYPE" \
+          && echo "Valid types are (cpu|cu126|cu128)" \
+          && exit 1; \
+    fi
+
+RUN pip install --no-compile torch torchvision \
+        --index-url "https://download.pytorch.org/whl/${TORCH_TYPE}" \
+ && find /opt/venv -type f -name "*.so*" -exec strip --strip-unneeded {} + 2>/dev/null || true \
+ && find /opt/venv -type d \( -name tests -o -name test -o -name __pycache__ \) -prune -exec rm -rf {} + \
+ && find /opt/venv -type f -name "*.pyc" -delete
+
+FROM pytorch AS build
 
 WORKDIR /app
-COPY requirements*.txt .
-RUN sed -i 's/^opencv-python.*/opencv-python-headless/' requirements.txt \
- && python -m pip install --upgrade pip \
- && pip install --no-cache-dir -r requirements.txt \
- && pip install --no-cache-dir -r requirements.dev.txt \
- && rm requirements.*
-
-FROM builder AS cpu
-RUN pip install --no-cache-dir torch torchvision
-
-FROM builder AS cuda126
-RUN pip install --no-cache-dir torch torchvision --index-url https://download.pytorch.org/whl/cu126
-
-FROM builder AS cuda128
-RUN pip install --no-cache-dir torch torchvision --index-url https://download.pytorch.org/whl/cu128
-
-FROM ${TORCH_TYPE} AS runtime
-
+COPY pyproject.toml .
 COPY nectargan/ nectargan/
-COPY scripts/ scripts/
-COPY tests/ tests/
 
-RUN find /app -type f -exec chmod 644 {} + \
+RUN sed -i -E 's/"opencv-python([^"]*)"/"opencv-python-headless"/g' pyproject.toml \
+ && sed -i '/PySide6==/d' pyproject.toml \
+ && pip install --upgrade pip && pip install --no-compile .
+
+FROM python:3.12-slim-bookworm AS runtime
+
+ENV VIRTUAL_ENV=/opt/venv \
+    PATH="/opt/venv/bin:$PATH" \
+    PYTHONDONTWRITEBYTECODE=1
+
+COPY --from=build /opt/venv /opt/venv
+COPY --from=build /app /app
+WORKDIR /app
+
+RUN python -m venv /opt/venv \
+ && apt-get update \
+ && apt-get install -y --no-install-recommends \
+    jq \
+    libgl1 \
+    libxext6 \
+    libxrender1 \
+    libfontconfig1 \
+    libjpeg62-turbo \
+    libpng16-16 \
+ && rm -rf /var/lib/apt/lists/* \
+ && find /app -type f -exec chmod 644 {} + \
  && find /app -type d -exec chmod 755 {} +
 
 EXPOSE 8000
+
+COPY docker/entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh && sed -i 's/\r$//' /app/entrypoint.sh
+ENTRYPOINT ["/app/entrypoint.sh"]

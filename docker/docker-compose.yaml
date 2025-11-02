@@ -2,11 +2,15 @@ name: nectargan
 
 services:
   app:
+    image: nectargan-app:latest
     build:
       context: ..
       dockerfile: docker/Dockerfile
+      args:
+        TORCH_TYPE: cpu
     volumes:
-      - ./docker/mount:/app/mount:rw
+      - ./mount:/app/mount:rw
+      - ./resources:/app/resources:ro
     ports:
       - "8000:8000"
     deploy:
@@ -17,4 +21,6 @@ services:
               count: all
               capabilities: [gpu]
     restart: unless-stopped
-    command: ["tail", "-f", "/dev/null"]
+    stdin_open: true
+    tty: true
+    command: ["python", "/app/resources/start.py"]
