@@ -9,7 +9,7 @@ set -e
 
 # Get config file path, store as variable
 CONFIG_FILE="/app/mount/docker_nectargan_config.json"
-chmod +x $CONFIG_FILE
+chmod 644 $CONFIG_FILE
 
 # Update IO pathing in the train config file
 jq '.config.common.output_directory = "/app/mount/output"' \
