@@ -1,5 +1,3 @@
-ARG TORCH_TYPE="cpu"
-
 FROM python:3.12-slim-bookworm AS base
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
@@ -59,7 +57,10 @@ RUN python -m venv /opt/venv \
     libpng16-16 \
  && rm -rf /var/lib/apt/lists/* \
  && find /app -type f -exec chmod 644 {} + \
- && find /app -type d -exec chmod 755 {} +
+ && find /app -type d -exec chmod 755 {} + \
+ && printf '%s\n' '#!/bin/sh' \
+           'exec /opt/venv/bin/python -u /app/scripts/nectargan.py "$@"' \
+  > /usr/local/bin/nectargan && chmod +x /usr/local/bin/nectargan
 
 EXPOSE 8000
 

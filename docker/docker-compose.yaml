@@ -1,6 +1,20 @@
 name: nectargan
 
 services:
+  visdom:
+    image: nectargan-visdom:latest
+    hostname: visdom
+    build:
+      context: .
+      dockerfile: ./visdom/Dockerfile
+      args: 
+        HOST_NAME: "${VISDOM_HOST:-127.0.0.1}"
+        EXPOSE_PORT: "${VISDOM_PORT:-8000}"
+    ports: 
+      - "${VISDOM_PORT:-8000}:${VISDOM_PORT:-8000}"
+    volumes:
+      - visdom-data:/root/.visdom
+
   app:
     image: nectargan-app:latest
     build:
@@ -8,11 +22,11 @@ services:
       dockerfile: docker/Dockerfile
       args:
         TORCH_TYPE: cpu
+    depends_on: 
+      - visdom
     volumes:
       - ./mount:/app/mount:rw
-      - ./resources:/app/resources:ro
-    ports:
-      - "8000:8000"
+      - ./scripts:/app/scripts:rw
     deploy:
       resources:
         reservations:
@@ -23,4 +37,7 @@ services:
     restart: unless-stopped
     stdin_open: true
     tty: true
-    command: ["python", "/app/resources/start.py"]
+    command: ["python", "/app/scripts/welcome.py"]
+
+volumes:
+  visdom-data: {}

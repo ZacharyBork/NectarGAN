@@ -158,6 +158,7 @@ class Trainer():
         if vcon.visdom.enable:        # Init Visdom visualizer
             self.vis = VisdomVisualizer(
                 env=vcon.visdom.env_name,
+                server=vcon.visdom.server,
                 port=vcon.visdom.port) 
             self.vis.clear_env()      # Clear Visdom environment  
 

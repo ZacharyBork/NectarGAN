@@ -1,7 +1,7 @@
 {
   "config": {
     "common": {
-      "device": "cuda",
+      "device": "cpu",
       "gpu_ids": [
         0
       ],
@@ -117,6 +117,7 @@
       "visdom": {
         "enable": true,
         "env_name": "main",
+        "server": "http://visdom",
         "port": 8000,
         "image_size": 400,
         "update_frequency": 40

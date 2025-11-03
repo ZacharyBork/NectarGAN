@@ -10,10 +10,12 @@ from visdom import Visdom
 class VisdomVisualizer():
     def __init__(
             self, 
-            env: str='main', 
+            env: str='main',
+            server: str='http://localhost',
             port: int=8097
         ) -> None:
         self.env = env
+        self.server = server
         self.port = port
         self.is_threaded: bool = False # Overridden by `self.start_thread()`
 
@@ -29,7 +31,10 @@ class VisdomVisualizer():
         Raises:
             ConnectionError : If unable to connect to Visdom server.
         '''
-        vis = Visdom(env=self.env)
+        vis = Visdom(
+            server=self.server, 
+            port=self.port,
+            env=self.env)
         if not vis.check_connection():
             message = (
                 f'Unable to connect to Visdom server. '
