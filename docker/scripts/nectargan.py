@@ -2,13 +2,13 @@
 
 import sys
 import os
+import time
 import subprocess
 from pathlib import Path
 import json
 
-import config_editor
 import renderer as R
-C = R.COLORS
+import config_editor
 
 MOUNT_DIRECTORY = Path('/app/mount')
 CONFIG_PATH = Path('/app/mount/docker_nectargan_config.json')
@@ -36,17 +36,23 @@ def validate_docker_environment() -> None:
             f'environment, and will not function correctly otherwise.\n\n'
             f'Aborting...') 
     
+def begin_training() -> None:
+    proc = subprocess.Popen([
+        'python', '-m', 
+        'nectargan.start.training.paired', 
+        '-f', CONFIG_PATH.as_posix()])
+    proc.wait()
+
 def set_dataset(command: list[str]) -> None:
     try: command[1]
     except Exception:
-        print(f'{C.RED}ERROR: No name provided.{C.END}')
+        R.RENDERER.set_status('ERROR: No name provided.', 'RED')
         return
-    try:
-        new_dataroot = Path(MOUNT_DIRECTORY, f'input/{command[1]}') 
-        assert new_dataroot.exists()
-    except AssertionError:
-        print(f'{C.RED}ERROR: Unable to locate dataroot directory.{C.END}')
-        print(f'Tried path: {new_dataroot.as_posix()}')
+    new_dataroot = Path(MOUNT_DIRECTORY, f'input/{command[1]}') 
+    if not new_dataroot.exists():
+        R.RENDERER.set_status(
+            f'ERROR: Unable to locate dataroot directory at '
+            f'path: {new_dataroot.as_posix()}', 'RED')
         return
     try:
         with open(CONFIG_PATH, 'r') as file:
@@ -54,43 +60,70 @@ def set_dataset(command: list[str]) -> None:
         json_data['config']['dataloader']['dataroot'] = new_dataroot.as_posix()
         with open(CONFIG_PATH, 'w') as file:
             file.write(json.dumps(json_data, indent=2))
-        print(f'\n{C.ORG}Dataset set!{C.END}')
-        print(f'{C.GRN}Path: {C.END}{new_dataroot.as_posix()}\n')
+
+        R.RENDERER.set_status(
+            f'\nDataset set! Path: {new_dataroot.as_posix()}', 'GRN')
     except Exception as e:
-        print(f'{C.RED}ERROR: Unable to load config file.{C.END}')
-        print(f'Reason:\n{e}')
+        R.RENDERER.set_status(f'ERROR: Unable to load config file.', 'RED')
         return
+    
+def exit_to_shell() -> None:
+    R.RENDERER.set_status('Exiting to shell...', 'YLW')
+    R.LR.println(
+        f'This will exit the NectarGAN CLI wrapper to the '
+        f'container\'s shell environment.\n\n'
+        f'Enter (Y | y) to confirm.', 'YLW')
+    confirm = input(R.LR.color_text('Confirm -> ', 'ORG'))
+    if confirm.strip().casefold() == 'y':
+        R.RENDERER.reset_console(no_status=True)
+        R.LR.println_split(
+            '\nExiting...', 'ORG',
+            '(Hint: Use the "nectargan" command to restart the wrapper.)\n', 
+            'GRN')
+        os.chdir('/app')
+        os.execv('/bin/sh', ['/bin/sh'])
+    else: R.RENDERER.set_status('Aborted...', 'RED')
+
+def play_welcome_sequence() -> None:
+    welcome_message = 'Welcome to...'
+    current_message = ''
+    for i in welcome_message:
+        time.sleep(0.1)
+        R.RENDERER.clear_console()
+        current_message += i
+        R.LR.println(current_message, 'GRN')
+    time.sleep(0.5)
+    R.RENDERER.clear_console()
+
+def handle_input() -> None:
+    R.RENDERER.show_command_screen()
+    R.LR.println('Please enter a command...')
+    command = input(R.LR.color_text('NectarGAN -> ', 'ORG')).split()
+    match command[0].strip().casefold():
+        case 'train': begin_training()
+        case 'test': R.RENDERER.set_status('Not yet implemented...', 'RED')
+        case 'dataset-set': set_dataset(command)
+        case 'config-edit': 
+            R.RENDERER.set_status('Editing config file...', 'GRN')
+            config_editor.edit_config_file()
+        case 'config-print': 
+            R.RENDERER.set_status('Displaying config file...', 'GRN')
+            with open(CONFIG_PATH, 'r') as file:
+                data = json.load(file)
+            print(f'\n{json.dumps(data, indent=4)}\n')
+            input(R.LR.color_text(f'Press Enter to continue...', 'GRN'))
+            print()
+            R.RENDERER.reset_status()
+        case 'help': R.RENDERER.set_status('Not yet implemented...', 'RED')
+        case 'shell': exit_to_shell()
+        case 'exit': sys.exit(0)
+        case _: 
+            R.RENDERER.set_status(f'\nInvalid command: {command}', 'RED')
 
 if __name__ == '__main__':
     validate_docker_environment()
     validate_default_directories()
-
-    while True:
-        R.RENDERER.reset_console()
-        print('Please enter a command...')
-        command = input(f'{C.ORG}NectarGAN ->{C.END} ').split()
-        match command[0].strip().casefold():
-            case 'train': 
-                proc = subprocess.Popen([
-                    'python', '-m', 'nectargan.start.training.paired', '-f', CONFIG_PATH.as_posix()])
-                proc.wait()
-            case 'test': R.RENDERER.current_status = (C.RED, 'Not yet implemented...')
-            case 'dataset-set': set_dataset(command)
-            case 'config-edit': 
-                R.RENDERER.current_status = (C.GRN, 'Editing config file...')
-                config_editor.edit_config_file()
-            case 'config-print': 
-                R.RENDERER.current_status = (C.GRN, 'Displaying config file...')
-                R.RENDERER.clear_console()
-                with open(CONFIG_PATH, 'r') as file:
-                    data = json.load(file)
-                print(f'\n{json.dumps(data, indent=4)}\n')
-                input(f'{C.GRN}Press Enter to continue...{C.END}')
-                print()
-            case 'help': R.RENDERER.current_status = (C.RED, 'Not yet implemented...')
-            case 'shell':
-                os.chdir('/app')
-                os.execv('/bin/sh', ['/bin/sh'])
-            case 'exit': sys.exit(0)
-            case _: R.RENDERER.current_status = (C.RED, f'\nInvalid command: {command}') 
+    
+    play_welcome_sequence()
+    while True: handle_input() 
         
