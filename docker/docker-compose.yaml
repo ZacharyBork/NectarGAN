@@ -2,7 +2,7 @@ name: nectargan
 
 services:
   visdom:
-    image: nectargan-visdom:latest
+    image: nectargan-visdom:v0.2.0
     hostname: visdom
     build:
       context: .
@@ -19,13 +19,13 @@ services:
         - CMD-SHELL
         - |
           curl -fsS "http://${VISDOM_HOST}:${VISDOM_PORT}" > /dev/null || exit 1
-      interval: 15s
+      interval: 60s
       timeout: 3s
       retries: 5
       start_period: 10s
 
   app:
-    image: nectargan-app:latest
+    image: nectargan-app:v0.2.0
     build:
       context: ..
       dockerfile: docker/Dockerfile

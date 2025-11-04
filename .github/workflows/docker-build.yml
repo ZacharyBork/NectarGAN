@@ -1,0 +1,27 @@
+name: Docker Build
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch: {}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Docker Compose Build
+        run: |
+          export TORCH_TYPE=cpu
+          docker compose -f ./docker/docker-compose.yml build
+
+          echo "Checking images..."
+          docker images | grep "nectargan-"
