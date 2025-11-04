@@ -49,12 +49,10 @@ LR = LineRenderer()
 
 class ConsoleRenderer:
     def __init__(self):
-        self.first_run = True
         self.current_status = ('Ready...', 'GRN') # Status: (text, color)
         
     def print_welcome(self) -> None:
-        prefix = 'Welcome to...' if self.first_run else ''
-        welcome_text = f'''{prefix}
+        welcome_text = f'''Welcome to...
  _______              __               _______ _______ _______ 
 |    |  |.-----.----.|  |_.---.-.----.|     __|   _   |    |  |
 |       ||  -__|  __||   _|  _  |   _||    |  |       |       |
@@ -93,7 +91,6 @@ class ConsoleRenderer:
         self.print_welcome()
         if not inject_header is None: inject_header()
         if not no_status: self.print_status()
-        self.first_run = False
 
     def show_command_screen(self) -> None:
         self.reset_console()

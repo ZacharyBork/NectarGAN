@@ -36,8 +36,10 @@ RUN sed -i -E 's/"opencv-python([^"]*)"/"opencv-python-headless"/g' pyproject.to
  && pip install --upgrade pip && pip install --no-compile .
 
 FROM python:3.12-slim-bookworm AS runtime
+ARG TORCH_TYPE
 
-ENV VIRTUAL_ENV=/opt/venv \
+ENV TORCH_TYPE=$TORCH_TYPE \
+    VIRTUAL_ENV=/opt/venv \
     PATH="/opt/venv/bin:$PATH" \
     PYTHONDONTWRITEBYTECODE=1
 

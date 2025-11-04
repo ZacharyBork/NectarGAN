@@ -2,10 +2,11 @@
 
 import json
 from typing import Any
+from pathlib import Path
 
 import renderer as R
 
-CONFIG_PATH = None
+CONFIG_PATH: Path = None
 
 def render_config_header() -> None:
     R.LR.println('''                                                

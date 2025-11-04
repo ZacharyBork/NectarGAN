@@ -1,7 +1,7 @@
 {
   "config": {
     "common": {
-      "device": "cpu",
+      "device": "cuda",
       "gpu_ids": [
         0
       ],
@@ -10,8 +10,8 @@
       "experiment_version": 1
     },
     "dataloader": {
-      "dataroot": "/app/mount/input",
-      "direction": "AtoB",
+      "dataroot": "/app/mount/input/facades",
+      "direction": "BtoA",
       "batch_size": 1,
       "num_workers": 0,
       "load": {

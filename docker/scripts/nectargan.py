@@ -14,6 +14,10 @@ MOUNT_DIRECTORY = Path('/app/mount')
 CONFIG_PATH = Path('/app/mount/docker_nectargan_config.json')
 config_editor.CONFIG_PATH = CONFIG_PATH
 
+import test_model
+test_model.CONFIG_PATH = CONFIG_PATH
+test_model.MOUNT_DIRECTORY = MOUNT_DIRECTORY
+
 def validate_default_directories() -> None:
     if not MOUNT_DIRECTORY.exists():
         raise FileNotFoundError(
@@ -62,7 +66,7 @@ def set_dataset(command: list[str]) -> None:
             file.write(json.dumps(json_data, indent=2))
 
         R.RENDERER.set_status(
-            f'\nDataset set! Path: {new_dataroot.as_posix()}', 'GRN')
+            f'Dataset set! Path: {new_dataroot.as_posix()}', 'GRN')
     except Exception as e:
         R.RENDERER.set_status(f'ERROR: Unable to load config file.', 'RED')
         return
@@ -101,7 +105,7 @@ def handle_input() -> None:
     command = input(R.LR.color_text('NectarGAN -> ', 'ORG')).split()
     match command[0].strip().casefold():
         case 'train': begin_training()
-        case 'test': R.RENDERER.set_status('Not yet implemented...', 'RED')
+        case 'test': test_model.run_model_test()
         case 'dataset-set': set_dataset(command)
         case 'config-edit': 
             R.RENDERER.set_status('Editing config file...', 'GRN')

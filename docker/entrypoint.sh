@@ -24,6 +24,8 @@ else
         "$CONFIG_FILE" > config.tmp && mv config.tmp "$CONFIG_FILE"
 fi
 
+echo "Torch type: $TORCH_TYPE"
+
 # Enable Visdom and route through container's exposed port
 jq '.config.visualizer.visdom.enable = true | .config.visualizer.visdom.server = "http://visdom" | .config.visualizer.visdom.port = 8000' \
     "$CONFIG_FILE" > config.tmp && mv config.tmp "$CONFIG_FILE"
