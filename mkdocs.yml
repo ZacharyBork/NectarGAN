@@ -46,6 +46,7 @@ nav:
     - ONNX Tools: api/onnx_tools.md
     - Visdom: api/visdom.md
   - CLI: getting_started/cli.md
+  - Docker: getting_started/docker.md
   - Scripts: scripts.md
   - FAQ: faq.md
   - Links:
