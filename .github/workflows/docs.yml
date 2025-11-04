@@ -2,16 +2,18 @@ name: Deploy Doc Site
 
 on:
   pull_request:
-      branches: [ main ]
-      paths: 
-        - 'mkdocs.yml'
-        - 'docs/**'
-        - '.github/workflows/docs.yml'
+    branches: [ main ]
+    paths: 
+      - 'mkdocs.yml'
+      - 'docs/**'
+      - 'README.md'
+      - '.github/workflows/docs.yml'
   push:
     branches: [ main ]
     paths:
       - 'mkdocs.yml'
       - 'docs/**'
+      - 'README.md'
       - '.github/workflows/docs.yml'
   workflow_dispatch: {}
 
