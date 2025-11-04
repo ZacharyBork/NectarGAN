@@ -10,8 +10,8 @@
       "experiment_version": 1
     },
     "dataloader": {
-      "dataroot": "/app/mount/input/facades",
-      "direction": "BtoA",
+      "dataroot": "/app/mount/input",
+      "direction": "AtoB",
       "batch_size": 1,
       "num_workers": 0,
       "load": {

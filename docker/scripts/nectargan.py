@@ -41,6 +41,7 @@ def validate_docker_environment() -> None:
             f'Aborting...') 
     
 def begin_training() -> None:
+    R.RENDERER.set_status('Training...', 'GRN')
     proc = subprocess.Popen([
         'python', '-m', 
         'nectargan.start.training.paired', 
