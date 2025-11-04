@@ -80,7 +80,7 @@ NectarGAN is comprised of two core components:
 ## Getting Started
 **Please refer to the [*quickstart documentation*](docs/getting_started.md) for information on how to get started using NectarGAN.**
 
-**For a guide on how to run NectarGAN in a Docker container for headless training and testing, please see the [here](./getting_started/docker.md).**
+**For a guide on how to run NectarGAN in a Docker container for headless training and testing, please see the [here](docs/getting_started/docker.md).**
 
 ## Frequently Asked Questions
 **Please see [*the FAQs page*](docs/faq.md).**
