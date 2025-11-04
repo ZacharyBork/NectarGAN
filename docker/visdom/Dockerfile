@@ -4,7 +4,8 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1
 
-RUN python -m ensurepip \
+RUN apk add --no-cache curl \
+ && python -m ensurepip \
  && python -m pip install --upgrade pip setuptools \
  && python -m pip install visdom 
 

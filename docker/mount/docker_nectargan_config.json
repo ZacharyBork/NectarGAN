@@ -1,7 +1,7 @@
 {
   "config": {
     "common": {
-      "device": "cuda",
+      "device": "cpu",
       "gpu_ids": [
         0
       ],

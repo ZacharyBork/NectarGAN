@@ -61,6 +61,7 @@ class ConsoleRenderer:
         LR.println(welcome_text, 'ORG')
 
     def print_commands(self) -> None:
+        # {LR.color_text('help', 'GRN')}         | See all commands
         LR.println(nocolor=True, text=f'''Common commands:
 
 {LR.color_text('train', 'GRN')}        | Begin training
@@ -68,7 +69,6 @@ class ConsoleRenderer:
 {LR.color_text('dataset-set', 'GRN')}  | Set current dataset
 {LR.color_text('config-edit', 'GRN')}  | Edit config file
 {LR.color_text('config-print', 'GRN')} | Print current config
-{LR.color_text('help', 'GRN')}         | See all commands
 {LR.color_text('shell', 'YLW')}        | Exit startup script
 {LR.color_text('exit', 'RED')}         | Exit container\n''')
         

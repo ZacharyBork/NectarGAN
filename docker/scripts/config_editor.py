@@ -147,3 +147,5 @@ def edit_config_file() -> None:
                 return
             case _:
                 R.RENDERER.set_status(f'Input not valid: {choice}', 'RED')
+
+                

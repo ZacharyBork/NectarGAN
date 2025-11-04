@@ -45,10 +45,10 @@ ENV TORCH_TYPE=$TORCH_TYPE \
 
 COPY --from=build /opt/venv /opt/venv
 COPY --from=build /app /app
+COPY docker/entrypoint.sh /app/entrypoint.sh
 WORKDIR /app
 
-RUN python -m venv /opt/venv \
- && apt-get update \
+RUN apt-get update \
  && apt-get install -y --no-install-recommends \
     jq \
     libgl1 \
@@ -62,10 +62,7 @@ RUN python -m venv /opt/venv \
  && find /app -type d -exec chmod 755 {} + \
  && printf '%s\n' '#!/bin/sh' \
            'exec /opt/venv/bin/python -u /app/scripts/nectargan.py "$@"' \
-  > /usr/local/bin/nectargan && chmod +x /usr/local/bin/nectargan
-
-EXPOSE 8000
-
-COPY docker/entrypoint.sh /app/entrypoint.sh
-RUN chmod +x /app/entrypoint.sh && sed -i 's/\r$//' /app/entrypoint.sh
+  > /usr/local/bin/nectargan && chmod +x /usr/local/bin/nectargan \
+ && chmod +x /app/entrypoint.sh && sed -i 's/\r$//' /app/entrypoint.sh
+ 
 ENTRYPOINT ["/app/entrypoint.sh"]
