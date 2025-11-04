@@ -21,7 +21,7 @@ jobs:
       - name: Docker Compose Build
         run: |
           export TORCH_TYPE=cpu
-          docker compose -f ./docker/docker-compose.yml build
+          docker compose -f docker/docker-compose.yml build
 
           echo "Checking images..."
           docker images | grep "nectargan-"
