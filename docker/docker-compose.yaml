@@ -1,0 +1,60 @@
+name: nectargan
+
+services:
+  visdom:
+    image: nectargan-visdom:latest
+    hostname: visdom
+    build:
+      context: .
+      dockerfile: ./visdom/Dockerfile
+      args: 
+        HOST_NAME: "${VISDOM_HOST:-127.0.0.1}"
+        EXPOSE_PORT: "${VISDOM_PORT:-8000}"
+    ports: 
+      - "${VISDOM_PORT:-8000}:${VISDOM_PORT:-8000}"
+    volumes:
+      - visdom-data:/root/.visdom
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - |
+          curl -fsS "http://${VISDOM_HOST}:${VISDOM_PORT}" > /dev/null || exit 1
+      interval: 15s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+
+  app:
+    image: nectargan-app:latest
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      args:
+        TORCH_TYPE: cpu
+    depends_on:  
+      visdom:
+        condition: service_healthy
+    volumes:
+      - ./mount:/app/mount:rw
+      - ./scripts:/app/scripts:rw
+    gpus: all
+    restart: unless-stopped
+    stdin_open: true
+    tty: true
+    command: ["python", "/app/scripts/welcome.py"]
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - >
+          python -c "import os,sys; 
+          import torch as t; 
+          import nectargan;
+          cpu=(os.environ.get('TORCH_TYPE','cpu')=='cpu'); 
+          sys.exit(0 if (cpu or t.cuda.is_available()) else 1)"
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+volumes:
+  visdom-data: {}

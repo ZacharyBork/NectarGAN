@@ -136,6 +136,7 @@ class ConfigSave:
 class ConfigVisdom:
     enable: bool
     env_name: str
+    server: str
     port: int
     image_size: int
     update_frequency: int

@@ -31,6 +31,11 @@ conda env create -f environment.yml
 **CUDA 12.6** | `pip install torch torchvision --index-url https://download.pytorch.org/whl/cu126`
 **CUDA 12.8** | `pip install torch torchvision --index-url https://download.pytorch.org/whl/cu128`
 
+## NectarGAN Docker
+**It is also possible to run headless training and testing with NectarGAN from a Docker container, using [Visdom](https://github.com/fossasia/visdom) for runtime data visualization!**
+
+**Please see the [Docker quickstart guide](./getting_started/docker.md) for more information.**
+
 ## NectarGAN Toolbox
 **The Toolbox quickstart guide is split in to three sections which are intended to be followed in order.**
 

@@ -78,13 +78,15 @@ NectarGAN is comprised of two core components:
 - **Automatically build train/test/val splits for dataset images** with easy control over split percentages.
 
 ## Getting Started
-#### Please refer to the [*quickstart documentation*](docs/getting_started.md) for information on how to get started using NectarGAN.
+**Please refer to the [*quickstart documentation*](docs/getting_started.md) for information on how to get started using NectarGAN.**
+
+**For a guide on how to run NectarGAN in a Docker container for headless training and testing, please see the [here](./getting_started/docker.md).**
 
 ## Frequently Asked Questions
-#### Please see [*the FAQs page*](docs/faq.md).
+**Please see [*the FAQs page*](docs/faq.md).**
 
 ## Looking to contribute?
-#### Please see [*the contribution guide*](docs/faq.md) for more information.
+**Please see [*the contribution guide*](docs/faq.md) for more information.**
 
 ## Who is this for?
 - Artists wanting to experiment with paired image translation tasks (why I first starting experimenting with Pix2pix).

@@ -117,6 +117,7 @@
             "visdom": {
                 "enable": false,
                 "env_name": "main",
+                "server": "http://localhost",
                 "port": 8097,
                 "image_size": 400,
                 "update_frequency": 40
