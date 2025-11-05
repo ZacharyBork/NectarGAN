@@ -12,7 +12,7 @@ ___
     <a href="https://www.python.org/downloads/">
     <img src="https://img.shields.io/badge/Python-3.12%2B-gray?logo=python&style=flat&labelColor=3776AB&logoColor=FFD43B" alt="Python Version"></a>
     <a href="https://pytorch.org/">
-    <img src="https://img.shields.io/badge/PyTorch-2.9.0-EE4C2C.svg?style=flat&logo=pytorch" alt="PyTorch Version"></a>
+    <img src="https://img.shields.io/badge/PyTorch-2.9.0-EE4C2C.svg?style=flat&logo=pytorch" alt="PyTorch Version"></a><br>
     <a href="https://github.com/ZacharyBork/NectarGAN/actions/workflows/package-test.yml">
     <img src="https://img.shields.io/github/actions/workflow/status/ZacharyBork/NectarGAN/package-test.yml?branch=main&label=Windows%20%2F%20Linux&logo=pytest&style=flat" alt="Platform Tests"></a>
     <a href="https://github.com/ZacharyBork/NectarGAN/actions/workflows/docker-build.yml">
