@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "nectargan"
-version = "0.1.0"
+version = "0.2.0"
 description = "A graphical GAN development environment and model assembly framework."
 readme = "README.md"
 license = { file = "LICENSE" }
@@ -50,6 +50,11 @@ nectargan-toolbox = "nectargan.start.toolbox:main"
 nectargan-train-paired = "nectargan.start.training.paired:main"
 nectargan-test-paired = "nectargan.start.testing.paired:main"
 nectargan-utils-restoreconfig = "nectargan.utils.rebuild_default_config:main"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+norecursedirs = [".git", ".venv", "build", "dist", "docker", "nectargan", "scripts"]
 
 [tool.setuptools.package-data]
 "nectargan" = ["py.typed", "*.qss", "*.ui", "*.png", "*.svg", "*.gif", "*.json"]
