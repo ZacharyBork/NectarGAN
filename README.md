@@ -1,18 +1,25 @@
-[![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/ZacharyBork/NectarGAN?sort=semver&style=flat)](https://github.com/ZacharyBork/NectarGAN/releases/latest)
-[![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg?style=flat)](https://opensource.org/licenses/Apache-2.0) 
-[![Docs](https://img.shields.io/badge/docs-website-brightgreen?logo=materialformkdocs&style=flat)](https://ZacharyBork.github.io/NectarGAN/)
-[![Python](https://img.shields.io/badge/Python-3.12%2B-gray?logo=python&style=flat&labelColor=3776AB&logoColor=FFD43B)](https://www.python.org/downloads/)
-[![pytorch](https://img.shields.io/badge/PyTorch-2.9.0-EE4C2C.svg?style=flat&logo=pytorch)](https://pytorch.org)
-[![ONNX](https://img.shields.io/badge/ONNX-%23424242.svg?logo=onnx&logoColor=white&style=flat)](https://onnx.ai/)
-[![Qt](https://img.shields.io/badge/Qt-%23217346.svg?logo=Qt&logoColor=white&style=flat)](https://www.qt.io/)
-___
-
-<div align="center"><img src="./nectargan/toolbox/resources/icons/toolbox_icon.png" alt="NectarGAN Logo" width="100" style="vertical-align: middle;"></div> 
-<h1 align="center">NectarGAN</h1> 
-
+<div align="center"><img src="./docs/resources/images/banner.png" alt="Toolbox Training GIF" style="vertical-align: middle;"></div> 
 <h4 align="center">A graphical development environment and model assembly framework for Pix2pix-style conditional GANs.</h4>
 
-<div align="center"><img src="./docs/resources/gifs/toolbox_training.gif" alt="Toolbox Training GIF" width="950" style="vertical-align: middle;"></div> 
+___
+<p align="center">
+    <a href="https://github.com/ZacharyBork/NectarGAN/releases/latest">
+    <img src="https://img.shields.io/github/v/release/ZacharyBork/NectarGAN?sort=semver&style=flat" alt="Current Release Version"></a>
+    <a href="https://opensource.org/licenses/Apache-2.0">
+    <img src="https://img.shields.io/badge/License-Apache%202.0-blue.svg?style=flat" alt="License"></a>
+    <a href="https://ZacharyBork.github.io/NectarGAN/">
+    <img src="https://img.shields.io/badge/docs-website-brightgreen?logo=materialformkdocs&style=flat" alt="Docs Website"></a>
+    <a href="https://www.python.org/downloads/">
+    <img src="https://img.shields.io/badge/Python-3.12%2B-gray?logo=python&style=flat&labelColor=3776AB&logoColor=FFD43B" alt="Python Version"></a>
+    <a href="https://pytorch.org/">
+    <img src="https://img.shields.io/badge/PyTorch-2.9.0-EE4C2C.svg?style=flat&logo=pytorch" alt="PyTorch Version"></a>
+    <a href="https://github.com/ZacharyBork/NectarGAN/actions/workflows/package-test.yml">
+    <img src="https://img.shields.io/github/actions/workflow/status/ZacharyBork/NectarGAN/package-test.yml?branch=main&label=Windows%20%2F%20Linux&logo=pytest&style=flat" alt="Platform Tests"></a>
+    <a href="https://github.com/ZacharyBork/NectarGAN/actions/workflows/docker-build.yml">
+    <img src="https://img.shields.io/github/actions/workflow/status/ZacharyBork/NectarGAN/docker-build.yml?branch=main&label=Docker&logo=docker&style=flat" alt="Docker Compose Test"></a>
+</p>
+
+<div align="center"><img src="./docs/resources/gifs/toolbox_training.gif" alt="Toolbox Training GIF" width="950" style="max-width: 950px; width: 100%; height: auto;"></div> 
 
 ## What is NectarGAN?
 NectarGAN is comprised of two core components:
