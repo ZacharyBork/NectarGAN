@@ -1,8 +1,10 @@
 {
     "config": {
         "common": {
-            "device": "cuda",
-            "gpu_ids": [0],
+            "device": "cpu",
+            "gpu_ids": [
+                0
+            ],
             "output_directory": "",
             "experiment_name": "",
             "experiment_version": 1
@@ -12,7 +14,7 @@
             "direction": "AtoB",
             "batch_size": 1,
             "num_workers": 0,
-            "load" : {
+            "load": {
                 "input_nc": 3,
                 "load_size": 256,
                 "crop_size": 256
@@ -56,9 +58,7 @@
                     "compression_quality_min": 99,
                     "compression_quality_max": 100
                 },
-                "target": {
-
-                }
+                "target": {}
             }
         },
         "train": {
@@ -72,11 +72,11 @@
                 "n_downs": 6,
                 "block_type": "UnetBlock",
                 "upsample_type": "Transposed",
-                "learning_rate" : {
+                "learning_rate": {
                     "epochs": 100,
                     "epochs_decay": 100,
                     "initial": 0.0002,
-                    "target": 0.0 
+                    "target": 0.0
                 },
                 "optimizer": {
                     "beta1": 0.5
@@ -94,7 +94,7 @@
                 },
                 "optimizer": {
                     "beta1": 0.5
-                }    
+                }
             },
             "loss": {
                 "lambda_gan": 1.0,
