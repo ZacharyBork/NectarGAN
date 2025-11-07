@@ -222,7 +222,8 @@ class Trainer():
 
     def build_dataloader(
             self, 
-            loader_type: str
+            loader_type: str,
+            is_train: bool=True
         ) -> torch.utils.data.DataLoader:
         '''Initializes a dataloader of the given type from a PairedDataset.
 
@@ -241,7 +242,8 @@ class Trainer():
         if not dataset_path.exists(): # Make sure data directory exists
             message = f'Unable to locate dataset at: {dataset_path.as_posix()}'
             raise FileNotFoundError(message)
-        dataset = PairedDataset(config=self.config, root_dir=dataset_path)
+        dataset = PairedDataset(
+            config=self.config, root_dir=dataset_path, is_train=is_train)
         return torch.utils.data.DataLoader( # Build dataloader from dataset
             dataset, batch_size=self.config.dataloader.batch_size, 
             shuffle=True, num_workers=self.config.dataloader.num_workers)
@@ -496,24 +498,32 @@ class Trainer():
             network : The network to perform the example inference.
             dataloader : The dataloader containing the validation set to eval
                 the model on.
-        '''               
+        '''      
         network.eval()
+         
         val_data = list(dataloader.dataset)
         indices = random.sample(
             range(len(val_data)), 
             self.config.save.num_examples)
         for i, idx in enumerate(indices):
             x, y = val_data[idx]
-            x = x.unsqueeze(0).to(self.device)
-            y = y.unsqueeze(0).to(self.device)
 
-            with torch.no_grad():
-                y_fake = network(x)
+            x: torch.Tensor = x.unsqueeze(0).to(self.device)
+            y: torch.Tensor = y.unsqueeze(0).to(self.device)
+
+            with torch.amp.autocast('cuda'):
+                with torch.no_grad():
+                    y_fake: torch.Tensor = network(x)
             
             base_name = f'epoch{self.current_epoch}_{str(i+1)}'
-            imgs = [(x, 'A_real'), (y, 'B_real'), (y_fake, 'B_fake')]
+            imgs = [
+                (x.detach().cpu(), 'A_real'),
+                (y.detach().cpu(), 'B_real'), 
+                (y_fake.detach().cpu(), 'B_fake')]
             for img, id in imgs:
                 filename = f'{base_name}_{id}.png'
                 output_path = pathlib.Path(self.examples_dir, filename)
-                save_image(img * 0.5 + 0.5, output_path.as_posix())
+                save_image(
+                    img * 0.5 + 0.5, output_path.as_posix(), 
+                    normalize=False, value_range=None)
         network.train()

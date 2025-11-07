@@ -120,7 +120,7 @@ class Pix2pixTrainer(Trainer):
     def _init_dataloaders(self) -> None:
         '''Builds dataloaders for training and validation datasets.'''
         self.train_loader = self.build_dataloader('train')
-        self.val_loader = self.build_dataloader('val')
+        self.val_loader = self.build_dataloader('val', is_train=False)
 
     def _init_gradscalers(self) -> None:
         '''Defines gradient scalers for generator and discriminator.

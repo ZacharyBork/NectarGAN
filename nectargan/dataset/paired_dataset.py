@@ -5,6 +5,7 @@ from PIL import Image
 import numpy as np
 import torch
 from torch.utils.data import Dataset
+import albumentations as A
 
 from nectargan.config.config_data import Config
 from nectargan.dataset.augmentations import Augmentations
@@ -15,7 +16,8 @@ class PairedDataset(Dataset):
     def __init__(
             self, 
             config: Config, 
-            root_dir: PathLike
+            root_dir: PathLike,
+            is_train: bool=True
         ) -> None:
         '''Init funtion for PairedDataset class.
 
@@ -24,6 +26,7 @@ class PairedDataset(Dataset):
             root_dir: Pathlike object point to the dataset root.
         '''
         self.config = config
+        self.is_train = is_train
         self.load_size = config.dataloader.load.load_size
         self.list_files = [i for i in pathlib.Path(root_dir).iterdir()]
         self.xform = Augmentations(config=self.config)
@@ -45,22 +48,40 @@ class PairedDataset(Dataset):
         Raises:
             RuntimeError : If config.common.direction is invalid.
         '''
+        size = self.load_size if self.is_train else self.config.dataloader.load.crop_size
         image = np.array(Image.open( # Get input and resize
             self.list_files[index].as_posix()
-        ).resize((self.load_size*2, self.load_size)))
+        ).resize((size*2, size)))
 
         direction = self.config.dataloader.direction
         if direction == 'AtoB':
-            input_image = image[:, :self.load_size, :]
-            target_image = image[:, self.load_size:, :]
+            input_image = image[:, :size, :]
+            target_image = image[:, size:, :]
         elif self.config.dataloader.direction == 'BtoA':
-            input_image = image[:, self.load_size:, :] 
-            target_image = image[:, :self.load_size, :]
+            input_image = image[:, size:, :] 
+            target_image = image[:, :size, :]
         else: 
             message = (f'Invalid direction{direction}\n'
                        f'Valid directions are AtoB and BtoA')
             raise RuntimeError(message)
 
-        return self.xform.apply_transforms(input_image, target_image)
-
-    
+        if self.is_train:
+            return self.xform.apply_transforms(input_image, target_image)
+        else: 
+            _input = A.Compose([
+            A.Normalize(
+                mean=[0.5, 0.5, 0.5], 
+                std=[0.5, 0.5, 0.5], 
+                max_pixel_value=255.0),
+            A.ToTensorV2()
+        ])(image=input_image)['image']
+        
+        _target = A.Compose([
+            A.Normalize(
+                mean=[0.5, 0.5, 0.5], 
+                std=[0.5, 0.5, 0.5], 
+                max_pixel_value=255.0),
+            A.ToTensorV2()
+        ])(image=target_image)['image']
+        
+        return _input, _target 
