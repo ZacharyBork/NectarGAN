@@ -5,8 +5,7 @@ from typing import Any
 from pathlib import Path
 
 import renderer as R
-
-CONFIG_PATH: Path = None
+import wrapperutils
 
 def render_config_header() -> None:
     R.LR.println('''                                                
@@ -37,12 +36,7 @@ e.g. config.train.generator.block_type
         if len(keys) == 0:
             R.RENDERER.set_status('No keys provided!', 'RED')
             continue
-        try: 
-            current_data = json_data
-            for key in keys[:-1]:
-                current_data = current_data[key]
-            final_key = keys[-1]
-            value = current_data[final_key]
+        try: value = wrapperutils.get_config_value(keys)
         except KeyError:
             R.RENDERER.set_status(
                 f'Unable to located config value with keys: {keys}', 'RED')
@@ -59,81 +53,41 @@ e.g. config.train.generator.block_type
     return (False, keys, value, userinput)
 
 def update_value(
-        json_data: dict[Any], 
         keys: list[str], 
         value: str
-    ) -> tuple[bool, bool | int | float | str]:
+    ) -> tuple[bool, Any]:
     while True:
         R.RENDERER.reset_console(inject_header=render_config_header)
         R.LR.println_split('Current Value:', 'GRN', value, 'WHT')
-        R.LR.println_split('Value Type:', 'GRN', type(value).__name__(), 'WHT')
+        R.LR.println_split('Value Type:', 'GRN', type(value), 'WHT')
         R.LR.println('\nPlease enter a new value (or exit to cancel)...')
         new_value = input(R.LR.color_text(f'Value -> ', 'ORG'))
         if new_value.strip().casefold() == 'exit':
             R.RENDERER.set_status(f'Operation canceled. Exiting...', 'RED')
             return (True, '')
         
-        match value:
-            case bool():
-                match new_value.strip().casefold():
-                    case 'true': new_value = True
-                    case 'false': new_value = False
-                    case _:
-                        R.RENDERER.set_status(
-                            f'Invalid value: "{new_value}" for type (bool)',
-                            'RED')
-                        continue
-            case int():
-                try: new_value = int(new_value)
-                except ValueError:
-                    R.RENDERER.set_status(
-                        f'Invalid value: "{new_value}" for type (int)',
-                        'RED')
-                    continue
-            case float():
-                try: new_value = float(new_value)
-                except ValueError:
-                    R.RENDERER.set_status(
-                        f'Invalid value: "{new_value}" for type (float)',
-                        'RED')
-                    continue
-            case str(): pass
-            case _: 
-                R.RENDERER.set_status(
-                    f'Unsupported value type: {type(new_value)}',
-                    'RED')
-                continue
-
-        current_data = json_data
-        for key in keys[:-1]:
-            current_data = current_data[key]
-        current_data[keys[-1]] = new_value
+        try: wrapperutils.set_config_value(keys, new_value)
+        except ValueError:
+            R.RENDERER.set_status(
+                f'Unsupported value type: {type(new_value)}', 'RED')
+            continue
         break
     return (False, new_value)
 
 def edit_config_file() -> None:
-    if CONFIG_PATH is None:
-        R.RENDERER.set_status(
-            'Unable to locate config file! Exiting...', 'RED')
-        return
-    
-    with open(CONFIG_PATH, 'r') as file:
-        json_data = json.loads(file.read())
-    
+    R.RENDERER.set_status('Editing config file...', 'GRN')
+
+    json_data = wrapperutils.read_config()
     canceled, keys, value, userinput = find_requested_config_value(json_data)
     if canceled: return
-    canceled, new_value = update_value(json_data, keys, value)
+    canceled, new_value = update_value(keys, value)
     if canceled: return
     
-    try:
-        with open(CONFIG_PATH, 'w') as file:
-            file.write(json.dumps(json_data, indent=2))
-    except Exception as e:
-        R.RENDERER.set_status('Unable to save config file.', 'RED')
-        return
+    R.RENDERER.reset_console(inject_header=render_config_header)
     R.LR.println('Update Successful!', 'GRN')
     R.LR.println_split('Variable:', 'GRN', userinput, 'WHT')
     R.LR.println_split('New Value:', 'GRN', new_value, 'WHT')
+    input(R.LR.color_text('\nPress enter to confirm...', 'ORG'))
     
     while True:
         R.RENDERER.reset_console(inject_header=render_config_header)
