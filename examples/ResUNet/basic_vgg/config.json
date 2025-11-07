@@ -1,17 +1,17 @@
 {
     "config": {
         "common": {
-            "device": "cpu",
+            "device": "cuda",
             "gpu_ids": [
                 0
             ],
-            "output_directory": "",
-            "experiment_name": "NectarGAN",
+            "output_directory": "E:/ML/NectarGAN/docker/mount/output",
+            "experiment_name": "facades_ResUNet_vgg",
             "experiment_version": 1
         },
         "dataloader": {
-            "dataroot": "",
-            "direction": "AtoB",
+            "dataroot": "E:/ML/NectarGAN/docker/mount/input/facades",
+            "direction": "BtoA",
             "batch_size": 1,
             "num_workers": 0,
             "load": {
@@ -70,7 +70,7 @@
             "generator": {
                 "features": 64,
                 "n_downs": 6,
-                "block_type": "UnetBlock",
+                "block_type": "ResidualUnetBlock",
                 "upsample_type": "Transposed",
                 "learning_rate": {
                     "epochs": 100,
@@ -102,7 +102,7 @@
                 "lambda_l2": 0.0,
                 "lambda_sobel": 0.0,
                 "lambda_laplacian": 0.0,
-                "lambda_vgg": 0.0
+                "lambda_vgg": 10.0
             }
         },
         "save": {
@@ -115,7 +115,7 @@
         },
         "visualizer": {
             "visdom": {
-                "enable": false,
+                "enable": true,
                 "env_name": "main",
                 "server": "http://localhost",
                 "port": 8097,

@@ -6,12 +6,12 @@
                 0
             ],
             "output_directory": "",
-            "experiment_name": "NectarGAN",
+            "experiment_name": "facades_standard_objective",
             "experiment_version": 1
         },
         "dataloader": {
             "dataroot": "",
-            "direction": "AtoB",
+            "direction": "BtoA",
             "batch_size": 1,
             "num_workers": 0,
             "load": {
@@ -115,7 +115,7 @@
         },
         "visualizer": {
             "visdom": {
-                "enable": false,
+                "enable": true,
                 "env_name": "main",
                 "server": "http://localhost",
                 "port": 8097,

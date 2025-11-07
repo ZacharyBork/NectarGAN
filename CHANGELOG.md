@@ -4,6 +4,20 @@
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.1](https://github.com/ZacharyBork/NectarGAN/releases/tag/v0.2.1) - 2025-11-07
+
+### Added
+- Helper script to graph loss data
+- Helper script to combine {x, y_fake, y} example images from training
+- UNet and ResUNet example images and loss graphs
+
+### Fixed
+- Bug in example image export that was reducing quality of exported example images during training
+- Issue where test images would have augmentations applied to them during model validation
+
+### Changed
+- dataloader.load_size in all default config files from 256 -> 286
+
 ## [0.2.0](https://github.com/ZacharyBork/NectarGAN/releases/tag/v0.2.0) - 2025-11-04
 
 ### Added

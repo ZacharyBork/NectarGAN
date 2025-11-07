@@ -6,12 +6,12 @@
                 0
             ],
             "output_directory": "",
-            "experiment_name": "NectarGAN",
+            "experiment_name": "facades_ResUNet",
             "experiment_version": 1
         },
         "dataloader": {
             "dataroot": "",
-            "direction": "AtoB",
+            "direction": "BtoA",
             "batch_size": 1,
             "num_workers": 0,
             "load": {
@@ -70,7 +70,7 @@
             "generator": {
                 "features": 64,
                 "n_downs": 6,
-                "block_type": "UnetBlock",
+                "block_type": "ResidualUnetBlock",
                 "upsample_type": "Transposed",
                 "learning_rate": {
                     "epochs": 100,
@@ -115,7 +115,7 @@
         },
         "visualizer": {
             "visdom": {
-                "enable": false,
+                "enable": true,
                 "env_name": "main",
                 "server": "http://localhost",
                 "port": 8097,

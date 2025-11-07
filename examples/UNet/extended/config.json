@@ -6,12 +6,12 @@
                 0
             ],
             "output_directory": "",
-            "experiment_name": "NectarGAN",
+            "experiment_name": "facades_extended_with_vgg",
             "experiment_version": 1
         },
         "dataloader": {
             "dataroot": "",
-            "direction": "AtoB",
+            "direction": "BtoA",
             "batch_size": 1,
             "num_workers": 0,
             "load": {
@@ -100,9 +100,9 @@
                 "lambda_gan": 1.0,
                 "lambda_l1": 100.0,
                 "lambda_l2": 0.0,
-                "lambda_sobel": 0.0,
-                "lambda_laplacian": 0.0,
-                "lambda_vgg": 0.0
+                "lambda_sobel": 3.0,
+                "lambda_laplacian": 1.0,
+                "lambda_vgg": 10.0
             }
         },
         "save": {
@@ -115,7 +115,7 @@
         },
         "visualizer": {
             "visdom": {
-                "enable": false,
+                "enable": true,
                 "env_name": "main",
                 "server": "http://localhost",
                 "port": 8097,
