@@ -16,7 +16,7 @@
       "num_workers": 0,
       "load": {
         "input_nc": 3,
-        "load_size": 256,
+        "load_size": 286,
         "crop_size": 256
       },
       "augmentations": {
