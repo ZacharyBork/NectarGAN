@@ -1,0 +1,127 @@
+{
+    "config": {
+        "common": {
+            "device": "cuda",
+            "gpu_ids": [
+                0
+            ],
+            "output_directory": "E:/ML/NectarGAN/docker/mount/output",
+            "experiment_name": "facades_standard_with_vgg",
+            "experiment_version": 1
+        },
+        "dataloader": {
+            "dataroot": "E:/ML/NectarGAN/docker/mount/input/facades",
+            "direction": "BtoA",
+            "batch_size": 1,
+            "num_workers": 0,
+            "load": {
+                "input_nc": 3,
+                "load_size": 286,
+                "crop_size": 256
+            },
+            "augmentations": {
+                "both": {
+                    "h_flip_chance": 0.5,
+                    "v_flip_chance": 0.0,
+                    "rot90_chance": 0.0,
+                    "elastic_transform_chance": 0.0,
+                    "elastic_transform_alpha": 1.0,
+                    "elastic_transform_sigma": 50.0,
+                    "optical_distortion_chance": 0.0,
+                    "optical_distortion_min": -0.05,
+                    "optical_distortion_max": 0.05,
+                    "optical_distortion_mode": "camera",
+                    "coarse_dropout_chance": 0.0,
+                    "coarse_dropout_holes_min": 1,
+                    "coarse_dropout_holes_max": 2,
+                    "coarse_dropout_height_min": 0.1,
+                    "coarse_dropout_height_max": 0.2,
+                    "coarse_dropout_width_min": 0.1,
+                    "coarse_dropout_width_max": 0.2
+                },
+                "input": {
+                    "colorjitter_chance": 0.0,
+                    "colorjitter_min_brightness": 0.8,
+                    "colorjitter_max_brightness": 1.2,
+                    "gaussnoise_chance": 0.0,
+                    "gaussnoise_min": 0.2,
+                    "gaussnoise_max": 0.44,
+                    "motionblur_chance": 0.0,
+                    "motionblur_limit": 7,
+                    "randgamma_chance": 0.0,
+                    "randgamma_min": 80.0,
+                    "randgamma_max": 120.0,
+                    "grayscale_chance": 0.0,
+                    "grayscale_method": "weighted_average",
+                    "compression_chance": 0.0,
+                    "compression_type": "jpeg",
+                    "compression_quality_min": 99,
+                    "compression_quality_max": 100
+                },
+                "target": {}
+            }
+        },
+        "train": {
+            "separate_lr_schedules": false,
+            "load": {
+                "continue_train": false,
+                "load_epoch": 1
+            },
+            "generator": {
+                "features": 64,
+                "n_downs": 6,
+                "block_type": "UnetBlock",
+                "upsample_type": "Transposed",
+                "learning_rate": {
+                    "epochs": 100,
+                    "epochs_decay": 100,
+                    "initial": 0.0002,
+                    "target": 0.0
+                },
+                "optimizer": {
+                    "beta1": 0.5
+                }
+            },
+            "discriminator": {
+                "n_layers": 3,
+                "base_channels": 64,
+                "max_channels": 512,
+                "learning_rate": {
+                    "epochs": 100,
+                    "epochs_decay": 100,
+                    "initial": 0.0002,
+                    "target": 0.0
+                },
+                "optimizer": {
+                    "beta1": 0.5
+                }
+            },
+            "loss": {
+                "lambda_gan": 1.0,
+                "lambda_l1": 100.0,
+                "lambda_l2": 0.0,
+                "lambda_sobel": 0.0,
+                "lambda_laplacian": 0.0,
+                "lambda_vgg": 10.0
+            }
+        },
+        "save": {
+            "save_model": true,
+            "model_save_rate": 5,
+            "auto_increment_version": true,
+            "save_examples": true,
+            "example_save_rate": 1,
+            "num_examples": 1
+        },
+        "visualizer": {
+            "visdom": {
+                "enable": true,
+                "env_name": "main",
+                "server": "http://localhost",
+                "port": 8097,
+                "image_size": 400,
+                "update_frequency": 40
+            }
+        }
+    }
+}
