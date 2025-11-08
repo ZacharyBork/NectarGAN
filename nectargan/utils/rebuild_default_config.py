@@ -17,130 +17,131 @@ from pathlib import Path
 from importlib.resources import files
 
 DEFINITION = {
-    'config': {
-        'common': {
-            'device': 'cuda',
-            'gpu_ids': [0],
-            'output_directory': '',
-            'experiment_name': '',
-            'experiment_version': 1
+  'config': {
+    'common': {
+      'device': 'cpu',
+      'gpu_ids': [
+        0
+      ],
+      'output_directory': '',
+      'experiment_name': 'NectarGAN',
+      'experiment_version': 1
+    },
+    'dataloader': {
+      'dataroot': '',
+      'direction': 'AtoB',
+      'batch_size': 1,
+      'num_workers': 0,
+      'load': {
+        'input_nc': 3,
+        'load_size': 286,
+        'crop_size': 256
+      },
+      'augmentations': {
+        'both': {
+          'h_flip_chance': 0.5,
+          'v_flip_chance': 0.0,
+          'rot90_chance': 0.0,
+          'elastic_transform_chance': 0.0,
+          'elastic_transform_alpha': 1.0,
+          'elastic_transform_sigma': 50.0,
+          'optical_distortion_chance': 0.0,
+          'optical_distortion_min': -0.05,
+          'optical_distortion_max': 0.05,
+          'optical_distortion_mode': 'camera',
+          'coarse_dropout_chance': 0.0,
+          'coarse_dropout_holes_min': 1,
+          'coarse_dropout_holes_max': 2,
+          'coarse_dropout_height_min': 0.1,
+          'coarse_dropout_height_max': 0.2,
+          'coarse_dropout_width_min': 0.1,
+          'coarse_dropout_width_max': 0.2
         },
-        'dataloader': {
-            'dataroot': '',
-            'direction': 'AtoB',
-            'batch_size': 1,
-            'num_workers': 0,
-            'load' : {
-                'input_nc': 3,
-                'load_size': 256,
-                'crop_size': 256
-            },
-            'augmentations': {
-                'both': {
-                    'h_flip_chance': 0.0,
-                    'v_flip_chance': 0.0,
-                    'rot90_chance': 0.0,
-                    'elastic_transform_chance': 0.0,
-                    'elastic_transform_alpha': 1.0,
-                    'elastic_transform_sigma': 50.0,
-                    'optical_distortion_chance': 0.0,
-                    'optical_distortion_min': -0.05,
-                    'optical_distortion_max': 0.05,
-                    'optical_distortion_mode': 'camera',
-                    'coarse_dropout_chance': 0.0,
-                    'coarse_dropout_holes_min': 1,
-                    'coarse_dropout_holes_max': 2,
-                    'coarse_dropout_height_min': 0.1,
-                    'coarse_dropout_height_max': 0.2,
-                    'coarse_dropout_width_min': 0.1,
-                    'coarse_dropout_width_max': 0.2
-                },
-                'input': {
-                    'colorjitter_chance': 0.0,
-                    'colorjitter_min_brightness': 0.8,
-                    'colorjitter_max_brightness': 1.2,
-                    'gaussnoise_chance': 0.0,
-                    'gaussnoise_min': 0.2,
-                    'gaussnoise_max': 0.44,
-                    'motionblur_chance': 0.0,
-                    'motionblur_limit': 7,
-                    'randgamma_chance': 0.0,
-                    'randgamma_min': 80.0,
-                    'randgamma_max': 120.0,
-                    'grayscale_chance': 0.0,
-                    'grayscale_method': 'weighted_average',
-                    'compression_chance': 0.0,
-                    'compression_type': 'jpeg',
-                    'compression_quality_min': 99,
-                    'compression_quality_max': 100
-                },
-                'target': {
-
-                }
-            }
+        'input': {
+          'colorjitter_chance': 0.0,
+          'colorjitter_min_brightness': 0.8,
+          'colorjitter_max_brightness': 1.2,
+          'gaussnoise_chance': 0.0,
+          'gaussnoise_min': 0.2,
+          'gaussnoise_max': 0.44,
+          'motionblur_chance': 0.0,
+          'motionblur_limit': 7,
+          'randgamma_chance': 0.0,
+          'randgamma_min': 80.0,
+          'randgamma_max': 120.0,
+          'grayscale_chance': 0.0,
+          'grayscale_method': 'weighted_average',
+          'compression_chance': 0.0,
+          'compression_type': 'jpeg',
+          'compression_quality_min': 99,
+          'compression_quality_max': 100
         },
-        'train': {
-            'separate_lr_schedules': False,
-            'load': {
-                'continue_train': False,
-                'load_epoch': 1
-            },
-            'generator': {
-                'features': 64,
-                'n_downs': 6,
-                'block_type': 'UnetBlock',
-                'upsample_type': 'Transposed',
-                'learning_rate' : {
-                    'epochs': 100,
-                    'epochs_decay': 100,
-                    'initial': 0.0002,
-                    'target': 0.0 
-                },
-                'optimizer': {
-                    'beta1': 0.5
-                }
-            },
-            'discriminator': {
-                'n_layers': 3,
-                'base_channels': 64,
-                'max_channels': 512,
-                'learning_rate': {
-                    'epochs': 100,
-                    'epochs_decay': 100,
-                    'initial': 0.0002,
-                    'target': 0.0
-                },
-                'optimizer': {
-                    'beta1': 0.5
-                }    
-            },
-            'loss': {
-                'lambda_gan': 1.0,
-                'lambda_l1': 100.0,
-                'lambda_l2': 0.0,
-                'lambda_sobel': 0.0,
-                'lambda_laplacian': 0.0,
-                'lambda_vgg': 0.0
-            }
+        'target': {}
+      }
+    },
+    'train': {
+      'separate_lr_schedules': False,
+      'load': {
+        'continue_train': False,
+        'load_epoch': 1
+      },
+      'generator': {
+        'features': 64,
+        'n_downs': 6,
+        'block_type': 'UnetBlock',
+        'upsample_type': 'Transposed',
+        'learning_rate': {
+          'epochs': 100,
+          'epochs_decay': 100,
+          'initial': 0.0002,
+          'target': 0.0
         },
-        'save': {
-            'save_model': True,
-            'model_save_rate': 5,
-            'auto_increment_version': True,
-            'save_examples': True,
-            'example_save_rate': 1,
-            'num_examples': 1
-        },
-        'visualizer': {
-            'visdom': {
-                'enable': False,
-                'env_name': 'main',
-                'port': 8097,
-                'image_size': 400,
-                'update_frequency': 40
-            }
+        'optimizer': {
+          'beta1': 0.5
         }
+      },
+      'discriminator': {
+        'n_layers': 3,
+        'base_channels': 64,
+        'max_channels': 512,
+        'learning_rate': {
+          'epochs': 100,
+          'epochs_decay': 100,
+          'initial': 0.0002,
+          'target': 0.0
+        },
+        'optimizer': {
+          'beta1': 0.5
+        }
+      },
+      'loss': {
+        'lambda_gan': 1.0,
+        'lambda_l1': 100.0,
+        'lambda_l2': 0.0,
+        'lambda_sobel': 0.0,
+        'lambda_laplacian': 0.0,
+        'lambda_vgg': 0.0
+      }
+    },
+    'save': {
+      'save_model': True,
+      'model_save_rate': 5,
+      'auto_increment_version': True,
+      'save_examples': True,
+      'example_save_rate': 1,
+      'num_examples': 1
+    },
+    'visualizer': {
+      'visdom': {
+        'enable': False,
+        'env_name': 'main',
+        'server': 'http://localhost',
+        'port': 8097,
+        'image_size': 400,
+        'update_frequency': 40
+      }
     }
+  }
 }
 
 def main():
@@ -164,5 +165,5 @@ def main():
     except Exception as e:
         raise RuntimeError('Unable to create default config file.') from e
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
