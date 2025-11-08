@@ -42,7 +42,7 @@ def _force_cpu_device(pytestconfig: pytest.Config) -> None:
 def session_once(pytestconfig: pytest.Config):
     _build_tmp_directory()
     _build_config()
-    initial_device = _force_cpu_device(pytestconfig)
+    _force_cpu_device(pytestconfig)
     yield
     _cleanup()
 
