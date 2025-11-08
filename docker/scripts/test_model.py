@@ -2,15 +2,14 @@ import subprocess
 from pathlib import Path
 
 import renderer as R
-
-MOUNT_DIRECTORY: Path = None
-CONFIG_PATH: Path = None
+import wrapperutils
 
 def find_experiment_directories(output_directory: Path) -> list[Path]:
     return [i for i in output_directory.iterdir() if i.is_dir()]
 
 def _get_experiment_directory() -> Path:
-    output_directory = Path(MOUNT_DIRECTORY, 'output')
+    mount_directory = wrapperutils.get_mount_directory()
+    output_directory = Path(mount_directory, 'output')
     if not output_directory.exists(): raise FileNotFoundError()
 
     experiment_dirs = find_experiment_directories(output_directory)
@@ -93,7 +92,8 @@ def get_load_epoch(experiment_directory: Path) -> tuple[bool, int]:
     return (True, load_epoch)
 
 def get_dataroot() -> tuple[bool, Path, Path]:
-    input_directory = Path(MOUNT_DIRECTORY, 'input')
+    mount_directory = wrapperutils.get_mount_directory()
+    input_directory = Path(mount_directory, 'input')
     if not input_directory.exists():
         R.RENDERER.set_status(
             'Unable to locate mounted input directory!', 'RED')
@@ -240,7 +240,7 @@ def begin_test(
         'nectargan.start.testing.paired', 
         '-e', experiment_directory.as_posix(),
         '-l', str(load_epoch),
-        '-f', CONFIG_PATH.as_posix(),
+        '-f', wrapperutils.get_config_path().as_posix(),
         '-d', dataroot.as_posix(),
         '-i', str(test_iterations)])
     proc.wait()

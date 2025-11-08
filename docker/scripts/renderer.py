@@ -27,22 +27,24 @@ class LineRenderer:
 
     def println(
             self, 
-            text: str, 
+            text: str='', 
             color: str='WHT', 
-            nocolor: bool=False
+            nocolor: bool=False,
+            line_end: str | None=None
         ) -> None:
-        if nocolor: print(text)
-        else: print(self.color_text(text, color))
+        if nocolor: print(text, end=line_end)
+        else: print(self.color_text(text, color), end=line_end)
 
     def println_split(
             self, 
             prefix_text: str='', 
             prefix_color: str='WHT', 
             body_text: str='', 
-            body_color: str='WHT'
+            body_color: str='WHT',
+            line_end: str | None=None
         ) -> None:        
         print(f'{self.color_text(prefix_text, prefix_color)} '
-              f'{self.color_text(body_text, body_color)}')        
+              f'{self.color_text(body_text, body_color)}', end=line_end)        
     
 LR = LineRenderer()
 

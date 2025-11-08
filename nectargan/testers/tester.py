@@ -241,7 +241,9 @@ class Tester(Trainer):
         Returns:
             list[int] : The list of indices.
         '''
-        return random.sample(range(len(self.test_data)), count)
+        datalength = len(self.test_data)
+        count = min(count, datalength)
+        return random.sample(range(datalength), count)
     
     def _test_step(self, i: int, idx: int) -> None:
         data = self.test_data[idx]

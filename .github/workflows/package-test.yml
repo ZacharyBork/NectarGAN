@@ -35,6 +35,6 @@ jobs:
           python -m pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
           python -m pip install ".[dev]"
 
-      - name: Run tests
+      - name: Run Tests
         run: |
-          pytest -ra --maxfail=1 --force-cpu
+          pytest tests/unit tests/integration -ra --maxfail=1 -v --force-cpu
