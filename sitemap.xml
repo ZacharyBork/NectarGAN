@@ -2,150 +2,150 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://ZacharyBork.github.io/NectarGAN/</loc>
-         <lastmod>2025-11-05</lastmod>
+         <lastmod>2025-11-08</lastmod>
     </url>
     <url>
          <loc>https://ZacharyBork.github.io/NectarGAN/api/</loc>
-         <lastmod>2025-11-05</lastmod>
+         <lastmod>2025-11-08</lastmod>
     </url>
     <url>
          <loc>https://ZacharyBork.github.io/NectarGAN/faq/</loc>
-         <lastmod>2025-11-05</lastmod>
+         <lastmod>2025-11-08</lastmod>
     </url>
     <url>
          <loc>https://ZacharyBork.github.io/NectarGAN/getting_started/</loc>
-         <lastmod>2025-11-05</lastmod>
+         <lastmod>2025-11-08</lastmod>
     </url>
     <url>
          <loc>https://ZacharyBork.github.io/NectarGAN/scripts/</loc>
-         <lastmod>2025-11-05</lastmod>
+         <lastmod>2025-11-08</lastmod>
     </url>
     <url>
          <loc>https://ZacharyBork.github.io/NectarGAN/testing_your_installation/</loc>
-         <lastmod>2025-11-05</lastmod>
+         <lastmod>2025-11-08</lastmod>
     </url>
     <url>
          <loc>https://ZacharyBork.github.io/NectarGAN/toolbox/</loc>
-         <lastmod>2025-11-05</lastmod>
+         <lastmod>2025-11-08</lastmod>
     </url>
     <url>
          <loc>https://ZacharyBork.github.io/NectarGAN/api/config/</loc>
-         <lastmod>2025-11-05</lastmod>
+         <lastmod>2025-11-08</lastmod>
     </url>
     <url>
          <loc>https://ZacharyBork.github.io/NectarGAN/api/dataset/</loc>
-         <lastmod>2025-11-05</lastmod>
+         <lastmod>2025-11-08</lastmod>
     </url>
     <url>
          <loc>https://ZacharyBork.github.io/NectarGAN/api/onnx_tools/</loc>
-         <lastmod>2025-11-05</lastmod>
+         <lastmod>2025-11-08</lastmod>
     </url>
     <url>
          <loc>https://ZacharyBork.github.io/NectarGAN/api/scheduling/</loc>
-         <lastmod>2025-11-05</lastmod>
+         <lastmod>2025-11-08</lastmod>
     </url>
     <url>
          <loc>https://ZacharyBork.github.io/NectarGAN/api/testers/</loc>
-         <lastmod>2025-11-05</lastmod>
+         <lastmod>2025-11-08</lastmod>
     </url>
     <url>
          <loc>https://ZacharyBork.github.io/NectarGAN/api/visdom/</loc>
-         <lastmod>2025-11-05</lastmod>
+         <lastmod>2025-11-08</lastmod>
     </url>
     <url>
          <loc>https://ZacharyBork.github.io/NectarGAN/api/losses/loss_functions/</loc>
-         <lastmod>2025-11-05</lastmod>
+         <lastmod>2025-11-08</lastmod>
     </url>
     <url>
          <loc>https://ZacharyBork.github.io/NectarGAN/api/losses/loss_spec/</loc>
-         <lastmod>2025-11-05</lastmod>
+         <lastmod>2025-11-08</lastmod>
     </url>
     <url>
          <loc>https://ZacharyBork.github.io/NectarGAN/api/losses/lossmanager/</loc>
-         <lastmod>2025-11-05</lastmod>
+         <lastmod>2025-11-08</lastmod>
     </url>
     <url>
          <loc>https://ZacharyBork.github.io/NectarGAN/api/models/patchgan/</loc>
-         <lastmod>2025-11-05</lastmod>
+         <lastmod>2025-11-08</lastmod>
     </url>
     <url>
          <loc>https://ZacharyBork.github.io/NectarGAN/api/models/unet/</loc>
-         <lastmod>2025-11-05</lastmod>
+         <lastmod>2025-11-08</lastmod>
     </url>
     <url>
          <loc>https://ZacharyBork.github.io/NectarGAN/api/models/unet_blocks/</loc>
-         <lastmod>2025-11-05</lastmod>
+         <lastmod>2025-11-08</lastmod>
     </url>
     <url>
          <loc>https://ZacharyBork.github.io/NectarGAN/api/scheduling/integrations/</loc>
-         <lastmod>2025-11-05</lastmod>
+         <lastmod>2025-11-08</lastmod>
     </url>
     <url>
          <loc>https://ZacharyBork.github.io/NectarGAN/api/scheduling/schedule_dataclass/</loc>
-         <lastmod>2025-11-05</lastmod>
+         <lastmod>2025-11-08</lastmod>
     </url>
     <url>
          <loc>https://ZacharyBork.github.io/NectarGAN/api/scheduling/schedule_functions/</loc>
-         <lastmod>2025-11-05</lastmod>
+         <lastmod>2025-11-08</lastmod>
     </url>
     <url>
          <loc>https://ZacharyBork.github.io/NectarGAN/api/scheduling/schedulers/</loc>
-         <lastmod>2025-11-05</lastmod>
+         <lastmod>2025-11-08</lastmod>
     </url>
     <url>
          <loc>https://ZacharyBork.github.io/NectarGAN/api/trainers/building_a_trainer/</loc>
-         <lastmod>2025-11-05</lastmod>
+         <lastmod>2025-11-08</lastmod>
     </url>
     <url>
          <loc>https://ZacharyBork.github.io/NectarGAN/api/trainers/trainer/</loc>
-         <lastmod>2025-11-05</lastmod>
+         <lastmod>2025-11-08</lastmod>
     </url>
     <url>
          <loc>https://ZacharyBork.github.io/NectarGAN/getting_started/cli/</loc>
-         <lastmod>2025-11-05</lastmod>
+         <lastmod>2025-11-08</lastmod>
     </url>
     <url>
          <loc>https://ZacharyBork.github.io/NectarGAN/getting_started/docker/</loc>
-         <lastmod>2025-11-05</lastmod>
+         <lastmod>2025-11-08</lastmod>
     </url>
     <url>
          <loc>https://ZacharyBork.github.io/NectarGAN/getting_started/toolbox_review/</loc>
-         <lastmod>2025-11-05</lastmod>
+         <lastmod>2025-11-08</lastmod>
     </url>
     <url>
          <loc>https://ZacharyBork.github.io/NectarGAN/getting_started/toolbox_testing/</loc>
-         <lastmod>2025-11-05</lastmod>
+         <lastmod>2025-11-08</lastmod>
     </url>
     <url>
          <loc>https://ZacharyBork.github.io/NectarGAN/getting_started/toolbox_training/</loc>
-         <lastmod>2025-11-05</lastmod>
+         <lastmod>2025-11-08</lastmod>
     </url>
     <url>
          <loc>https://ZacharyBork.github.io/NectarGAN/toolbox/dataset/</loc>
-         <lastmod>2025-11-05</lastmod>
+         <lastmod>2025-11-08</lastmod>
     </url>
     <url>
          <loc>https://ZacharyBork.github.io/NectarGAN/toolbox/experiment/</loc>
-         <lastmod>2025-11-05</lastmod>
+         <lastmod>2025-11-08</lastmod>
     </url>
     <url>
          <loc>https://ZacharyBork.github.io/NectarGAN/toolbox/review/</loc>
-         <lastmod>2025-11-05</lastmod>
+         <lastmod>2025-11-08</lastmod>
     </url>
     <url>
          <loc>https://ZacharyBork.github.io/NectarGAN/toolbox/settings/</loc>
-         <lastmod>2025-11-05</lastmod>
+         <lastmod>2025-11-08</lastmod>
     </url>
     <url>
          <loc>https://ZacharyBork.github.io/NectarGAN/toolbox/testing/</loc>
-         <lastmod>2025-11-05</lastmod>
+         <lastmod>2025-11-08</lastmod>
     </url>
     <url>
          <loc>https://ZacharyBork.github.io/NectarGAN/toolbox/training/</loc>
-         <lastmod>2025-11-05</lastmod>
+         <lastmod>2025-11-08</lastmod>
     </url>
     <url>
          <loc>https://ZacharyBork.github.io/NectarGAN/toolbox/utilities/</loc>
-         <lastmod>2025-11-05</lastmod>
+         <lastmod>2025-11-08</lastmod>
     </url>
 </urlset>
