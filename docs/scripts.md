@@ -51,7 +51,7 @@ This script will parse the loss log from a provided experiment directory and use
 | --- | --- |
 | One&nbsp;Graph&nbsp;per&nbsp;Loss | For each loss (and its weight, if selected) one unique graph will be generated, which will have its Y axis normalized to the values of just the given loss function. |
 | Total&nbsp;Combined&nbsp;Loss | All losses (and, optionally, their weights) will be graphed on to a single graph titled `Combined Loss`. Good for quick global cost comparisons, usually bad for granular data visualization. Consider using the `-ls` flag to apply logarithmic scaling to the graph for readability. |
-| Split&nbsp;G&nbsp;and&nbsp;D | Creates one graph for generator losses, and another for discriminator losses. The graphs will be stacked vertically and each will be titled according to the network whos losses are being graphed. And example of this type of loss graph can be seen [here](../examples/UNet/basic/loss_graphs.png). |
+| Split&nbsp;G&nbsp;and&nbsp;D | Creates one graph for generator losses, and another for discriminator losses. The graphs will be stacked vertically and each will be titled according to the network whos losses are being graphed. An example of this type of loss graph can be seen [here](https://github.com/ZacharyBork/NectarGAN/blob/main/examples/UNet/basic/loss_graphs.png). |
 
 ### Running the Script
 **All commands should be run from the project root (i.e. `Nectargan/`).**
