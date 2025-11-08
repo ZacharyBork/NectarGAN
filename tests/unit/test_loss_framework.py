@@ -12,8 +12,8 @@ def test_loss_manager():
     checks that it was successful. Then evaluates the loss 10,000 times and 
     performs various sanity checks on the output.
     '''
-    root = Path(__file__).parent.parent
-    config_file = Path(root, 'nectargan/config/default.json')
+    root = Path(__file__).parent.parent.parent.resolve()
+    config_file = Path(root, 'tests/tmp/config.json')
     assert config_file.exists()
 
     config_manager = ConfigManager(config_file)
