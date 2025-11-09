@@ -3,9 +3,7 @@
 > [`Getting Started - Home`](../getting_started.md)
 
 > [!NOTE]
-> Up to this point, my focus has primarily been on the Toolbox interface. As such, the CLI options currently are rather limited. What does exist is really just a slightly expanded version of the scripts I originally used for validation of the Pix2pix implementation.
->
-> **Expanding CLI support is a high-priority task, so this is likely to change significantly in the near future.**
+> The Dockerized version of NectarGAN provides an interactive CLI wrapper. It is recommended to use that currently if you would like to train headlessly. This wrapper will likely replace the local CLI interface as well in the future.
 
 ## Training
 #### Reference: [`nectargan.start.training.paired`](https://github.com/ZacharyBork/NectarGAN/blob/main/nectargan/start/training/paired.py)

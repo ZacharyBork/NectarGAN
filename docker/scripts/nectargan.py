@@ -29,6 +29,7 @@ def handle_input() -> None:
         case 'test': test_model.run_model_test()
         case 'swapdir': wrapperutils.swap_direction()
         case 'dataset-set': wrapperutils.set_dataset(command)
+        case 'dataset-info': wrapperutils.get_dataset_info()
         case 'config-edit': config_editor.edit_config_file()
         case 'config-print': wrapperutils.print_config_data()
         case 'help': R.RENDERER.set_status('Not yet implemented...', 'RED')

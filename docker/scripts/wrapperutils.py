@@ -152,6 +152,51 @@ def set_dataset(command: list[str]) -> None:
         R.RENDERER.set_status(f'ERROR: Unable to load config file.', 'RED')
         return
     
+def get_dataset_info() -> None:
+    dataset = Path(get_config_value(
+        ['config', 'dataloader', 'dataroot']))
+    if not dataset.exists():
+        R.RENDERER.set_status(
+            f'Unable to locate dataset at path: {dataset.as_posix()}', 'RED')
+        return
+    R.RENDERER.set_status('Checking dataset...', 'GRN')
+    R.LR.println_split('Path:', 'ORG', dataset.as_posix(), 'GRN')
+    R.LR.println()
+    R.RENDERER.add_divider()
+    R.LR.println('File Counts:', 'ORG')
+
+    counts = { 'test': 0, 'train': 0, 'val': 0 }
+    for i in ['test', 'train', 'val']:
+        subdirectory = Path(dataset, i)
+        if not subdirectory.exists(): 
+            R.LR.println_split(
+                f'- {i.capitalize()}:', 'ORG', 'Not found.', 'RED')
+        else: 
+            num_files = len(list(subdirectory.iterdir()))
+            if num_files > 0: 
+                counts[i] = num_files
+                color = 'GRN'
+            else: color = 'RED'
+        R.LR.println_split(
+            f'- {i.capitalize()}:', 'ORG', str(num_files), color)
+    R.LR.println()
+    R.RENDERER.add_divider()
+    total_files = 0
+    for value in counts.values(): total_files += value
+    R.LR.println_split('Total files:', 'ORG', str(total_files), 'GRN')
+    R.LR.println('Splits:', 'ORG')
+    for i in ['test', 'train', 'val']:
+        percent = float(counts[i]) / max(0.0001, float(total_files)) * 100.0
+        percent = round(percent, 2)
+        color = 'GRN' if percent > 0.0 else 'RED'
+        R.LR.println_split(
+            f'- {i.capitalize()}:', 'ORG', f'{str(percent)}%', color)
+    
+    R.LR.println()
+    R.RENDERER.add_divider()
+    input(R.LR.color_text('Press enter to continue...', 'ORG'))
+
+    
 ##### DIRECTION #####
 
 def _get_direction() -> tuple[bool, str]:

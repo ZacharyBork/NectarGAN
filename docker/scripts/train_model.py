@@ -3,6 +3,7 @@ import subprocess
 
 import renderer as R
 import wrapperutils
+import formatter
 
 def _get_loss_subspec() -> tuple[bool, str]:
     loss_subspecs = ['basic', 'basic+vgg', 'extended', 'extended+vgg']
@@ -91,65 +92,8 @@ def display_training_finished(train_length: float) -> None:
         f'Time Taken |', 'GRN',
         f'{time.strftime('%H:%M:%S', time.gmtime(train_length))}', 'WHT')
 
-    ln = '---------------------------------------------------------------'
-    R.LR.println(f'{ln}\n', 'ORG')
+    R.RENDERER.add_divider()
     input(R.LR.color_text('Press enter to confirm...', 'ORG'))
-
-def print_formatted_output(proc, epoch_count) -> None:
-    # Takes the output of the training script and makes it look nicer
-    config_text = ''
-    status_text = ''
-    status_update_counter = 0
-    status_max_updates = 3
-    ln = '---------------------------------------------------------------'
-    for line in proc.stdout:
-        if line.startswith('(epoch:'):
-            R.RENDERER.reset_console()
-            R.LR.println(config_text, nocolor=True, line_end='')
-            R.LR.println(f'{ln}\n', 'ORG', line_end='')
-            for ch in ['(', ')', ':', ',']:
-                if ch in line: line = line.replace(ch, '')
-            split = line.split(' ')
-            current_epoch = split[1]
-            R.LR.println_split(
-                'Epoch:', 'ORG', f'{current_epoch}/{epoch_count}')
-            R.LR.println_split('Iteration:', 'ORG', split[3])
-            R.LR.println('Loss:', 'ORG')
-            for i in range(round((len(split) - 5) / 2)):
-                idx = i * 2 + 5
-                R.LR.println_split(
-                    f'    - {split[idx]}: ', 'GRN', 
-                    f'{split[idx+1]}', 'WHT')
-            R.LR.println(f'Progress {ln[:-9]}\n', 'ORG', line_end='')
-            progress = int(current_epoch) / epoch_count
-            progress_bar = '#' * round(progress * len(ln))
-            R.LR.println(progress_bar, 'GRN')
-            R.LR.println(f'{ln}\n', 'ORG', line_end='')
-            if not status_text == '': 
-                R.LR.println(status_text, nocolor=True)
-                if status_update_counter == status_max_updates:
-                    status_text = ''
-                    status_update_counter = 0
-                else: status_update_counter += 1
-        elif line.startswith('Torch') or line.startswith('CUDA'):
-            split = line.split(':')
-            newline = f'{R.LR.color_text(split[0], 'ORG')}:'
-            newline += f'{R.LR.color_text(split[1], 'GRN')}'
-            R.LR.println(newline, nocolor=True, line_end='')
-            config_text += newline
-        elif line.startswith('LossManager:'):
-            split = line.split(' ')
-            status_text += f'{R.LR.color_text('LossManager: ', 'ORG')}'
-            status_text += f'{R.LR.color_text('Logs updated. ', 'GRN')}'
-            status_text += f'{R.LR.color_text('Time taken: ', 'ORG')}'
-            status_text += f'{R.LR.color_text(f'{split[-2]} ', 'GRN')}'
-            status_text += f'{R.LR.color_text('seconds\n', 'ORG')}'
-        elif (line.startswith('Saving example images:') or
-              line.startswith('(End of epoch')):
-            split = line.split(':')
-            status_text += (f'{R.LR.color_text(f'{split[0]}: ', 'ORG')}')
-            status_text += f'{R.LR.color_text(f'{split[1]}', 'GRN')}'
-        else: R.LR.println(line, line_end='')
 
 def begin_training() -> None:
     success, subspec = _get_loss_subspec()
@@ -179,7 +123,7 @@ def begin_training() -> None:
         cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, 
         text=True, bufsize=1)
     
-    print_formatted_output(proc, epoch_count)
+    formatter.train_log(proc, epoch_count)
             
     return_code = proc.wait()
     if not return_code == 0:
