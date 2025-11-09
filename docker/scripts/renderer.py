@@ -3,6 +3,8 @@
 import subprocess
 from typing import Callable
 
+import wrapperutils
+
 class LineRenderer:
     def __init__(self) -> None:
         self.COLORS = {
@@ -63,12 +65,14 @@ class ConsoleRenderer:
         LR.println(welcome_text, 'ORG')
 
     def print_commands(self) -> None:
-        # {LR.color_text('help', 'GRN')}         | See all commands
+        dataset = 'Current: ' + wrapperutils.get_current_dataset()
+        dir = 'Current: ' + wrapperutils.get_current_direction()
         LR.println(nocolor=True, text=f'''Common commands:
 
 {LR.color_text('train', 'GRN')}        | Begin training
 {LR.color_text('test', 'GRN')}         | Begin testing
-{LR.color_text('dataset-set', 'GRN')}  | Set current dataset
+{LR.color_text('swapdir', 'GRN')}      | Switch train/test direction ({dir})
+{LR.color_text('dataset-set', 'GRN')}  | Set current dataset ({dataset})
 {LR.color_text('config-edit', 'GRN')}  | Edit config file
 {LR.color_text('config-print', 'GRN')} | Print current config
 {LR.color_text('shell', 'YLW')}        | Exit startup script

@@ -27,6 +27,7 @@ def handle_input() -> None:
     match command[0].strip().casefold():
         case 'train': train_model.begin_training()
         case 'test': test_model.run_model_test()
+        case 'swapdir': wrapperutils.swap_direction()
         case 'dataset-set': wrapperutils.set_dataset(command)
         case 'config-edit': config_editor.edit_config_file()
         case 'config-print': wrapperutils.print_config_data()

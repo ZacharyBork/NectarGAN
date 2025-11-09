@@ -117,6 +117,19 @@ def set_config_value(keys: list[str], value: Any) -> Any:
 
 ##### DATASET #####
 
+def get_current_dataset() -> str:
+    dataset = Path(get_config_value(
+        ['config', 'dataloader', 'dataroot']))
+    if dataset is None or dataset == Path('/app/mount/input'): 
+        return R.LR.color_text('No dataset set!', 'RED')
+    
+    for i in ['train', 'val']:
+        subdirectory = Path(dataset, i)
+        if not subdirectory.exists():
+            return R.LR.color_text(f'Dataset missing split "{i}"!', 'RED')
+        
+    return R.LR.color_text(dataset.name, 'GRN') 
+
 def set_dataset(command: list[str]) -> None:
     try: command[1]
     except Exception:
@@ -138,4 +151,27 @@ def set_dataset(command: list[str]) -> None:
     except Exception:
         R.RENDERER.set_status(f'ERROR: Unable to load config file.', 'RED')
         return
+    
+##### DIRECTION #####
+
+def _get_direction() -> tuple[bool, str]:
+    was_valid = True
+    direction = get_config_value(['config', 'dataloader', 'direction'])
+    if not direction in ['AtoB', 'BtoA']:
+        R.RENDERER.set_status(
+            f'Invalid direction "{direction}"! Resetting to default...', 'RED')
+        direction = 'AtoB'
+        was_valid = False
+    return (was_valid, direction)
+
+def get_current_direction() -> str:
+    return R.LR.color_text(_get_direction()[1], 'GRN')
+
+def swap_direction() -> None:
+    was_valid, direction = _get_direction()
+    if was_valid: new_direction = 'BtoA' if 'AtoB' == direction else 'AtoB'
+    set_config_value(['config', 'dataloader', 'direction'], new_direction)
+    R.RENDERER.set_status(
+        f'Direction changed. New direction: {new_direction}', 'GRN')
+
 
