@@ -1,12 +1,8 @@
 # NectarGAN - Getting Started
 #### This document will guide you through the process of installing NectarGAN, and get you started using the NectarGAN Toolbox, training and testing models from the command line, and interacting with the NectarGAN API.
 
-> [!IMPORTANT]
-> Currently, NectarGAN has only been tested on Windows. Linux validation is planned for the near future and with it will come Linux-specific install instructions.
-> 
-> *This is high on the list of planned features but if you want to give it a try before I get to it, please do let me know what your experience is like.*
 ## Installing NectarGAN
-### Windows
+### Windows / Linux
 > [!TIP]
 > It is recommended to install NectarGAN in a fresh environment to avoid dependency conflicts, especially as it is still in active development. 
 >

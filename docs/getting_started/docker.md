@@ -8,6 +8,8 @@ To follow this guide, you must first have Docker desktop installed on your host 
 
 To get started with Docker, see here: https://www.docker.com/
 
+If you are using a Linux machine as the host and you intend to train with one of the CUDA compute platforms, you will also need to set up the Nvidia Container Toolkit if you have not already done so. See [here](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html) for more information.
+
 ### Visdom
 NectarGAN uses [Visdom](https://github.com/fossasia/visdom) for data visualization when running inside of a container. A Visdom server is set up automatically during during build/compose and configured to listen to the main NectarGAN `app` service, and also to route its output through an open port on the container (`8000` by default). This will be explained in greated detail below.
 
