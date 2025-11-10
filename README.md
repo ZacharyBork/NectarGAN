@@ -1,5 +1,11 @@
-<div align="center"><img src="./docs/resources/images/banner.png" alt="Toolbox Training GIF" style="vertical-align: middle;"></div> 
-<h4 align="center">A graphical development environment and model assembly framework for Pix2pix-style conditional GANs.</h4>
+<div align="center">
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="./docs/resources/images/banner.png" >
+  <source media="(prefers-color-scheme: light)" srcset="./docs/resources/images/banner_light.png">
+  <img src="./docs/resources/images/banner.png" alt="NectarGAN" style="vertical-align: middle;" width=950>
+</picture>
+<h4>A graphical development environment and model assembly framework for Pix2pix-style conditional GANs.</h4>
+</div>
 
 ___
 <p align="center">
@@ -22,35 +28,83 @@ ___
 <div align="center"><img src="./docs/resources/gifs/toolbox_training.gif" alt="Toolbox Training GIF" width="950" style="max-width: 950px; width: 100%; height: auto;"></div> 
 
 ## What is NectarGAN?
-NectarGAN is comprised of two core components:
+**NectarGAN is comprised of two core components:**
+### 1. The NectarGAN Toolbox
 
-1. **The NectarGAN Toolbox.** A modern, high performance interface encapsulating a full end-to-end, production-ready cGAN pipeline. From assembling and managing Pix2pix-style datasets, to building and training conditional GAN models, to tracking and reviewing experiments, to testing trained models and preparing them for deployment. Your models can go from an idea to production, all without leaving the Toolbox.
+A modern, high performance interface encapsulating a full end-to-end, production-ready cGAN pipeline. From assembling and managing Pix2pix-style datasets, to building and training conditional GAN models, to tracking and reviewing experiments, to testing trained models and preparing them for deployment. Your models can go from an idea to production, all without leaving the Toolbox.
 
-    **Check out the [*Toolbox quickstart guide*](docs/getting_started/toolbox_training.md) to get started.**
+<br>
+<div align="center">
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="./nectargan/toolbox/resources/icons/toolbox_icon_text.png" >
+  <source media="(prefers-color-scheme: light)" srcset="./nectargan/toolbox/resources/icons/toolbox_icon_text_light.png">
+  <img src="./docs/resources/images/banner.png" alt="NectarGAN Toolbox" style="vertical-align: middle;" width=250>
+</picture>
+<br><br>
 
-2. **The NectarGAN API.** A fully modular, highly extensible PyTorch-based framework comprised of easy to use building blocks for assembling, training, and testing conditional GAN models. The API offers developers the tools needed to quickly write cGAN training/testing scripts with maximum functionality and minimal boilerplate.
+**Check out the [*Toolbox quickstart guide*](docs/getting_started/toolbox_training.md) to get started.**
+</div>
 
-    By way of example, this is a complete (albeit relatively minimal) Pix2pix training script using the NectarGAN API:
-    ```python
-    from nectargan.trainers.pix2pix_trainer import Pix2pixTrainer
 
-    if __name__ == "__main__":
-        trainer = Pix2pixTrainer(
-        config='/path/to/config/file.json', 
-            loss_subspec='extended', log_losses=True)
+### 2. The NectarGAN API
 
-        for epoch in range(100):
-            trainer.train_paired(epoch) 
-            trainer.save_checkpoint() 
-            trainer.save_examples()
-            trainer.print_end_of_epoch()
-    ```
-    > *The core [*NectarGAN paired training script*](/scripts/paired/train.py) is not much larger than this.*
-    
-    **For more information, please see the [*NectarGAN API documentation*](docs/api.md).**
-    
+A fully modular, highly extensible PyTorch-based framework comprised of easy to use building blocks for assembling, training, and testing conditional GAN models. The API offers developers the tools needed to quickly write cGAN training/testing scripts with maximum functionality and minimal boilerplate.
+
+```python
+from nectargan.trainers.pix2pix_trainer import Pix2pixTrainer
+
+if __name__ == "__main__":
+    trainer = Pix2pixTrainer(
+    config='/path/to/config/file.json', 
+        loss_subspec='extended', log_losses=True)
+
+    for epoch in range(100):
+        trainer.train_paired(epoch) 
+        trainer.save_checkpoint() 
+        trainer.save_examples()
+        trainer.print_end_of_epoch()
+```
+<br>
+<div align="center">
+
+**For more information, please see the [*NectarGAN API documentation*](docs/api.md).**
+
+</div>
+
+## Who is this for?
+- Artists wanting to experiment with paired image translation tasks (why I first starting experimenting with Pix2pix).
+- Researchers who want a flexible environment in which to explore conditional GAN behavior.
+- Startups looking for an easy and flexible way to experiment with and deploy image translation models.
+- Students wishing to learn about and explore GANs in a visual, easy to use environment.
+- Engineers/TDs wanting to painlessly integrate paired image translation models into their pre-existing pipelines.
+
+## Getting Started
+**Please refer to the [*quickstart documentation*](docs/getting_started.md) for information on how to get started using NectarGAN.**
+
+**NectarGAN also supports headless training and testing of models in Docker containers.** See below for more information. 
+
+## Performance
+
+**Training and inference benchmarks** (*1x Nvidia RTX 2080Ti, PyTorch 2.9.0 cu128, facades dataset, 256x256*):
+| Operation | Time | GPU Memory |
+| ---|---|---|
+| Training (per epoch, batch size 1) | ~8.5 seconds | 1.03 GB |
+| Training (per epoch, batch size 4) | ~4.0 seconds | 1.18 GB |
+| Training (per epoch, batch size 8) | ~3.5 seconds | 1.43 GB |
+| Training (per epoch, batch size 16) | ~3.2 seconds | 1.94 GB |
+| Inference (single image) | ~30ms | ~0.23 GB |
+
 ## Features
-### [*Training Framework*](docs/api.md)
+<div align="center">
+
+## [*Training Framework*](docs/api.md)
+![Training framework example](docs/resources/images/readme/readme_training_framework_example.png)
+
+
+</div>
+
+
+
 - **Fully modular, PyTorch-based GAN training framework**.
 - **Configurable [*UNet-style generator*](docs/api/models/unet.md)** with support for multiple UNet block types, and drop-in support for your own custom blocks.
 - **Easy loss tracking and logging** during and after training with a custom [*LossManager system*](docs/api/losses/lossmanager.md).
@@ -58,49 +112,121 @@ NectarGAN is comprised of two core components:
 - **The LossManager also supports a custom loss weight [*scheduling system*](docs/api/scheduling.md)** allowing you to apply one of the included weight schedules, or to easily drop your own custom scheduling function in and have the LossManager take care of the rest.
 - **Real time inference and loss visualization** during training with [*Visdom*](docs/api/visdom.md) (for headless training), or with the NectarGAN Toolbox GUI.
 - **Hook-based [*Trainer*](docs/api/trainers/trainer.md) class** allows you to quickly define a custom training loop for your models.
-- **Easy framework for loading pre-trained model weights** to experiment with new training schedules from a earlier checkpoint, or to fine tune a previously trained model. 
-### [*Fully Config-Driven*](docs/api/config.md)
-- **Training and testing settings are all handled by [JSON configuration files](docs/api/config.md#L7).**
+- **Easy framework for loading pre-trained model weights** to experiment with new training schedules from a earlier checkpoint, or to fine tune a previously trained model.
+
+<br>
+<div align="center">
+
+## [*Config-Driven Architecture*](docs/api/config.md) 
+![Config example image](docs/resources/images/readme/readme_config_example.png)
+
+</div>
+
+- **Training and testing settings are all handled by [JSON configuration files](docs/api/config.md).**
 - **Config copies are automatically exported and version tagged** for each train allowing for easy experiment tracking and reproducibility.
 - **Toolbox UI settings can be loaded in one click from any previously saved config file** allowing you to easily pick up training with your previous settings.
 - **Everything related to a training session is saved in the config file** ensuring that no experiment data is lost.
-- **Automatic config parser allows you to easily [add entries](docs/api/config.md#L65) to the config file** so that you can expand it to suit your model's needs.
-### [*NectarGAN Toolbox*](docs/toolbox.md)
+- **Automatic config parser allows you to easily [add entries](docs/api/config.md) to the config file** so that you can expand it to suit your model's needs.
+
+<br>
+<div align="center">
+
+## [*NectarGAN Toolbox*](docs/toolbox.md)
+![Toolbox readme example](docs/resources/images/toolbox/toolbox_review_example.PNG)
+
+</div>
+
+
+
 - **Modern, fully graphical GAN training, testing, and evaluation tool.**
 - **Configure your model architecture, build your dataset processing chain, define your objective function, and run your training, all with just a few clicks.** No code needed, just drag some sliders and see how it changes the models behavior.
 - **Real time progress and timing stats, inference visualization, and loss graphing** with a highly configurable [*training interface*](docs/getting_started/toolbox_training.md) allowing you to put the most focus on whatever metrics you're most interested in seeing.
-- **A [*testing interface*](docs/getting_started/toolbox_testing.md) allowing you to quickly load and validate your models on test datasets.** Define the epoch to load and how many images, and your model will be automatically run on a random selection of the provided images. The results will be evaluated with various loss functions and all the images and information will be displayed to you in the interface where you can sort by these metrics. Multiple tests can also be run and the results of each can be quickly swapped between directly from the UI.
+- **A [*testing interface*](docs/getting_started/toolbox_testing.md) allowing you to quickly load and validate your models on test datasets.** The results will be evaluated with various loss functions and all the images and information will be displayed to you in the interface where you can sort by these metrics.
 - **Threaded training and testing framework** ensures that the UI remains responsive during training and that data visualization has a minimal impact on training and testing speed.
 - **Training can easily be paused and resumed at any time.**
-- **Load and visualize your model's training example images and loss log data** with the [*review panel*](docs/getting_started/toolbox_review.md). All [*x, y, y_fake*] example sets will be automatically loaded, and each loss in the log will be graphed with a configurable sample rate.
+- **Load and visualize your model's training example images and loss log data** with the [*review panel*](docs/getting_started/toolbox_review.md). All [*x, y, y_fake*] example sets will be automatically loaded, and each loss in the log will be graphed with a configurable sample rate.S
 - **View time statistics during training** including slowest, fastest, and average epoch and iteration time, total train time, and a real time time graph of all previous epoch times.
-### [*Easy Dataset Augmentation*](docs/toolbox/dataset.md)
+
+<br>
+<div align="center">
+
+## [*Easy Dataset Augmentation*](docs/toolbox/dataset.md)
+
+</div>
+
+<table>
+<tr>
+<td width="40%">
+<img src="docs/resources/images/readme/readme_augmentations_example.png" width="100%"/>
+</td>
+<td width="60%">
+
+<a align="center">
+
 **A simple but powerful augmentation UI** allows you to quickly apply a variety of Albumentations-based augmentations to your datasets at training-time to help expand small datasets and improve model generalization. Anything from random flipping and rotation, to optical distortion and random grayscale can be applied by just dragging a slider.
-### [*ONNX Conversion and Testing*](docs/toolbox/utilities.md#L5)
-**Easily convert you models to ONNX** from either the toolbox UI, or from your own pipeline via the ONNXConverter, and test the resulting model immediately on real images with a live dashboard to display the results.
-### [*Dataset Tools*](docs/toolbox/utilities.md#L31)
-**NectarGAN Toolbox also includes a set of helpful dataset processing tools. Currently, these tools allow you to:** 
+
+</a>
+
+</td>
+</tr>
+</table>
+
+<div align="center">
+
+## [*Docker Support*](docs/getting_started/docker.md)
+
+</div>
+
+<table>
+<tr>
+<td width="60%">
+
+- Supports headless training and testing in a containerized environment.
+- Works with GPU and CPU training.
+- Custom CLI wrapper to interact with NectarGAN inside of containers.
+- Real-time training visualization with auto-configured [Visdom](https://github.com/fossasia/visdom) service.
+- IO volume mounting to read datasets from, and write output directly to host machine during training and testing.
+
+<br><br>
+
+<div align="center">
+
+**See the [Docker quickstart guide](docs/getting_started/docker.md) for more information about using NectarGAN with Docker!**
+
+</div>
+
+</td>
+<td width="40%">
+<img src="docs/resources/images/readme/docker_training_screenshot.png" width="100%"/>
+</td>
+</tr>
+</table>
+
+<div align="center">
+
+## [*Dataset Tools*](docs/toolbox/utilities.md)
+
+</div>
+
 - **Pair (A | B) images into Pix2pix input data**, extremely quickly, with control over direction and optional image scaling.
 - **Sort image files by various metrics** (white pixel count, black pixel count, mean pixel value, various types of contrast), and then two related tools. One to unsort the files back to their original order, and one to copy to sorting order of one directory of files to another. These can be used to help process and find bad images in large datasets.
 - **Automatically build train/test/val splits for dataset images** with easy control over split percentages.
 
-## Getting Started
-**Please refer to the [*quickstart documentation*](docs/getting_started.md) for information on how to get started using NectarGAN.**
+<div align="center">
 
-**For a guide on how to run NectarGAN in a Docker container for headless training and testing, please see the [here](docs/getting_started/docker.md).**
+## [*ONNX Conversion and Testing*](docs/toolbox/utilities.md)
+
+**Easily convert you models to ONNX** from either the toolbox UI, or from your own pipeline via the ONNXConverter, and test the resulting model immediately on real images with a live dashboard to display the results.
+
+</div>
+
+---
 
 ## Frequently Asked Questions
 **Please see [*the FAQs page*](docs/faq.md).**
 
 ## Looking to contribute?
 **Please see [*the contribution guide*](docs/faq.md) for more information.**
-
-## Who is this for?
-- Artists wanting to experiment with paired image translation tasks (why I first starting experimenting with Pix2pix).
-- Reseachers who want a flexible environment in which to explore conditional GAN behavior.
-- Startups looking for an easy and flexible way to experiment with and deploy image translation models.
-- Students wishing to learn about and explore GANs in a visual, easy to use environment.
-- Engineers/TDs wanting to painlessly integrate paired image translation models into their pre-existing pipelines.
 
 ## Project Status
 **NectarGAN is under active development.** In its current state, however, it already offers:

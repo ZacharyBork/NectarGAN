@@ -88,7 +88,7 @@ def get_load_epoch(experiment_directory: Path) -> tuple[bool, int]:
             continue
         break
     
-    load_epoch = int(''.join(j for j in i.stem if j.isdigit()))
+    load_epoch = int(selected)
     return (True, load_epoch)
 
 def get_dataroot() -> tuple[bool, Path, Path]:

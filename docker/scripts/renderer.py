@@ -3,6 +3,8 @@
 import subprocess
 from typing import Callable
 
+import wrapperutils
+
 class LineRenderer:
     def __init__(self) -> None:
         self.COLORS = {
@@ -63,23 +65,32 @@ class ConsoleRenderer:
         LR.println(welcome_text, 'ORG')
 
     def print_commands(self) -> None:
-        # {LR.color_text('help', 'GRN')}         | See all commands
+        dataset = 'Current: ' + wrapperutils.get_current_dataset()
+        dir = 'Current: ' + wrapperutils.get_current_direction()
         LR.println(nocolor=True, text=f'''Common commands:
 
 {LR.color_text('train', 'GRN')}        | Begin training
 {LR.color_text('test', 'GRN')}         | Begin testing
-{LR.color_text('dataset-set', 'GRN')}  | Set current dataset
+{LR.color_text('swapdir', 'GRN')}      | Switch train/test direction ({dir})
+{LR.color_text('dataset-set', 'GRN')}  | Set current dataset ({dataset})
+{LR.color_text('dataset-info', 'GRN')} | Info about the current dataset
 {LR.color_text('config-edit', 'GRN')}  | Edit config file
 {LR.color_text('config-print', 'GRN')} | Print current config
 {LR.color_text('shell', 'YLW')}        | Exit startup script
 {LR.color_text('exit', 'RED')}         | Exit container\n''')
         
-    def print_status(self) -> None:
+    def add_divider(self, prefix: str='', line_end=None) -> None:
         ln = '---------------------------------------------------------------'
+        if not prefix == '':
+            length = len(prefix) + 1
+            LR.println(f'{prefix} {ln[:-length]}\n', 'ORG', line_end=line_end)
+        else: LR.println(f'{ln}\n', 'ORG', line_end=line_end)
+
+    def print_status(self) -> None:
         LR.println_split(
             'Status:', 'ORG', 
             self.current_status[0], self.current_status[1])
-        LR.println(f'{ln}\n', 'ORG')
+        self.add_divider()
 
     def clear_console(self) -> None:
         subprocess.run(["clear"])
@@ -104,6 +115,27 @@ class ConsoleRenderer:
 
     def reset_status(self) -> None:
         self.set_status('Ready...', 'GRN')
-    
+
+    def render_progress_bar(
+            self,
+            current_value: int, 
+            total_value: int,
+            character: str='#',
+            color: str='GRN',
+            total_length: int=63
+        ) -> None:
+        progress = current_value / total_value
+        progress_bar = character * round(progress * total_length)
+        LR.println(progress_bar, color)
+
+    def render_progress_bar_full(
+            self, label: str, current_value: int, total_value: int,
+            character: str='#', color: str='GRN', total_length: int=63
+        ) -> None:
+        self.add_divider(prefix=label, line_end='')
+        self.render_progress_bar(
+            current_value, total_value, character, color, total_length)
+        self.add_divider(line_end='')
+
 RENDERER = ConsoleRenderer()
 
