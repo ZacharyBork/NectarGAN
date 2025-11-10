@@ -33,13 +33,18 @@ ___
 
 A modern, high performance interface encapsulating a full end-to-end, production-ready cGAN pipeline. From assembling and managing Pix2pix-style datasets, to building and training conditional GAN models, to tracking and reviewing experiments, to testing trained models and preparing them for deployment. Your models can go from an idea to production, all without leaving the Toolbox.
 
+<br>
 <div align="center">
-
-<br><img width=250 src="nectargan/toolbox/resources/icons/toolbox_icon_text.png">
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="./nectargan/toolbox/resources/icons/toolbox_icon_text.png" >
+  <source media="(prefers-color-scheme: light)" srcset="./nectargan/toolbox/resources/icons/toolbox_icon_text_light.png">
+  <img src="./docs/resources/images/banner.png" alt="NectarGAN Toolbox" style="vertical-align: middle;" width=250>
+</picture>
+<br><br>
 
 **Check out the [*Toolbox quickstart guide*](docs/getting_started/toolbox_training.md) to get started.**
-
 </div>
+
 
 ### 2. The NectarGAN API
 
