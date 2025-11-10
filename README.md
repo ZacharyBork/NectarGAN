@@ -182,9 +182,13 @@ if __name__ == "__main__":
 - Real-time training visualization with auto-configured [Visdom](https://github.com/fossasia/visdom) service.
 - IO volume mounting to read datasets from, and write output directly to host machine during training and testing.
 
-<br>
+<br><br>
+
+<div align="center">
 
 **See the [Docker quickstart guide](docs/getting_started/docker.md) for more information about using NectarGAN with Docker!**
+
+</div>
 
 </td>
 <td width="40%">
