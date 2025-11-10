@@ -17,7 +17,7 @@ def render_config_header() -> None:
 ---------------------------------------------------------------''', 'ORG')
 
 def find_requested_config_value(
-        json_data: dict
+        json_data: dict[str, Any]
     ) -> tuple[bool, list[str], str, str]:
     key_prompt = '''
 Enter the set of config keys, separated by ".", pointing to the 

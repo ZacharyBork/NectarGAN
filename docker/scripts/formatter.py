@@ -71,3 +71,4 @@ def train_log(proc, epoch_count) -> None:
               line.startswith('(End of epoch')):
             status_text += _format_train_saving_examples_line(line)
         else: R.LR.println(line, line_end='')
+
