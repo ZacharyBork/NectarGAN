@@ -8,52 +8,7 @@ from typing import Literal
 import torch
 import torch.nn as nn
 
-class ResnetBlock(nn.Module):
-    def __init__(
-            self, 
-            in_channels: int, 
-            out_channels: int, 
-            identity_downsample=None, 
-            stride=1
-        ) -> None:
-        super(ResnetBlock, self).__init__()
-        
-        self.expansion = 4
-        self.relu = nn.ReLU()
-
-        self.conv = nn.Sequential(
-            *self._build_layers(in_channels, out_channels, stride))
-        self.identity_downsample = identity_downsample
-
-    def _build_layers(
-            self, 
-            in_channels: int, 
-            out_channels: int,
-            stride: int
-        ) -> list[nn.Module]:
-        layers = []
-        in_ch = in_channels
-        for i in range(3): 
-            out_ch = out_channels * max(1, self.expansion * (i-1))
-            layers.append(
-                nn.Conv2d(
-                    in_ch, out_ch,
-                    kernel_size=[1, 3][i%2], # 1x1 ->  3x3   -> 1x1
-                    stride=[1, stride][i%2], #  1  -> stride -> 1
-                    padding=[0, 1][i%2]))    #  0  ->   1    -> 0
-            layers.append(nn.BatchNorm2d(out_ch))
-            if i < 2: layers.append(self.relu)
-            in_ch = out_channels
-        return layers
-
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        identity = x
-        x = self.conv(x)
-
-        identity = self.identity_downsample(identity) \
-            if not self.identity_downsample is None else identity
-
-        return self.relu(x + identity)
+from nectargan.models.resnet.blocks import ResnetBlock
 
 class ResNet(nn.Module):
     def __init__(
@@ -65,14 +20,7 @@ class ResNet(nn.Module):
         ) -> None:
         super(ResNet, self).__init__()
 
-        match layer_count:
-            case 50:  self.layers = [3, 4, 6, 3]
-            case 101: self.layers = [3, 4, 23, 3]
-            case 152: self.layers = [3, 8, 36, 3]
-            case _: 
-                raise ValueError(
-                    f'Invalid layer count for ResNet: {layer_count}\n'
-                    f'Valid values are [50, 101, 152]')
+        self._define_layers(layer_count)
         self.block_type = block
         
         self.in_channels = 64
@@ -85,6 +33,16 @@ class ResNet(nn.Module):
         self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
         self.fc = nn.Linear(512 * 4, num_classes)
 
+    def _define_layers(self, layer_count: int) -> None:
+        match layer_count:
+            case 50:  self.layers = [3, 4, 6, 3]
+            case 101: self.layers = [3, 4, 23, 3]
+            case 152: self.layers = [3, 8, 36, 3]
+            case _: 
+                raise ValueError(
+                    f'Invalid layer count for ResNet: {layer_count}\n'
+                    f'Valid values are [50, 101, 152]')
+
     def _make_layer(
             self, 
             num_residual_blocks: int, 
@@ -92,7 +50,7 @@ class ResNet(nn.Module):
             stride: int
         ) -> None:
         identity_downsample = None
-        layers = []
+        seq = []
 
         if stride != 1 or self.in_channels != out_channels * 4:
             identity_downsample = nn.Sequential(
@@ -101,16 +59,16 @@ class ResNet(nn.Module):
                     kernel_size=1, stride=stride),
                 nn.BatchNorm2d(out_channels * 4))
             
-        layers.append(
+        seq.append(
             self.block_type(
                 self.in_channels, out_channels, 
                 identity_downsample, stride))
         self.in_channels = out_channels * 4
 
         for _ in range(num_residual_blocks - 1):
-            layers.append(self.block_type(self.in_channels, out_channels))
+            seq.append(self.block_type(self.in_channels, out_channels))
         
-        return nn.Sequential(*layers)
+        return nn.Sequential(*seq)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         x = self.initial_layer(x)
