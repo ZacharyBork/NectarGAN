@@ -9,21 +9,29 @@ import torch
 import torch.nn as nn
 
 from nectargan.models.resnet.model import ResNet
+from nectargan.models.resnet.blocks import ResnetBlock
 
 class ResNetClassifier(ResNet):
     def __init__(
             self, 
             n_classes: int=1000,
-            layer_count: Literal[50, 101, 152]=50
+            layer_count: Literal[50, 101, 152]=50,
+            in_channels: int=3, 
+            features: int=64, 
+            block_type: nn.Module=ResnetBlock
         ) -> None:
-        super(ResNetClassifier, self).__init__()
+        super(ResNetClassifier, self).__init__(
+            in_channels=in_channels,
+            features=features,
+            block_type=block_type)
 
         self.out_channels = self.features
         self.layer_count = layer_count
         self.n_classes = n_classes
 
         self._define_layers()
-        self._build_initial_layer()
+        self.initial = self._build_initial_layer()
+        self.residuals = self._build_residual_layers()
 
     def _define_layers(self) -> None:
         match self.layer_count:
@@ -36,14 +44,15 @@ class ResNetClassifier(ResNet):
                     f'{self.layer_count}\nValid values are [50, 101, 152]')
 
     def _build_initial_layer(self) -> None:
-        self.initial_layer = nn.Sequential(
+        modules = [
             nn.Conv2d(
                 self.in_channels, self.features, kernel_size=7, 
                 stride=2, padding=3, padding_mode='zeros'),
             nn.BatchNorm2d(self.features),
             nn.ReLU(),
-            nn.MaxPool2d(kernel_size=3, stride=2, padding=1))
+            nn.MaxPool2d(kernel_size=3, stride=2, padding=1)]
         self.in_channels = self.features
+        return nn.Sequential(*modules)
 
     def _build_model(
             self, 
@@ -73,16 +82,21 @@ class ResNetClassifier(ResNet):
     def _apply_classifier_head(self, x: torch.Tensor) -> torch.Tensor:
         x = nn.AdaptiveAvgPool2d((1, 1))(x).reshape(x.shape[0], -1)
         return nn.Linear(512 * 4, self.n_classes)(x)        
-
-    def model(self, x: torch.Tensor) -> torch.Tensor:
-        x = self.initial_layer(x)
+    
+    def _build_residual_layers(self) -> list[nn.Sequential]:
+        layers = []
         for i in range(len(self.layers)):            
             layer = nn.Sequential(
                 *self._build_model(
                     self.layers[i], out_channels=self.out_channels, 
                     stride=min(i+1, 2)))
-            x = layer(x)
+            layers.append(layer)
             self.out_channels *= 2
+        return layers
+
+    def model(self, x: torch.Tensor) -> torch.Tensor:
+        x = self.initial(x)
+        for residual in self.residuals: x = residual(x)
         return self._apply_classifier_head(x)
 
 if __name__ == "__main__":

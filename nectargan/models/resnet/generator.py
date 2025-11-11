@@ -9,18 +9,27 @@ import torch
 import torch.nn as nn
 
 from nectargan.models.resnet.model import ResNet
+from nectargan.models.resnet.blocks import ResnetBlock
 
 class ResNetGenerator(ResNet):
     def __init__(
             self, 
-            downsampling_layers: int=2,
-            num_residual_blocks: int=9
+            n_downs: int=2,
+            n_residual_blocks: int=9,
+            in_channels: int=3, 
+            features: int=64, 
+            block_type: nn.Module=ResnetBlock
         ) -> None:
-        super(ResNetGenerator, self).__init__()
+        super(ResNetGenerator, self).__init__(
+            in_channels=in_channels,
+            features=features,
+            block_type=block_type)
         
         self.out_channels = self.in_channels
-        self.downsampling_layers = downsampling_layers
-        self.num_residual_blocks = num_residual_blocks
+        self.n_downs = n_downs
+        self.n_residual_blocks = n_residual_blocks
+
+        self.sequence = nn.Sequential(*self._build_model())
 
     def _initial_layer(self) -> list[nn.Module]:
         modules = [
@@ -36,7 +45,7 @@ class ResNetGenerator(ResNet):
     def _sampler_layer(self, decoder: bool=False) -> list[nn.Module]:
         output_padding = int(decoder)
         modules = []
-        for _ in range(self.downsampling_layers):
+        for _ in range(self.n_downs):
             if decoder:
                 out_ch = math.floor(self.in_channels / 2)
                 modules.append(
@@ -58,7 +67,7 @@ class ResNetGenerator(ResNet):
             self.block_type(
                 self.in_channels, 
                 math.floor(self.in_channels / 4)
-            ) for _ in range(self.num_residual_blocks)]
+            ) for _ in range(self.n_residual_blocks)]
         return modules
 
     def _final_layer(self) -> list[nn.Module]:
@@ -79,8 +88,7 @@ class ResNetGenerator(ResNet):
         return seq
     
     def model(self, x: torch.Tensor) -> torch.Tensor:
-        layer = nn.Sequential(*self._build_model())
-        return layer(x)
+        return self.sequence(x)
 
 if __name__ == "__main__":
     x = torch.randn(1, 3, 256, 256)
