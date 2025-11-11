@@ -1,7 +1,8 @@
 import torch
 from nectargan.models.unet.model import UnetGenerator
 from nectargan.models.patchgan.model import Discriminator
-from nectargan.models.resnet.model import ResNet
+from nectargan.models.resnet.classifier import ResNetClassifier
+from nectargan.models.resnet.generator import ResNetGenerator
 
 def test_unet() -> None:
     '''Tests the UNet model in its default configuration.
@@ -27,8 +28,8 @@ def test_patchgan() -> None:
     output = model(x, y)
     assert output.shape == torch.randn((1, 1, 2, 2)).shape 
 
-def test_resnet() -> None:
-    '''Tests each ResNet model variant in its default configuration.
+def test_resnet_classifier() -> None:
+    '''Tests each ResNetClassifier model variant in its default configuration.
     
     Passes a random tensor to the model and ensures that the output tensor is
     of the expected shape.
@@ -36,7 +37,18 @@ def test_resnet() -> None:
     x = torch.randn(2, 3, 224, 224)
     counts = [50, 101, 152]
     for count in counts:
-        net = ResNet(layer_count=count)
+        net = ResNetClassifier(layer_count=count)
         y = net(x)
         assert y.shape == torch.Size([2, 1000])
+
+def test_resnet_generator() -> None:
+    '''Tests the ResNetGenerator model in its default configuration.
+    
+    Passes a random tensor to the model and ensures that the output tensor is
+    the same shape as the input,
+    '''
+    x = torch.randn(1, 3, 256, 256)
+    net = ResNetGenerator()
+    y: torch.Tensor = net(x)
+    assert y.shape == x.shape
 
