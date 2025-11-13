@@ -66,7 +66,7 @@ class PairedDataset(Dataset):
             raise RuntimeError(message)
 
         if self.is_train:
-            return self.xform.apply_transforms(input_image, target_image)
+            return self.xform.apply_transforms_paired(input_image, target_image)
         else: 
             _input = A.Compose([
             A.Normalize(

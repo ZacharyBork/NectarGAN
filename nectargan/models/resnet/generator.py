@@ -14,7 +14,7 @@ from nectargan.models.resnet.blocks import ResnetBlock
 class ResNetGenerator(ResNet):
     def __init__(
             self, 
-            n_downs: int=2,
+            n_downs: int=3,
             n_residual_blocks: int=9,
             in_channels: int=3, 
             features: int=64, 

@@ -20,17 +20,18 @@ class UnetBlock(nn.Module):
             use_dropout: bool=False
         ) -> None:
         super().__init__()
+        self.out_channels = out_channels
         modules = []
         if down:
             modules.append(nn.Conv2d(
-                in_channels, out_channels, 
+                in_channels, self.out_channels, 
                 kernel_size=4, stride=2, padding=1, 
                 bias=bias, padding_mode='reflect'))
         else:
             match upconv_type:
                 case 'Transposed':
                     modules.append(nn.ConvTranspose2d(
-                        in_channels, out_channels, 
+                        in_channels, self.out_channels, 
                         kernel_size=4, stride=2, padding=1, bias=bias))
                 case 'Bilinear':
                     modules.append(nn.Upsample(
@@ -39,12 +40,13 @@ class UnetBlock(nn.Module):
                         align_corners=False))
                     modules.append(nn.ReflectionPad2d(1))
                     modules.append(nn.Conv2d(
-                        in_channels, out_channels, 
+                        in_channels, self.out_channels, 
                         kernel_size=3, stride=1, padding=0))
                 case _: raise ValueError('Invalid upsampling type.')
         
         match norm:
-            case 'instance': modules.append(nn.InstanceNorm2d(out_channels))
+            case 'instance': 
+                modules.append(nn.InstanceNorm2d(self.out_channels))
             case None: modules.append(nn.Identity())
             case _: raise ValueError('Invalid normalization type.')
 

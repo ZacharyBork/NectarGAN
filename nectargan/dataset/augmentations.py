@@ -132,7 +132,7 @@ class Augmentations():
             A.ToTensorV2(),
         ]) 
 
-    def apply_transforms(
+    def apply_transforms_paired(
             self, 
             input_image: np.ndarray, 
             target_image: np.ndarray
@@ -142,6 +142,9 @@ class Augmentations():
         Args:
             input_image : The input image of the current dataset pair.
             target_image : The target image of the current dataset pair.
+
+        Returns:
+            tuple[torch.Tensor] : The transformed images as tensors.
         '''
         aug = self.transform_both(image=input_image, image0=target_image)
         
@@ -151,3 +154,22 @@ class Augmentations():
         _target = self.transform_target(image=_target)['image']
 
         return _input, _target
+    
+    def apply_transforms_unpaired(
+            self, 
+            input_image: np.ndarray
+        ) -> torch.Tensor:
+        '''Applies transforms to an input image and returns the result.
+
+        Args:
+            input_image : The input image to transform.
+        
+        Returns:
+            torch.Tensor : The transformed image as a tensor.
+        '''
+        aug = self.transform_both(
+            image=input_image, image0=np.ndarray(shape=input_image.shape))
+        _input = aug['image']
+        _input = self.transform_input(image=_input)['image']
+        return _input
+    
