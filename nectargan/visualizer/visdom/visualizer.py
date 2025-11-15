@@ -245,3 +245,4 @@ class VisdomVisualizer():
         '''Stops the visdom visualizer thread.'''
         self._stop.set()
         
+
