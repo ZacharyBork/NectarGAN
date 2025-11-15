@@ -47,6 +47,8 @@ class UnetBlock(nn.Module):
         match norm:
             case 'instance': 
                 modules.append(nn.InstanceNorm2d(self.out_channels))
+            case 'group': # TO-DO: Make num_groups configurable
+                modules.append(nn.GroupNorm(32, self.out_channels))
             case None: modules.append(nn.Identity())
             case _: raise ValueError('Invalid normalization type.')
 

@@ -104,6 +104,7 @@ class UnetGenerator(nn.Module):
             in_features = min(out_features, self.features*8)
             out_features = min(out_features*2, self.features*8)
             down_channels.append((in_features, out_features))
+            final_down_size = out_features
 
         # Create layer IO shapes skip channels
         skip_channels = list(reversed(
@@ -113,12 +114,12 @@ class UnetGenerator(nn.Module):
         up_channels = [(in_ch*2, out_ch) for in_ch, out_ch in skip_channels] 
 
         # Add IO shape for first up layer
-        up_channels.insert(0, (self.features*8, self.features*8)) 
+        up_channels.insert(0, (final_down_size, final_down_size)) 
 
         self.channel_map = {
             'initial_down': down_channels[0],
             'downs': down_channels[1:],
-            'bottleneck': (self.features*8, self.features*8),
+            'bottleneck': (final_down_size, final_down_size),
             'ups': up_channels[:-1],
             'final_up': up_channels[-1]
         }
@@ -206,7 +207,7 @@ class UnetGenerator(nn.Module):
         return self.final_up(torch.cat([x, skips[-1]], dim=1))
 
 if __name__ == "__main__":
-    x = torch.randn((1, 3, 256, 256))
-    model = UnetGenerator()
+    x = torch.randn((1, 3, 32, 32))
+    model = UnetGenerator(input_size=32, n_downs=2)
     output = model(x)
     print(output.shape)
