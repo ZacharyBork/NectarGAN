@@ -7,13 +7,14 @@ from typing import Any, Callable
 import torch
 import torch.nn as nn
 from torchvision.utils import save_image
+from torch_ema import ExponentialMovingAverage
 
-from nectargan.trainers.trainer import Trainer
-from nectargan.config.config_manager import ConfigManager
-from nectargan.dataset.unpaired_dataset import UnpairedDataset
-from nectargan.models.diffusion.models.pixel import DiffusionModel
-from nectargan.models.diffusion.models.latent import LatentDiffusionModel
-from nectargan.visualizer.visdom.diffusion import DiffusionVisualizer
+from nectargan.trainers import Trainer
+from nectargan.config import ConfigManager
+from nectargan.dataset import UnpairedDataset
+from nectargan.models import DiffusionModel
+from nectargan.models import LatentDiffusionModel
+from nectargan.visualizer import DiffusionVisualizer
 
 class DiffusionTrainer(Trainer):
     def __init__(
@@ -32,11 +33,15 @@ class DiffusionTrainer(Trainer):
         self.train_loader = self.build_dataloader('train', is_train=True)
         self.register_losses()
 
+        self.ema = ExponentialMovingAverage(
+            self.diffusion_model.autoencoder.parameters(), decay=0.9999)
+
         if self.config.train.load.continue_train:
             lr_initial = self.config.train.generator.learning_rate.initial
             model = self.diffusion_model
             self.load_checkpoint(
                 'DAE', model.autoencoder, model.opt_dae, lr_initial)
+            self.load_checkpoint('EMA', self.ema)
 
     def build_dataloader(
             self, 
@@ -98,12 +103,15 @@ class DiffusionTrainer(Trainer):
         model = self.diffusion_model
         path = self.export_model_weights(model.autoencoder, model.opt_dae, net)
         output = f'Checkpoint Saved ({net}): {path}'
+        path = self.export_model_weights(self.ema, None, 'EMA')
+        output = f'Checkpoint Saved ({net}): {path}'
+
         if capture: return output
         else: return None
 
     def export_examples(self, x: torch.Tensor, idx: int) -> None:
-        with torch.amp.autocast('cuda'):
-            with torch.no_grad():
+        with torch.no_grad() and torch.amp.autocast('cuda'):
+            with self.ema.average_parameters():
                 output = self.diffusion_model.sample()
         normalized_output = torch.clamp((output + 1) * 0.5, 0.0, 1.0)
         filename = f'epoch{self.current_epoch}_{idx}.png'
@@ -126,6 +134,8 @@ class DiffusionTrainer(Trainer):
         self.diffusion_model.g_scaler.scale(loss).backward()
         self.diffusion_model.g_scaler.step(self.diffusion_model.opt_dae)
         self.diffusion_model.g_scaler.update()
+        
+        self.ema.update()
 
     ##### TRAINING HOOKS #####
 
@@ -153,14 +163,14 @@ class DiffusionTrainer(Trainer):
             predicted = self.diffusion_model.autoencoder(x_t, timesteps)
             loss_G_MSE = self.loss_manager.compute_loss_xy(
                 'G_MSE', predicted, noise, self.current_epoch)
-            noise = self.diffusion_model.decode_from_latent(noise)
-            predicted = self.diffusion_model.decode_from_latent(predicted)
         self.backward(loss_G_MSE)
 
         if idx % self.config.visualizer.visdom.update_frequency == 0:
-            # TO-DO: Change visualizer triplet to:
-            # (ground truth (x), noisy input (x_t), predicted clean (x_0_pred))
-            self.update_display(x, noise, predicted, idx)
+            if isinstance(self.diffusion_model, LatentDiffusionModel):
+                with torch.amp.autocast('cuda'):
+                    x_t = self.diffusion_model.decode_from_latent(x_t)
+                    predicted = self.diffusion_model.decode_from_latent(predicted)
+            self.update_display(x, x_t, predicted, idx)
             
             avg_time = sum(self.batch_times) / max(1, len(self.batch_times))
             avg_time = round(avg_time, 3)
@@ -173,12 +183,11 @@ class DiffusionTrainer(Trainer):
         self.print_end_of_epoch()
 
         cfg = self.config
+        s = cfg.save
         lr = cfg.train.generator.learning_rate
         epoch_count = lr.epochs + lr.epochs_decay
-        if self.current_epoch == epoch_count:
-            self.save_checkpoint()
-        elif (cfg.save.save_model and 
-              self.current_epoch % cfg.save.model_save_rate == 0):
+        if self.current_epoch == epoch_count: self.save_checkpoint()
+        elif (s.save_model and self.current_epoch % s.model_save_rate == 0):
             self.save_checkpoint()
 
     ##### DIFFUSION TRAINING LOOP #####
