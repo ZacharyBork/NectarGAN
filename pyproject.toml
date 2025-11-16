@@ -44,6 +44,10 @@ dev = [
     "pytest>=7.0.0",
     "pytest-cov>=4.0.0"
 ]
+diffusion = [ 
+    "diffusers==0.35.2",
+    "accelerate==1.11.0"
+]
 
 [project.scripts]
 nectargan-toolbox = "nectargan.start.toolbox:main"

@@ -1,12 +1,7 @@
-from typing import Sequence
 from collections.abc import Mapping
-import threading
 import queue
 
 import torch
-import numpy as np
-from visdom import Visdom
-
 from nectargan.visualizer.visdom.visualizer import VisdomVisualizer
 
 class DiffusionVisualizer(VisdomVisualizer):
@@ -64,19 +59,6 @@ class DiffusionVisualizer(VisdomVisualizer):
             xlabel='Iterations', ylabel='Loss', legend=legend)
 
     ### STORE THREAD DATA ###
-
-    def _store_images(
-            self,
-            x: torch.Tensor, 
-            y: torch.Tensor, 
-            z: torch.Tensor, 
-            title: str, 
-            image_size: int=300
-        ) -> None:
-        self._image_queue.put({
-            'tensors': (x.detach().cpu(), y.detach().cpu(), z.detach().cpu()),
-            'title': title,
-            'image_size': image_size})
         
     def _store_graph_data(
             self, 

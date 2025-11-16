@@ -3,31 +3,31 @@ import torch.nn as nn
 
 from nectargan.models.unet.model import UnetGenerator
 from nectargan.models.diffusion.blocks import TimeEmbeddedUnetBlock
+from nectargan.models.diffusion.data import DAEConfig
 
 class UnetDAE(UnetGenerator):
     '''UNet-based diffusion autoencoder.'''
     def __init__(
             self, 
             device: str,
-            time_embedding_dimension: int,
-            mlp_hidden_dimension: int,
-            mlp_output_dimension: int,
+            dae_config: DAEConfig,
             block_type=TimeEmbeddedUnetBlock,
             **kwargs
         ) -> None:
         self.device = device
+        self.dae_config = dae_config
         self.block_type = block_type
-        self.time_embedding_dimension = time_embedding_dimension
         super().__init__(
-            input_size=128,
-            n_downs=5,
-            block_type=block_type, 
+            in_channels=self.dae_config.in_channels,
+            input_size=self.dae_config.input_size,
+            n_downs=self.dae_config.n_downs,
+            block_type=self.block_type, 
             **kwargs)
         
         self.get_embedding_frequency()
         self.init_mlp(
-            mlp_hidden_dimension,
-            mlp_output_dimension)
+            self.dae_config.mlp_hidden_dimension,
+            self.dae_config.mlp_output_dimension)
 
         self.apply(self.init_weights)
 
@@ -37,14 +37,14 @@ class UnetDAE(UnetGenerator):
             mlp_output_dimension: int,
         ) -> None:
         mlp_layers = [
-            nn.Linear(self.time_embedding_dimension, mlp_hidden_dimension),
+            nn.Linear(self.dae_config.time_embed_dimension, mlp_hidden_dimension),
             nn.SiLU(),
             nn.Linear(mlp_hidden_dimension, mlp_output_dimension)]
         self.mlp = nn.Sequential(*mlp_layers)
 
     def get_embedding_frequency(self) -> None:
-        freq = torch.arange(0, self.time_embedding_dimension, 2).float()
-        freq /= self.time_embedding_dimension
+        freq = torch.arange(0, self.dae_config.time_embed_dimension, 2).float()
+        freq /= self.dae_config.time_embed_dimension
         self.embedding_freq = (1 / (10000 ** (freq))).to(self.device)
 
     def embed_timesteps(self, timesteps: torch.Tensor) -> torch.Tensor:
@@ -65,8 +65,8 @@ class UnetDAE(UnetGenerator):
             in_channels=self.channel_map['initial_down'][0], 
             out_channels=self.channel_map['initial_down'][1], 
             upconv_type=self.upconv_type, activation='leaky',
-            norm=None, down=True, bias=True, use_dropout=False,
-            time_embedding_dimension=self.time_embedding_dimension)
+            norm='group', down=True, bias=True, use_dropout=False,
+            time_embedding_dimension=self.dae_config.time_embed_dimension)
 
         # Define additional downsampling layers
         self.downs = nn.ModuleList()
@@ -75,8 +75,8 @@ class UnetDAE(UnetGenerator):
                 self.block_type(
                     in_channels=in_ch, out_channels=out_ch, 
                     upconv_type=self.upconv_type, activation='leaky',
-                    norm='instance', down=True, bias=False, use_dropout=False,
-                    time_embedding_dimension=self.time_embedding_dimension))
+                    norm='group', down=True, bias=False, use_dropout=False,
+                    time_embedding_dimension=self.dae_config.time_embed_dimension))
 
     def define_bottleneck(self) -> None:
         '''Defines the bottleneck layer.'''
@@ -84,9 +84,9 @@ class UnetDAE(UnetGenerator):
         self.bottleneck = self.block_type(
             in_channels=self.channel_map['bottleneck'][0], 
             out_channels=self.channel_map['bottleneck'][1], 
-            upconv_type=self.upconv_type, activation='relu',
-            norm=None, down=True, bias=True, use_dropout=False,
-            time_embedding_dimension=self.time_embedding_dimension)
+            upconv_type=self.upconv_type, activation='relu', norm='group', 
+            down=self.dae_config.bottleneck_down, bias=True, use_dropout=False,
+            time_embedding_dimension=self.dae_config.time_embed_dimension)
 
     def define_upsampling_blocks(self) -> None:
         '''Defines the layers in the upsampling path.'''
@@ -96,9 +96,9 @@ class UnetDAE(UnetGenerator):
             self.ups.append(self.block_type(
                 in_channels=in_ch, out_channels=out_ch, 
                 upconv_type=self.upconv_type, 
-                activation='relu', norm='instance', down=False, bias=False, 
+                activation='relu', norm='group', down=False, bias=False, 
                 use_dropout=i<self.use_dropout_layers,
-                time_embedding_dimension=self.time_embedding_dimension))
+                time_embedding_dimension=self.dae_config.time_embed_dimension))
 
         # Define final upsampling layer
         self.final_up = self.block_type(
@@ -106,7 +106,7 @@ class UnetDAE(UnetGenerator):
             out_channels=self.channel_map['final_up'][1],
             upconv_type=self.upconv_type, activation=None,
             norm=None, down=False, bias=True, use_dropout=False,
-            time_embedding_dimension=self.time_embedding_dimension)
+            time_embedding_dimension=self.dae_config.time_embed_dimension)
 
     def forward(
             self, 
