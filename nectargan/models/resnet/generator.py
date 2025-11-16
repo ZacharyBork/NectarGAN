@@ -8,7 +8,7 @@ import math
 import torch
 import torch.nn as nn
 
-from nectargan.models.resnet.model import ResNet
+from nectargan.models import ResNet
 from nectargan.models.resnet.blocks import ResnetBlock
 
 class ResNetGenerator(ResNet):

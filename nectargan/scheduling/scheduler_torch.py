@@ -1,7 +1,7 @@
 from torch import optim
 
-from nectargan.scheduling.data import Schedule
-from nectargan.scheduling.scheduler import Scheduler
+from nectargan.scheduling import Schedule
+from nectargan.scheduling import Scheduler
 
 class TorchScheduler(Scheduler):
     def __init__(

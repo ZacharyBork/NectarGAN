@@ -7,8 +7,8 @@ import torch
 from torch.utils.data import Dataset
 import albumentations as A
 
-from nectargan.config.config_data import Config
-from nectargan.dataset.augmentations import Augmentations
+from nectargan.config import Config
+from nectargan.dataset import Augmentations
 
 class PairedDataset(Dataset):
     '''Defines a dataset loader for paired training.

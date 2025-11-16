@@ -12,9 +12,9 @@ from typing import Any
 import torch
 from torchvision.utils import save_image
 
-from nectargan.trainers.trainer import Trainer
-from nectargan.config.config_manager import ConfigManager
-from nectargan.models.unet.model import UnetGenerator
+from nectargan.trainers import Trainer
+from nectargan.config import ConfigManager
+from nectargan.models import UnetGenerator
 from nectargan.models.unet.blocks import UnetBlock, ResidualUnetBlock
 from nectargan.losses import losses
 

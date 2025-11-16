@@ -451,7 +451,7 @@ class Trainer():
     def export_model_weights(
             self,
             mod: nn.Module, 
-            opt: optim.Optimizer, 
+            opt: optim.Optimizer | None, 
             net: str,
         ) -> str | None: 
         '''Save a checkpoint for a single network and associated optimizer.
@@ -461,7 +461,7 @@ class Trainer():
 
         Args:
             mod : The network to save.
-            opt : The network's optimizer
+            opt : The network's optimizer, or None if not applicable.
             net : The name of the network being saved (e.g G for generator).
 
         Returns:
@@ -470,9 +470,9 @@ class Trainer():
         Raises:
             RuntimeError : If unable to save checkpoint file.
         '''
-        checkpoint = {
-            'state_dict': mod.state_dict(), 
-            'optimizer': opt.state_dict()}
+        checkpoint = { 'state_dict': mod.state_dict() }
+        if not opt is None: checkpoint['optimizer'] = opt.state_dict()
+
         name = f'epoch{str(self.current_epoch)}_net{net}.pth.tar'
         output_path = pathlib.Path(self.experiment_dir, name)
         try: torch.save(checkpoint, output_path.as_posix())

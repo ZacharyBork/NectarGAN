@@ -1,7 +1,7 @@
 import torch
 import numpy as np
 import albumentations as A
-from nectargan.config.config_data import Config
+from nectargan.config import Config
 
 class Augmentations():
     '''Manages dataset transforms.

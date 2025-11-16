@@ -5,12 +5,11 @@ import numpy as np
 import torch
 import albumentations as A
 
-from nectargan.config.config_data import Config
-from nectargan.dataset.paired_dataset import PairedDataset
+from nectargan.config import Config
+from nectargan.dataset import PairedDataset
 
 class UnpairedDataset(PairedDataset):
-    '''Defines a dataset loader for unpaired training.
-    '''
+    '''Defines a dataset loader for unpaired training.'''
     def __init__(
             self, 
             config: Config, 
@@ -35,14 +34,14 @@ class UnpairedDataset(PairedDataset):
             return self.xform.apply_transforms_unpaired(image)
         else: 
             _input = A.Compose([
-            A.Normalize(
-                mean=[0.5, 0.5, 0.5], 
-                std=[0.5, 0.5, 0.5], 
-                max_pixel_value=255.0),
-            A.ToTensorV2()
-        ])(image=image)['image']
-        
-        return _input 
+                A.Normalize(
+                    mean=[0.5, 0.5, 0.5], 
+                    std=[0.5, 0.5, 0.5], 
+                    max_pixel_value=255.0),
+                A.ToTensorV2()
+            ])(image=image)['image']
+            
+            return _input 
 
 
 

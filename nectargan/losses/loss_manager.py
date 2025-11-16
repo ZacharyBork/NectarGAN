@@ -14,10 +14,10 @@ from typing import Any, Callable
 import torch
 import torch.nn as nn
 
-from nectargan.config.config_data import Config
-from nectargan.scheduling.data import Schedule
-from nectargan.scheduling.schedules import schedule_map
-from nectargan.losses.lm_data import LMLoss, LMHistory
+from nectargan.config import Config
+from nectargan.scheduling import Schedule
+from nectargan.scheduling import schedule_map
+from nectargan.losses import LMLoss, LMHistory
 
 class LossManager():
     def __init__(

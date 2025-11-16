@@ -2,9 +2,9 @@ from typing import Literal
 
 import torch.nn as nn
 
-from nectargan.config.config_data import Config
-from nectargan.losses.losses import Sobel, Laplacian, VGGPerceptual
-from nectargan.losses.lm_data import LMLoss
+from nectargan.config import Config
+from nectargan.losses import Sobel, Laplacian, VGGPerceptual
+from nectargan.losses import LMLoss
 
 def pix2pix(
         config: Config,

@@ -1,7 +1,7 @@
 from typing import Callable
 
-from nectargan.scheduling.data import Schedule
-from nectargan.scheduling.schedules import schedule_map
+from nectargan.scheduling import Schedule
+from nectargan.scheduling import schedule_map
 
 class Scheduler():
     def __init__(self, schedule: Schedule) -> None:

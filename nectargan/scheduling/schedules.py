@@ -1,4 +1,4 @@
-from nectargan.scheduling.data import Schedule
+from nectargan.scheduling import Schedule
 
 class ScheduleDefs:
     @staticmethod

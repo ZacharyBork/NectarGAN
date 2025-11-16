@@ -2,7 +2,7 @@ from collections.abc import Mapping
 import queue
 
 import torch
-from nectargan.visualizer.visdom.visualizer import VisdomVisualizer
+from nectargan.visualizer import VisdomVisualizer
 
 class DiffusionVisualizer(VisdomVisualizer):
     def __init__(
