@@ -35,6 +35,8 @@ class DiffusionTrainer(Trainer):
 
         self.ema = ExponentialMovingAverage(
             self.diffusion_model.autoencoder.parameters(), decay=0.9999)
+        for param in self.ema.shadow_params:
+            param.data = param.data.to(self.device)
 
         if self.config.train.load.continue_train:
             lr_initial = self.config.train.generator.learning_rate.initial
@@ -110,9 +112,10 @@ class DiffusionTrainer(Trainer):
         else: return None
 
     def export_examples(self, x: torch.Tensor, idx: int) -> None:
-        with torch.no_grad() and torch.amp.autocast('cuda'):
-            with self.ema.average_parameters():
-                output = self.diffusion_model.sample()
+        with self.ema.average_parameters():
+            with torch.amp.autocast('cuda'):
+                with torch.no_grad():
+                    output = self.diffusion_model.sample()
         normalized_output = torch.clamp((output + 1) * 0.5, 0.0, 1.0)
         filename = f'epoch{self.current_epoch}_{idx}.png'
         output_path = pathlib.Path(self.examples_dir, filename).resolve()
@@ -168,10 +171,15 @@ class DiffusionTrainer(Trainer):
         if idx % self.config.visualizer.visdom.update_frequency == 0:
             if isinstance(self.diffusion_model, LatentDiffusionModel):
                 with torch.amp.autocast('cuda'):
+                    abar = self.diffusion_model.schedule[
+                        'alphas_cumprod'][timesteps].view(-1,1,1,1)
+                    predicted_x0_latent = torch.clamp(
+                        (x_t - (1.0 - abar).sqrt() * predicted) /  abar.sqrt(),
+                        -4.0, 4.0)
                     x_t = self.diffusion_model.decode_from_latent(x_t)
-                    predicted = self.diffusion_model.decode_from_latent(predicted)
+                    predicted = self.diffusion_model.decode_from_latent(predicted_x0_latent)
             self.update_display(x, x_t, predicted, idx)
-            
+                    
             avg_time = sum(self.batch_times) / max(1, len(self.batch_times))
             avg_time = round(avg_time, 3)
             print(f'Average batch time: {avg_time} seconds')

@@ -4,7 +4,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 
-from nectargan.models.diffusion.denoising_autoencoder import UnetDAE
+from nectargan.models import UnetDAE
 from nectargan.models.diffusion.data import DAEConfig
 
 class DiffusionModel(nn.Module):
@@ -13,7 +13,7 @@ class DiffusionModel(nn.Module):
             device: str,
             timesteps: int=1000,
             dae_config: DAEConfig=DAEConfig(
-                input_size=128, in_channels=3, features=128, n_downs=4, 
+                input_size=256, in_channels=3, features=256, n_downs=4, 
                 bottleneck_down=True, learning_rate=0.0001)
         ) -> None:
         super(DiffusionModel, self).__init__()
@@ -74,7 +74,7 @@ class DiffusionModel(nn.Module):
             # Generate noise if not provided 
             if noise is None: noise = torch.randn_like(x).to(self.device)
 
-            # Sample noisy image at timestep (t) from input x_0 and noise
+            # Sample noisy image at timestep (t) from input x0 and noise
             acum = self.schedule['alphas_cumprod'][t].view(-1,1,1,1)
             x_t = acum.sqrt() * x + (1.0 - acum).sqrt() * noise
 
@@ -99,6 +99,16 @@ class DiffusionModel(nn.Module):
         self.inv_abar_prev = 1.0 - self.abar_prev
         self.sqrt_abar_prev = torch.sqrt(self.abar_prev)
 
+    def _predict_x0(
+            self, 
+            x: torch.Tensor,
+            pred_noise: torch.Tensor, 
+            range: float=4.0
+        ) -> torch.Tensor:
+        return torch.clamp(
+            (x - self.sqrt_inv_abar_t * pred_noise) / self.sqrt_abar_t, 
+            -range, range)
+    
     def p_sample(
             self, 
             x: torch.Tensor, 
@@ -111,7 +121,7 @@ class DiffusionModel(nn.Module):
         This sampler has two 'modes'. If direct=False, it will perform a single 
         reverse diffusion step (see Refs) on x_t to estimate x_(t-1). 
 
-        If direct=True, it will instead estimate the clean image x_0 directly
+        If direct=True, it will instead estimate the clean image x0 directly
         from x_t. This is a very aggressive method of prediction, and can cause 
         the model to learn very quickly, but is also very unstable.
 
@@ -130,23 +140,21 @@ class DiffusionModel(nn.Module):
         '''
         with torch.no_grad():
             # Predict noise
-            dae_output = self.autoencoder(x, t)
+            pred_noise = self.autoencoder(x, t)
 
             # Get parms at timestep (t)
             self.get_parameters_at_timestep(t)
                 
-            # Sample noisy image x_0
-            x_0 = torch.clamp(
-                (x - self.sqrt_inv_abar_t * dae_output) / self.sqrt_abar_t, 
-                -4.0, 4.0)
+            # Sample noisy image x0
+            x0 = self._predict_x0(x, pred_noise)
 
             if not direct: # Reverse diffusion, timestep (t) -> (t)-1
                 p1 = (self.sqrt_abar_prev * self.beta_t) / self.inv_abar_t
                 p2 = (self.sqrt_alpha_t * self.inv_abar_prev) / self.inv_abar_t
-                mean = x_0 * p1 +  x  * p2
+                mean = x0 * p1 +  x  * p2
                 var = self.beta_t * self.inv_abar_prev / self.inv_abar_t
             else: # Predict clean image directly
-                mean, var = x_0, self.beta_t
+                mean, var = x0, self.beta_t
 
             # Return clean image on final step, otherwise noisy image at (t)-1
             if idx == 0: return mean

@@ -45,6 +45,7 @@ dev = [
     "pytest-cov>=4.0.0"
 ]
 diffusion = [ 
+    "torch_ema=0.3",
     "diffusers==0.35.2",
     "accelerate==1.11.0"
 ]

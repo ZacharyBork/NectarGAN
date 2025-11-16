@@ -1,17 +1,16 @@
 import torch
 from diffusers import AutoencoderKL
 
+from nectargan.models import DiffusionModel
 import nectargan.models.diffusion.utils as diffusion_utils
-from nectargan.models.diffusion.models.pixel import DiffusionModel
 from nectargan.models.diffusion.data import DAEConfig
-
 
 class LatentDiffusionModel(DiffusionModel):
     def __init__(
             self, 
             latent_size_divisor: int=8,
             dae_config: DAEConfig=DAEConfig(
-                input_size=128, in_channels=4, features=128, n_downs=1, 
+                input_size=256, in_channels=4, features=256, n_downs=2, 
                 bottleneck_down=True, learning_rate=0.0001),
             **kwargs
         ) -> None:
@@ -27,7 +26,6 @@ class LatentDiffusionModel(DiffusionModel):
         diffusion_utils.validate_latent_size(
             size, self.dae_config.input_size, latent_size_divisor)
         self.latent_spatial_size = size
-        print(f'Latent size: {self.latent_spatial_size}')
         self.dae_config.input_size = self.latent_spatial_size
 
     def _init_vae(self) -> None:

@@ -28,3 +28,15 @@ class TimeEmbeddedUnetBlock(UnetBlock):
         
         return self.dropout(x) if self.use_dropout else x
     
+
+class CrossAttentionUnetBlock(TimeEmbeddedUnetBlock):
+    def __init__(
+            self, 
+            time_embedding_dimension = None, 
+            **kwargs
+        ) -> None:
+        super().__init__(time_embedding_dimension, **kwargs)
+
+
+
+

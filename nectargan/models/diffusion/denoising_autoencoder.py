@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 
-from nectargan.models.unet.model import UnetGenerator
+from nectargan.models import UnetGenerator
 from nectargan.models.diffusion.blocks import TimeEmbeddedUnetBlock
 from nectargan.models.diffusion.data import DAEConfig
 
@@ -20,6 +20,7 @@ class UnetDAE(UnetGenerator):
         super().__init__(
             in_channels=self.dae_config.in_channels,
             input_size=self.dae_config.input_size,
+            features=self.dae_config.features,
             n_downs=self.dae_config.n_downs,
             block_type=self.block_type, 
             **kwargs)
