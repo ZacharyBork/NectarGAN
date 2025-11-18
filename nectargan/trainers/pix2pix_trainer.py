@@ -260,7 +260,7 @@ class Pix2pixTrainer(Trainer):
             y : Ground truth image as torch.Tensor.
             y_fake : Generated fake image as torch.Tensor.
         '''
-        with torch.amp.autocast('cuda'):
+        with torch.amp.autocast(self.device):
             D_real = self.disc(x, y)               # Predict on real image
             D_fake = self.disc(x, y_fake.detach()) # Then on fake image
 
@@ -397,7 +397,7 @@ class Pix2pixTrainer(Trainer):
         Returns:
             torch.Tensor : Total generator loss for batch.
         '''
-        with torch.amp.autocast('cuda'):
+        with torch.amp.autocast(self.device):
             loss_G = self.compute_GAN_loss(x, y_fake)
             structure_losses = self.compute_structure_loss(y, y_fake)
             for loss in structure_losses:
@@ -503,7 +503,7 @@ class Pix2pixTrainer(Trainer):
                 to the callback during training. See 
                 `Pix2pixTrainer.on_epoch_start()` for example implementation.
         '''
-        with torch.amp.autocast('cuda'): 
+        with torch.amp.autocast(self.device): 
             y_fake = self.gen(x)
 
         # Get discriminator losses, apply gradients

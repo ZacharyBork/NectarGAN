@@ -511,7 +511,7 @@ class Trainer():
             x: torch.Tensor = x.unsqueeze(0).to(self.device)
             y: torch.Tensor = y.unsqueeze(0).to(self.device)
 
-            with torch.amp.autocast('cuda'):
+            with torch.amp.autocast(self.device):
                 with torch.no_grad():
                     y_fake: torch.Tensor = network(x)
             

@@ -72,7 +72,7 @@ class DiffusionModel(nn.Module):
         '''    
         with torch.no_grad():
             # Generate noise if not provided 
-            if noise is None: noise = torch.randn_like(x).to(self.device)
+            if noise is None: noise = torch.randn_like(x)
 
             # Sample noisy image at timestep (t) from input x0 and noise
             acum = self.schedule['alphas_cumprod'][t].view(-1,1,1,1)
