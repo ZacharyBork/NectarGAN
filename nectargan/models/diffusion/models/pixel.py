@@ -3,23 +3,28 @@
 import torch
 import torch.nn as nn
 import torch.optim as optim
+from typing import Literal
 
+from nectargan.constants import PI
+from nectargan.config import Config
 from nectargan.models import UnetDAE
-from nectargan.models.diffusion.data import DAEConfig
+from nectargan.models.diffusion.data import DAEConfig, NoiseParameters
 
 class DiffusionModel(nn.Module):
     def __init__(
             self, 
-            device: str,
+            config: Config,
             timesteps: int=1000,
             dae_config: DAEConfig=DAEConfig(
                 input_size=256, in_channels=3, features=256, n_downs=4, 
                 bottleneck_down=True, learning_rate=0.0001)
         ) -> None:
         super(DiffusionModel, self).__init__()
-        self.device = device
+        self.config = config
+        self.device = config.common.device
         self.timesteps = timesteps
         self.dae_config = dae_config
+        self.noiseparams = NoiseParameters()
 
         self._build_noise_schedule()
         self._init_autoencoder()
@@ -27,13 +32,34 @@ class DiffusionModel(nn.Module):
         self.fixed_seed_count = 1
         self.fixed_seeds = []
 
-    def _build_noise_schedule(self) -> None:
-        self.schedule = {
-            'betas': torch.linspace(
-                1e-4, 0.02, self.timesteps).to(self.device)}
-        s = self.schedule
-        alphas = s['alphas'] = 1.0 - s['betas']
-        s['alphas_cumprod'] = torch.cumprod(alphas, axis=0).to(self.device)
+    def _build_noise_schedule(
+            self, 
+            type: Literal['linear', 'cosine']='cosine'
+        ) -> None:
+        n = self.noiseparams
+        match type:
+            case 'linear':
+                n.betas = torch.linspace(
+                    1e-4, 0.02, self.timesteps).to(self.device)
+                n.alphas = 1.0 - n.betas
+                n.alphas_cumprod = torch.cumprod(
+                    n.alphas, axis=0).to(self.device)
+            case 'cosine':
+                steps = self.timesteps + 1
+                offset = 0.008
+                x = torch.linspace(
+                    0, self.timesteps, steps, device=self.device)
+                abar = torch.pow(torch.cos(
+                    ((x / self.timesteps + offset) / (1 + offset)) * PI / 2
+                ), 2)
+                abar = abar / abar[0]
+
+                n.betas = torch.clamp(
+                    1.0 - (abar[1:] / abar[:-1]), 1e-8, 0.999)
+            
+                n.alphas = 1.0 - n.betas
+                n.alphas_cumprod = torch.cumprod(
+                    n.alphas, dim=0).to(self.device)
 
     def _init_autoencoder(self) -> None:
         self.autoencoder = UnetDAE(
@@ -75,29 +101,28 @@ class DiffusionModel(nn.Module):
             if noise is None: noise = torch.randn_like(x)
 
             # Sample noisy image at timestep (t) from input x0 and noise
-            acum = self.schedule['alphas_cumprod'][t].view(-1,1,1,1)
+            acum = self.noiseparams.alphas_cumprod[t].view(-1,1,1,1)
             x_t = acum.sqrt() * x + (1.0 - acum).sqrt() * noise
 
             # Return noisy image + noise used (for loss)
             return x_t, noise
     
     def get_parameters_at_timestep(self, t: torch.Tensor) -> torch.Tensor:
-        self.alpha_t = self.schedule['alphas'][t].view(-1,1,1,1)
-        self.beta_t = self.schedule['betas'][t].view(-1,1,1,1)
-        self.sqrt_alpha_t = torch.sqrt(self.alpha_t)
+        n = self.noiseparams
+        n.alpha_t = n.alphas[t].view(-1,1,1,1)
+        n.beta_t = n.betas[t].view(-1,1,1,1)
+        n.sqrt_alpha_t = torch.sqrt(n.alpha_t)
         
-        self.abar_t = self.schedule['alphas_cumprod'][t].view(-1,1,1,1)
-        self.inv_abar_t = 1.0 - self.abar_t
-        self.sqrt_abar_t = self.abar_t.sqrt()
-        self.sqrt_inv_abar_t = torch.sqrt(self.inv_abar_t)
+        n.abar_t = n.alphas_cumprod[t].view(-1,1,1,1)
+        n.inv_abar_t = 1.0 - n.abar_t
+        n.sqrt_abar_t = n.abar_t.sqrt()
+        n.sqrt_inv_abar_t = torch.sqrt(n.inv_abar_t)
         
-        self.abar_prev = self.schedule['alphas_cumprod'][
-            torch.clamp(t-1, min=0)].view(-1,1,1,1)
-        self.abar_prev = torch.where(
-            (t == 0).view(-1,1,1,1), 
-            torch.ones_like(self.abar_prev), self.abar_prev)
-        self.inv_abar_prev = 1.0 - self.abar_prev
-        self.sqrt_abar_prev = torch.sqrt(self.abar_prev)
+        n.abar_prev = n.alphas_cumprod[torch.clamp(t-1, min=0)].view(-1,1,1,1)
+        n.abar_prev = torch.where(
+            (t == 0).view(-1,1,1,1), torch.ones_like(n.abar_prev), n.abar_prev)
+        n.inv_abar_prev = 1.0 - n.abar_prev
+        n.sqrt_abar_prev = torch.sqrt(n.abar_prev)
 
     def _predict_x0(
             self, 
@@ -105,8 +130,9 @@ class DiffusionModel(nn.Module):
             pred_noise: torch.Tensor, 
             range: float=4.0
         ) -> torch.Tensor:
+        n = self.noiseparams
         return torch.clamp(
-            (x - self.sqrt_inv_abar_t * pred_noise) / self.sqrt_abar_t, 
+            (x - n.sqrt_inv_abar_t * pred_noise) / n.sqrt_abar_t, 
             -range, range)
     
     def p_sample(
@@ -148,13 +174,14 @@ class DiffusionModel(nn.Module):
             # Sample noisy image x0
             x0 = self._predict_x0(x, pred_noise)
 
+            n = self.noiseparams
             if not direct: # Reverse diffusion, timestep (t) -> (t)-1
-                p1 = (self.sqrt_abar_prev * self.beta_t) / self.inv_abar_t
-                p2 = (self.sqrt_alpha_t * self.inv_abar_prev) / self.inv_abar_t
+                p1 = (n.sqrt_abar_prev * n.beta_t) / n.inv_abar_t
+                p2 = (n.sqrt_alpha_t * n.inv_abar_prev) / n.inv_abar_t
                 mean = x0 * p1 +  x  * p2
-                var = self.beta_t * self.inv_abar_prev / self.inv_abar_t
+                var = n.beta_t * n.inv_abar_prev / n.inv_abar_t
             else: # Predict clean image directly
-                mean, var = x0, self.beta_t
+                mean, var = x0, n.beta_t
 
             # Return clean image on final step, otherwise noisy image at (t)-1
             if idx == 0: return mean

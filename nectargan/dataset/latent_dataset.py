@@ -6,7 +6,6 @@ from typing import Any
 import torch
 
 from nectargan.config import Config
-from nectargan.dataset import Augmentations
 
 class LatentDataset(torch.utils.data.Dataset):
     def __init__(
@@ -20,7 +19,6 @@ class LatentDataset(torch.utils.data.Dataset):
         self.shard_directory = shard_directory
         self.cached_shard: torch.Tensor = None
         self.cached_shard_info: dict[str, Any] = None
-        self.xform = Augmentations(config=self.config)
 
         self._parse_manifest()
 
@@ -32,7 +30,6 @@ class LatentDataset(torch.utils.data.Dataset):
         mapped_index = index - start_index
         t = self.cached_shard[mapped_index]
         return t.to(self.device)
-        # return self.xform.apply_transforms_unpaired(t)
 
     def _parse_manifest(self) -> None:
         manifest = Path(self.shard_directory, 'manifest.json')

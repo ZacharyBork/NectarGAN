@@ -75,8 +75,9 @@ class DiffusionTrainer(Trainer):
 
     def _init_model(self, diffusion_model: DiffusionModel) -> None:
         self.model = diffusion_model(
-            timesteps=self.diffusion_timesteps, device=self.device)
-        self.train_loader = self.model.precache_latents(config=self.config)
+            config=self.config, timesteps=self.diffusion_timesteps)
+        self.train_loader = self.model.cache_latents()
+        self.model.read_from_cache = True
 
     def register_losses(self) -> None:
         self.loss_manager.register_loss_fn(
@@ -128,6 +129,23 @@ class DiffusionTrainer(Trainer):
             normalized_output, output_path.as_posix(), 
             normalize=False, value_range=None)
         
+    def _build_latent_vis_tensors(
+            self, 
+            x: torch.Tensor,
+            x_t: torch.Tensor,
+            predicted: torch.Tensor,
+            timesteps: torch.Tensor
+        ) -> tuple[torch.Tensor]:
+        with torch.amp.autocast(self.device):
+            abar = self.model.noiseparams.alphas_cumprod[timesteps].view(-1,1,1,1)
+            pred_x0 = torch.clamp(
+                (x_t - (1.0 - abar).sqrt() * predicted) /  abar.sqrt(),
+                -4.0, 4.0)
+            x = self.model.decode(x)
+            x_t = self.model.decode(x_t)
+            predicted = self.model.decode(pred_x0)
+        return x, x_t, predicted
+        
     def init_visdom(self) -> None:
         '''Initializes Visdom visualization for diffusion training.'''
         vcon = self.config.visualizer
@@ -159,10 +177,9 @@ class DiffusionTrainer(Trainer):
         ) -> None:
         self.model.opt_dae.zero_grad()
 
-        batch_size = x.shape[0]
         timesteps = torch.randint(
             0, self.diffusion_timesteps, 
-            (batch_size,), 
+            (self.config.dataloader.batch_size,), 
             device=self.device
         ).long()
 
@@ -175,15 +192,9 @@ class DiffusionTrainer(Trainer):
 
         if idx % self.config.visualizer.visdom.update_frequency == 0:
             if isinstance(self.model, LatentDiffusionModel):
-                with torch.amp.autocast(self.device):
-                    abar = self.model.schedule[
-                        'alphas_cumprod'][timesteps].view(-1,1,1,1)
-                    pred_x0 = torch.clamp(
-                        (x_t - (1.0 - abar).sqrt() * predicted) /  abar.sqrt(),
-                        -4.0, 4.0)
-                    x_t = self.model.decode_from_latent(x_t)
-                    predicted = self.model.decode_from_latent(pred_x0)
-            # self.update_display(x, x_t, predicted, idx)
+                x, x_t, predicted = self._build_latent_vis_tensors(
+                    x, x_t, predicted, timesteps)
+            self.update_display(x, x_t, predicted, idx)
                     
             avg_time = sum(self.batch_times) / max(1, len(self.batch_times))
             avg_time = round(avg_time, 3)

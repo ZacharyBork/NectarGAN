@@ -1,5 +1,7 @@
 from dataclasses import dataclass
 
+from torch import Tensor
+
 @dataclass
 class DAEConfig:
     input_size:           int = 128
@@ -13,4 +15,26 @@ class DAEConfig:
     mlp_hidden_dimension: int = 256
     mlp_output_dimension: int = 128
     
+
+@dataclass
+class NoiseParameters:
+    alphas:             Tensor | None = None
+    betas:              Tensor | None = None
+    alphas_cumprod:     Tensor | None = None
+
+    alpha_t:            Tensor | None = None
+    beta_t:             Tensor | None = None
+    sqrt_alpha_t:       Tensor | None = None
+
+    abar_t:             Tensor | None = None
+    sqrt_abar_t:        Tensor | None = None
+    inv_abar_t:         Tensor | None = None
+    sqrt_inv_abar_t:    Tensor | None = None
+
+    abar_prev:          Tensor | None = None
+    sqrt_abar_prev:     Tensor | None = None
+    inv_abar_prev:      Tensor | None = None
+    sqrt_inv_abar_prev: Tensor | None = None
+
+
 
