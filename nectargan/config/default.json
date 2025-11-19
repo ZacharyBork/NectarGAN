@@ -1,5 +1,6 @@
 {
     "config": {
+        "config_type": "pix2pix",
         "common": {
             "device": "cpu",
             "gpu_ids": [

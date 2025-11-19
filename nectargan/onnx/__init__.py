@@ -1,2 +1,2 @@
-from nectargan.onnx.converter import ONNXConverter
-from nectargan.onnx.tester import test_model
+from .converter import ONNXConverter
+from .tester import test_model

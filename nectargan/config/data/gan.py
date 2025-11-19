@@ -1,12 +1,7 @@
 from dataclasses import dataclass
+import nectargan.config.data.common as cfgcommon
 
-@dataclass
-class ConfigCommon:
-    device: str
-    gpu_ids: list[int]
-    output_directory: str
-    experiment_name: str
-    experiment_version: int
+##### DATALOADER #####
 
 @dataclass
 class ConfigAugsBoth:
@@ -57,12 +52,6 @@ class ConfigDataLoaderAugmentations:
     both: ConfigAugsBoth
     input: ConfigAugsInput
     output: ConfigAugsOutput
-
-@dataclass
-class ConfigDataloaderLoad:
-    load_size: int
-    crop_size: int
-    input_nc: int
     
 @dataclass
 class ConfigDataloader:
@@ -70,20 +59,10 @@ class ConfigDataloader:
     direction: str
     batch_size: int
     num_workers: int
-    load: ConfigDataloaderLoad
+    load: cfgcommon.ConfigDataloaderLoad
     augmentations: ConfigDataLoaderAugmentations
 
-@dataclass
-class ConfigLoad:
-    continue_train: bool
-    load_epoch: int
-
-@dataclass
-class ConfigLearningRate:
-    epochs: int
-    epochs_decay: int
-    initial: float
-    target: float
+##### TRAIN #####
 
 @dataclass
 class ConfigOptimizer:
@@ -95,7 +74,7 @@ class ConfigGenerator:
     n_downs: int
     block_type: str
     upsample_type: str
-    learning_rate: ConfigLearningRate
+    learning_rate: cfgcommon.ConfigLearningRate
     optimizer: ConfigOptimizer
     
 @dataclass
@@ -103,7 +82,7 @@ class ConfigDiscriminator:
     n_layers: int
     base_channels: int
     max_channels: int
-    learning_rate: ConfigLearningRate
+    learning_rate: cfgcommon.ConfigLearningRate
     optimizer: ConfigOptimizer
 
 @dataclass
@@ -118,37 +97,31 @@ class ConfigLoss:
 @dataclass
 class ConfigTrain:
     separate_lr_schedules: bool
-    load: ConfigLoad
+    load: cfgcommon.ConfigLoad
     generator: ConfigGenerator
     discriminator: ConfigDiscriminator
     loss: ConfigLoss
 
-@dataclass
-class ConfigSave:
-    save_model: bool
-    model_save_rate: int
-    auto_increment_version: bool
-    save_examples: bool
-    example_save_rate: int
-    num_examples: int
+##### VISUALIZER #####
 
-@dataclass
-class ConfigVisdom:
-    enable: bool
-    env_name: str
-    server: str
-    port: int
-    image_size: int
-    update_frequency: int
-    
 @dataclass
 class ConfigVisualizer:
-    visdom: ConfigVisdom
+    visdom: cfgcommon.ConfigVisdom
+
+##### MAIN #####
 
 @dataclass
-class Config:
-    common: ConfigCommon
+class GANConfig(cfgcommon.Config):
+    common: cfgcommon.ConfigCommon
     dataloader: ConfigDataloader
     train: ConfigTrain
-    save: ConfigSave
+    save: cfgcommon.ConfigSave
     visualizer: ConfigVisualizer
+
+    DEFAULT_FILE = 'default.json'
+    GROUP_SCHEMA = {
+        'common': cfgcommon.ConfigCommon,
+        'dataloader': ConfigDataloader,
+        'train': ConfigTrain,
+        'save': cfgcommon.ConfigSave,
+        'visualizer': ConfigVisualizer}

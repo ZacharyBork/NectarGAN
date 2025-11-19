@@ -1,2 +1,2 @@
-from nectargan.visualizer.visdom.visualizer import VisdomVisualizer
-from nectargan.visualizer.visdom.diffusion import DiffusionVisualizer
+from .visdom.visualizer import VisdomVisualizer
+from .visdom.diffusion import DiffusionVisualizer

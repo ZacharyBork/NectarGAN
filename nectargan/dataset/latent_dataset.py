@@ -5,12 +5,12 @@ from typing import Any
 
 import torch
 
-from nectargan.config import Config
+from nectargan.config import DiffusionConfig
 
 class LatentDataset(torch.utils.data.Dataset):
     def __init__(
             self, 
-            config: Config,
+            config: DiffusionConfig,
             shard_directory: PathLike
         ) -> None:
         super(LatentDataset, self).__init__()

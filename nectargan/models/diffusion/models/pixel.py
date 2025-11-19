@@ -1,43 +1,53 @@
-# TO-DO: Fix all hard coded values.
-
 import torch
 import torch.nn as nn
 import torch.optim as optim
 from typing import Literal
 
 from nectargan.constants import PI
-from nectargan.config import Config
+from nectargan.config import DiffusionConfig
 from nectargan.models import UnetDAE
 from nectargan.models.diffusion.data import DAEConfig, NoiseParameters
 
 class DiffusionModel(nn.Module):
-    def __init__(
-            self, 
-            config: Config,
-            timesteps: int=1000,
-            dae_config: DAEConfig=DAEConfig(
-                input_size=256, in_channels=3, features=256, n_downs=4, 
-                bottleneck_down=True, learning_rate=0.0001)
-        ) -> None:
+    def __init__(self, config: DiffusionConfig) -> None:
         super(DiffusionModel, self).__init__()
         self.config = config
         self.device = config.common.device
-        self.timesteps = timesteps
-        self.dae_config = dae_config
+        self.model_type = config.model.model_type
+        self.timesteps = config.model.common.timesteps
+        self.dae_config = self._init_dae_config()
         self.noiseparams = NoiseParameters()
 
-        self._build_noise_schedule()
+        self._build_noise_schedule(
+            schedule_type=config.model.common.noise_schedule)
         self._init_autoencoder()
         
         self.fixed_seed_count = 1
         self.fixed_seeds = []
 
+    def _init_dae_config(self) -> DAEConfig:
+        common_cfg = self.config.model.common
+        match self.model_type:
+            case 'pixel': model_cfg = self.config.model.pixel
+            case 'latent': model_cfg = self.config.model.latent
+            case _: raise ValueError(f'Invalid model_type: {self.model_type}')
+        return DAEConfig(
+            input_size=model_cfg.input_size,
+            in_channels=model_cfg.dae.in_channels,
+            features=model_cfg.dae.features,
+            n_downs=model_cfg.dae.n_downs,
+            learning_rate=common_cfg.dae.learning_rate.initial,
+            betas=(common_cfg.dae.betas[0], common_cfg.dae.betas[1]),
+            time_embed_dimension=common_cfg.dae.time_embedding_dimension,
+            mlp_hidden_dimension=common_cfg.dae.mlp_hidden_dimension,
+            mlp_output_dimension=common_cfg.dae.time_embedding_dimension)
+
     def _build_noise_schedule(
             self, 
-            type: Literal['linear', 'cosine']='cosine'
+            schedule_type: Literal['linear', 'cosine']
         ) -> None:
         n = self.noiseparams
-        match type:
+        match schedule_type:
             case 'linear':
                 n.betas = torch.linspace(
                     1e-4, 0.02, self.timesteps).to(self.device)
@@ -46,12 +56,11 @@ class DiffusionModel(nn.Module):
                     n.alphas, axis=0).to(self.device)
             case 'cosine':
                 steps = self.timesteps + 1
-                offset = 0.008
+                offset = self.config.model.common.cosine_offset
                 x = torch.linspace(
                     0, self.timesteps, steps, device=self.device)
                 abar = torch.pow(torch.cos(
-                    ((x / self.timesteps + offset) / (1 + offset)) * PI / 2
-                ), 2)
+                    ((x / self.timesteps + offset) / (1 + offset)) * PI/2), 2)
                 abar = abar / abar[0]
 
                 n.betas = torch.clamp(
@@ -79,7 +88,7 @@ class DiffusionModel(nn.Module):
             self, 
             x: torch.Tensor, 
             t: torch.Tensor, 
-            noise: torch.Tensor = None
+            noise: torch.Tensor=None
         ) -> tuple[torch.Tensor]:
         '''Forward diffusion.
         
@@ -106,23 +115,6 @@ class DiffusionModel(nn.Module):
 
             # Return noisy image + noise used (for loss)
             return x_t, noise
-    
-    def get_parameters_at_timestep(self, t: torch.Tensor) -> torch.Tensor:
-        n = self.noiseparams
-        n.alpha_t = n.alphas[t].view(-1,1,1,1)
-        n.beta_t = n.betas[t].view(-1,1,1,1)
-        n.sqrt_alpha_t = torch.sqrt(n.alpha_t)
-        
-        n.abar_t = n.alphas_cumprod[t].view(-1,1,1,1)
-        n.inv_abar_t = 1.0 - n.abar_t
-        n.sqrt_abar_t = n.abar_t.sqrt()
-        n.sqrt_inv_abar_t = torch.sqrt(n.inv_abar_t)
-        
-        n.abar_prev = n.alphas_cumprod[torch.clamp(t-1, min=0)].view(-1,1,1,1)
-        n.abar_prev = torch.where(
-            (t == 0).view(-1,1,1,1), torch.ones_like(n.abar_prev), n.abar_prev)
-        n.inv_abar_prev = 1.0 - n.abar_prev
-        n.sqrt_abar_prev = torch.sqrt(n.abar_prev)
 
     def _predict_x0(
             self, 
@@ -169,7 +161,7 @@ class DiffusionModel(nn.Module):
             pred_noise = self.autoencoder(x, t)
 
             # Get parms at timestep (t)
-            self.get_parameters_at_timestep(t)
+            self.noiseparams(t)
                 
             # Sample noisy image x0
             x0 = self._predict_x0(x, pred_noise)

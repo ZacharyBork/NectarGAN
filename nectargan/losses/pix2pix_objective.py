@@ -2,12 +2,12 @@ from typing import Literal
 
 import torch.nn as nn
 
-from nectargan.config import Config
+from nectargan.config import GANConfig
 from nectargan.losses import Sobel, Laplacian, VGGPerceptual
 from nectargan.losses import LMLoss
 
 def pix2pix(
-        config: Config,
+        config: GANConfig,
         subspec: Literal[
             'basic', 
             'basic+vgg', 

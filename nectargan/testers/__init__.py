@@ -1,1 +1,3 @@
-from nectargan.testers.tester import Tester
+from .tester import Tester
+from .diffusion import DiffusionTester
+

@@ -2,35 +2,30 @@ import torch
 
 import nectargan.models.diffusion.utils as diffutils
 from nectargan.models import DiffusionModel
-from nectargan.models.diffusion.data import DAEConfig
 from nectargan.models.diffusion.latent_manager import LatentManager
 
 class LatentDiffusionModel(DiffusionModel):
-    def __init__(
-            self, 
-            latent_size_divisor: int=8,
-            dae_config: DAEConfig=DAEConfig(
-                input_size=256, in_channels=4, features=256, n_downs=2, 
-                bottleneck_down=True, learning_rate=0.0001),
-            **kwargs
-        ) -> None:
-        self.dae_config = dae_config
-        self._get_latent_spatial_size(latent_size_divisor)
-        super().__init__(dae_config=dae_config, **kwargs)
-        self._init_latent_manager()
+    def __init__(self, **kwargs) -> None:
+        super().__init__(**kwargs)
         
-        # self._init_vae()
+        self._get_latent_spatial_size()
+        self._init_latent_manager()
         self.read_from_cache = False
 
-    def _get_latent_spatial_size(self, latent_size_divisor: int) -> None:
+    def _get_latent_spatial_size(self) -> None:
         '''Derive latent spatial size from input size and divisor.'''
-        size = round(self.dae_config.input_size / max(1, latent_size_divisor))
-        diffutils.validate_latent_size(
-            size, self.dae_config.input_size, latent_size_divisor)
+        cfg = self.config.model.latent
+        if not cfg.override_latent_size:
+            size = round(
+                self.dae_config.input_size / max(1, cfg.latent_size_divisor))
+            diffutils.validate_latent_size(
+                size, self.dae_config.input_size, cfg.latent_size_divisor)
+        else: size = cfg.latent_size
         self.latent_spatial_size = size
         self.dae_config.input_size = self.latent_spatial_size
 
     def _init_latent_manager(self) -> None:
+        '''Initializes a LatentManager and aliases some of its methods.'''
         self.latent_manager = LatentManager(
             self.config, self.latent_spatial_size)
         self.encode = self.latent_manager.encode_to_latent
