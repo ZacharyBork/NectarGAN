@@ -2,13 +2,7 @@ import sys
 import json
 from os import PathLike
 from pathlib import Path
-from typing import Any
-
-# example = {
-#     'image_path': Path,
-#     'captions': list[str]
-# }
-# output = list[example1, example2, example3]
+from typing import Any, Literal
 
 def print_progress(
         current: int,
@@ -23,23 +17,53 @@ def print_progress(
         f'{round(progress*100.0, 2)}% ')
     print(progress_msg)
 
-class CaptionLoader():
+class CaptionLoader_COCO():
     def __init__(
             self, 
             dataroot: PathLike,
             metadata_file: PathLike,
             image_key: str='images',
             caption_key: str='annotations',
-            new_file_suffix: str='rebuilt'
+            new_file_suffix: str='REBUILT',
+            bypass_mode: Literal['allow', 'disallow', 'confirm']='confirm',
+            schema_version: int=1,
+            silent: bool=False
         ) -> None:
+        '''Initializes a COCO-style caption loader.
+        
+        Args:
+            dataroot : The path to the directory containing the image files
+                which the metadata file describes.
+            metadata_file : The path to the metadata file to parse.
+            image_key : The lookup key which points to the "images" data in the 
+                metadata file.
+            caption_key : The lookup key which points to the "captions" data in 
+                the metadata file.
+            new_file_suffix : The suffix which will be appended to the newly
+                created metadata file. For example, if your base file is called
+                "my_metadata.json", and new_file_suffix is "REBUILT", the new
+                metadata file will be called "my_metadata_REBUILT.json"
+            bypass_mode : Defines loader behavior in the event it encounters an
+                image with no associated captions. Modes:
+                    - "allow"    : Silently bypass the image.
+                    - "disallow" : Stop and raise an exception.
+                    - "confirm"  : Stop and wait for manual bypass.
+            schema_version : The current metadata schema version. This is not
+                used currently, but may be in the future.
+            silent : If True, the converter will not print any progress updates
+                to the console.
+        '''
         self.dataroot = Path(dataroot)
         self.metadata_file = Path(metadata_file)
         self.image_key = image_key
         self.caption_key = caption_key
         self.new_file_suffix = new_file_suffix
+        self.bypass_mode = bypass_mode
+        self.schema_version = schema_version
+        self.silent = silent
 
     def _validate_paths(self) -> None:
-        print('CaptionLoader: Validating input paths...')
+        if not self.silent: print('CaptionLoader: Validating input paths...')
         if not self.dataroot.exists():
             raise FileNotFoundError(
                 f'Unable to locate dataroot at path: '
@@ -54,13 +78,14 @@ class CaptionLoader():
         name = f'{self.metadata_file.stem}_{self.new_file_suffix}'
         self.output_path = Path(metadata_directory, f'{name}.json') 
         if self.output_path.exists():
-            print(f'CaptionLoader: Found existing metadata file at path: '
-                  f'{self.output_path.as_posix()}')
+            if not self.silent: 
+                print(f'CaptionLoader: Found existing metadata file at path: '
+                      f'{self.output_path.as_posix()}')
             return True
         return False
 
     def _load_metadata_file(self) -> tuple[list[dict[str, Any]]]:
-        print('CaptionLoader: Extracting metadata...')
+        if not self.silent: print('CaptionLoader: Extracting metadata...')
         with open(self.metadata_file, 'r') as file:
             metadata = json.loads(file.read())
         try: images = metadata[self.image_key]
@@ -84,40 +109,67 @@ class CaptionLoader():
                 case 'n': exit('Operation canceled')
                 case _: print('Input not valid.')
 
+    def _build_caption_map(
+            self, 
+            captions: list[dict[str, Any]]
+        ) -> dict[str, list[str]]:
+        if not self.silent: print('CaptionLoader: Building caption map...')
+        caption_map = {}
+        for idx, caption in enumerate(captions):
+            try: entry = caption_map[caption['image_id']]
+            except KeyError: entry = caption_map[caption['image_id']] = []
+            entry.append(caption['caption'])
+            if not self.silent: print_progress(idx+1, len(captions))
+        return caption_map
+
     def _build_new_metadata(
             self, 
             images: list[dict[str, Any]], 
-            captions: list[dict[str, Any]]
-        ) -> list[dict[str, Any]]:
-        print('CaptionLoader: Building new metadata...')
-        metadata = []
+            caption_map: dict[str, Any]
+        ) -> dict[str, Any]:
+        if not self.silent: print('CaptionLoader: Building new metadata...')
+        metadata = { 
+            'info': { 
+                'schema_version': self.schema_version,
+                'total_captions': 0, 
+                'total_images': 0 },
+            'items': {},
+            'other': {}}
         img_count = len(images)
-        for idx, image in enumerate(images):
+        for image in images:
             image_id = image['id']
-            filepath = Path(self.dataroot, image['file_name'])
-            
-            image_captions = []
-            for caption in captions:
-                if not image_id == caption['image_id']: continue
-                image_captions.append(caption['caption'])
-                captions.remove(caption)
-            if len(image_captions) == 0: 
-                self._handle_zero_captions()
+            file_name = image['file_name']
+            filepath = Path(self.dataroot, file_name)
+
+            try: image_captions = caption_map[image_id]
+            except KeyError:
+                if self.silent: continue
+                match self.bypass_mode:
+                    case 'allow': pass
+                    case 'disallow':
+                        raise RuntimeError(
+                            f'Encountered image with no associated captions!\n'
+                            f'Image path: {filepath.as_posix()}\n\n'
+                            f'Stopping...')
+                    case 'confirm': self._handle_zero_captions(filepath)
                 continue
-                            
-            metadata.append({
+
+            metadata['info']['total_captions'] += len(image_captions)
+            metadata['info']['total_images'] += 1
+            metadata['items'][file_name.split('.')[0]] = {
                 'filepath': filepath.as_posix(),
-                'captions': image_captions})
-            
-            print_progress(idx+1, img_count)
+                'captions': image_captions}
+            if not self.silent: 
+                print_progress(metadata['info']['total_images'], img_count)
         
         return metadata
 
     def _write_metadata_file(
             self, 
-            new_metadata: list[dict[str, Any]]
+            new_metadata: dict[str, Any]
         ) -> None:
-        print('CaptionLoader: Writing new metatdata file...')
+        if not self.silent: 
+            print('CaptionLoader: Writing new metatdata file...')
         with open(self.output_path, 'w') as file:
             file.write(json.dumps(new_metadata))
 
@@ -125,13 +177,14 @@ class CaptionLoader():
         self._validate_paths()
         if not self._build_output_path():
             images, captions = self._load_metadata_file()
-            new_metadata = self._build_new_metadata(images, captions)
+            caption_map = self._build_caption_map(captions)
+            new_metadata = self._build_new_metadata(images, caption_map)
             self._write_metadata_file(new_metadata)
         return self.output_path
 
 if __name__ == "__main__":
-    root = Path()
-    loader = CaptionLoader(
+    root = Path('/media/zach/UE/ML/test_data/diffusion/coco')
+    loader = CaptionLoader_COCO(
         dataroot=Path(root, 'val2017'),
         metadata_file=Path(root, 'annotations/captions_val2017.json'))
     loader.load()
