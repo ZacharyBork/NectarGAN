@@ -1,3 +1,4 @@
+import sys
 import json
 from os import PathLike
 from pathlib import Path
@@ -85,8 +86,46 @@ class LatentManager():
 
     ##### LATENT_CACHING #####
 
-    def export_shard(self, stack: bool=True) -> None:
-        '''Builds shard file from latent tensors and exports to disk.'''
+    def _validate_metadata_file(self, metadata_file: PathLike) -> Path:
+        '''Converts metadata_file to pathlib.Path and verifies existence.
+        
+        Args:
+            metadata_file : A PathLike object pointing to the metadata file for
+                the dataset being cached.
+
+        Returns:
+            Path : The validated metadata file as a pathlib.Path.
+        '''
+        metadata_file = Path(metadata_file)
+        if not metadata_file.exists():
+            raise FileNotFoundError(
+                f'Unable to locate metadata file at path: '
+                f'{metadata_file.as_posix()}')
+        return metadata_file
+
+    def _export_shard(self, stack: bool=True) -> None:
+        '''Builds shard file from latent tensors and exports to disk.
+
+        Note: This method has two methods of operation, based on the value of
+        `stack`. If `stack` is True, the tensors will be stacked on dim 0 
+        before being saved to disk. If False, the list of latent tensors will 
+        be saved directly. This argument is set automatically by the 
+        `_iterate_dataloader()` method to True for any batch size > 1, 
+        otherwise False. 
+        
+        This allows you to buiild caches from datasets which do not have a
+        standardizes resolution for their images by setting batch size for the
+        caching operation to 1. This is slower to cache, but it does not 
+        require a pre-crop which means the latents can instead be cropped 
+        randomly during training and all data is preserved.
+
+        If your dataset images are all of the same resolution though, you can
+        instead use a much larger batch size to cache the dataset more quickly.
+
+        Args:
+            stack : If True, the tensors will be stacked on dim 0 before being
+                saved to disk. See Note for more info. 
+        '''
         if not self.cache_data.shard: return
         self.cache_data.shard_count += 1
 
@@ -114,7 +153,117 @@ class LatentManager():
         self.cache_data.shard.clear()
         self.cache_data.file_names.clear()
 
-    def _cache_latents(self, batch_size: int, shard_size: int) -> Path:
+    def _init_cache_output(self, split: str) -> bool:
+        '''Initializes and/or validates an output directory for the cache.
+        
+        Args:
+            split : The dataset split to cache (i.e. "train", "test", "val").
+
+        Returns:
+            bool : True if a new directory was created for the cache, False if
+                a valid cache directory already existed.
+        '''
+        self.dataroot = self.config.dataloader.dataroot
+        self.dataset_path = Path(self.dataroot, split).resolve()
+        self.cache_data.output_dir, new = latent_utils.init_latent_cache(
+            dataroot=self.dataroot, cache_name=split)
+        return new
+
+    def _build_dataloader(
+            self, 
+            batch_size: int, 
+            shard_size: int
+        ) -> tuple[DiffusionDataset, DataLoader]:
+        '''Build a new DiffusionDataset and a Dataloader to load it.
+        
+        The dataloader built here will be a duplicate of the Dataloader defined
+        by the configuration file. This step is only necessary so that we can
+        flag the DiffusionDataset as a cache_builder, and so we can override
+        the batch sized defined by the config with the batch size we would like
+        to use for latent caching. 
+
+        Args:
+            batch_size : The batch size to use for the caching operation.
+            shard_size : The number of batches to save per shard file.
+
+        Returns:
+            tuple[DiffusionDataset, DataLoader] : The new Dataloader, and the
+                dataset it's loading.
+        '''
+        print(f'Building duplicate Dataloader...\n'
+              f'Batch Size : {batch_size}\n'
+              f'Shard Size : {shard_size}\n')
+        dataset = DiffusionDataset(
+            config=self.config, root_dir=self.dataset_path, 
+            is_train=False, cache_builder=True)
+        dataloader = DataLoader(
+            dataset, batch_size=batch_size, 
+            num_workers=self.config.dataloader.num_workers)
+        return dataset, dataloader
+
+    def _init_manifest(self, shard_size: int) -> None:
+        '''Initializes the cache manifest with some initial data.
+
+        Args:
+            shard_size : The number of batches being saved per shard file.
+        '''
+        self.cache_data.manifest = {
+            'dataroot': self.dataroot,
+            'total_length': 0,
+            'shard_size': shard_size,
+            'shards': [],
+            'file_names': []}
+        
+    def _iterate_dataloader(
+            self, 
+            dataset: DiffusionDataset,
+            dataloader: DataLoader,
+            batch_size: int,
+            shard_size: int,
+            store_file_names: bool
+        ) -> None:
+        '''Iterate dataloader, encode to latent, append to current shard.
+        
+        Args:
+            dataset : The dataset which the current dataloader is using. This
+                is really only required when caching with metadata, so it can
+                find the correct file name for each tensor is encodes.
+            dataloader : The DiffusionDataloader to iterate over.
+            batch_size : The batch size to use for the caching operation. This
+                override exists to allow a larger batch size for caching than
+                the one specified in training.
+            shard_size : The number of batches to save per shard file.
+            store_file_names : Whether to store the original image file names 
+                of the encoded tensors for each shard in the manifest.
+        '''
+        num_batches = len(dataset)
+        export = lambda x: self._export_shard(stack=not x==1)
+        for idx, x in enumerate(dataloader):
+            latent_utils.print_progress(idx+1, num_batches)
+            x = x.to(self.device, non_blocking=True)
+            self.cache_data.shard.append(self.encode_to_latent(x).cpu())
+            
+            if store_file_names:
+                file_name = dataset.list_files[idx].stem
+                self.cache_data.file_names.append(file_name)
+
+            if len(self.cache_data.shard) == shard_size: export(x=batch_size)
+        if not len(self.cache_data.shard) == 0: export(x=batch_size)
+
+    def _save_manifest(self) -> None:
+        '''Writes manifest data to a JSON file in the cache directory.'''
+        print('Caching complete. Writing manifest...')
+        self.cache_data.manifest['total_length'] = self.cache_data.total_length
+        with open(Path(self.cache_data.output_dir, 'manifest.json'), 'w') as f:
+            f.write(json.dumps(self.cache_data.manifest))
+
+    def _cache_latents(
+            self, 
+            batch_size: int=64,
+            shard_size: int=512,
+            split: str='train',
+            store_file_names: bool=False
+        ) -> None:
         '''Loops through Dataloader, encodes tensors to latent space, exports.
 
         Args:
@@ -124,56 +273,26 @@ class LatentManager():
         Returns:
             Path : The path to the cache output directory.
         '''
-        dataroot = self.config.dataloader.dataroot
-        dataset_path = Path(dataroot, 'train').resolve()
-        self.cache_data.output_dir, new = \
-            latent_utils.init_latent_cache(dataroot)
+        new = self._init_cache_output(split)
         if not new: 
             print('Bypassing caching operation...')
             return self.cache_data.output_dir
         
-        print(f'Building duplicate Dataloader...\n'
-              f'Batch Size : {batch_size}\n'
-              f'Shard Size : {shard_size}\n')
-        dataloader = DataLoader(
-            DiffusionDataset(
-                config=self.config, root_dir=dataset_path, 
-                is_train=False, cache_builder=True), 
-                batch_size=batch_size, 
-                num_workers=self.config.dataloader.num_workers,)
-        num_batches = len(dataloader)
-
-        self.cache_data.manifest = {
-            'dataroot': dataroot,
-            'total_length': 0,
-            'shard_size': shard_size,
-            'shards': [],
-            'file_names': []}
-
-
-        export = lambda x: self.export_shard(stack=not x==1)
-        for idx, x in enumerate(dataloader):
-            latent_utils.print_progress(idx+1, num_batches)
-            x = x.to(self.device, non_blocking=True)
-            x = self.encode_to_latent(x).cpu()
-
-            self.cache_data.shard.append(x)
-            if len(self.cache_data.shard) == shard_size: export(x=batch_size)
-        if not len(self.cache_data.shard) == 0: export(x=batch_size)
-        
-        print('Caching complete. Writing manifest...')
-        self.cache_data.manifest['total_length'] = self.cache_data.total_length
-        with open(Path(self.cache_data.output_dir, 'manifest.json'), 'w') as f:
-            f.write(json.dumps(self.cache_data.manifest))
-        return self.cache_data.output_dir
+        dataset, dataloader = self._build_dataloader(batch_size, shard_size)
+        self._init_manifest(shard_size)
+        self._iterate_dataloader(
+            dataset=dataset, dataloader=dataloader, batch_size=batch_size, 
+            shard_size=shard_size, store_file_names=store_file_names)
+        self._save_manifest()
 
     def cache_latents(
             self,
             batch_size: int=64,
-            shard_size: int=512
+            shard_size: int=512,
+            split: str='train',
+            metadata_file: PathLike | None=None,
         ) -> DataLoader:
         '''Caches latent tensors and builds new dataset to load cache.
-
         Saves cached latents as shards to new subdirectory of the dataroot from 
         the config used to initialize the LatentManager. The dataloader which
         is returned from this function will mirror the original dataloader
@@ -183,102 +302,67 @@ class LatentManager():
         This means that you can directly overwrite your original dataloader 
         with this functions return, or just use this in lieu of the Trainer's 
         build_dataloader() method.
-
         Args:
             batch_size : The batch size to use when caching the latents.
             shard_size : The number of batches to save per shard.
-
         Returns:
             Dataloader : A torch.utils.data.Dataloader initialized to read the
                 cached latents.
         '''
         print('Initializing latent precache...')
         self.cache_data = CacheData()
-        shard_dir = self._cache_latents(batch_size, shard_size)
-        
-        print('Building new LatentDataset...')
-        latent_dataset = LatentDataset(
-            config=self.config, shard_directory=shard_dir, 
-            latent_size=self.latent_size)
-                
-        return DataLoader(
-            latent_dataset, batch_size=self.config.dataloader.batch_size, 
-            num_workers=self.config.dataloader.num_workers,
-            drop_last=True)
-    
-    def cache_from_metadata(
-            self,
-            metadata_file: PathLike,
-            batch_size: int=1,
-            shard_size: int=20000,
-            split: str='train'
-        ) -> DataLoader:
-        metadata_file = Path(metadata_file)
-        if not metadata_file.exists():
-            raise FileNotFoundError(
-                f'Unable to locate metadata file at path: '
-                f'{metadata_file.as_posix()}')
-        
-        print('Initializing latent precache...')
-        self.cache_data = CacheData()
-        
-        dataroot = self.config.dataloader.dataroot
-        dataset_path = Path(dataroot, split).resolve()
-        self.cache_data.output_dir, new = latent_utils.init_latent_cache(
-            dataroot=dataroot, cache_name=split)
-        # if not new: 
-        #     print('Bypassing caching operation...')
-        #     return self.cache_data.output_dir
+        if not metadata_file is None:
+            metadata_file = self._validate_metadata_file(metadata_file)
+            self._cache_latents(batch_size, shard_size, split, True)
+            print('Building ImageTextDataset...')
+            new_dataset = ImageTextDataset(
+                config=self.config, 
+                shard_directory=self.cache_data.output_dir,
+                metadata_file=metadata_file,
+                latent_size=self.latent_size)
+        else: 
+            self._cache_latents(batch_size, shard_size, split)
+            print('Building new LatentDataset...')
+            new_dataset = LatentDataset(
+                config=self.config, shard_directory=self.cache_data.output_dir, 
+                latent_size=self.latent_size)
 
-        if new: 
-            print(f'Building duplicate Dataloader...\n'
-                f'Batch Size : {batch_size}\n'
-                f'Shard Size : {shard_size}\n')
-            dataset = DiffusionDataset(
-                config=self.config, root_dir=dataset_path, 
-                is_train=False, cache_builder=True)
+        self.validate_cache(shard_directory=self.cache_data.output_dir)
 
-            dataloader = DataLoader(
-                dataset, batch_size=batch_size, 
-                num_workers=self.config.dataloader.num_workers)
-            num_batches = len(dataset)
-
-            self.cache_data.manifest = {
-                'dataroot': dataroot,
-                'total_length': 0,
-                'shard_size': shard_size,
-                'shards': []}
-
-            export = lambda x: self.export_shard(stack=not x==1)
-            for idx, x in enumerate(dataloader):
-                latent_utils.print_progress(idx+1, num_batches)
-                x = x.to(self.device, non_blocking=True)
-                self.cache_data.shard.append(self.encode_to_latent(x).cpu())
-                
-                file_name = dataset.list_files[idx].stem
-                self.cache_data.file_names.append(file_name)
-
-                if len(self.cache_data.shard) == shard_size: 
-                    export(x=batch_size)
-            if not len(self.cache_data.shard) == 0: 
-                export(x=batch_size)
-            
-            print('Caching complete. Writing manifest...')
-            self.cache_data.manifest['total_length'] = \
-                self.cache_data.total_length
-            manifest_file = Path(self.cache_data.output_dir, 'manifest.json')
-            with open(manifest_file, 'w') as f:
-                f.write(json.dumps(self.cache_data.manifest))
-
-        print('Building TextEmbeddingDataset...')
-        new_dataset = ImageTextDataset(
-            config=self.config, 
-            shard_directory=self.cache_data.output_dir,
-            metadata_file=metadata_file,
-            latent_size=self.latent_size)
-        
+        exit(0)
         return DataLoader(
             new_dataset, batch_size=self.config.dataloader.batch_size, 
             num_workers=self.config.dataloader.num_workers,
             drop_last=True)
+    
+    def validate_cache(
+            self, 
+            shard_directory: PathLike,
+            device: str | None=None
+        ) -> None:
+        print('Validating latent cache...')
+
+        device = device if not device is None else self.device
+        shard_directory = Path(shard_directory)
+        dir = shard_directory.as_posix()
+        if not shard_directory.exists():
+            raise FileNotFoundError(
+                f'Unable to locate shard directory at path: {dir}')
+        shards = list(shard_directory.glob('*.pt'))
+        if len(shards) == 0:
+            raise FileNotFoundError(
+                f'No shards found in shard directory: {dir}')
+        for idx, x in enumerate(shards):
+            try: shard = torch.load(x, map_location=device)
+            except Exception as e:
+                raise RuntimeError(
+                    f'Unable to load shard file at path: {shard}') from e
+            for idy, y in enumerate(shard): 
+                assert torch.isfinite(y).all()
+
+                sys.stdout.write('\x1b[1A')
+                sys.stdout.write('\x1b[2K')
+                print(f'Validating shard ({idx+1}). Iteration: {idy+1}')
+        print('Validation complete. No issues found.')
+
 
