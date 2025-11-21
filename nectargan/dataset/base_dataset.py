@@ -33,8 +33,22 @@ class BaseDataset(Dataset, Generic[TConfig]):
         raise NotImplementedError(
             'This method is implemented by the child class.')
 
-    def load_image_file(self, index: int, size: tuple[int]) -> np.ndarray:
-        img = Image.open(self.list_files[index].as_posix()).resize(size)
+    def load_image_file(
+            self, 
+            index: int, 
+            size: int,
+            preserve_aspect_ratio: bool=False,
+            to_rgb: bool=False
+        ) -> np.ndarray:
+        img = Image.open(self.list_files[index].as_posix())
+        if to_rgb: img = img.convert('RGB')
+        if preserve_aspect_ratio:
+            x = lambda y, z: int(round(y*z))
+            scale = size / min(img.width, img.height)
+            resolution = (x(img.width, scale), x(img.height, scale))
+        else: resolution = (size, size)
+        img = img.resize(resolution, resample=Image.Resampling.BICUBIC)
         return np.array(img)
+
 
 

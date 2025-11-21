@@ -1,0 +1,1 @@
+from .latent_manager import LatentManager

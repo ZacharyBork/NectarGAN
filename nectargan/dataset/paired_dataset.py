@@ -38,7 +38,7 @@ class PairedDataset(BaseDataset[GANConfig]):
         '''
         size = self.load_size if self.is_train \
             else self.config.dataloader.load.crop_size
-        image = self.load_image_file(index, (size*2, size))
+        image = self.load_image_file(index, size, preserve_aspect_ratio=True)
 
         input_img, target_img = self.split_images(image, size)
 

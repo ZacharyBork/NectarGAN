@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import Any
 
 import torch
+from torchvision import transforms
 
 from nectargan.config import DiffusionConfig
 
@@ -11,25 +12,29 @@ class LatentDataset(torch.utils.data.Dataset):
     def __init__(
             self, 
             config: DiffusionConfig,
-            shard_directory: PathLike
+            shard_directory: PathLike,
+            latent_size: int
         ) -> None:
         super(LatentDataset, self).__init__()
         self.config = config
+        self.latent_size = latent_size
         self.device = config.common.device
         self.shard_directory = shard_directory
         self.cached_shard: torch.Tensor = None
         self.cached_shard_info: dict[str, Any] = None
-
+        
         self._parse_manifest()
-
+        
     def __len__(self) -> int:
         return self.length
     
     def __getitem__(self, index: int) -> torch.Tensor:
         start_index = self._check_index(index)
-        mapped_index = index - start_index
-        t = self.cached_shard[mapped_index]
-        return t.to(self.device)
+        self.current_mapped_index = index - start_index
+        t = self.cached_shard[self.current_mapped_index]
+        if t.ndim == 4 and t.shape[0] == 1: t = t.squeeze(0)
+        crop = transforms.RandomCrop(size=(self.latent_size, self.latent_size))
+        return crop(t).to(self.device)
 
     def _parse_manifest(self) -> None:
         manifest = Path(self.shard_directory, 'manifest.json')

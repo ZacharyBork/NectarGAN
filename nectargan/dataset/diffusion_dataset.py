@@ -12,15 +12,18 @@ class DiffusionDataset(BaseDataset[DiffusionConfig]):
             self, 
             config: DiffusionConfig, 
             root_dir: PathLike,
-            is_train: bool=True
+            is_train: bool=True,
+            cache_builder: bool=False
         ) -> None:
         super().__init__(config, root_dir, is_train=is_train)
-        model_cfg = self.config.model
-        match model_cfg.model_type:
-            case 'pixel': self.load_size = model_cfg.pixel.input_size
-            case 'latent': self.load_size = model_cfg.latent.input_size
+        self.cache_builder = cache_builder
+        cfg = self.config.model
+        match cfg.model_type:
+            case 'pixel': self.load_size = cfg.pixel.input_size
+            case 'latent': self.load_size = cfg.latent.input_size
+            case 'stable': self.load_size = cfg.stable.input_size
             case _: return ValueError(
-                f'Invalid model_type: {model_cfg.model_type}')
+                f'Invalid model_type: {cfg.model_type}')
             
     def __getitem__(self, index: int) -> torch.Tensor:
         '''Gets an item from the dataset.
@@ -28,13 +31,12 @@ class DiffusionDataset(BaseDataset[DiffusionConfig]):
         Args:
             index : Index of the file to retrieve.
         '''
-        size = self.load_size
-        image = self.load_image_file(index, (size, size))
+        image = self.load_image_file(
+            index, self.load_size, preserve_aspect_ratio=True, to_rgb=True)
 
+        mean = [0.5, 0.5, 0.5]
         _input = A.Compose([
-            A.Normalize(
-                mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5], 
-                max_pixel_value=255.0),
+            A.Normalize(mean=mean, std=mean, max_pixel_value=255.0),
             A.ToTensorV2()
         ])(image=image)['image']
         
