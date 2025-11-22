@@ -5,12 +5,13 @@ from nectargan.dataset.utility import LatentManager
 from nectargan.config import DiffusionConfig
 
 class LatentDiffusionModel(DiffusionModel):
-    def __init__(self, config: DiffusionConfig, init_dae=True) -> None:
-        super().__init__(config=config, init_dae=init_dae)
+    def __init__(self, config: DiffusionConfig, init_dae=False) -> None:
+        if self.model_config is None: self.model_config = config.model.latent
+        super().__init__(config=config, init_dae=False)
         
-        # self._get_latent_spatial_size()
         self._init_latent_manager()
         self.read_from_cache = False
+        self._init_latent_cache()
 
     def _init_latent_manager(self) -> None:
         '''Initializes a LatentManager and aliases some of its methods.'''
@@ -18,6 +19,16 @@ class LatentDiffusionModel(DiffusionModel):
         self.encode = self.latent_manager.encode_to_latent
         self.decode = self.latent_manager.decode_from_latent
         self.cache_latents = self.latent_manager.cache_latents
+
+    def _init_latent_cache(self) -> None:
+        cache_cfg = self.config.model.stable.precache
+        if cache_cfg.enable:
+            if cache_cfg.enable:
+                self.train_loader = self.cache_latents(
+                    batch_size=cache_cfg.batch_size,
+                    shard_size=cache_cfg.shard_size,
+                    split='train')
+                self.read_from_cache = True
 
     def q_sample(
             self, 

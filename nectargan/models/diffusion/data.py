@@ -1,6 +1,9 @@
+from typing import Literal
 from dataclasses import dataclass
 
 import torch
+
+from nectargan.constants import PI
 
 @dataclass
 class DAEConfig:
@@ -55,6 +58,34 @@ class NoiseParameters:
                 self.abar_prev), self.abar_prev)
         self.inv_abar_prev = 1.0 - self.abar_prev
         self.sqrt_abar_prev = torch.sqrt(self.abar_prev)
+
+    def build_schedule(
+            self, 
+            device: str,
+            timesteps: torch.Tensor,
+            schedule_type: Literal['linear', 'cosine'],
+            cosine_offset: float=0.008
+        ) -> None:
+        match schedule_type:
+            case 'linear':
+                self.betas = torch.linspace(1e-4, 0.02, timesteps).to(device)
+                self.alphas = 1.0 - self.betas
+                self.alphas_cumprod = torch.cumprod(
+                    self.alphas, axis=0).to(device)
+            case 'cosine':
+                steps = timesteps + 1
+                offset = cosine_offset
+                x = torch.linspace(0, timesteps, steps, device=device)
+                abar = torch.pow(torch.cos(
+                    ((x / timesteps + offset) / (1 + offset)) * PI/2), 2)
+                abar = abar / abar[0]
+
+                self.betas = torch.clamp(
+                    1.0 - (abar[1:] / abar[:-1]), 1e-8, 0.999)
+            
+                self.alphas = 1.0 - self.betas
+                self.alphas_cumprod = torch.cumprod(
+                    self.alphas, dim=0).to(device)
 
 
 

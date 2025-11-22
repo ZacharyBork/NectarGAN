@@ -1,9 +1,10 @@
+import time
+from typing import Any, Callable
+
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from typing import Literal
 
-from nectargan.constants import PI
 from nectargan.config import DiffusionConfig
 from nectargan.models import UnetDAE
 from nectargan.models.diffusion.data import DAEConfig, NoiseParameters
@@ -17,65 +18,40 @@ class DiffusionModel(nn.Module):
         ) -> None:
         super(DiffusionModel, self).__init__()
         self.config = config
+        if self.model_config is None:
+            self.model_config = self.config.model.pixel
         self.device = config.common.device
         self.model_type = config.model.model_type
         self.timesteps = config.model.common.timesteps
         self.mixed_precision = mixed_precision
-        self.dae_config = self._init_dae_config()
-        self.noiseparams = NoiseParameters()
 
-        self._build_noise_schedule(
-            schedule_type=config.model.common.noise_schedule)
-        if init_dae: self._init_autoencoder()
+        self.dae_config = self._init_dae_config()
         
         self.fixed_seed_count = 1
         self.fixed_seeds = []
+        self.batch_times = []
+
+        self.noiseparams = NoiseParameters()
+        self.noiseparams.build_schedule(
+            device=self.device, timesteps=self.timesteps, 
+            schedule_type=config.model.common.noise_schedule,
+            cosine_offset=self.config.model.common.cosine_offset)
+
+        if init_dae: 
+            self._init_autoencoder()
 
     def _init_dae_config(self) -> DAEConfig:
         common_cfg = self.config.model.common
-        match self.model_type:
-            case 'pixel': model_cfg = self.config.model.pixel
-            case 'latent': model_cfg = self.config.model.latent
-            case 'stable': model_cfg = self.config.model.stable
-            case _: raise ValueError(f'Invalid model_type: {self.model_type}')
         return DAEConfig(
-            input_size=model_cfg.input_size,
-            in_channels=model_cfg.dae.in_channels,
-            features=model_cfg.dae.features,
-            n_downs=model_cfg.dae.n_downs,
+            input_size=self.model_config.input_size,
+            in_channels=self.model_config.dae.in_channels,
+            features=self.model_config.dae.features,
+            n_downs=self.model_config.dae.n_downs,
             learning_rate=common_cfg.dae.learning_rate.initial,
             betas=(common_cfg.dae.betas[0], common_cfg.dae.betas[1]),
             time_embed_dimension=common_cfg.dae.time_embedding_dimension,
             mlp_hidden_dimension=common_cfg.dae.mlp_hidden_dimension,
             mlp_output_dimension=common_cfg.dae.time_embedding_dimension)
-
-    def _build_noise_schedule(
-            self, 
-            schedule_type: Literal['linear', 'cosine']
-        ) -> None:
-        n = self.noiseparams
-        match schedule_type:
-            case 'linear':
-                n.betas = torch.linspace(
-                    1e-4, 0.02, self.timesteps).to(self.device)
-                n.alphas = 1.0 - n.betas
-                n.alphas_cumprod = torch.cumprod(
-                    n.alphas, axis=0).to(self.device)
-            case 'cosine':
-                steps = self.timesteps + 1
-                offset = self.config.model.common.cosine_offset
-                x = torch.linspace(
-                    0, self.timesteps, steps, device=self.device)
-                abar = torch.pow(torch.cos(
-                    ((x / self.timesteps + offset) / (1 + offset)) * PI/2), 2)
-                abar = abar / abar[0]
-
-                n.betas = torch.clamp(
-                    1.0 - (abar[1:] / abar[:-1]), 1e-8, 0.999)
-            
-                n.alphas = 1.0 - n.betas
-                n.alphas_cumprod = torch.cumprod(
-                    n.alphas, dim=0).to(self.device)
 
     def _init_autoencoder(self) -> None:
         self.autoencoder = UnetDAE(
@@ -217,4 +193,14 @@ class DiffusionModel(nn.Module):
                 x = self.p_sample(x, t, idx=i, context=context)
             return x.detach().cpu()
         
-
+    def _trainer_core(
+            self, 
+            train_step_fn: Callable[[torch.Tensor, torch.Tensor, int], None],
+            train_step_kwargs: dict[str, Any]
+        ) -> None:
+        for idx, x in enumerate(self.train_loader):
+            start_time = time.time()
+            x: torch.Tensor = x.to(self.device)
+            train_step_fn(x, None, idx, **train_step_kwargs)
+            batch_time = time.time() - start_time
+            self.batch_times.append(batch_time)
