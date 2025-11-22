@@ -13,11 +13,13 @@ class LatentDataset(torch.utils.data.Dataset):
             self, 
             config: DiffusionConfig,
             shard_directory: PathLike,
-            latent_size: int
+            latent_size: int,
+            assert_finite: bool=True
         ) -> None:
         super(LatentDataset, self).__init__()
         self.config = config
         self.latent_size = latent_size
+        self.assert_finite = assert_finite
         self.device = config.common.device
         self.shard_directory = shard_directory
         self.cached_shard: torch.Tensor = None

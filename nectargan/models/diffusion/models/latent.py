@@ -1,33 +1,20 @@
 import torch
 
-import nectargan.models.diffusion.utils as diffutils
 from nectargan.models import DiffusionModel
-from nectargan.models.diffusion.latent_manager import LatentManager
+from nectargan.dataset.utility import LatentManager
+from nectargan.config import DiffusionConfig
 
 class LatentDiffusionModel(DiffusionModel):
-    def __init__(self, **kwargs) -> None:
-        super().__init__(**kwargs)
+    def __init__(self, config: DiffusionConfig, init_dae=True) -> None:
+        super().__init__(config=config, init_dae=init_dae)
         
-        self._get_latent_spatial_size()
+        # self._get_latent_spatial_size()
         self._init_latent_manager()
         self.read_from_cache = False
 
-    def _get_latent_spatial_size(self) -> None:
-        '''Derive latent spatial size from input size and divisor.'''
-        cfg = self.config.model.latent
-        if not cfg.override_latent_size:
-            size = round(
-                self.dae_config.input_size / max(1, cfg.latent_size_divisor))
-            diffutils.validate_latent_size(
-                size, self.dae_config.input_size, cfg.latent_size_divisor)
-        else: size = cfg.latent_size
-        self.latent_spatial_size = size
-        self.dae_config.input_size = self.latent_spatial_size
-
     def _init_latent_manager(self) -> None:
         '''Initializes a LatentManager and aliases some of its methods.'''
-        self.latent_manager = LatentManager(
-            self.config, self.latent_spatial_size)
+        self.latent_manager = LatentManager(self.config)
         self.encode = self.latent_manager.encode_to_latent
         self.decode = self.latent_manager.decode_from_latent
         self.cache_latents = self.latent_manager.cache_latents
@@ -68,7 +55,8 @@ class LatentDiffusionModel(DiffusionModel):
     def sample(
             self, 
             batches: int=1, 
-            latent_spatial_size: int | None=None
+            latent_spatial_size: int | None=None,
+            **kwargs
         ) -> torch.Tensor:
         '''Iterative denoising function for latent space tensor.
         
@@ -83,7 +71,7 @@ class LatentDiffusionModel(DiffusionModel):
             torch.Tensor : The final denoised tensor, decoded to pixel space.
         '''
         lss = latent_spatial_size if not latent_spatial_size is None \
-            else self.latent_spatial_size
+            else self.latent_manager.latent_size
         return self.decode(
-            super().sample(batches=batches, spatial_size=lss))        
+            super().sample(batches=batches, spatial_size=lss, **kwargs))        
 

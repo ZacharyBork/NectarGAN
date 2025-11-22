@@ -108,11 +108,23 @@ class ConfigModelLatent:
     dae: ConfigDAELatent
 
 @dataclass
+class ConfigModelStable:
+    input_size: int
+    latent_size_divisor: int
+    override_latent_size: bool
+    latent_size: int
+    precache: ConfigLatentPrecache
+    dae: ConfigDAELatent
+
+@dataclass
 class ConfigModel:
     model_type: str
+    mixed_precision: bool
+    use_ema: bool
     common: ConfigModelCommon
     pixel: ConfigModelPixel
     latent: ConfigModelLatent
+    stable: ConfigModelStable
 
 ##### VISUALIZER #####
 
@@ -146,9 +158,11 @@ class DiffusionConfig(cfgcommon.Config):
         'visualizer': ConfigVisualizer}
     
     def __post_init__(self) -> None:
+        # This is hacky and needs to be fixed in the future.
         match self.model.model_type:
             case 'pixel': m = self.model.pixel
             case 'latent': m = self.model.latent
+            case 'stable': m = self.model.stable
             case _: raise ValueError(
                 f'Invalid model_type: {self.model.model_type}')
         self.dataloader.load = cfgcommon.ConfigDataloaderLoad(

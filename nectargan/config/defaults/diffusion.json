@@ -2,17 +2,17 @@
     "config": {
         "config_type": "diffusion",
         "common": {
-            "device": "cpu",
+            "device": "cuda",
             "gpu_ids": [
                 0
             ],
-            "output_directory": "",
+            "output_directory": "tmp",
             "experiment_name": "Diffusion",
             "experiment_version": 1
         },
         "dataloader": {
-            "dataroot": "",
-            "batch_size": 16,
+            "dataroot": "/media/zach/UE/ML/test_data/diffusion/coco2017",
+            "batch_size": 8,
             "num_workers": 0,
             "augmentations": {
                 "h_flip_chance": 0.5,
@@ -53,15 +53,17 @@
         },
         "train": {
             "load": {
-                "continue_train": false,
-                "load_epoch": 1
+                "continue_train": true,
+                "load_epoch": 5
             },
             "loss": {
                 "lambda_mse": 1.0
             }
         },
         "model": {
-            "model_type": "latent",
+            "model_type": "stable",
+            "mixed_precision": false,
+            "use_ema": true,
             "common": {
                 "timesteps": 1000,
                 "noise_schedule": "cosine",
@@ -73,7 +75,7 @@
                     "learning_rate": {
                         "epochs": 100,
                         "epochs_decay": 100,
-                        "initial": 0.0002,
+                        "initial": 0.0005,
                         "target": 0.0
                     }
                 }
@@ -93,8 +95,24 @@
                 "latent_size": 32,
                 "precache": {
                     "enable": true,
-                    "batch_size": 64,
+                    "batch_size": 1,
                     "shard_size": 512
+                },
+                "dae": {
+                    "in_channels": 4,
+                    "features": 256,
+                    "n_downs": 2
+                }
+            },
+            "stable": {
+                "input_size": 256,
+                "latent_size_divisor": 8,
+                "override_latent_size": false,
+                "latent_size": 32,
+                "precache": {
+                    "enable": true,
+                    "batch_size": 1,
+                    "shard_size": 4096
                 },
                 "dae": {
                     "in_channels": 4,

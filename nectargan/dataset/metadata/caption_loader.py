@@ -183,8 +183,8 @@ class CaptionLoader_COCO():
         return self.output_path
 
 if __name__ == "__main__":
-    root = Path('/media/zach/UE/ML/test_data/diffusion/coco')
+    root = Path('/media/zach/UE/ML/test_data/diffusion/coco2017')
     loader = CaptionLoader_COCO(
-        dataroot=Path(root, 'val2017'),
-        metadata_file=Path(root, 'annotations/captions_val2017.json'))
+        dataroot=Path(root, 'train'),
+        metadata_file=Path(root, 'annotations/captions_train2017.json'))
     loader.load()

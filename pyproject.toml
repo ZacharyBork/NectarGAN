@@ -47,6 +47,7 @@ dev = [
 diffusion = [ 
     "torch_ema=0.3",
     "diffusers==0.35.2",
+    "transformers==4.57.1",
     "accelerate==1.11.0"
 ]
 

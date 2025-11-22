@@ -12,7 +12,8 @@ from torch_ema import ExponentialMovingAverage
 from nectargan.trainers import Trainer
 from nectargan.config import ConfigManager, DiffusionConfig
 from nectargan.dataset import DiffusionDataset
-from nectargan.models import DiffusionModel, LatentDiffusionModel
+from nectargan.models import \
+    DiffusionModel, LatentDiffusionModel, StableDiffusionModel
 from nectargan.visualizer import DiffusionVisualizer
 
 class DiffusionTrainer(Trainer):
@@ -22,7 +23,9 @@ class DiffusionTrainer(Trainer):
             log_losses: bool=True
         ) -> None:
         super().__init__(config=config, quicksetup=True, log_losses=log_losses)
-        
+        self.mixed_precision = self.config.model.mixed_precision
+        self.use_ema = self.config.model.use_ema
+
         self.batch_times = []
         self.config: DiffusionConfig = self.config
         self._get_model_info()
@@ -31,16 +34,19 @@ class DiffusionTrainer(Trainer):
         self._init_model()
         self.register_losses()
 
-        self.ema = ExponentialMovingAverage(
-            self.model.autoencoder.parameters(), decay=0.9999)
-        for param in self.ema.shadow_params:
-            param.data = param.data.to(self.device)
+        if self.use_ema:
+            self.ema = ExponentialMovingAverage(
+                self.model.autoencoder.parameters(), decay=0.9999)
+            for param in self.ema.shadow_params:
+                param.data = param.data.to(self.device)
 
         if self.config.train.load.continue_train:
             self.load_checkpoint(
                 'DAE', self.model.autoencoder, self.model.opt_dae, 
                 self.config.model.common.dae.learning_rate.initial)
-            self.load_checkpoint('EMA', self.ema)
+            if self.use_ema: self.load_checkpoint('EMA', self.ema)
+
+    ##### INIT #####
 
     def _get_model_info(self) -> None:
         self.model_type = self.config.model.model_type
@@ -52,6 +58,9 @@ class DiffusionTrainer(Trainer):
             case 'latent': 
                 self.diffusion_model = LatentDiffusionModel
                 self.model_config = self.config.model.latent
+            case 'stable':
+                self.diffusion_model = StableDiffusionModel
+                self.model_config = self.config.model.stable
             case _:
                 raise ValueError(
                     f'Invalid model_type: {self.model_type}')
@@ -87,19 +96,34 @@ class DiffusionTrainer(Trainer):
 
     def _init_model(self) -> None:
         self.model = self.diffusion_model(config=self.config)
-        if self.model_type == 'latent':
-            cache_cfg = self.model_config.precache
-            if cache_cfg.enable:
-                self.train_loader = self.model.cache_latents(
-                    batch_size=cache_cfg.batch_size,
-                    shard_size=cache_cfg.shard_size)
-                self.model.read_from_cache = True
+        match self.model_type:
+            case 'latent':
+                cache_cfg = self.model_config.precache
+                if cache_cfg.enable:
+                    self.train_loader = self.model.cache_latents(
+                        batch_size=cache_cfg.batch_size,
+                        shard_size=cache_cfg.shard_size,
+                        split='train')
+                    self.model.read_from_cache = True
+            case 'stable':
+                cache_cfg = self.model_config.precache
+                if cache_cfg.enable:
+                    self.train_loader = self.model.cache_latents(
+                        batch_size=cache_cfg.batch_size,
+                        shard_size=cache_cfg.shard_size,
+                        split='train',
+                        metadata_file=\
+                            '/media/zach/UE/ML/test_data/diffusion/coco2017/'
+                            'annotations/captions_train2017_REBUILT.json')
+                    self.model.read_from_cache = True
 
     def register_losses(self) -> None:
         print(f'Lambda MSE: {self.config.train.loss.lambda_mse}')
         self.loss_manager.register_loss_fn(
             loss_name='G_MSE', loss_fn=nn.MSELoss().to(self.device), 
             loss_weight=self.config.train.loss.lambda_mse, tags=['G'])
+
+    ##### VISUALIZATION #####
 
     def update_display(
             self, 
@@ -128,17 +152,33 @@ class DiffusionTrainer(Trainer):
         model = self.model
         path = self.export_model_weights(model.autoencoder, model.opt_dae, net)
         output = f'Checkpoint Saved ({net}): {path}'
-        path = self.export_model_weights(self.ema, None, 'EMA')
-        output = f'Checkpoint Saved ({net}): {path}'
+        if self.use_ema:
+            path = self.export_model_weights(self.ema, None, 'EMA')
+            output = f'Checkpoint Saved (EMA): {path}'
 
         if capture: return output
         else: return None
 
-    def export_examples(self, idx: int) -> None:
-        with self.ema.average_parameters():
-            with torch.amp.autocast(self.device):
-                with torch.no_grad():
-                    output = self.model.sample()
+    def export_examples(
+            self, 
+            idx: int, 
+            context: torch.Tensor | None=None
+        ) -> None: 
+        def sample(
+                device: str, mixed_precision: bool, 
+                model: DiffusionModel, context: torch.Tensor | None
+            ) -> torch.Tensor:
+            with torch.amp.autocast(device, enabled=mixed_precision):
+                if not context is None:
+                    context = context[0].unsqueeze(0).detach().to(self.device)
+                with torch.no_grad(): output = model.sample(context=context)
+            return output
+        
+        if self.use_ema:
+            with self.ema.average_parameters(): output = sample(
+                self.device, self.mixed_precision, self.model, context)
+        else: output = sample(
+            self.device, self.mixed_precision, self.model, context)
         normalized_output = torch.clamp((output + 1) * 0.5, 0.0, 1.0)
         filename = f'epoch{self.current_epoch}_{idx}.png'
         output_path = pathlib.Path(self.examples_dir, filename).resolve()
@@ -153,7 +193,7 @@ class DiffusionTrainer(Trainer):
             predicted: torch.Tensor,
             timesteps: torch.Tensor
         ) -> tuple[torch.Tensor]:
-        with torch.amp.autocast(self.device):
+        with torch.amp.autocast(self.device, enabled=self.mixed_precision):
             abar = self.model.noiseparams.alphas_cumprod[
                 timesteps].view(-1,1,1,1)
             pred_x0 = torch.clamp(
@@ -174,13 +214,6 @@ class DiffusionTrainer(Trainer):
                 port=vcon.visdom.port) 
             self.vis.clear_env()
 
-    def backward(self, loss: torch.Tensor) -> None:
-        self.model.g_scaler.scale(loss).backward()
-        self.model.g_scaler.step(self.model.opt_dae)
-        self.model.g_scaler.update()
-        
-        self.ema.update()
-
     ##### TRAINING HOOKS #####
 
     def on_epoch_start(self, **kwargs: Any) -> None:
@@ -189,24 +222,35 @@ class DiffusionTrainer(Trainer):
     def train_step(
             self,  
             x: torch.Tensor, 
-            y: torch.Tensor, 
-            idx: int,
+            y: torch.Tensor | None=None, 
+            idx: int=None,
+            debug: bool=False,
             **kwargs: Any
         ) -> None:
         self.model.opt_dae.zero_grad()
 
+        B = x.shape[0]
         timesteps = torch.randint(
-            0, self.diffusion_timesteps, 
-            (self.config.dataloader.batch_size,), 
+            0, self.config.model.common.timesteps, (B,),
             device=self.device
         ).long()
 
-        with torch.amp.autocast(self.device):
+        with torch.amp.autocast(self.device, enabled=self.mixed_precision):
             x_t, noise = self.model.q_sample(x=x, t=timesteps)
-            predicted = self.model.autoencoder(x_t, timesteps)
+            if not self.mixed_precision:
+                x_t = x_t.to(device=self.device, dtype=torch.float32)
+                noise = noise.to(device=self.device, dtype=torch.float32)
+                if y is not None and torch.is_floating_point(y):
+                    y = y.to(self.device, dtype=torch.float32)
+            predicted = self.model.autoencoder(x_t, timesteps, context=y)
             loss_G_MSE = self.loss_manager.compute_loss_xy(
                 'G_MSE', predicted, noise, self.current_epoch)
         self.backward(loss_G_MSE)
+
+        if debug:
+            assert torch.isfinite(x).all()
+            assert torch.isfinite(x_t).all()
+            assert torch.isfinite(noise).all()
 
         vis = self.config.visualizer
         if idx % vis.console.print_frequency == 0:
@@ -215,12 +259,13 @@ class DiffusionTrainer(Trainer):
             print(f'Average batch time: {avg_time} seconds')
             self.batch_times.clear()
         if idx % vis.visdom.update_frequency == 0:
-            if isinstance(self.model, LatentDiffusionModel):
+            if isinstance(self.model, LatentDiffusionModel) or \
+               isinstance(self.model, StableDiffusionModel):
                 x, x_t, predicted = self._build_latent_vis_tensors(
                     x, x_t, predicted, timesteps)
             self.update_display(x, x_t, predicted, idx)
         if idx % self.config.save.example_save_rate == 0: 
-            self.export_examples(idx)    
+            self.export_examples(idx, context=y)    
 
     def on_epoch_end(self, **kwargs: Any) -> None:
         self.print_end_of_epoch()
@@ -233,15 +278,45 @@ class DiffusionTrainer(Trainer):
 
     ##### DIFFUSION TRAINING LOOP #####
 
+    def backward(self, loss: torch.Tensor, max_norm: float=1.0) -> None:
+        if self.mixed_precision:
+            self.model.g_scaler.scale(loss).backward()
+            self.model.g_scaler.unscale_(self.model.opt_dae)
+            torch.nn.utils.clip_grad_norm_(
+                self.model.autoencoder.parameters(), max_norm)
+            self.model.g_scaler.step(self.model.opt_dae)
+            self.model.g_scaler.update()
+        else:
+            loss.backward()
+            torch.nn.utils.clip_grad_norm_(
+                self.model.autoencoder.parameters(), max_norm)
+            self.model.opt_dae.step()
+        if self.use_ema: self.ema.update()
+
+    # def _train_diffusion_core(
+    #         self, 
+    #         train_step_fn: Callable[[torch.Tensor, torch.Tensor, int], None],
+    #         train_step_kwargs: dict[str, Any]
+    #     ) -> None:
+    #     for idx, x in enumerate(self.train_loader):
+    #         start_time = time.time()
+    #         x: torch.Tensor = x.to(self.device)
+    #         train_step_fn(x, None, idx, **train_step_kwargs)
+    #         batch_time = time.time() - start_time
+    #         self.batch_times.append(batch_time)
+
     def _train_diffusion_core(
             self, 
             train_step_fn: Callable[[torch.Tensor, torch.Tensor, int], None],
             train_step_kwargs: dict[str, Any]
         ) -> None:
-        for idx, x in enumerate(self.train_loader):
+        for idx, (x, y) in enumerate(self.train_loader):
             start_time = time.time()
-            x: torch.Tensor = x.to(self.device)
-            train_step_fn(x, None, idx, **train_step_kwargs)
+            image: torch.Tensor = x.to(self.device, dtype=torch.float32)
+            context, pooled = self.model.text_encoder(y)
+            context = context.to(self.device, dtype=torch.float32)
+
+            train_step_fn(image, context, idx, **train_step_kwargs)
             batch_time = time.time() - start_time
             self.batch_times.append(batch_time)
 

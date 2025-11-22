@@ -6,4 +6,5 @@ from .resnet.classifier import ResNetClassifier
 from .diffusion.denoising_autoencoder import UnetDAE
 from .diffusion.models.pixel import DiffusionModel
 from .diffusion.models.latent import LatentDiffusionModel
+from .diffusion.models.stable import StableDiffusionModel
 

@@ -2,7 +2,8 @@ import torch
 import torch.nn as nn
 
 from nectargan.models import UnetGenerator
-from nectargan.models.diffusion.blocks import TimeEmbeddedUnetBlock
+from nectargan.models.diffusion.blocks import \
+    TimeEmbeddedUnetBlock, CrossAttentionUnetBlock
 from nectargan.models.diffusion.data import DAEConfig
 
 class UnetDAE(UnetGenerator):
@@ -11,7 +12,7 @@ class UnetDAE(UnetGenerator):
             self, 
             device: str,
             dae_config: DAEConfig,
-            block_type=TimeEmbeddedUnetBlock,
+            block_type=CrossAttentionUnetBlock,
             **kwargs
         ) -> None:
         self.device = device
@@ -67,7 +68,8 @@ class UnetDAE(UnetGenerator):
             out_channels=self.channel_map['initial_down'][1], 
             upconv_type=self.upconv_type, activation='leaky',
             norm='group', down=True, bias=True, use_dropout=False,
-            time_embedding_dimension=self.dae_config.time_embed_dimension)
+            time_embedding_dimension=self.dae_config.time_embed_dimension,
+            context_dimension=self.dae_config.context_dimension)
 
         # Define additional downsampling layers
         self.downs = nn.ModuleList()
@@ -77,7 +79,9 @@ class UnetDAE(UnetGenerator):
                     in_channels=in_ch, out_channels=out_ch, 
                     upconv_type=self.upconv_type, activation='leaky',
                     norm='group', down=True, bias=False, use_dropout=False,
-                    time_embedding_dimension=self.dae_config.time_embed_dimension))
+                    time_embedding_dimension=\
+                        self.dae_config.time_embed_dimension,
+                    context_dimension=self.dae_config.context_dimension))
 
     def define_bottleneck(self) -> None:
         '''Defines the bottleneck layer.'''
@@ -87,7 +91,8 @@ class UnetDAE(UnetGenerator):
             out_channels=self.channel_map['bottleneck'][1], 
             upconv_type=self.upconv_type, activation='relu', norm='group', 
             down=self.dae_config.bottleneck_down, bias=True, use_dropout=False,
-            time_embedding_dimension=self.dae_config.time_embed_dimension)
+            time_embedding_dimension=self.dae_config.time_embed_dimension,
+            context_dimension=self.dae_config.context_dimension)
 
     def define_upsampling_blocks(self) -> None:
         '''Defines the layers in the upsampling path.'''
@@ -99,7 +104,8 @@ class UnetDAE(UnetGenerator):
                 upconv_type=self.upconv_type, 
                 activation='relu', norm='group', down=False, bias=False, 
                 use_dropout=i<self.use_dropout_layers,
-                time_embedding_dimension=self.dae_config.time_embed_dimension))
+                time_embedding_dimension=self.dae_config.time_embed_dimension,
+                context_dimension=self.dae_config.context_dimension))
 
         # Define final upsampling layer
         self.final_up = self.block_type(
@@ -107,30 +113,33 @@ class UnetDAE(UnetGenerator):
             out_channels=self.channel_map['final_up'][1],
             upconv_type=self.upconv_type, activation=None,
             norm=None, down=False, bias=True, use_dropout=False,
-            time_embedding_dimension=self.dae_config.time_embed_dimension)
+            time_embedding_dimension=self.dae_config.time_embed_dimension,
+            context_dimension=self.dae_config.context_dimension)
 
     def forward(
             self, 
             x: torch.Tensor, 
-            timesteps: torch.Tensor
+            timesteps: torch.Tensor,
+            context: torch.Tensor | None=None
         ) -> torch.Tensor:
         embed_t = self.embed_timesteps(timesteps)
 
-        x = self.initial_down(x, embed_t)
+        x = self.initial_down(x, embed_t, context)
         skips = [x]
         for down in self.downs:
-            x = down(x, embed_t)
+            x = down(x, embed_t, context)
             skips.append(x)
 
         skips.reverse()
-        x = self.bottleneck(x, embed_t)
-        x = self.ups[0](x, embed_t)
+        x = self.bottleneck(x, embed_t, context)
+        x = self.ups[0](x, embed_t, context)
 
         for i, up in enumerate(self.ups[1:]):
             skip = skips[i]
-            x = up(torch.cat([x, skip], dim=1), embed_t)
+            x = up(torch.cat([x, skip], dim=1), embed_t, context)
 
-        return self.final_up(torch.cat([x, skips[-1]], dim=1), embed_t)
+        return self.final_up(
+            torch.cat([x, skips[-1]], dim=1), embed_t, context)
 
 if __name__ == "__main__":
     x = torch.randn(1, 3, 256, 256)

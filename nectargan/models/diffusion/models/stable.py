@@ -1,21 +1,24 @@
-from nectargan.models import LatentDiffusionModel
-from nectargan.models.diffusion.data import DAEConfig
+import torch
 
+from nectargan.models import LatentDiffusionModel
+from nectargan.models.diffusion.text_encoder import TextEncoder
+from nectargan.config import DiffusionConfig
 
 class StableDiffusionModel(LatentDiffusionModel):
-    def __init__(
-            self, 
-            latent_size_divisor: int=8, 
-            dae_config: DAEConfig=DAEConfig(
-                input_size=128, in_channels=4, features=128, n_downs=1, 
-                bottleneck_down=True, learning_rate=0.0001),
-            **kwargs
-        ) -> None:
-        super().__init__(latent_size_divisor, dae_config, **kwargs)
+    def __init__(self, config: DiffusionConfig) -> None:
+        super().__init__(config=config, init_dae=False)
+        self.text_encoder = TextEncoder(
+            device=config.common.device,
+            max_length=77,
+            freeze=True
+        ).to(config.common.device)
+        self._get_context_dimension()
+        self._init_autoencoder()
 
-
-
-
-
+    def _get_context_dimension(self) -> None:
+        context, _ = self.text_encoder(
+            ['Those who can imagine anything, can create the impossible.'])
+        context_dimension = context.shape[-1]
+        self.dae_config.context_dimension = context_dimension
 
 

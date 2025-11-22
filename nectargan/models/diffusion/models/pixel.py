@@ -9,18 +9,24 @@ from nectargan.models import UnetDAE
 from nectargan.models.diffusion.data import DAEConfig, NoiseParameters
 
 class DiffusionModel(nn.Module):
-    def __init__(self, config: DiffusionConfig) -> None:
+    def __init__(
+            self, 
+            config: DiffusionConfig, 
+            init_dae: bool=True,
+            mixed_precision: bool=True
+        ) -> None:
         super(DiffusionModel, self).__init__()
         self.config = config
         self.device = config.common.device
         self.model_type = config.model.model_type
         self.timesteps = config.model.common.timesteps
+        self.mixed_precision = mixed_precision
         self.dae_config = self._init_dae_config()
         self.noiseparams = NoiseParameters()
 
         self._build_noise_schedule(
             schedule_type=config.model.common.noise_schedule)
-        self._init_autoencoder()
+        if init_dae: self._init_autoencoder()
         
         self.fixed_seed_count = 1
         self.fixed_seeds = []
@@ -30,6 +36,7 @@ class DiffusionModel(nn.Module):
         match self.model_type:
             case 'pixel': model_cfg = self.config.model.pixel
             case 'latent': model_cfg = self.config.model.latent
+            case 'stable': model_cfg = self.config.model.stable
             case _: raise ValueError(f'Invalid model_type: {self.model_type}')
         return DAEConfig(
             input_size=model_cfg.input_size,
@@ -73,11 +80,12 @@ class DiffusionModel(nn.Module):
     def _init_autoencoder(self) -> None:
         self.autoencoder = UnetDAE(
             device=self.device, dae_config=self.dae_config
-        ).to(self.device)
+        ).to(self.device, dtype=torch.float32)
         self.opt_dae = optim.Adam(
             self.autoencoder.parameters(), 
             lr=self.dae_config.learning_rate, betas=self.dae_config.betas)
-        self.g_scaler = torch.amp.GradScaler(self.device)
+        if self.mixed_precision:
+            self.g_scaler = torch.amp.GradScaler(self.device)
 
     def _build_fixed_seeds(self, shape: tuple[int]) -> None:
         if len(self.fixed_seeds) != 0: return
@@ -132,7 +140,8 @@ class DiffusionModel(nn.Module):
             x: torch.Tensor, 
             t: torch.Tensor, 
             idx: int,
-            direct: bool=False
+            direct: bool=False,
+            context: torch.Tensor | None=None
         ) -> torch.Tensor:
         '''Reverse diffusion.
 
@@ -158,7 +167,7 @@ class DiffusionModel(nn.Module):
         '''
         with torch.no_grad():
             # Predict noise
-            pred_noise = self.autoencoder(x, t)
+            pred_noise = self.autoencoder(x, t, context=context)
 
             # Get parms at timestep (t)
             self.noiseparams(t)
@@ -182,7 +191,8 @@ class DiffusionModel(nn.Module):
     def sample(
             self, 
             batches: int=1,
-            spatial_size: int | None=None
+            spatial_size: int | None=None,
+            context: torch.Tensor | None=None
         ) -> torch.Tensor:
         '''Performs iterative denoising to generate and return an output image.
         
@@ -204,7 +214,7 @@ class DiffusionModel(nn.Module):
             for i in reversed(range(self.timesteps)):
                 t = torch.full( # Build timesteps for batch
                     (shape[0],), i, device=self.device, dtype=torch.long)
-                x = self.p_sample(x, t, idx=i) # Sample reverse diffusion
+                x = self.p_sample(x, t, idx=i, context=context)
             return x.detach().cpu()
         
 

@@ -14,6 +14,7 @@ class DAEConfig:
     time_embed_dimension: int = 128
     mlp_hidden_dimension: int = 256
     mlp_output_dimension: int = 128
+    context_dimension:    int = None
     
 @dataclass
 class NoiseParameters:

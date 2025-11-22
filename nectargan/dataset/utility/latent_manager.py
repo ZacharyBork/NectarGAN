@@ -291,8 +291,10 @@ class LatentManager():
             shard_size: int=512,
             split: str='train',
             metadata_file: PathLike | None=None,
+            validate_cache: bool=False
         ) -> DataLoader:
         '''Caches latent tensors and builds new dataset to load cache.
+        
         Saves cached latents as shards to new subdirectory of the dataroot from 
         the config used to initialize the LatentManager. The dataloader which
         is returned from this function will mirror the original dataloader
@@ -314,7 +316,6 @@ class LatentManager():
         if not metadata_file is None:
             metadata_file = self._validate_metadata_file(metadata_file)
             self._cache_latents(batch_size, shard_size, split, True)
-            print('Building ImageTextDataset...')
             new_dataset = ImageTextDataset(
                 config=self.config, 
                 shard_directory=self.cache_data.output_dir,
@@ -322,14 +323,13 @@ class LatentManager():
                 latent_size=self.latent_size)
         else: 
             self._cache_latents(batch_size, shard_size, split)
-            print('Building new LatentDataset...')
             new_dataset = LatentDataset(
                 config=self.config, shard_directory=self.cache_data.output_dir, 
                 latent_size=self.latent_size)
 
-        self.validate_cache(shard_directory=self.cache_data.output_dir)
-
-        exit(0)
+        if validate_cache:
+            self.validate_cache(shard_directory=self.cache_data.output_dir)
+        print('Building new dataloader...')
         return DataLoader(
             new_dataset, batch_size=self.config.dataloader.batch_size, 
             num_workers=self.config.dataloader.num_workers,
