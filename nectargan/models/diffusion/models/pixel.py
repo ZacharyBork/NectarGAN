@@ -8,24 +8,22 @@ import torch.optim as optim
 from nectargan.config import DiffusionConfig
 from nectargan.models import UnetDAE
 from nectargan.models.diffusion.data import DAEConfig, NoiseParameters
+from nectargan.models.diffusion.blocks import TimeEmbeddedUnetBlock
 
 class DiffusionModel(nn.Module):
     def __init__(
             self, 
             config: DiffusionConfig, 
             init_dae: bool=True,
-            mixed_precision: bool=True
+            dae_block_type: \
+                TimeEmbeddedUnetBlock=TimeEmbeddedUnetBlock
         ) -> None:
         super(DiffusionModel, self).__init__()
         self.config = config
-        if self.model_config is None:
-            self.model_config = self.config.model.pixel
+        if self.model_config is None: self.model_config = config.model.pixel
         self.device = config.common.device
-        self.model_type = config.model.model_type
         self.timesteps = config.model.common.timesteps
-        self.mixed_precision = mixed_precision
-
-        self.dae_config = self._init_dae_config()
+        self.dae_config = self._init_dae_config(dae_block_type)
         
         self.fixed_seed_count = 1
         self.fixed_seeds = []
@@ -37,12 +35,12 @@ class DiffusionModel(nn.Module):
             schedule_type=config.model.common.noise_schedule,
             cosine_offset=self.config.model.common.cosine_offset)
 
-        if init_dae: 
-            self._init_autoencoder()
+        if init_dae: self._init_autoencoder()
 
-    def _init_dae_config(self) -> DAEConfig:
+    def _init_dae_config(self, block_type: TimeEmbeddedUnetBlock) -> DAEConfig:
         common_cfg = self.config.model.common
         return DAEConfig(
+            block_type=block_type,
             input_size=self.model_config.input_size,
             in_channels=self.model_config.dae.in_channels,
             features=self.model_config.dae.features,
@@ -60,7 +58,7 @@ class DiffusionModel(nn.Module):
         self.opt_dae = optim.Adam(
             self.autoencoder.parameters(), 
             lr=self.dae_config.learning_rate, betas=self.dae_config.betas)
-        if self.mixed_precision:
+        if self.config.model.mixed_precision:
             self.g_scaler = torch.amp.GradScaler(self.device)
 
     def _build_fixed_seeds(self, shape: tuple[int]) -> None:
@@ -117,7 +115,8 @@ class DiffusionModel(nn.Module):
             t: torch.Tensor, 
             idx: int,
             direct: bool=False,
-            context: torch.Tensor | None=None
+            context: torch.Tensor | None=None,
+            pred_noise: torch.Tensor | None=None
         ) -> torch.Tensor:
         '''Reverse diffusion.
 
@@ -141,28 +140,28 @@ class DiffusionModel(nn.Module):
         Ref: 
             https://arxiv.org/pdf/2006.11239 (3.2)
         '''
-        with torch.no_grad():
-            # Predict noise
-            pred_noise = self.autoencoder(x, t, context=context)
+        # Predict noise
+        pred_noise = self.autoencoder(x, t, context=context) \
+            if pred_noise is None else pred_noise
 
-            # Get parms at timestep (t)
-            self.noiseparams(t)
-                
-            # Sample noisy image x0
-            x0 = self._predict_x0(x, pred_noise)
+        # Get parms at timestep (t)
+        self.noiseparams(t)
+            
+        # Sample denoised image x0
+        x0 = self._predict_x0(x, pred_noise)
 
-            n = self.noiseparams
-            if not direct: # Reverse diffusion, timestep (t) -> (t)-1
-                p1 = (n.sqrt_abar_prev * n.beta_t) / n.inv_abar_t
-                p2 = (n.sqrt_alpha_t * n.inv_abar_prev) / n.inv_abar_t
-                mean = x0 * p1 +  x  * p2
-                var = n.beta_t * n.inv_abar_prev / n.inv_abar_t
-            else: # Predict clean image directly
-                mean, var = x0, n.beta_t
+        n = self.noiseparams
+        if not direct: # Reverse diffusion, timestep (t) -> (t)-1
+            p1 = (n.sqrt_abar_prev * n.beta_t) / n.inv_abar_t
+            p2 = (n.sqrt_alpha_t * n.inv_abar_prev) / n.inv_abar_t
+            mean = x0 * p1 +  x  * p2
+            var = n.beta_t * n.inv_abar_prev / n.inv_abar_t
+        else: # Predict clean image directly
+            mean, var = x0, n.beta_t
 
-            # Return clean image on final step, otherwise noisy image at (t)-1
-            if idx == 0: return mean
-            else: return mean + torch.sqrt(var) * torch.randn_like(x)
+        # Return clean image on final step, otherwise noisy image at (t)-1
+        if idx == 0: return mean
+        else: return mean + torch.sqrt(var) * torch.randn_like(x)
 
     def sample(
             self, 
@@ -191,7 +190,7 @@ class DiffusionModel(nn.Module):
                 t = torch.full( # Build timesteps for batch
                     (shape[0],), i, device=self.device, dtype=torch.long)
                 x = self.p_sample(x, t, idx=i, context=context)
-            return x.detach().cpu()
+        return x.detach().cpu()
         
     def _trainer_core(
             self, 

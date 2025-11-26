@@ -1,17 +1,25 @@
 import torch
 
 from nectargan.models import DiffusionModel
+from nectargan.models.diffusion.blocks import TimeEmbeddedUnetBlock
 from nectargan.dataset.utility import LatentManager
 from nectargan.config import DiffusionConfig
 
 class LatentDiffusionModel(DiffusionModel):
-    def __init__(self, config: DiffusionConfig, init_dae=False) -> None:
+    def __init__(
+            self, 
+            config: DiffusionConfig,
+            init_dae: bool=True,
+            dae_block_type: \
+                TimeEmbeddedUnetBlock=TimeEmbeddedUnetBlock
+        ) -> None:
         if self.model_config is None: self.model_config = config.model.latent
-        super().__init__(config=config, init_dae=False)
+        super().__init__(config, False, dae_block_type)
         
         self._init_latent_manager()
         self.read_from_cache = False
         self._init_latent_cache()
+        if init_dae: self._init_autoencoder()
 
     def _init_latent_manager(self) -> None:
         '''Initializes a LatentManager and aliases some of its methods.'''
@@ -21,13 +29,13 @@ class LatentDiffusionModel(DiffusionModel):
         self.cache_latents = self.latent_manager.cache_latents
 
     def _init_latent_cache(self) -> None:
-        cache_cfg = self.config.model.stable.precache
+        cache_cfg = self.config.model.latent.precache
         if cache_cfg.enable:
             if cache_cfg.enable:
                 self.train_loader = self.cache_latents(
                     batch_size=cache_cfg.batch_size,
                     shard_size=cache_cfg.shard_size,
-                    split='train')
+                    split=cache_cfg.split)
                 self.read_from_cache = True
 
     def q_sample(

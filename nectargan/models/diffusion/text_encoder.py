@@ -22,7 +22,6 @@ class TextEncoder(nn.Module):
         for p in self.model.parameters(): 
             p.requires_grad = False
 
-    @torch.no_grad()
     def forward(
             self, 
             texts: list[str]

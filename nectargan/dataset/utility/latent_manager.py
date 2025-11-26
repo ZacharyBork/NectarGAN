@@ -45,9 +45,10 @@ class LatentManager():
         Ref:
             https://huggingface.co/stabilityai/sd-vae-ft-ema
         '''
+        dtype = torch.float16 if torch.cuda.is_available() else torch.float32
         self.vae = AutoencoderKL.from_pretrained(
             'stabilityai/sd-vae-ft-ema', 
-            torch_dtype=torch.float16)
+            torch_dtype=dtype)
         self.vae = self.vae.to(self.device)
         self.vae.eval()
         for p in self.vae.parameters(): p.requires_grad = False

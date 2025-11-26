@@ -83,6 +83,7 @@ class ConfigDAELatent:
 @dataclass
 class ConfigLatentPrecache:
     enable: bool
+    split: str
     batch_size: int
     shard_size: int
 
@@ -92,6 +93,11 @@ class ConfigModelCommon:
     noise_schedule: str
     cosine_offset: float
     dae: ConfigDAECommon
+
+@dataclass
+class ConfigCaptions:
+    max_length: int
+    fixed_captions: list[str]
 
 @dataclass
 class ConfigModelPixel:
@@ -113,14 +119,20 @@ class ConfigModelStable:
     latent_size_divisor: int
     override_latent_size: bool
     latent_size: int
+    metadata_file: str
+    cfg_scale: float
     precache: ConfigLatentPrecache
     dae: ConfigDAELatent
+    captions: ConfigCaptions
 
 @dataclass
 class ConfigModel:
     model_type: str
     mixed_precision: bool
     use_ema: bool
+    ema_decay: float
+    accumulate_gradients: bool
+    gradient_accumulation_steps: int
     common: ConfigModelCommon
     pixel: ConfigModelPixel
     latent: ConfigModelLatent
@@ -142,8 +154,8 @@ class ConfigVisualizer:
 @dataclass
 class DiffusionConfig(cfgcommon.Config):
     common: cfgcommon.ConfigCommon
-    dataloader: ConfigDataloader
     train: ConfigTrain
+    dataloader: ConfigDataloader
     model: ConfigModel
     save: cfgcommon.ConfigSave
     visualizer: ConfigVisualizer

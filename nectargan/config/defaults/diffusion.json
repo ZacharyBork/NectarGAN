@@ -8,11 +8,20 @@
             ],
             "output_directory": "tmp",
             "experiment_name": "Diffusion",
-            "experiment_version": 1
+            "experiment_version": 3
+        },
+        "train": {
+            "load": {
+                "continue_train": true,
+                "load_epoch": 20
+            },
+            "loss": {
+                "lambda_mse": 1.0
+            }
         },
         "dataloader": {
             "dataroot": "/media/zach/UE/ML/test_data/diffusion/coco2017",
-            "batch_size": 8,
+            "batch_size": 32,
             "num_workers": 0,
             "augmentations": {
                 "h_flip_chance": 0.5,
@@ -51,19 +60,13 @@
                 "compression_quality_max": 100
             }
         },
-        "train": {
-            "load": {
-                "continue_train": true,
-                "load_epoch": 5
-            },
-            "loss": {
-                "lambda_mse": 1.0
-            }
-        },
         "model": {
             "model_type": "stable",
             "mixed_precision": false,
             "use_ema": true,
+            "ema_decay": 0.9999,
+            "accumulate_gradients": true,
+            "gradient_accumulation_steps": 8,
             "common": {
                 "timesteps": 1000,
                 "noise_schedule": "cosine",
@@ -75,7 +78,7 @@
                     "learning_rate": {
                         "epochs": 100,
                         "epochs_decay": 100,
-                        "initial": 0.0005,
+                        "initial": 0.0001,
                         "target": 0.0
                     }
                 }
@@ -95,6 +98,7 @@
                 "latent_size": 32,
                 "precache": {
                     "enable": true,
+                    "split": "train",
                     "batch_size": 1,
                     "shard_size": 512
                 },
@@ -109,8 +113,11 @@
                 "latent_size_divisor": 8,
                 "override_latent_size": false,
                 "latent_size": 32,
+                "metadata_file": "/media/zach/UE/ML/test_data/diffusion/coco2017/annotations/captions_train2017_REBUILT.json",
+                "cfg_scale": 7.5,
                 "precache": {
                     "enable": true,
+                    "split": "train",
                     "batch_size": 1,
                     "shard_size": 4096
                 },
@@ -118,6 +125,12 @@
                     "in_channels": 4,
                     "features": 256,
                     "n_downs": 2
+                },
+                "captions": {
+                    "max_length": 77,
+                    "fixed_captions": [
+                        "A group of soccer players standing on the field."
+                    ]
                 }
             }
         },
@@ -131,12 +144,12 @@
         },
         "visualizer": {
             "visdom": {
-                "enable": false,
+                "enable": true,
                 "env_name": "main",
                 "server": "http://localhost",
                 "port": 8097,
                 "image_size": 150,
-                "update_frequency": 100
+                "update_frequency": 200
             },
             "console": {
                 "print_frequency": 200

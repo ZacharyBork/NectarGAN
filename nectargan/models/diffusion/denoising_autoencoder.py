@@ -2,8 +2,7 @@ import torch
 import torch.nn as nn
 
 from nectargan.models import UnetGenerator
-from nectargan.models.diffusion.blocks import \
-    TimeEmbeddedUnetBlock, CrossAttentionUnetBlock
+from nectargan.models.diffusion.blocks import TimeEmbeddedUnetBlock
 from nectargan.models.diffusion.data import DAEConfig
 
 class UnetDAE(UnetGenerator):
@@ -12,12 +11,11 @@ class UnetDAE(UnetGenerator):
             self, 
             device: str,
             dae_config: DAEConfig,
-            block_type=CrossAttentionUnetBlock,
             **kwargs
         ) -> None:
         self.device = device
         self.dae_config = dae_config
-        self.block_type = block_type
+        self.block_type = dae_config.block_type
         super().__init__(
             in_channels=self.dae_config.in_channels,
             input_size=self.dae_config.input_size,

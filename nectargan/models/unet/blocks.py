@@ -87,19 +87,16 @@ class ResidualUnetBlock(UnetBlock):
             down=down, bias=bias, use_dropout=use_dropout)
         
         modules = []
-        if in_channels != out_channels or down: # Residual shortcut
-            # This will almost always be a 1x1 conv with stride=2 except at the 
-            # bottleneck or if # of features exceeds cap (Generator.features*8)
-            if down: 
-                modules.append(nn.Conv2d(
-                    in_channels, out_channels, 
-                    kernel_size=1, stride=2))
-            else: 
-                modules.append(nn.ConvTranspose2d(
-                    in_channels, out_channels, 
-                    kernel_size=1, stride=2, output_padding=1))
+        if down:
+            modules.append(nn.Conv2d(
+                in_channels, out_channels, 
+                kernel_size=1, stride=2))
             modules.append(nn.ReLU(inplace=True))
-        else: modules.append(nn.Identity()) # Residual=Identity if we hit max 
+        else:
+            modules.append(nn.ConvTranspose2d(
+                in_channels, out_channels, 
+                kernel_size=1, stride=2, output_padding=1))
+            modules.append(nn.ReLU(inplace=True))
 
         self.residual = nn.Sequential(*modules)
 
