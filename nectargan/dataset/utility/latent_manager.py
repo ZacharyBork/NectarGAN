@@ -196,7 +196,7 @@ class LatentManager():
               f'Shard Size : {shard_size}\n')
         dataset = DiffusionDataset(
             config=self.config, root_dir=self.dataset_path, 
-            is_train=False, cache_builder=True)
+            is_train=False, cache_builder=True, recurse=True)
         dataloader = DataLoader(
             dataset, batch_size=batch_size, 
             num_workers=self.config.dataloader.num_workers)

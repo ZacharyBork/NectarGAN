@@ -22,7 +22,7 @@ class StableDiffusionModel(LatentDiffusionModel):
         super().__init__(config, False, dae_block_type)
         self.text_encoder = TextEncoder(
             device=config.common.device,
-            max_length=self.config.model.stable.captions.max_length,
+            max_length=self.config.model.captions.max_length,
             freeze=True
         ).to(config.common.device)
         self._get_context_dimension()
@@ -60,8 +60,8 @@ class StableDiffusionModel(LatentDiffusionModel):
             unconditional_probability: float=0.1
         ) -> None:
         for idx, (x, y) in enumerate(self.train_loader):
-            if idx % self.config.save.example_save_rate == 0: print(y[0])
-
+            self.captions = y
+            
             start_time = time.time()
             image: torch.Tensor = x.to(self.device, dtype=torch.float32)
             captions = self._drop_captions(y, unconditional_probability)

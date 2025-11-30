@@ -45,7 +45,7 @@ class DiffusionModel(nn.Module):
             in_channels=self.model_config.dae.in_channels,
             features=self.model_config.dae.features,
             n_downs=self.model_config.dae.n_downs,
-            learning_rate=common_cfg.dae.learning_rate.initial,
+            learning_rate=common_cfg.dae.learning_rate.base_rate,
             betas=(common_cfg.dae.betas[0], common_cfg.dae.betas[1]),
             time_embed_dimension=common_cfg.dae.time_embedding_dimension,
             mlp_hidden_dimension=common_cfg.dae.mlp_hidden_dimension,

@@ -15,11 +15,18 @@ class BaseDataset(Dataset, Generic[TConfig]):
             self, 
             config: TConfig, 
             root_dir: PathLike,
-            is_train: bool=True
+            is_train: bool=True,
+            recurse: bool=False,
+            recurse_for_type: str='jpg'
         ) -> None:
         self.config: TConfig = config
         self.is_train = is_train
-        self.list_files = [i for i in pathlib.Path(root_dir).iterdir()]
+        if not recurse:
+            self.list_files = [i for i in pathlib.Path(root_dir).iterdir()]
+        else: 
+            pattern = f'*.{recurse_for_type}'
+            self.list_files = [
+                i for i in pathlib.Path(root_dir).rglob(pattern)]
 
     def __len__(self) -> int:
         '''Length method override.

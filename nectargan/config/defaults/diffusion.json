@@ -7,21 +7,21 @@
                 0
             ],
             "output_directory": "tmp",
-            "experiment_name": "Diffusion",
-            "experiment_version": 3
+            "experiment_name": "CUB200",
+            "experiment_version": 2
         },
         "train": {
             "load": {
                 "continue_train": true,
-                "load_epoch": 20
+                "load_epoch": 118
             },
             "loss": {
                 "lambda_mse": 1.0
             }
         },
         "dataloader": {
-            "dataroot": "/media/zach/UE/ML/test_data/diffusion/coco2017",
-            "batch_size": 32,
+            "dataroot": "/media/zach/UE/ML/test_data/diffusion/CUB200",
+            "batch_size": 40,
             "num_workers": 0,
             "augmentations": {
                 "h_flip_chance": 0.5,
@@ -76,10 +76,12 @@
                     "time_embedding_dimension": 128,
                     "mlp_hidden_dimension": 256,
                     "learning_rate": {
-                        "epochs": 100,
-                        "epochs_decay": 100,
-                        "initial": 0.0001,
-                        "target": 0.0
+                        "ramp_up": true,
+                        "ramp_up_steps": 5000,
+                        "base_rate": 0.00005,
+                        "do_decay": false,
+                        "steps_before_decay": 1e+6,
+                        "decay_steps": 1e+6
                     }
                 }
             },
@@ -113,7 +115,7 @@
                 "latent_size_divisor": 8,
                 "override_latent_size": false,
                 "latent_size": 32,
-                "metadata_file": "/media/zach/UE/ML/test_data/diffusion/coco2017/annotations/captions_train2017_REBUILT.json",
+                "metadata_file": "/media/zach/UE/ML/test_data/diffusion/CUB200/metadata.json",
                 "cfg_scale": 7.5,
                 "precache": {
                     "enable": true,
@@ -125,34 +127,36 @@
                     "in_channels": 4,
                     "features": 256,
                     "n_downs": 2
-                },
-                "captions": {
-                    "max_length": 77,
-                    "fixed_captions": [
-                        "A group of soccer players standing on the field."
-                    ]
                 }
+            },
+            "captions": {
+                "max_length": 77,
+                "use_fixed_captions": true,
+                "fixed_captions": [
+                    "This is a large red bird with a large white beak."
+                ]
             }
         },
         "save": {
             "save_model": true,
-            "model_save_rate": 1,
+            "model_save_rate": 5000,
             "auto_increment_version": true,
             "save_examples": true,
-            "example_save_rate": 200,
+            "example_save_rate": 250,
             "num_examples": 1
         },
         "visualizer": {
             "visdom": {
-                "enable": true,
+                "enable": false,
                 "env_name": "main",
                 "server": "http://localhost",
                 "port": 8097,
                 "image_size": 150,
-                "update_frequency": 200
+                "update_frequency": 250
             },
             "console": {
-                "print_frequency": 200
+                "average_loss": true,
+                "print_frequency": 250
             }
         }
     }

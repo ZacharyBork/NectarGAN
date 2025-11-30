@@ -14,7 +14,8 @@ class TextEncoder(nn.Module):
         self.device = device
         self.max_length = max_length
 
-        self.tokenizer = CLIPTokenizer.from_pretrained(model_name)
+        self.tokenizer = CLIPTokenizer.from_pretrained(
+            model_name, max_position_embeddings=max_length)
         self.model = CLIPTextModel.from_pretrained(model_name)
         if freeze: self._freeze_model()
             

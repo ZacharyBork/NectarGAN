@@ -1,5 +1,7 @@
 import sys
 import time
+import math
+import random
 import pathlib
 from os import PathLike
 from typing import Any, Callable
@@ -7,6 +9,7 @@ from contextlib import nullcontext, AbstractContextManager
 
 import torch
 import torch.nn as nn
+import torch.optim as optim
 from torchvision.utils import save_image
 from torch_ema import ExponentialMovingAverage
 
@@ -26,22 +29,32 @@ class DiffusionTrainer(Trainer):
         ) -> None:
         super().__init__(config=config, quicksetup=True, log_losses=log_losses)
         self.config: DiffusionConfig = self.config
-        self.mixed_precision = self.config.model.mixed_precision
-        self.use_ema = self.config.model.use_ema
-
-        self.accum_grad = self.config.model.accumulate_gradients
-        self.accum_grad_steps = self.config.model.gradient_accumulation_steps
+        self.CFG_M = self.config.model
+        self.CFG_LR = self.config.model.common.dae.learning_rate
 
         self.meminfo = MemoryInfo_CUDA()
-
         self.global_step = 0
+        self.total_steps = self.CFG_LR.steps_before_decay
+        if self.CFG_LR.do_decay: self.total_steps += self.CFG_LR.decay_steps
+        self._validate_fixed_captions()
+        
+        self.print_avg_loss = self.config.visualizer.console.average_loss
+        self.accum_loss = 0.0
 
         self._init_model()
         self.register_losses()
-        if self.use_ema: self._init_ema()
+        if self.CFG_M.use_ema: self._init_ema()
         self._load_checkpoints()
 
-    ##### INIT #####
+    ##### INIT #####        
+
+    def _validate_fixed_captions(self) -> None:
+        if self.config.model.captions.use_fixed_captions and \
+           len(self.config.model.captions.fixed_captions) == 0:
+            raise RuntimeError(
+                'Length of fixed_captions in config file must be >1 to train '
+                'with use_fixed_captions=true. Please add captions to config '
+                'or set use_fixed_captions to false to continue.')
 
     def _init_model(self) -> None:
         self.model_type = self.config.model.model_type
@@ -70,18 +83,26 @@ class DiffusionTrainer(Trainer):
         if self.config.train.load.continue_train:
             self.load_checkpoint(
                 'DAE', self.model.autoencoder, self.model.opt_dae, 
-                self.config.model.common.dae.learning_rate.initial)
-            if self.use_ema: self.load_checkpoint('EMA', self.ema)
+                self.config.model.common.dae.learning_rate.base_rate)
+            if self.CFG_M.use_ema: self.load_checkpoint('EMA', self.ema)
+
+    ##### UTILS #####
+
+    def get_dataset_length(self) -> int:
+        return len(self.model.train_loader)
+    
+    def get_epoch_count(self) -> int:
+        return math.ceil(self.total_steps / max(1, self.get_dataset_length()))
 
     ##### CONTEXTS #####
 
     def ema_context(self) -> AbstractContextManager[None]:
         return self.ema.average_parameters() \
-            if self.use_ema else nullcontext()
+            if self.CFG_M.use_ema else nullcontext()
 
     def autocast_context(self) -> AbstractContextManager[None]:
         return torch.amp.autocast(device_type=self.device) \
-            if self.mixed_precision else nullcontext()
+            if self.CFG_M.mixed_precision else nullcontext()
 
     ##### VISUALIZATION #####
 
@@ -89,24 +110,37 @@ class DiffusionTrainer(Trainer):
             self, 
             x: torch.Tensor, 
             y: torch.Tensor, 
-            z: torch.Tensor,
-            idx: int
+            z: torch.Tensor
         ) -> None:
         if self.config.visualizer.visdom.enable:
             self.vis.update_images(
                 x=x, y=y, z=z, title='x | x_t | pred x0', 
                 image_size=self.config.visualizer.visdom.image_size)
             losses_G = self.loss_manager.get_loss_values(query=['G'])
-            num_batches = len(self.model.train_loader)
-            graph_step = self.current_epoch + idx / num_batches 
-            self.vis.update_loss_graphs(graph_step, losses_G)
+            self.vis.update_loss_graphs(self.global_step, losses_G)
+
+    def export_model_weights(
+            self,
+            mod: nn.Module, 
+            opt: optim.Optimizer | None, 
+            net: str,
+        ) -> str | None: 
+        checkpoint = { 'state_dict': mod.state_dict() }
+        if not opt is None: checkpoint['optimizer'] = opt.state_dict()
+        name = f'net{net}_step{str(self.global_step)}.pth.tar'
+        output_path = pathlib.Path(self.experiment_dir, name)
+        try: torch.save(checkpoint, output_path.as_posix())
+        except Exception as e:
+            message = 'Unable to save checkpoint file: {}'
+            raise RuntimeError(message.format(output_path.as_posix())) from e
+        return output_path.resolve().as_posix()
 
     def save_checkpoint(self, capture: bool=False) -> str | None:
         net = 'DAE'
         model = self.model
         path = self.export_model_weights(model.autoencoder, model.opt_dae, net)
         output = f'Checkpoint Saved ({net}): {path}'
-        if self.use_ema:
+        if self.CFG_M.use_ema:
             path = self.export_model_weights(self.ema, None, 'EMA')
             output = f'Checkpoint Saved (EMA): {path}'
         if capture: return output
@@ -114,20 +148,31 @@ class DiffusionTrainer(Trainer):
 
     def export_examples(
             self, 
-            idx: int, 
-            context: torch.Tensor | None=None
+            context: torch.Tensor | None=None,
+            cfg_scale: float=7.5
         ) -> None: 
-        with self.ema_context():
-            with self.autocast_context(), torch.no_grad():
-                context = self.model.text_encoder(
-                    self.config.model.stable.captions.fixed_captions)
-                context = context[0].detach().to(self.device)
-                output = self.model.sample(
-                    context=context, cfg_scale=7.5)
-        output = torch.clamp((output + 1) * 0.5, 0.0, 1.0)
-        filename = f'epoch{self.current_epoch}_{idx}.png'
-        filepath = pathlib.Path(self.examples_dir, filename).resolve()
-        save_image(output, filepath.as_posix())
+        for i in range(self.config.save.num_examples):
+            with self.ema_context():
+                with self.autocast_context(), torch.no_grad():
+                    if self.config.model.captions.use_fixed_captions:
+                       captions = self.config.model.captions.fixed_captions 
+                    else: captions = self.model.captions
+                    
+                    caption = 'nullcaption'
+                    if not captions is None:
+                        count = float(len(captions))
+                        if count > 0.0:
+                            idx = int(math.floor(random.random() * count))
+                            context = context[idx].unsqueeze(0).detach()
+                            context = context.to(self.device)
+                            caption = captions[idx]
+                    print(f'Running inference with caption:\n{caption}')
+                    output = self.model.sample(
+                        context=context, cfg_scale=cfg_scale)
+            output = torch.clamp((output + 1) * 0.5, 0.0, 1.0)
+            filename = f'step{self.global_step}_{i}.png'
+            filepath = pathlib.Path(self.examples_dir, filename).resolve()
+            save_image(output, filepath.as_posix())
         
     def _build_latent_vis_tensors(
             self, 
@@ -154,28 +199,48 @@ class DiffusionTrainer(Trainer):
                 port=vcon.visdom.port) 
             self.vis.clear_env()
 
+    def print_losses(
+            self,
+            iter: int,
+            precision: int=2,
+            capture: bool=False
+        ) -> str | None:
+        output = f'\n(total steps: {iter}) '
+        if not self.print_avg_loss:
+            losses = self.loss_manager.get_loss_values(precision=precision)
+            output += 'Loss:'
+            for loss in losses: output += f' {loss}: {losses[loss]}'
+        else:
+            divisor = max(1, self.config.visualizer.console.print_frequency)            
+            average = round(self.accum_loss / divisor, 3)
+            output += f'Average Loss: MSE: {average}'
+            self.accum_loss = 0.0
+        if not capture:
+            print(output)
+            return None
+        else: return output
+
     def _display(
             self,
-            idx: int,
             x: torch.Tensor,
             x_t: torch.Tensor,
             predicted: torch.Tensor,
             timesteps: torch.Tensor
         ) -> None:
         vis = self.config.visualizer
-        if idx % vis.console.print_frequency == 0:
+        if self.global_step % vis.console.print_frequency == 0:
             avg_time = sum(self.model.batch_times) 
             avg_time /= max(1, len(self.model.batch_times))
             avg_time = round(avg_time, 3)
-            self.loss_manager.print_losses(self.current_epoch, idx)
+            self.print_losses(self.global_step)
             print(f'Average batch time: {avg_time} seconds')
             self.model.batch_times.clear()
-        if idx % vis.visdom.update_frequency == 0:
+        if self.global_step % vis.visdom.update_frequency == 0:
             if isinstance(self.model, LatentDiffusionModel) or \
                isinstance(self.model, StableDiffusionModel):
                 x, x_t, predicted = self._build_latent_vis_tensors(
                     x, x_t, predicted, timesteps)
-            self.update_display(x, x_t, predicted, idx)
+            self.update_display(x, x_t, predicted)
 
     ##### TRAINING METHODS #####
 
@@ -185,6 +250,21 @@ class DiffusionTrainer(Trainer):
             0, self.config.model.common.timesteps, (B,),
             device=self.device).long()
         return timesteps
+    
+    def _ramp_up_lr(self) -> None:
+        if self.global_step <= self.CFG_LR.ramp_up_steps:
+            steps = max(1, self.CFG_LR.ramp_up_steps)
+            lr = self.CFG_LR.base_rate * (self.global_step / steps)
+            for param_group in self.model.opt_dae.param_groups:
+                param_group['lr'] = lr
+
+    def _decay_lr(self) -> None:
+        if self.global_step > self.CFG_LR.steps_before_decay:
+            steps = max(1, self.CFG_LR.decay_steps)
+            current = self.global_step - self.CFG_LR.steps_before_decay
+            lr = self.CFG_LR.base_rate * (1.0 - current / steps)
+            for param_group in self.model.opt_dae.param_groups:
+                param_group['lr'] = lr
 
     def backward(
             self, 
@@ -192,8 +272,9 @@ class DiffusionTrainer(Trainer):
             max_norm: float=1.0,
             step: bool=True
         ) -> None:
-        if self.accum_grad: loss /= float(self.accum_grad_steps)
-        if self.mixed_precision:
+        if self.CFG_M.accumulate_gradients: 
+            loss /= float(self.CFG_M.gradient_accumulation_steps)
+        if self.CFG_M.mixed_precision:
             self.model.g_scaler.scale(loss).backward()
             if step:
                 self.model.g_scaler.unscale_(self.model.opt_dae)
@@ -207,7 +288,7 @@ class DiffusionTrainer(Trainer):
                 torch.nn.utils.clip_grad_norm_(
                     self.model.autoencoder.parameters(), max_norm)
                 self.model.opt_dae.step()
-        if step and self.use_ema: self.ema.update()
+        if step and self.CFG_M.use_ema: self.ema.update()
 
     def _assert_finite(
             self, 
@@ -232,21 +313,16 @@ class DiffusionTrainer(Trainer):
             assert_finite: bool=False,
             **kwargs: Any
         ) -> None:
-        if not self.accum_grad or idx % self.accum_grad_steps == 0:
-            self.model.opt_dae.zero_grad()
-        timesteps = self._build_timesteps(x)
-
         self.global_step += 1
-        warmup_steps = 1000
-        target_lr = 1e-4
-        if self.global_step < warmup_steps:
-            lr = target_lr * (self.global_step / warmup_steps)
-            for param_group in self.model.opt_dae.param_groups:
-                param_group['lr'] = lr
-
+        if self.CFG_LR.ramp_up: self._ramp_up_lr()
+        if not self.CFG_M.accumulate_gradients or \
+           self.global_step % self.CFG_M.gradient_accumulation_steps == 0:
+            self.model.opt_dae.zero_grad()
+        
+        timesteps = self._build_timesteps(x)
         with self.autocast_context():  
             x_t, noise = self.model.q_sample(x=x, t=timesteps)            
-            if not self.mixed_precision:
+            if not self.CFG_M.mixed_precision:
                 x_t = x_t.to(device=self.device, dtype=torch.float32)
                 noise = noise.to(device=self.device, dtype=torch.float32)
                 if y is not None and torch.is_floating_point(y):
@@ -256,22 +332,26 @@ class DiffusionTrainer(Trainer):
                 'G_MSE', predicted, noise, self.current_epoch)
         
         if assert_finite: self._assert_finite(x, x_t, noise)
-        step = True if not self.accum_grad \
-            else (idx + 1) % self.accum_grad_steps == 0
+        if self.print_avg_loss: self.accum_loss += loss_G_MSE.mean().item()
+        step = True if not self.CFG_M.accumulate_gradients else \
+            (self.global_step + 1) % self.CFG_M.gradient_accumulation_steps==0
         self.backward(loss_G_MSE, step)
 
-        self._display(idx, x, x_t, predicted, timesteps)
-        if idx % self.config.save.example_save_rate == 0: 
-            self.export_examples(idx, context=y)    
+        if self.global_step == self.total_steps:
+            self.export_examples(context=y)
+            self.save_checkpoint()
+            print('Training complete!')
+            exit(0)
+
+        self._display(x, x_t, predicted, timesteps)
+        if self.global_step % self.config.save.example_save_rate == 0: 
+            self.export_examples(context=y)    
+        if self.config.save.save_model and \
+           self.global_step % self.config.save.model_save_rate == 0:
+            self.save_checkpoint()
         
     def on_epoch_end(self, **kwargs: Any) -> None:
-        self.print_end_of_epoch()
-        s = self.config.save
-        lr = self.config.model.common.dae.learning_rate
-        epoch_count = lr.epochs + lr.epochs_decay
-        if self.current_epoch == epoch_count: self.save_checkpoint()
-        elif (s.save_model and self.current_epoch % s.model_save_rate == 0):
-            self.save_checkpoint()
+        pass
 
     ##### DIFFUSION TRAINING LOOP #####
 

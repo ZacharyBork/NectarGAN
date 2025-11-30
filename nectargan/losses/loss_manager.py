@@ -63,7 +63,8 @@ class LossManager():
         '''Defines a dummy log to build default log JSON structure.
         '''
         train_set_path = pathlib.Path(self.config.dataloader.dataroot, 'train')
-        dataset_length = len(list(train_set_path.iterdir()))
+        try: dataset_length = len(list(train_set_path.iterdir()))
+        except: dataset_length = None
         return { 
             'LOSSMANAGER_LOG':{
                 'device': f'{self.device}',

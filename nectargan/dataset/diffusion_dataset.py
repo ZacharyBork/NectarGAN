@@ -13,9 +13,13 @@ class DiffusionDataset(BaseDataset[DiffusionConfig]):
             config: DiffusionConfig, 
             root_dir: PathLike,
             is_train: bool=True,
-            cache_builder: bool=False
+            cache_builder: bool=False,
+            recurse: bool=False,
+            recurse_for_type: str='jpg'
         ) -> None:
-        super().__init__(config, root_dir, is_train=is_train)
+        super().__init__(
+            config, root_dir, is_train=is_train, 
+            recurse=recurse, recurse_for_type=recurse_for_type)
         self.cache_builder = cache_builder
         cfg = self.config.model
         match cfg.model_type:

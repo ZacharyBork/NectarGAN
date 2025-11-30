@@ -4,20 +4,105 @@ from os import PathLike
 from pathlib import Path
 from typing import Any, Literal
 
-def print_progress(
-        current: int,
-        max: int
-    ) -> None:
-    sys.stdout.write('\x1b[1A')
-    sys.stdout.write('\x1b[2K')
+class CaptionLoader():
+    def __init__(self, schema_version: int=1, silent: bool=False) -> None:
+        self.schema_version = schema_version
+        self.silent = silent
 
-    progress = float(current) / float(max)
-    progress_msg = (
-        f'Progress: {current} / {max} | '
-        f'{round(progress*100.0, 2)}% ')
-    print(progress_msg)
+    def print_progress(
+            self,
+            current: int,
+            max: int
+        ) -> None:
+        sys.stdout.write('\x1b[1A')
+        sys.stdout.write('\x1b[2K')
 
-class CaptionLoader_COCO():
+        progress = float(current) / float(max)
+        progress_msg = (
+            f'Progress: {current} / {max} | '
+            f'{round(progress*100.0, 2)}%')
+        print(progress_msg)
+
+class CaptionLoader_CUB200(CaptionLoader):
+    # Captions: https://github.com/reedscot/cvpr2016
+    #  Images : https://data.caltech.edu/records/65de6-vp158
+    def __init__(
+            self,
+            image_root: Path,
+            caption_root: Path,
+            **kwargs
+        ) -> None:
+        super().__init__(**kwargs)
+        self.image_root = image_root
+        self.caption_root = caption_root
+
+    def _validate_paths(self) -> None:
+        if not self.silent: print('CaptionLoader: Validating input paths...')
+        if not self.image_root.exists():
+            raise FileNotFoundError(
+                f'Unable to locate image root directory at path: '
+                f'{self.image_root.as_posix()}')
+        if not self.caption_root.exists():
+            raise FileNotFoundError(
+                f'Unable to locate caption root directory at path: '
+                f'{self.caption_root.as_posix()}')
+        
+    def _build_output_path(self) -> bool:
+        root_dir = self.image_root.parent
+        self.metadata_file = Path(root_dir, 'metadata.json')
+        if self.metadata_file.exists():
+            if not self.silent: 
+                print(f'CaptionLoader: Found existing metadata file at path: '
+                      f'{self.metadata_file.as_posix()}')
+            return True
+        return False
+
+    def _build_new_metadata(self) -> dict[str, Any]:
+        metadata = { 
+            'info': { 
+                'schema_version': self.schema_version,
+                'total_captions': 0, 
+                'total_images': 0 },
+            'items': {},
+            'other': {}}
+        img_count = len(list(self.image_root.rglob('*.jpg')))
+        if not self.silent: print('CaptionLoader: Building new metadata...')
+        for subdirectory in list(self.image_root.iterdir()):
+            if not subdirectory.is_dir(): continue
+            for image in list(subdirectory.glob('*.jpg')):
+                caption_file = Path(
+                    self.caption_root, subdirectory.name, f'{image.stem}.txt')
+                assert caption_file.exists()
+                with open(caption_file, 'r') as f:
+                    image_captions = [
+                        i for i in f.read().split('\n') if not i == '']
+                metadata['info']['total_captions'] += len(image_captions)
+                metadata['info']['total_images'] += 1
+                metadata['items'][image.stem] = {
+                    'filepath': image.resolve().as_posix(),
+                    'captions': image_captions}
+                if not self.silent: 
+                    self.print_progress(
+                        metadata['info']['total_images'], img_count)
+        return metadata
+
+    def _write_metadata_file(
+            self, 
+            new_metadata: dict[str, Any]
+        ) -> None:
+        if not self.silent: 
+            print('CaptionLoader: Writing new metatdata file...')
+        with open(self.metadata_file, 'w') as file:
+            file.write(json.dumps(new_metadata))
+
+    def load(self) -> Path:
+        self._validate_paths()
+        if not self._build_output_path():
+            new_metadata = self._build_new_metadata()
+            self._write_metadata_file(new_metadata)
+        return self.metadata_file
+
+class CaptionLoader_COCO(CaptionLoader):
     def __init__(
             self, 
             dataroot: PathLike,
@@ -26,8 +111,7 @@ class CaptionLoader_COCO():
             caption_key: str='annotations',
             new_file_suffix: str='REBUILT',
             bypass_mode: Literal['allow', 'disallow', 'confirm']='confirm',
-            schema_version: int=1,
-            silent: bool=False
+            **kwargs
         ) -> None:
         '''Initializes a COCO-style caption loader.
         
@@ -53,14 +137,13 @@ class CaptionLoader_COCO():
             silent : If True, the converter will not print any progress updates
                 to the console.
         '''
+        super().__init__(**kwargs)
         self.dataroot = Path(dataroot)
         self.metadata_file = Path(metadata_file)
         self.image_key = image_key
         self.caption_key = caption_key
         self.new_file_suffix = new_file_suffix
         self.bypass_mode = bypass_mode
-        self.schema_version = schema_version
-        self.silent = silent
 
     def _validate_paths(self) -> None:
         if not self.silent: print('CaptionLoader: Validating input paths...')
@@ -119,7 +202,7 @@ class CaptionLoader_COCO():
             try: entry = caption_map[caption['image_id']]
             except KeyError: entry = caption_map[caption['image_id']] = []
             entry.append(caption['caption'])
-            if not self.silent: print_progress(idx+1, len(captions))
+            if not self.silent: self.print_progress(idx+1, len(captions))
         return caption_map
 
     def _build_new_metadata(
@@ -160,7 +243,8 @@ class CaptionLoader_COCO():
                 'filepath': filepath.as_posix(),
                 'captions': image_captions}
             if not self.silent: 
-                print_progress(metadata['info']['total_images'], img_count)
+                self.print_progress(
+                    metadata['info']['total_images'], img_count)
         
         return metadata
 
@@ -183,8 +267,8 @@ class CaptionLoader_COCO():
         return self.output_path
 
 if __name__ == "__main__":
-    root = Path('/media/zach/UE/ML/test_data/diffusion/coco2017')
-    loader = CaptionLoader_COCO(
-        dataroot=Path(root, 'train'),
-        metadata_file=Path(root, 'annotations/captions_train2017.json'))
+    root = Path('/media/zach/UE/ML/test_data/diffusion/CUB200')
+    loader = CaptionLoader_CUB200(
+        image_root=Path(root, 'images'),
+        caption_root=Path(root, 'text_c10'))
     loader.load()

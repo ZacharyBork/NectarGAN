@@ -62,11 +62,20 @@ class ConfigTrain:
 ##### MODEL #####
 
 @dataclass
+class ConfigLearningRate:
+    ramp_up: bool
+    ramp_up_steps: int
+    base_rate: float
+    do_decay: bool
+    steps_before_decay: int 
+    decay_steps: int
+
+@dataclass
 class ConfigDAECommon:
     betas: list[float]
     time_embedding_dimension: int
     mlp_hidden_dimension: int
-    learning_rate: cfgcommon.ConfigLearningRate
+    learning_rate: ConfigLearningRate
 
 @dataclass
 class ConfigDAEPixel:
@@ -97,6 +106,7 @@ class ConfigModelCommon:
 @dataclass
 class ConfigCaptions:
     max_length: int
+    use_fixed_captions: bool
     fixed_captions: list[str]
 
 @dataclass
@@ -123,7 +133,6 @@ class ConfigModelStable:
     cfg_scale: float
     precache: ConfigLatentPrecache
     dae: ConfigDAELatent
-    captions: ConfigCaptions
 
 @dataclass
 class ConfigModel:
@@ -137,11 +146,13 @@ class ConfigModel:
     pixel: ConfigModelPixel
     latent: ConfigModelLatent
     stable: ConfigModelStable
+    captions: ConfigCaptions
 
 ##### VISUALIZER #####
 
 @dataclass
 class ConfigConsole:
+    average_loss: bool
     print_frequency: int
 
 @dataclass

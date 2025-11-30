@@ -12,17 +12,12 @@ def get_diffusion_config() -> Path:
         raise FileNotFoundError(
             f'Unable to locate default diffusion config at path: '
             f'{diff_config.as_posix}')
-    return diff_config
-
-def main():
-    config = get_diffusion_config()
-    trainer = DiffusionTrainer(config=config.as_posix(), log_losses=True)
-
-    epoch_count = 100
-    for epoch in range(epoch_count):
-        trainer.train_diffusion(epoch) 
-        trainer.print_end_of_epoch()
+    return diff_config    
 
 if __name__ == "__main__":
-    main()
+    config = get_diffusion_config()
+    trainer = DiffusionTrainer(config=config.as_posix(), log_losses=True)
+    epoch_count = trainer.get_epoch_count()
+    for epoch in range(epoch_count):
+        trainer.train_diffusion(epoch) 
 
