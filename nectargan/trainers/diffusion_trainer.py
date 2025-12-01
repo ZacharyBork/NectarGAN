@@ -151,22 +151,22 @@ class DiffusionTrainer(Trainer):
             context: torch.Tensor | None=None,
             cfg_scale: float=7.5
         ) -> None: 
+        if self.config.model.captions.use_fixed_captions:
+            captions = self.config.model.captions.fixed_captions 
+            context, _ = self.model.text_encoder(captions)
+        else: captions = self.model.captions
         for i in range(self.config.save.num_examples):
+            caption = 'nullcaption'
+            if not captions is None and not context is None:
+                count = float(len(captions))
+                if count > 0.0:
+                    idx = int(math.floor(random.random() * count))
+                    context = context[idx].unsqueeze(0).detach()
+                    context = context.to(self.device)
+                    caption = captions[idx]
+            print(f'Running inference with caption:\n{caption}')
             with self.ema_context():
                 with self.autocast_context(), torch.no_grad():
-                    if self.config.model.captions.use_fixed_captions:
-                       captions = self.config.model.captions.fixed_captions 
-                    else: captions = self.model.captions
-                    
-                    caption = 'nullcaption'
-                    if not captions is None:
-                        count = float(len(captions))
-                        if count > 0.0:
-                            idx = int(math.floor(random.random() * count))
-                            context = context[idx].unsqueeze(0).detach()
-                            context = context.to(self.device)
-                            caption = captions[idx]
-                    print(f'Running inference with caption:\n{caption}')
                     output = self.model.sample(
                         context=context, cfg_scale=cfg_scale)
             output = torch.clamp((output + 1) * 0.5, 0.0, 1.0)
