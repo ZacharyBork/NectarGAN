@@ -4,26 +4,24 @@ from typing import Any, Callable
 import torch
 import torch.nn as nn
 import torch.optim as optim
+from torch.utils.data import DataLoader
 
 from nectargan.config import DiffusionConfig
+from nectargan.dataset import DiffusionDataset
+from nectargan.dataset.streaming_datasets.laion_dataset import LAIONDataset
 from nectargan.models import UnetDAE
-from nectargan.models.diffusion.data import DAEConfig, NoiseParameters
-from nectargan.models.diffusion.blocks import TimeEmbeddedUnetBlock
+from nectargan.models.diffusion.data import NoiseParameters
 
 class DiffusionModel(nn.Module):
     def __init__(
             self, 
             config: DiffusionConfig, 
-            init_dae: bool=True,
-            dae_block_type: \
-                TimeEmbeddedUnetBlock=TimeEmbeddedUnetBlock
+            init_dae: bool=True
         ) -> None:
         super(DiffusionModel, self).__init__()
         self.config = config
-        if self.model_config is None: self.model_config = config.model.pixel
         self.device = config.common.device
-        self.timesteps = config.model.common.timesteps
-        self.dae_config = self._init_dae_config(dae_block_type)
+        self.timesteps = config.model.noise_schedule.timesteps
         
         self.fixed_seed_count = 1
         self.fixed_seeds = []
@@ -32,32 +30,45 @@ class DiffusionModel(nn.Module):
         self.noiseparams = NoiseParameters()
         self.noiseparams.build_schedule(
             device=self.device, timesteps=self.timesteps, 
-            schedule_type=config.model.common.noise_schedule,
-            cosine_offset=self.config.model.common.cosine_offset)
+            schedule_type=config.model.noise_schedule.schedule_type,
+            cosine_offset=self.config.model.noise_schedule.cosine_offset)
 
         if init_dae: self._init_autoencoder()
 
-    def _init_dae_config(self, block_type: TimeEmbeddedUnetBlock) -> DAEConfig:
-        common_cfg = self.config.model.common
-        return DAEConfig(
-            block_type=block_type,
-            input_size=self.model_config.input_size,
-            in_channels=self.model_config.dae.in_channels,
-            features=self.model_config.dae.features,
-            n_downs=self.model_config.dae.n_downs,
-            learning_rate=common_cfg.dae.learning_rate.base_rate,
-            betas=(common_cfg.dae.betas[0], common_cfg.dae.betas[1]),
-            time_embed_dimension=common_cfg.dae.time_embedding_dimension,
-            mlp_hidden_dimension=common_cfg.dae.mlp_hidden_dimension,
-            mlp_output_dimension=common_cfg.dae.time_embedding_dimension)
+    def _init_dataloader(self) -> None:
+        if not self.config.dataloader.streaming.enable:
+            dataset = DiffusionDataset(
+                config=self.config, 
+                root_dir=self.config.dataloader.dataroot, 
+                metadata_file=self.config.captions.metadata_file,
+                is_train=True, cache_builder=False, recurse=False)
+        else:
+            streaming_cfg = self.config.dataloader.streaming
+            match streaming_cfg.dataset:
+                case 'LAION':
+                    dataset = LAIONDataset(
+                        config=self.config, dataset=streaming_cfg.set,
+                        subset=streaming_cfg.subset,
+                        split='train', min_aesthetic_score=6.0,
+                        max_caption_length=self.config.captions.max_length,
+                        max_samples=streaming_cfg.max_samples, 
+                        cache_dir=streaming_cfg.cache_directory, 
+                        require_login=streaming_cfg.require_login)
+                case _: raise ValueError(
+                    f'Invalid streaming dataset: {streaming_cfg.dataset}')
+                
+        self.dataloader = DataLoader(
+            dataset, batch_size=self.config.dataloader.batch_size, 
+            num_workers=self.config.dataloader.num_workers)
 
-    def _init_autoencoder(self) -> None:
+    def _init_autoencoder(self, context_dimension: int | None=None) -> None:
         self.autoencoder = UnetDAE(
-            device=self.device, dae_config=self.dae_config
+            config=self.config, context_dimension=context_dimension
         ).to(self.device, dtype=torch.float32)
         self.opt_dae = optim.Adam(
             self.autoencoder.parameters(), 
-            lr=self.dae_config.learning_rate, betas=self.dae_config.betas)
+            lr=self.config.model.dae.learning_rate.base_rate, 
+            betas=self.config.model.dae.betas)
         if self.config.model.mixed_precision:
             self.g_scaler = torch.amp.GradScaler(self.device)
 
@@ -71,7 +82,7 @@ class DiffusionModel(nn.Module):
             x: torch.Tensor, 
             t: torch.Tensor, 
             noise: torch.Tensor=None
-        ) -> tuple[torch.Tensor]:
+        ) -> tuple[torch.Tensor, torch.Tensor]:
         '''Forward diffusion.
         
         Args:
@@ -181,9 +192,8 @@ class DiffusionModel(nn.Module):
             torch.Tensor : The final denoised tensor, decoded to pixel space.
         '''
         size = spatial_size if not spatial_size is None \
-            else self.dae_config.input_size
-        shape = (batches, self.dae_config.in_channels, size, size)
-        self._build_fixed_seeds(shape)
+            else self.config.model.input_size
+        shape = (batches, self.config.model.dae.in_channels, size, size)
         with torch.no_grad():
             x = torch.randn(shape).to(self.device) # Generate noise tensor
             for i in reversed(range(self.timesteps)):
@@ -197,7 +207,7 @@ class DiffusionModel(nn.Module):
             train_step_fn: Callable[[torch.Tensor, torch.Tensor, int], None],
             train_step_kwargs: dict[str, Any]
         ) -> None:
-        for idx, x in enumerate(self.train_loader):
+        for idx, x in enumerate(self.dataloader):
             start_time = time.time()
             x: torch.Tensor = x.to(self.device)
             train_step_fn(x, None, idx, **train_step_kwargs)

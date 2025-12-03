@@ -3,46 +3,28 @@ import random
 from typing import Any, Callable, Literal
 
 import torch
+from torch.utils.data import DataLoader
 
 from nectargan.models import LatentDiffusionModel
 from nectargan.models.diffusion.text_encoder import TextEncoder
-from nectargan.models.diffusion.blocks import \
-    TimeEmbeddedUnetBlock, CrossAttentionUnetBlock
+from nectargan.dataset import DiffusionDataset
 from nectargan.config import DiffusionConfig
 
 class StableDiffusionModel(LatentDiffusionModel):
     def __init__(
             self, 
-            config: DiffusionConfig,
-            init_dae: bool=True,
-            dae_block_type: \
-                TimeEmbeddedUnetBlock=CrossAttentionUnetBlock
+            config: DiffusionConfig
         ) -> None:
-        self.model_config = config.model.stable
-        super().__init__(config, False, dae_block_type)
+        super().__init__(config, False)
         self.text_encoder = TextEncoder(
             device=config.common.device,
-            max_length=self.config.model.captions.max_length,
+            max_length=self.config.captions.max_length,
             freeze=True
         ).to(config.common.device)
-        self._get_context_dimension()
-        if init_dae: self._init_autoencoder()
-
-    def _init_latent_cache(self) -> None:
-        cache_cfg = self.config.model.stable.precache
-        if cache_cfg.enable:
-            self.train_loader = self.cache_latents(
-                batch_size=cache_cfg.batch_size,
-                shard_size=cache_cfg.shard_size,
-                split=cache_cfg.split,
-                metadata_file=self.config.model.stable.metadata_file)
-            self.read_from_cache = True
-
-    def _get_context_dimension(self) -> None:
+        
         context, _ = self.text_encoder(
             ['Those who can imagine anything, can create the impossible.'])
-        context_dimension = context.shape[-1]
-        self.dae_config.context_dimension = context_dimension
+        self._init_autoencoder(context_dimension=context.shape[-1])
 
     def _drop_captions(
             self, 
@@ -52,26 +34,6 @@ class StableDiffusionModel(LatentDiffusionModel):
         return tuple([
             caption if random.random() > chance
             else '' for caption in captions])
-
-    def _trainer_core(
-            self, 
-            train_step_fn: Callable[[torch.Tensor, torch.Tensor, int], None],
-            train_step_kwargs: dict[str, Any],
-            unconditional_probability: float=0.1
-        ) -> None:
-        for idx, (x, y) in enumerate(self.train_loader):
-            self.captions = y
-            
-            start_time = time.time()
-            image: torch.Tensor = x.to(self.device, dtype=torch.float32)
-            captions = self._drop_captions(y, unconditional_probability)
-
-            contexts, _ = self.text_encoder(captions)
-            contexts = contexts.to(self.device, dtype=torch.float32)
-
-            train_step_fn(image, contexts, idx, **train_step_kwargs)
-            batch_time = time.time() - start_time
-            self.batch_times.append(batch_time)
 
     def _get_contexts(
             self, 
@@ -140,15 +102,14 @@ class StableDiffusionModel(LatentDiffusionModel):
             latent_spatial_size: int | None=None,
             context: torch.Tensor | None=None,
             cfg_scale: float | None=None,
-            inference_steps: int=50,
+            inference_steps: int=100,
             mode: Literal['DDPM', 'DDIM']='DDIM'
         ) -> torch.Tensor:
         if not mode == 'DDIM': inference_steps = self.timesteps
         lss = latent_spatial_size or self.latent_manager.latent_size
-        cfg_scale = cfg_scale or self.model_config.cfg_scale
-        shape = (batches, self.dae_config.in_channels, lss, lss)
+        cfg_scale = cfg_scale or self.config.model.cfg_scale
+        shape = (batches, self.config.model.dae.in_channels, lss, lss)
         
-        self._build_fixed_seeds(shape)
         with torch.no_grad():
             x = torch.randn(shape, device=self.device)
             context, nullcontext = self._get_contexts(context, batches)
@@ -170,3 +131,23 @@ class StableDiffusionModel(LatentDiffusionModel):
                     nullcontext=nullcontext, cfg_scale=cfg_scale)
         
         return self.decode(x.detach().cpu())
+    
+    def _trainer_core(
+            self, 
+            train_step_fn: Callable[[torch.Tensor, torch.Tensor, int], None],
+            train_step_kwargs: dict[str, Any],
+            unconditional_probability: float=0.1
+        ) -> None:
+        for idx, (x, y) in enumerate(self.dataloader):
+            self.captions = y
+            
+            start_time = time.time()
+            image: torch.Tensor = x.to(self.device, dtype=torch.float32)
+            captions = self._drop_captions(y, unconditional_probability)
+
+            contexts, _ = self.text_encoder(captions)
+            contexts = contexts.to(self.device, dtype=torch.float32)
+
+            train_step_fn(image, contexts, idx, **train_step_kwargs)
+            batch_time = time.time() - start_time
+            self.batch_times.append(batch_time)      

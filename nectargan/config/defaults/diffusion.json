@@ -7,22 +7,63 @@
                 0
             ],
             "output_directory": "tmp",
-            "experiment_name": "CUB200",
-            "experiment_version": 2
+            "experiment_name": "LAION",
+            "experiment_version": 1
         },
         "train": {
             "load": {
-                "continue_train": true,
-                "load_epoch": 118
+                "continue_train": false,
+                "load_epoch": 1
             },
             "loss": {
                 "lambda_mse": 1.0
             }
         },
+        "model": {
+            "model_type": "stable",
+            "input_size": 256,
+            "mixed_precision": false,
+            "use_ema": true,
+            "ema_decay": 0.9999,
+            "accumulate_gradients": true,
+            "gradient_accumulation_steps": 8,
+            "cfg_scale": 7.5,
+            "noise_schedule": {
+                "timesteps": 1000,
+                "schedule_type": "cosine",
+                "cosine_offset": 0.008
+            },
+            "dae": {
+                "in_channels": 4,
+                "features": 256,
+                "n_downs": 1,
+                "betas": [0.9, 0.999],
+                "time_embedding_dimension": 128,
+                "mlp_hidden_dimension": 256,
+                "mlp_output_dimension": 128,
+                "learning_rate": {
+                    "ramp_up": true,
+                    "ramp_up_steps": 80000,
+                    "base_rate": 0.0001,
+                    "do_decay": false,
+                    "steps_before_decay": 1e+6,
+                    "decay_steps": 1e+6
+                }
+            }
+        },
         "dataloader": {
-            "dataroot": "/media/zach/UE/ML/test_data/diffusion/CUB200",
+            "dataroot": "/media/zach/UE/ML/test_data/diffusion/coco2017/train",
             "batch_size": 40,
             "num_workers": 0,
+            "streaming": {
+                "enable": true,
+                "dataset": "LAION",
+                "set": "aesthetics",
+                "subset": "square",
+                "max_samples": 999999999,
+                "cache_directory": null,
+                "require_login": false
+            },
             "augmentations": {
                 "h_flip_chance": 0.5,
                 "v_flip_chance": 0.0,
@@ -60,94 +101,40 @@
                 "compression_quality_max": 100
             }
         },
-        "model": {
-            "model_type": "stable",
-            "mixed_precision": false,
-            "use_ema": true,
-            "ema_decay": 0.9999,
-            "accumulate_gradients": true,
-            "gradient_accumulation_steps": 8,
-            "common": {
-                "timesteps": 1000,
-                "noise_schedule": "cosine",
-                "cosine_offset": 0.008,
-                "dae": {
-                    "betas": [0.9, 0.999],
-                    "time_embedding_dimension": 128,
-                    "mlp_hidden_dimension": 256,
-                    "learning_rate": {
-                        "ramp_up": true,
-                        "ramp_up_steps": 5000,
-                        "base_rate": 0.00005,
-                        "do_decay": false,
-                        "steps_before_decay": 1e+6,
-                        "decay_steps": 1e+6
-                    }
-                }
-            },
-            "pixel": {
-                "input_size": 256,
-                "dae": {
-                    "in_channels": 3,
-                    "features": 256,
-                    "n_downs": 5
-                }
-            },
-            "latent": {
-                "input_size": 256,
-                "latent_size_divisor": 8,
-                "override_latent_size": false,
-                "latent_size": 32,
-                "precache": {
-                    "enable": true,
-                    "split": "train",
-                    "batch_size": 1,
-                    "shard_size": 512
-                },
-                "dae": {
-                    "in_channels": 4,
-                    "features": 256,
-                    "n_downs": 2
-                }
-            },
-            "stable": {
-                "input_size": 256,
-                "latent_size_divisor": 8,
-                "override_latent_size": false,
-                "latent_size": 32,
-                "metadata_file": "/media/zach/UE/ML/test_data/diffusion/CUB200/metadata.json",
-                "cfg_scale": 7.5,
-                "precache": {
-                    "enable": true,
-                    "split": "train",
-                    "batch_size": 1,
-                    "shard_size": 4096
-                },
-                "dae": {
-                    "in_channels": 4,
-                    "features": 256,
-                    "n_downs": 2
-                }
-            },
-            "captions": {
-                "max_length": 77,
-                "use_fixed_captions": true,
-                "fixed_captions": [
-                    "This is a large red bird with a large white beak."
-                ]
+        "latents": {
+            "latent_size_divisor": 8,
+            "override_latent_size": false,
+            "latent_size": 32,
+            "caching": {
+                "precache": false,
+                "runtime_cache": false,
+                "batch_size": 1,
+                "shard_size": 512
             }
+        },
+        "captions": {
+            "max_length": 77,
+            "use_fixed_captions": true,
+            "fixed_captions": [
+                "There is a red car on the street",
+                "A yellow train is entering the station",
+                "A dog sitting on the grass",
+                "A group of soccer players standing on the field"
+            ],
+            "metadata_file": "/media/zach/UE/ML/test_data/diffusion/coco2017/annotations/captions_train2017_REBUILT.json"
         },
         "save": {
             "save_model": true,
-            "model_save_rate": 5000,
+            "model_save_rate": 10000,
             "auto_increment_version": true,
             "save_examples": true,
-            "example_save_rate": 250,
+            "example_save_rate": 20,
             "num_examples": 1
         },
         "visualizer": {
             "visdom": {
                 "enable": false,
+                "average_loss": true,
                 "env_name": "main",
                 "server": "http://localhost",
                 "port": 8097,
@@ -156,7 +143,7 @@
             },
             "console": {
                 "average_loss": true,
-                "print_frequency": 250
+                "print_frequency": 20
             }
         }
     }

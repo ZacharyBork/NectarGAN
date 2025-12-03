@@ -1,7 +1,11 @@
+import time
+from typing import Any, Callable, Literal
+
 import torch
+from torch.utils.data import DataLoader
 
 from nectargan.models import DiffusionModel
-from nectargan.models.diffusion.blocks import TimeEmbeddedUnetBlock
+from nectargan.dataset import DiffusionDataset
 from nectargan.dataset.utility import LatentManager
 from nectargan.config import DiffusionConfig
 
@@ -9,16 +13,13 @@ class LatentDiffusionModel(DiffusionModel):
     def __init__(
             self, 
             config: DiffusionConfig,
-            init_dae: bool=True,
-            dae_block_type: \
-                TimeEmbeddedUnetBlock=TimeEmbeddedUnetBlock
+            init_dae: bool=True
         ) -> None:
-        if self.model_config is None: self.model_config = config.model.latent
-        super().__init__(config, False, dae_block_type)
+        super().__init__(config, False)
         
         self._init_latent_manager()
         self.read_from_cache = False
-        self._init_latent_cache()
+        self._init_dataloader()
         if init_dae: self._init_autoencoder()
 
     def _init_latent_manager(self) -> None:
@@ -28,22 +29,22 @@ class LatentDiffusionModel(DiffusionModel):
         self.decode = self.latent_manager.decode_from_latent
         self.cache_latents = self.latent_manager.cache_latents
 
-    def _init_latent_cache(self) -> None:
-        cache_cfg = self.config.model.latent.precache
-        if cache_cfg.enable:
-            if cache_cfg.enable:
-                self.train_loader = self.cache_latents(
-                    batch_size=cache_cfg.batch_size,
-                    shard_size=cache_cfg.shard_size,
-                    split=cache_cfg.split)
-                self.read_from_cache = True
+    def _init_dataloader(self) -> None:
+        cache_cfg = self.config.latents.caching
+        if cache_cfg.precache:
+            self.dataloader = self.cache_latents(
+                batch_size=cache_cfg.batch_size,
+                shard_size=cache_cfg.shard_size,
+                metadata_file=self.config.captions.metadata_file)
+            self.read_from_cache = True
+        else: super()._init_dataloader()
 
     def q_sample(
             self, 
             x: torch.Tensor, 
             t: torch.Tensor, 
             noise: torch.Tensor | None=None
-        ) -> tuple[torch.Tensor]:
+        ) -> tuple[torch.Tensor, torch.Tensor]:
         '''Forward diffusion (see pixel diffusion model q_sample()).
         
         This is just a wrapper for the parent DiffusionModel.q_sample() which

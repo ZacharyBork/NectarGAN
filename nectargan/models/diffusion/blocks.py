@@ -44,16 +44,16 @@ class CrossAttentionUnetBlock(TimeEmbeddedUnetBlock):
         self.num_heads = num_heads
         attn_dim = self.out_channels
         self.attention_enabled = attn_dim > min_attention_channels
-        self.attention_scale = attention_scaling_factor
+        self.attention_scale = nn.Parameter(
+                torch.ones(1) * attention_scaling_factor)
 
         if self.attention_enabled:
-            self.to_queries = nn.Linear(attn_dim, attn_dim)
-            self.to_keys = nn.Linear(context_dimension, attn_dim)
-            self.to_values = nn.Linear(context_dimension, attn_dim)
             self.attention = nn.MultiheadAttention(
-                embed_dim=attn_dim, num_heads=num_heads, batch_first=True)
-            # self.attention_scale = nn.Parameter(
-            #     torch.ones(1) * attention_scaling_factor)
+                embed_dim=attn_dim, 
+                kdim=context_dimension,
+                vdim=context_dimension,
+                num_heads=num_heads, 
+                batch_first=True)
             self.proj = nn.Linear(attn_dim, attn_dim)
             self.norm = nn.GroupNorm(32, self.out_channels)
 
@@ -70,13 +70,9 @@ class CrossAttentionUnetBlock(TimeEmbeddedUnetBlock):
         B, C, H, W = x_norm.shape
         x_flat = x_norm.view(B, C, H * W).permute(0, 2, 1)
 
-        attn_out, _ = self.attention(
-            self.to_queries(x_flat), 
-            self.to_keys(context), 
-            self.to_values(context))
+        attn_out, _ = self.attention(x_flat, context, context)
         attn_out = self.proj(attn_out)
 
         attn_out = attn_out.permute(0, 2, 1).view(B, C, H, W)
         return x + self.attention_scale * attn_out
-
 

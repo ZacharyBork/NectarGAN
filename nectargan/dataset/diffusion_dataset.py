@@ -1,8 +1,10 @@
+import random
 from os import PathLike
 
 import torch
 import albumentations as A
 
+import nectargan.dataset.metadata.utils as md_utils
 from nectargan.config import DiffusionConfig
 from nectargan.dataset import BaseDataset
 
@@ -12,6 +14,7 @@ class DiffusionDataset(BaseDataset[DiffusionConfig]):
             self, 
             config: DiffusionConfig, 
             root_dir: PathLike,
+            metadata_file: PathLike | None=None,
             is_train: bool=True,
             cache_builder: bool=False,
             recurse: bool=False,
@@ -20,16 +23,20 @@ class DiffusionDataset(BaseDataset[DiffusionConfig]):
         super().__init__(
             config, root_dir, is_train=is_train, 
             recurse=recurse, recurse_for_type=recurse_for_type)
+        self.metadata = md_utils.load_metadata_file(metadata_file) \
+            if not metadata_file is None else None 
         self.cache_builder = cache_builder
-        cfg = self.config.model
-        match cfg.model_type:
-            case 'pixel': self.load_size = cfg.pixel.input_size
-            case 'latent': self.load_size = cfg.latent.input_size
-            case 'stable': self.load_size = cfg.stable.input_size
-            case _: return ValueError(
-                f'Invalid model_type: {cfg.model_type}')
+        self.load_size = self.config.model.input_size
             
-    def __getitem__(self, index: int) -> torch.Tensor:
+    def _get_caption(self, index: int) -> str:
+        file_name = self.list_files[index].stem
+        captions = self.metadata.items[file_name]['captions']
+        return random.choice(captions)
+
+    def __getitem__(
+            self, 
+            index: int
+        ) -> tuple[torch.Tensor, str | None]:
         '''Gets an item from the dataset.
         
         Args:
@@ -37,13 +44,18 @@ class DiffusionDataset(BaseDataset[DiffusionConfig]):
         '''
         image = self.load_image_file(
             index, self.load_size, preserve_aspect_ratio=True, to_rgb=True)
-
-        mean = [0.5, 0.5, 0.5]
-        _input = A.Compose([
-            A.Normalize(mean=mean, std=mean, max_pixel_value=255.0),
-            A.ToTensorV2()
-        ])(image=image)['image']
         
-        return _input 
+        transforms = [
+            A.Normalize(
+                mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5], 
+                max_pixel_value=255.0),
+            A.ToTensorV2()]
+        if not self.cache_builder: transforms.insert(
+            0, A.RandomCrop(self.load_size, self.load_size))
+        _image = A.Compose(transforms)(image=image)['image']
+        
+        caption = self._get_caption(index) \
+            if not self.metadata is None else None
+        return _image, caption
 
 

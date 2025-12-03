@@ -41,10 +41,21 @@ class ConfigAugmentations:
     compression_quality_max: int
     
 @dataclass
+class ConfigDataloaderStreaming:
+    enable: bool
+    dataset: str
+    set: str
+    subset: str
+    max_samples: int
+    cache_directory: int | None
+    require_login: bool
+
+@dataclass
 class ConfigDataloader:
     dataroot: str
     batch_size: int
     num_workers: int
+    streaming: ConfigDataloaderStreaming
     load: cfgcommon.ConfigDataloaderLoad
     augmentations: ConfigAugmentations
 
@@ -59,7 +70,7 @@ class ConfigTrain:
     load: cfgcommon.ConfigLoad
     loss: ConfigLoss
 
-##### MODEL #####
+##### DAE #####
 
 @dataclass
 class ConfigLearningRate:
@@ -71,84 +82,75 @@ class ConfigLearningRate:
     decay_steps: int
 
 @dataclass
-class ConfigDAECommon:
+class ConfigDAE:
     betas: list[float]
     time_embedding_dimension: int
     mlp_hidden_dimension: int
+    mlp_output_dimension: int
     learning_rate: ConfigLearningRate
-
-@dataclass
-class ConfigDAEPixel:
     in_channels: int
     features: int
     n_downs: int
 
-@dataclass
-class ConfigDAELatent:
-    in_channels: int
-    features: int
-    n_downs: int
+##### NOISE_SCHEDULE #####
 
 @dataclass
-class ConfigLatentPrecache:
-    enable: bool
-    split: str
-    batch_size: int
-    shard_size: int
-
-@dataclass
-class ConfigModelCommon:
+class ConfigNoiseSchedule:
     timesteps: int
-    noise_schedule: str
+    schedule_type: str
     cosine_offset: float
-    dae: ConfigDAECommon
+
+##### MODEL #####
+
+@dataclass
+class ConfigModel:
+    model_type: str
+    input_size: int
+    mixed_precision: bool
+    use_ema: bool
+    ema_decay: float
+    accumulate_gradients: bool
+    gradient_accumulation_steps: int
+    cfg_scale: float
+    noise_schedule: ConfigNoiseSchedule
+    dae: ConfigDAE
+
+##### CAPTIONS #####
 
 @dataclass
 class ConfigCaptions:
     max_length: int
     use_fixed_captions: bool
     fixed_captions: list[str]
-
-@dataclass
-class ConfigModelPixel:
-    input_size: int
-    dae: ConfigDAEPixel
-
-@dataclass
-class ConfigModelLatent:
-    input_size: int
-    latent_size_divisor: int
-    override_latent_size: bool
-    latent_size: int
-    precache: ConfigLatentPrecache
-    dae: ConfigDAELatent
-
-@dataclass
-class ConfigModelStable:
-    input_size: int
-    latent_size_divisor: int
-    override_latent_size: bool
-    latent_size: int
     metadata_file: str
-    cfg_scale: float
-    precache: ConfigLatentPrecache
-    dae: ConfigDAELatent
+
+##### LATENTS #####
 
 @dataclass
-class ConfigModel:
-    model_type: str
-    mixed_precision: bool
-    use_ema: bool
-    ema_decay: float
-    accumulate_gradients: bool
-    gradient_accumulation_steps: int
-    common: ConfigModelCommon
-    pixel: ConfigModelPixel
-    latent: ConfigModelLatent
-    stable: ConfigModelStable
-    captions: ConfigCaptions
+class ConfigLatentCache:
+    precache: bool
+    runtime_cache: bool
+    batch_size: int
+    shard_size: int
+
+@dataclass
+class ConfigLatents:
+    latent_size_divisor: int
+    override_latent_size: bool
+    latent_size: int
+    caching: ConfigLatentCache
 
 ##### VISUALIZER #####
+
+@dataclass
+class ConfigVisdom:
+    enable: bool
+    average_loss: bool
+    env_name: str
+    server: str
+    port: int
+    image_size: int
+    update_frequency: int
 
 @dataclass
 class ConfigConsole:
@@ -157,7 +159,7 @@ class ConfigConsole:
 
 @dataclass
 class ConfigVisualizer:
-    visdom: cfgcommon.ConfigVisdom
+    visdom: ConfigVisdom
     console: ConfigConsole
 
 ##### MAIN #####
@@ -166,29 +168,27 @@ class ConfigVisualizer:
 class DiffusionConfig(cfgcommon.Config):
     common: cfgcommon.ConfigCommon
     train: ConfigTrain
-    dataloader: ConfigDataloader
     model: ConfigModel
+    dataloader: ConfigDataloader
+    latents: ConfigLatents
+    captions: ConfigCaptions
     save: cfgcommon.ConfigSave
     visualizer: ConfigVisualizer
 
     DEFAULT_FILE = 'defaults/diffusion.json'
     GROUP_SCHEMA = {
         'common': cfgcommon.ConfigCommon,
-        'dataloader': ConfigDataloader,
         'train': ConfigTrain,
         'model': ConfigModel,
+        'dataloader': ConfigDataloader,
+        'latents': ConfigLatents,
+        'captions': ConfigCaptions,
         'save': cfgcommon.ConfigSave,
         'visualizer': ConfigVisualizer}
     
     def __post_init__(self) -> None:
         # This is hacky and needs to be fixed in the future.
-        match self.model.model_type:
-            case 'pixel': m = self.model.pixel
-            case 'latent': m = self.model.latent
-            case 'stable': m = self.model.stable
-            case _: raise ValueError(
-                f'Invalid model_type: {self.model.model_type}')
         self.dataloader.load = cfgcommon.ConfigDataloaderLoad(
-            load_size=m.input_size, crop_size=m.input_size, 
-            input_nc=m.dae.in_channels)
+            load_size=self.model.input_size, crop_size=self.model.input_size, 
+            input_nc=self.model.dae.in_channels)
 

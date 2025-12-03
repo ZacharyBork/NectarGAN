@@ -154,18 +154,15 @@ class LatentManager():
         self.cache_data.shard.clear()
         self.cache_data.file_names.clear()
 
-    def _init_cache_output(self, split: str) -> bool:
+    def _init_cache_output(self) -> bool:
         '''Initializes and/or validates an output directory for the cache.
         
-        Args:
-            split : The dataset split to cache (i.e. "train", "test", "val").
-
         Returns:
             bool : True if a new directory was created for the cache, False if
                 a valid cache directory already existed.
         '''
-        self.dataroot = self.config.dataloader.dataroot
-        self.dataset_path = Path(self.dataroot, split).resolve()
+        self.dataroot = Path(self.config.dataloader.dataroot).resolve()
+        split = self.dataroot.name
         self.cache_data.output_dir, new = latent_utils.init_latent_cache(
             dataroot=self.dataroot, cache_name=split)
         return new
@@ -195,7 +192,7 @@ class LatentManager():
               f'Batch Size : {batch_size}\n'
               f'Shard Size : {shard_size}\n')
         dataset = DiffusionDataset(
-            config=self.config, root_dir=self.dataset_path, 
+            config=self.config, root_dir=self.dataroot, 
             is_train=False, cache_builder=True, recurse=True)
         dataloader = DataLoader(
             dataset, batch_size=batch_size, 
@@ -262,7 +259,6 @@ class LatentManager():
             self, 
             batch_size: int=64,
             shard_size: int=512,
-            split: str='train',
             store_file_names: bool=False
         ) -> None:
         '''Loops through Dataloader, encodes tensors to latent space, exports.
@@ -274,7 +270,7 @@ class LatentManager():
         Returns:
             Path : The path to the cache output directory.
         '''
-        new = self._init_cache_output(split)
+        new = self._init_cache_output()
         if not new: 
             print('Bypassing caching operation...')
             return self.cache_data.output_dir
@@ -290,7 +286,6 @@ class LatentManager():
             self,
             batch_size: int=64,
             shard_size: int=512,
-            split: str='train',
             metadata_file: PathLike | None=None,
             validate_cache: bool=False
         ) -> DataLoader:
@@ -316,14 +311,15 @@ class LatentManager():
         self.cache_data = CacheData()
         if not metadata_file is None:
             metadata_file = self._validate_metadata_file(metadata_file)
-            self._cache_latents(batch_size, shard_size, split, True)
+            print(metadata_file)
+            self._cache_latents(batch_size, shard_size, True)
             new_dataset = ImageTextDataset(
                 config=self.config, 
                 shard_directory=self.cache_data.output_dir,
                 metadata_file=metadata_file,
                 latent_size=self.latent_size)
         else: 
-            self._cache_latents(batch_size, shard_size, split)
+            self._cache_latents(batch_size, shard_size)
             new_dataset = LatentDataset(
                 config=self.config, shard_directory=self.cache_data.output_dir, 
                 latent_size=self.latent_size)

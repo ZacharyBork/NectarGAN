@@ -25,15 +25,13 @@ def validate_latent_size(
 
 def get_latent_spatial_size(config: DiffusionConfig) -> int:
     '''Derive latent spatial size from input size and divisor.'''
-    cfg = config.model
-    match cfg.model_type:
-        case 'latent': cfg = cfg.latent
-        case 'stable': cfg = cfg.stable
-    if not cfg.override_latent_size:
-        size = round(cfg.input_size / max(1, cfg.latent_size_divisor))
+    L = config.latents
+    M = config.model
+    if not L.override_latent_size:
+        size = round(M.input_size / max(1, L.latent_size_divisor))
         validate_latent_size(
-            size, cfg.input_size, cfg.latent_size_divisor)
-    else: size = cfg.latent_size
+            size, M.input_size, L.latent_size_divisor)
+    else: size = L.latent_size
     return size
 
 def init_latent_cache(
@@ -65,7 +63,7 @@ def init_latent_cache(
     print(f'Dataset root found: {dataroot.as_posix()}\n'
           f'Locating output directory...')
     
-    output_dir = Path(dataroot, f'tensor_cache_{cache_name}')
+    output_dir = Path(dataroot.parent, f'tensor_cache_{cache_name}')
     if output_dir.exists():
         shards = list(output_dir.glob('*.pt'))
         if len(shards) == 0:

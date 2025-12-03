@@ -1,27 +1,11 @@
 from typing import Literal
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 import torch
 
 from nectargan.constants import PI
-from nectargan.models.unet.blocks import UnetBlock
-from nectargan.models.diffusion.blocks import TimeEmbeddedUnetBlock
+from nectargan.config import DiffusionConfig
 
-@dataclass
-class DAEConfig:
-    block_type:      UnetBlock = TimeEmbeddedUnetBlock
-    input_size:            int = 128
-    in_channels:           int = 3
-    features:              int = 96
-    n_downs:               int = 5
-    bottleneck_down:      bool = True
-    learning_rate:       float = 0.0001
-    betas: tuple[float, float] = (0.9, 0.999)
-    time_embed_dimension:  int = 128
-    mlp_hidden_dimension:  int = 256
-    mlp_output_dimension:  int = 128
-    context_dimension:     int = None
-    
 @dataclass
 class NoiseParameters:
     alphas:             torch.Tensor | None = None
@@ -82,13 +66,44 @@ class NoiseParameters:
                 abar = torch.pow(torch.cos(
                     ((x / timesteps + offset) / (1 + offset)) * PI/2), 2)
                 abar = abar / abar[0]
-
+                acumprod = abar[1:]
+                ones = torch.ones(1, device=device, dtype=acumprod.dtype)
                 self.betas = torch.clamp(
-                    1.0 - (abar[1:] / abar[:-1]), 1e-8, 0.999)
-            
+                    1 - acumprod / torch.cat([ones, acumprod[:-1]]),
+                    1e-8, 0.999)
+
                 self.alphas = 1.0 - self.betas
                 self.alphas_cumprod = torch.cumprod(
                     self.alphas, dim=0).to(device)
 
+@dataclass
+class AverageLossTracker:
+    config: DiffusionConfig
+    loss_values:        list = field(default_factory=list)
+    steps_visdom:        int = 0
+    steps_console:       int = 0
 
+    update_freq_visdom:  int = 0
+    update_freq_console: int = 0
+    stored_value_cap:    int = 0
 
+    def __post_init__(self) -> None:
+        self.vcon = self.config.visualizer
+        V = self.update_freq_visdom = self.vcon.visdom.update_frequency
+        C = self.update_freq_console = self.vcon.console.print_frequency
+        self.stored_value_cap = max(V, C)
+
+    def append_loss_value(self, value: float) -> None:
+        self.loss_values.insert(0, value)
+        self.loss_values = self.loss_values[:self.stored_value_cap]
+
+    def get_average(
+            self, 
+            get_type: Literal['visdom', 'console'],
+            precision: int=3
+        ) -> float:
+        match get_type:
+            case 'visdom': divisor = max(1, self.update_freq_visdom)
+            case 'console': divisor = max(1, self.update_freq_console)
+        average = sum(self.loss_values[:divisor]) / divisor
+        return round(average, precision)
