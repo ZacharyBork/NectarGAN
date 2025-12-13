@@ -31,7 +31,7 @@ def main():
     epoch_count = epoch_counts.epochs + epoch_counts.epochs_decay
     
     for epoch in range(epoch_count):
-        trainer.train_paired( # Train generator and discriminator
+        trainer.train( # Train generator and discriminator
             epoch, 
             callback_kwargs={ 'on_epoch_start': {'print_train_start': True} }) 
         

@@ -1,6 +1,5 @@
 
 import requests
-import hashlib
 from os import PathLike
 from pathlib import Path
 from PIL import Image
@@ -15,7 +14,6 @@ from datasets import load_dataset
 
 from nectargan.config import DiffusionConfig
 from nectargan.config.utils import config_from_file
-from nectargan.dataset import BaseDataset
 
 TAGS = {
     'aesthetics': {
@@ -49,7 +47,10 @@ class LAIONDataset(IterableDataset):
             max_caption_length: int=77,
             max_samples: int | None=None,
             cache_dir: PathLike | None=None,
-            require_login: bool=False
+            timeout: float=5.0,
+            require_login: bool=False,
+            cache_builder: bool=False,
+            silent: bool=True
         ) -> None:
         if require_login: login()
         self.config = config
@@ -57,6 +58,9 @@ class LAIONDataset(IterableDataset):
         self.max_samples = max_samples
         self.cache_dir = cache_dir
         self.load_size = self.config.model.input_size
+        self.timeout = timeout
+        self.cache_builder = cache_builder
+        self.silent = silent
         
         self.transform = transforms.Compose([
             transforms.RandomCrop(size=(self.load_size, self.load_size)),
@@ -87,7 +91,7 @@ class LAIONDataset(IterableDataset):
             split, self.dataset.info.splits.get('train')
         ).num_examples if hasattr(self.dataset.info, 'splits') else None
 
-    def __len__(self):
+    def __len__(self) -> int:
         return self.length
 
     def __iter__(self):
@@ -101,11 +105,12 @@ class LAIONDataset(IterableDataset):
             if len(caption) > self.max_caption_length: continue
 
             try:
-                response = requests.get(url, timeout=5)
+                response = requests.get(url, timeout=self.timeout)
                 response.raise_for_status()
                 image = Image.open(BytesIO(response.content)).convert('RGB')
             except Exception as e:
-                print(f'Failed to load image: {e}. Skipping...')
+                if not self.silent: 
+                    print(f'Failed to load image: {e}. Skipping...')
                 continue
             
             x = lambda y, z: int(round(y*z))
@@ -115,24 +120,34 @@ class LAIONDataset(IterableDataset):
             t = self.transform(image)
 
             sample_count += 1
-            yield t, caption 
+            if not self.cache_builder: yield t, caption 
+            else: yield t, caption, Path(url).stem
 
     def collate(
             self, 
             batch: list[tuple[torch.Tensor, str]]
         ) -> dict[str, Any]:
-        images, captions = zip(*batch)
-        return { 'image': torch.stack(images), 'caption': list(captions) }
+        images, captions, names = zip(*batch)
+        if not self.cache_builder:
+            return { 'image': torch.stack(images), 'caption': list(captions) }
+        else:
+            return { 
+                'image': torch.stack(images), 
+                'caption': list(captions),
+                'name': list(names) }
 
 if __name__ == "__main__":
     config = config_from_file(
         '/media/zach/UE/ML/NectarGAN/nectargan/config/defaults/diffusion.json')
     dataset = LAIONDataset(
-        config=config, dataset_tag=TAGS['aesthetics']['square'])
+        config=config, 
+        dataset='aesthetics', subset='square',
+        cache_builder=True)
     dataloader = DataLoader(
         dataset, batch_size=8, collate_fn=dataset.collate, num_workers=0)
-    for batch in dataloader:
-        images = batch['image']
-        captions = batch['caption']
-        print(f'Batch loaded. Size: {len(images)}\nCaptions: {captions}')
+    for batch in dataloader: 
+        tensor = batch['image']
+        caption = batch['caption']
+        names = batch['name']
+        print(names)
         break

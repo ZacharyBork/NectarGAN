@@ -145,11 +145,20 @@ class UnetGenerator(nn.Module):
     def define_bottleneck(self) -> None:
         '''Defines the bottleneck layer.'''
         # Define bottleneck
-        self.bottleneck = self.block_type(
-            self.channel_map['bottleneck'][0], 
-            self.channel_map['bottleneck'][1], 
-            upconv_type=self.upconv_type, activation='relu',
-            norm=None, down=True, bias=True, use_dropout=False)
+        # self.bottleneck = self.block_type(
+        #     self.channel_map['bottleneck'][0], 
+        #     self.channel_map['bottleneck'][1], 
+        #     upconv_type=self.upconv_type, activation='relu',
+        #     norm=None, down=False, bias=True, use_dropout=False)
+        self.bottleneck = nn.Sequential(
+            nn.ReflectionPad2d(1),
+            nn.Conv2d(
+                self.channel_map['bottleneck'][0],
+                self.channel_map['bottleneck'][1],
+                kernel_size=3, stride=1, padding=0, bias=True
+            ),
+            nn.ReLU()
+        )
 
     def define_upsampling_blocks(self) -> None:
         '''Defines the layers in the upsampling path.'''
@@ -197,7 +206,7 @@ class UnetGenerator(nn.Module):
 
         skips.reverse() # Align skips with up conv layer
         x = self.bottleneck(x) # Run bottleneck layer
-        x = self.ups[0](x)
+        # x = self.ups[0](x)
 
         for i, up in enumerate(self.ups[1:]):
             skip = skips[i]

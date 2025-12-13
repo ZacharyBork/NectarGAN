@@ -1,26 +1,29 @@
-import time
-from typing import Any, Callable, Literal
-
 import torch
-from torch.utils.data import DataLoader
 
-from nectargan.models import DiffusionModel
-from nectargan.dataset import DiffusionDataset
+from nectargan.models import PixelDiffusionModel
+from nectargan.models.diffusion.blocks import TimeEmbeddedUnetBlock
 from nectargan.dataset.utility import LatentManager
 from nectargan.config import DiffusionConfig
 
-class LatentDiffusionModel(DiffusionModel):
+class LatentDiffusionModel(PixelDiffusionModel):
     def __init__(
             self, 
             config: DiffusionConfig,
             init_dae: bool=True
         ) -> None:
+        '''Initialized a LatentDiffusionModel.
+        
+        Args:
+            config : The DiffusionConfig to use for the model.
+            init_dae : Whether to init the denoising autoencoder as part of the
+                model __init__().
+        '''
         super().__init__(config, False)
         
         self._init_latent_manager()
         self.read_from_cache = False
         self._init_dataloader()
-        if init_dae: self._init_autoencoder()
+        if init_dae: self._init_autoencoder(block_type=TimeEmbeddedUnetBlock)
 
     def _init_latent_manager(self) -> None:
         '''Initializes a LatentManager and aliases some of its methods.'''
@@ -30,6 +33,11 @@ class LatentDiffusionModel(DiffusionModel):
         self.cache_latents = self.latent_manager.cache_latents
 
     def _init_dataloader(self) -> None:
+        '''Initializes a dataloader for the model.
+        
+        If latent pre-caching is enabled in the DiffusionConfig, this method
+        will also run the pre-caching pass.
+        '''
         cache_cfg = self.config.latents.caching
         if cache_cfg.precache:
             self.dataloader = self.cache_latents(
@@ -47,9 +55,9 @@ class LatentDiffusionModel(DiffusionModel):
         ) -> tuple[torch.Tensor, torch.Tensor]:
         '''Forward diffusion (see pixel diffusion model q_sample()).
         
-        This is just a wrapper for the parent DiffusionModel.q_sample() which
-        first encodes the tensor to latent space before performing the forward
-        diffusion step.
+        This is just a wrapper for the parent PixelDiffusionModel.q_sample() 
+        which first encodes the tensor to latent space before performing the 
+        forward diffusion step.
 
         Args:
             x : The current input tensor.

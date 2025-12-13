@@ -7,7 +7,7 @@
                 0
             ],
             "output_directory": "tmp",
-            "experiment_name": "LAION",
+            "experiment_name": "",
             "experiment_version": 1
         },
         "train": {
@@ -42,10 +42,10 @@
                 "mlp_hidden_dimension": 256,
                 "mlp_output_dimension": 128,
                 "learning_rate": {
-                    "ramp_up": true,
-                    "ramp_up_steps": 80000,
                     "base_rate": 0.0001,
-                    "do_decay": false,
+                    "warm_up": true,
+                    "warm_up_steps": 80000,
+                    "decay": false,
                     "steps_before_decay": 1e+6,
                     "decay_steps": 1e+6
                 }
@@ -113,6 +113,8 @@
             }
         },
         "captions": {
+            "use_captions": true,
+            "metadata_file": "/media/zach/UE/ML/test_data/diffusion/coco2017/annotations/captions_train2017_REBUILT.json",
             "max_length": 77,
             "use_fixed_captions": true,
             "fixed_captions": [
@@ -120,8 +122,7 @@
                 "A yellow train is entering the station",
                 "A dog sitting on the grass",
                 "A group of soccer players standing on the field"
-            ],
-            "metadata_file": "/media/zach/UE/ML/test_data/diffusion/coco2017/annotations/captions_train2017_REBUILT.json"
+            ]
         },
         "save": {
             "save_model": true,

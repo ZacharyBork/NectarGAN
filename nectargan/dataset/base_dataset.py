@@ -45,9 +45,11 @@ class BaseDataset(Dataset, Generic[TConfig]):
             index: int, 
             size: int,
             preserve_aspect_ratio: bool=False,
-            to_rgb: bool=False
+            to_rgb: bool=False,
+            image_file: PathLike | None=None
         ) -> np.ndarray:
-        img = Image.open(self.list_files[index].as_posix())
+        if image_file: img = Image.open(image_file)
+        else: img = Image.open(self.list_files[index].as_posix())
         if to_rgb: img = img.convert('RGB')
         if preserve_aspect_ratio:
             x = lambda y, z: int(round(y*z))

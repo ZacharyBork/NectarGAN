@@ -11,20 +11,27 @@ from nectargan.dataset import DiffusionDataset
 from nectargan.dataset.streaming_datasets.laion_dataset import LAIONDataset
 from nectargan.models import UnetDAE
 from nectargan.models.diffusion.data import NoiseParameters
+from nectargan.models.diffusion.blocks import TimeEmbeddedUnetBlock
 
-class DiffusionModel(nn.Module):
+class PixelDiffusionModel(nn.Module):
     def __init__(
             self, 
             config: DiffusionConfig, 
             init_dae: bool=True
         ) -> None:
-        super(DiffusionModel, self).__init__()
+        '''Initialized a PixelDiffusionModel.
+        
+        Args:
+            config : The DiffusionConfig to use for the model.
+            init_dae : Whether to init the denoising autoencoder as part of the
+                model __init__().
+        '''
+        super(PixelDiffusionModel, self).__init__()
         self.config = config
         self.device = config.common.device
         self.timesteps = config.model.noise_schedule.timesteps
         
         self.fixed_seed_count = 1
-        self.fixed_seeds = []
         self.batch_times = []
 
         self.noiseparams = NoiseParameters()
@@ -32,10 +39,10 @@ class DiffusionModel(nn.Module):
             device=self.device, timesteps=self.timesteps, 
             schedule_type=config.model.noise_schedule.schedule_type,
             cosine_offset=self.config.model.noise_schedule.cosine_offset)
-
         if init_dae: self._init_autoencoder()
 
     def _init_dataloader(self) -> None:
+        '''Initializes a dataloader for the model.'''
         if not self.config.dataloader.streaming.enable:
             dataset = DiffusionDataset(
                 config=self.config, 
@@ -61,9 +68,15 @@ class DiffusionModel(nn.Module):
             dataset, batch_size=self.config.dataloader.batch_size, 
             num_workers=self.config.dataloader.num_workers)
 
-    def _init_autoencoder(self, context_dimension: int | None=None) -> None:
+    def _init_autoencoder(
+            self, 
+            block_type: TimeEmbeddedUnetBlock,
+            context_dimension: int | None=None) -> None:
+        '''Initializes the denoising autoencoder network.'''
         self.autoencoder = UnetDAE(
-            config=self.config, context_dimension=context_dimension
+            config=self.config,
+            block_type=block_type,
+            context_dimension=context_dimension
         ).to(self.device, dtype=torch.float32)
         self.opt_dae = optim.Adam(
             self.autoencoder.parameters(), 
@@ -71,11 +84,6 @@ class DiffusionModel(nn.Module):
             betas=self.config.model.dae.betas)
         if self.config.model.mixed_precision:
             self.g_scaler = torch.amp.GradScaler(self.device)
-
-    def _build_fixed_seeds(self, shape: tuple[int]) -> None:
-        if len(self.fixed_seeds) != 0: return
-        for _ in range(self.fixed_seed_count):
-            self.fixed_seeds.append(torch.randn(shape).to(self.device)) 
 
     def q_sample(
             self, 
@@ -207,9 +215,16 @@ class DiffusionModel(nn.Module):
             train_step_fn: Callable[[torch.Tensor, torch.Tensor, int], None],
             train_step_kwargs: dict[str, Any]
         ) -> None:
+        '''Trainer core callback for unconditional diffusion.
+        
+        Args:
+            train_step_fn : Train step function, run once per batch. Passed by
+                "Trainer.train()".
+            train_step_kwargs : Optional keyword args for train step function.
+        '''
         for idx, x in enumerate(self.dataloader):
             start_time = time.time()
             x: torch.Tensor = x.to(self.device)
             train_step_fn(x, None, idx, **train_step_kwargs)
             batch_time = time.time() - start_time
-            self.batch_times.append(batch_time)
+            self.batch_times.append(batch_time)  

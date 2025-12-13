@@ -4,7 +4,7 @@ from .resnet.model import ResNet
 from .resnet.generator import ResNetGenerator
 from .resnet.classifier import ResNetClassifier
 from .diffusion.denoising_autoencoder import UnetDAE
-from .diffusion.models.pixel import DiffusionModel
+from .diffusion.models.pixel import PixelDiffusionModel
 from .diffusion.models.latent import LatentDiffusionModel
 from .diffusion.models.stable import StableDiffusionModel
 

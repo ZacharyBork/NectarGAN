@@ -2,8 +2,7 @@ import torch
 import torch.nn as nn
 
 from nectargan.models import UnetGenerator
-from nectargan.models.diffusion.blocks import \
-    TimeEmbeddedUnetBlock, CrossAttentionUnetBlock
+from nectargan.models.diffusion.blocks import TimeEmbeddedUnetBlock
 from nectargan.config import DiffusionConfig
 
 class UnetDAE(UnetGenerator):
@@ -11,13 +10,21 @@ class UnetDAE(UnetGenerator):
     def __init__(
             self, 
             config: DiffusionConfig,
+            block_type: TimeEmbeddedUnetBlock,
             context_dimension: int | None=None,
             **kwargs
         ) -> None:
+        '''Initialized a UnetDAE.
+        
+        Args:
+            config : The DiffusionConfig to use for the DAE.
+            block_type : The conv block type for the network to use.
+
+        '''
         self.config = config
         self.cfg_dae = self.config.model.dae
         self.device = config.common.device
-        self.block_type = CrossAttentionUnetBlock
+        self.block_type = block_type
         self.context_dimension = context_dimension
         self.time_embedding_dim = self.cfg_dae.time_embedding_dimension
         self.mlp_hidden_dim = self.cfg_dae.mlp_hidden_dimension
@@ -35,6 +42,7 @@ class UnetDAE(UnetGenerator):
         self.apply(self.init_weights)
 
     def init_mlp(self) -> None:
+        '''Initialized a multilayer perceptron for timestep embedding.'''
         D = self.cfg_dae
         mlp_layers = [
             nn.Linear(self.time_embedding_dim, self.mlp_hidden_dim),
@@ -43,12 +51,18 @@ class UnetDAE(UnetGenerator):
         self.mlp = nn.Sequential(*mlp_layers)
 
     def get_embedding_frequency(self) -> None:
+        '''Precalculates and stores embedding frequency for timesteps.'''
         freq = torch.arange(
             0, self.time_embedding_dim, 2).float()
         freq /= self.time_embedding_dim
         self.embedding_freq = (1 / (10000 ** (freq))).to(self.device)
 
     def embed_timesteps(self, timesteps: torch.Tensor) -> torch.Tensor:
+        '''Embeds timesteps with MLP.
+        
+        Args:
+            timesteps : The timesteps tensor to embed.
+        '''
         args = timesteps.unsqueeze(-1) * self.embedding_freq.unsqueeze(0)
         embeddings = torch.cat([torch.sin(args), torch.cos(args)], dim=-1)
         return self.mlp(embeddings)
@@ -120,6 +134,11 @@ class UnetDAE(UnetGenerator):
             timesteps: torch.Tensor,
             context: torch.Tensor | None=None
         ) -> torch.Tensor:
+        '''UnetDAE forward function.
+        
+        See "UNetGenerator.forward()". This mirrors that function with the
+        addition of timestep embedding and optional context.
+        '''
         embed_t = self.embed_timesteps(timesteps)
 
         x = self.initial_down(x, embed_t, context)
@@ -138,23 +157,3 @@ class UnetDAE(UnetGenerator):
 
         return self.final_up(
             torch.cat([x, skips[-1]], dim=1), embed_t, context)
-
-if __name__ == "__main__":
-    x = torch.randn(1, 3, 256, 256)
-    t = torch.tensor([500])
-
-    unet_dae = UnetDAE(
-        device='cpu',
-        time_embedding_dimension=128,
-        mlp_hidden_dimension=256,
-        mlp_output_dimension=128)
-
-    parameters = 0
-    for p in unet_dae.parameters():
-        if p.requires_grad: parameters += p.numel()
-    print(f'Parameters: {parameters}')
-    
-    y = unet_dae(x, t)
-    print(f'Output Shape: {y.shape}')
-
-

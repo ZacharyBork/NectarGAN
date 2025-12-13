@@ -19,6 +19,7 @@ from nectargan.config.config_manager import ConfigManager
 from nectargan.losses.loss_manager import LossManager
 from nectargan.visualizer.visdom.visualizer import VisdomVisualizer
 from nectargan.dataset.paired_dataset import PairedDataset
+from nectargan.dataset.utility_datasets.paired_mask_loader import PairedMaskDataset
 
 class Trainer():
     def __init__(
@@ -52,6 +53,7 @@ class Trainer():
         self.last_epoch_time: float = 0.0
         self.train_loader: torch.utils.data.DataLoader | None = None
         self.val_loader: torch.utils.data.DataLoader | None = None
+        self.mask: torch.Tensor | None = None
 
         self.init_config(config)                # Init config
         self.device = self.config.common.device # Store device for easy lookup
@@ -242,7 +244,9 @@ class Trainer():
         if not dataset_path.exists(): # Make sure data directory exists
             message = f'Unable to locate dataset at: {dataset_path.as_posix()}'
             raise FileNotFoundError(message)
-        dataset = PairedDataset(
+        # dataset = PairedDataset(
+        #     config=self.config, root_dir=dataset_path, is_train=is_train)
+        dataset = PairedMaskDataset(
             config=self.config, root_dir=dataset_path, is_train=is_train)
         return torch.utils.data.DataLoader( # Build dataloader from dataset
             dataset, batch_size=self.config.dataloader.batch_size, 
@@ -342,23 +346,26 @@ class Trainer():
 
     ### TRAINING LOOP ###
 
-    def _train_paired_core(
+    def trainer_core(
             self, 
             train_step_fn: Callable[[torch.Tensor, torch.Tensor, int], None],
             train_step_kwargs: dict[str, Any]
         ) -> None:
-        '''Paired adversarial training loop.
+        '''Training loop callback function.
+
+        This function should be overridden by the child class to define the
+        behavior of the model training loop (i.e. how data is loaded and passed
+        to the "train_step" function). See "Pix2pixTrainer.trainer_core()" for
+        more information.
         
         Args:
-            train_step_fn : Train step function, Run once per batch.
+            train_step_fn : Train step function, run once per batch.
             train_step_kwargs : Optional keyword args for train step function.
         '''
-        for idx, (x, y) in enumerate(self.train_loader):
-            # Loop through (x, y) of batch[idx] from training dataset
-            x, y = x.to(self.device), y.to(self.device)
-            train_step_fn(x, y, idx, **train_step_kwargs)
+        message = 'trainer_core() is not implemented by the child class.'
+        raise NotImplementedError(message)
 
-    def train_paired(
+    def train(
             self, 
             epoch:int,
             on_epoch_start: Callable[[], None] | None=None,
@@ -417,12 +424,12 @@ class Trainer():
         if multithreaded and self.config.visualizer.visdom.enable: 
             try:
                 self.vis.start_thread()
-                self._train_paired_core(
+                self.trainer_core(
                     train_fn, callback_kwargs.get('train_step', {}))
             except KeyboardInterrupt:
                 sys.exit('Interrupt Recieved: Stopping training...')
             finally: self.vis.stop_thread()
-        else: self._train_paired_core(
+        else: self.trainer_core(
             train_fn, callback_kwargs.get('train_step', {}))
         
         # Run post-train function
@@ -506,7 +513,8 @@ class Trainer():
             range(len(val_data)), 
             self.config.save.num_examples)
         for i, idx in enumerate(indices):
-            x, y = val_data[idx]
+            data = val_data[idx]
+            x, y = data[0], data[1]
 
             x: torch.Tensor = x.unsqueeze(0).to(self.device)
             y: torch.Tensor = y.unsqueeze(0).to(self.device)

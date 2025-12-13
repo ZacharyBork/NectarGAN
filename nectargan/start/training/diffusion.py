@@ -19,5 +19,5 @@ if __name__ == "__main__":
     trainer = DiffusionTrainer(config=config.as_posix(), log_losses=True)
     epoch_count = trainer.get_epoch_count()
     for epoch in range(epoch_count):
-        trainer.train_diffusion(epoch) 
+        trainer.train(epoch) 
 
