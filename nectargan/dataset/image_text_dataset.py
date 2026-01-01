@@ -4,19 +4,17 @@ from os import PathLike
 import torch
 
 import nectargan.dataset.metadata.utils as md_utils
-from nectargan.config import DiffusionConfig
 from nectargan.dataset import LatentDataset
 
 class ImageTextDataset(LatentDataset):
     '''Defines a dataset loader for image-text pair training.'''
     def __init__(
             self,
-            config: DiffusionConfig,
             shard_directory: PathLike,
             metadata_file: PathLike,
             latent_size: int
         ) -> None:
-        super().__init__(config, shard_directory, latent_size)
+        super().__init__(shard_directory, latent_size)
         self.metadata = md_utils.load_metadata_file(metadata_file)
 
     def _get_caption(self, index: int) -> str:
