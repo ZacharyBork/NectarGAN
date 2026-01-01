@@ -8,37 +8,6 @@ class ConfigAugmentations:
     h_flip_chance: float
     v_flip_chance: float
     rot90_chance: float
-    elastic_transform_chance: float
-    elastic_transform_alpha: float
-    elastic_transform_sigma: float
-    optical_distortion_chance: float
-    optical_distortion_min: float
-    optical_distortion_max: float
-    optical_distortion_mode: str
-    coarse_dropout_chance: float
-    coarse_dropout_holes_min: int
-    coarse_dropout_holes_max: int
-    coarse_dropout_height_min: float
-    coarse_dropout_height_max: float
-    coarse_dropout_width_min: float
-    coarse_dropout_width_max: float
-    colorjitter_chance: float
-    colorjitter_min_brightness: float
-    colorjitter_max_brightness: float
-    gaussnoise_chance: float
-    gaussnoise_min: float
-    gaussnoise_max: float
-    motionblur_chance: float
-    motionblur_limit: int
-    randgamma_chance: float
-    randgamma_min: float
-    randgamma_max: float
-    grayscale_chance: float
-    grayscale_method:  str
-    compression_chance: float
-    compression_type: str
-    compression_quality_min: int
-    compression_quality_max: int
     
 @dataclass
 class ConfigDataloaderStreaming:
@@ -51,24 +20,61 @@ class ConfigDataloaderStreaming:
     require_login: bool
 
 @dataclass
+class ConfigDataloaderLoad:
+    load_size: int
+    crop_size: int
+    input_nc: int
+
+@dataclass
 class ConfigDataloader:
     dataroot: str
     batch_size: int
     num_workers: int
     streaming: ConfigDataloaderStreaming
-    load: cfgcommon.ConfigDataloaderLoad
+    load: ConfigDataloaderLoad
     augmentations: ConfigAugmentations
 
 ##### TRAIN #####
 
 @dataclass
+class ConfigLoad:
+    continue_train: bool
+    load_step: int
+
+@dataclass
+class ConfigPixelLoss:
+    frequency: int
+    max_batches: int
+    lambda_l1: float
+    lambda_vgg: float
+    lambda_sobel: float
+    lambda_laplacian: float
+
+@dataclass
 class ConfigLoss:
     lambda_mse: float
+    pixel: ConfigPixelLoss
 
 @dataclass
 class ConfigTrain:
-    load: cfgcommon.ConfigLoad
+    load: ConfigLoad
     loss: ConfigLoss
+
+##### SAMPLING #####
+
+@dataclass
+class ConfigSampling:
+    function: str
+    ddim_timesteps: int
+    ddim_recompute_epsilon: bool
+
+##### MLP #####
+
+@dataclass
+class ConfigMLP:
+    time_embedding_dimension: int
+    hidden_dimension: int
+    output_dimension: int
 
 ##### DAE #####
 
@@ -82,16 +88,21 @@ class ConfigLearningRate:
     decay_steps: int
 
 @dataclass
+class ConfigDAECompile:
+    enable: bool
+    mode: str
+
+@dataclass
 class ConfigDAE:
-    betas: list[float]
-    time_embedding_dimension: int
-    mlp_hidden_dimension: int
-    mlp_output_dimension: int
-    learning_rate: ConfigLearningRate
     in_channels: int
     features: int
     n_downs: int
-
+    betas: list[float]
+    self_attention: bool
+    enable_checkpointing: bool
+    compile: ConfigDAECompile
+    learning_rate: ConfigLearningRate
+    
 ##### NOISE_SCHEDULE #####
 
 @dataclass
@@ -110,9 +121,10 @@ class ConfigModel:
     use_ema: bool
     ema_decay: float
     accumulate_gradients: bool
-    gradient_accumulation_steps: int
-    cfg_scale: float
+    gradient_accumulation_iterations: int
     noise_schedule: ConfigNoiseSchedule
+    sampling: ConfigSampling
+    mlp: ConfigMLP
     dae: ConfigDAE
 
 ##### CAPTIONS #####
@@ -121,7 +133,9 @@ class ConfigModel:
 class ConfigCaptions:
     use_captions: True
     metadata_file: str
+    encoder_model: str
     max_length: int
+    freeze_encoder: bool
     use_fixed_captions: bool
     fixed_captions: list[str]
     
@@ -141,6 +155,19 @@ class ConfigLatents:
     latent_size: int
     caching: ConfigLatentCache
 
+
+##### SAVING #####
+
+@dataclass
+class ConfigSave:
+    save_model: bool
+    model_save_rate: int
+    auto_increment_version: bool
+    save_examples: bool
+    example_save_rate: int
+    num_examples: int
+    sample_cfg_scales: list[float]
+
 ##### VISUALIZER #####
 
 @dataclass
@@ -150,7 +177,9 @@ class ConfigVisdom:
     env_name: str
     server: str
     port: int
+    display_images: bool
     image_size: int
+    max_images: int
     update_frequency: int
 
 @dataclass
@@ -167,29 +196,27 @@ class ConfigVisualizer:
 
 @dataclass
 class DiffusionConfig(cfgcommon.Config):
-    common: cfgcommon.ConfigCommon
     train: ConfigTrain
     model: ConfigModel
     dataloader: ConfigDataloader
     latents: ConfigLatents
     captions: ConfigCaptions
-    save: cfgcommon.ConfigSave
+    save: ConfigSave
     visualizer: ConfigVisualizer
 
     DEFAULT_FILE = 'defaults/diffusion.json'
-    GROUP_SCHEMA = {
-        'common': cfgcommon.ConfigCommon,
+    GROUP_SCHEMA = cfgcommon.Config.GROUP_SCHEMA | {
         'train': ConfigTrain,
         'model': ConfigModel,
         'dataloader': ConfigDataloader,
         'latents': ConfigLatents,
         'captions': ConfigCaptions,
-        'save': cfgcommon.ConfigSave,
+        'save': ConfigSave,
         'visualizer': ConfigVisualizer}
     
     def __post_init__(self) -> None:
         # This is hacky and needs to be fixed in the future.
-        self.dataloader.load = cfgcommon.ConfigDataloaderLoad(
+        self.dataloader.load = ConfigDataloaderLoad(
             load_size=self.model.input_size, crop_size=self.model.input_size, 
             input_nc=self.model.dae.in_channels)
 
