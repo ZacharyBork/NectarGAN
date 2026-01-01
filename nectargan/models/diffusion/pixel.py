@@ -9,9 +9,9 @@ from torch.utils.data import DataLoader
 from nectargan.config import DiffusionConfig
 from nectargan.dataset import DiffusionDataset
 from nectargan.dataset.streaming_datasets.laion_dataset import LAIONDataset
-from nectargan.models import UnetDAE
+from nectargan.models import DiffusionUnet
 from nectargan.models.diffusion.data import NoiseParameters
-from nectargan.models.diffusion.blocks import TimeEmbeddedUnetBlock
+from nectargan.models.unet.blocks import TimeEmbeddedUnetBlock
 
 class PixelDiffusionModel(nn.Module):
     def __init__(
@@ -71,17 +71,28 @@ class PixelDiffusionModel(nn.Module):
     def _init_autoencoder(
             self, 
             block_type: TimeEmbeddedUnetBlock,
-            context_dimension: int | None=None) -> None:
-        '''Initializes the denoising autoencoder network.'''
-        self.autoencoder = UnetDAE(
-            config=self.config,
-            block_type=block_type,
-            context_dimension=context_dimension
+            context_dimension: int | None=None
+        ) -> None:
+        '''Initializes the denoising autoencoder network.
+        
+        Args:
+            blocks_type : What UNet block type to use for the DAE.
+            context_dimension : The context dimension to use for the DAE, or
+                None if not using text conditioning. Derived in the Stable
+                model variant by passing a dummy caption to the CLIP model and
+                evaluating the shape of the returned context tensor.
+        '''
+        DAE = self.config.model.dae
+        self.autoencoder = DiffusionUnet(
+            config=self.config, block_type=block_type,
+            context_dimension=context_dimension,
+            use_attention=DAE.self_attention,
+            use_checkpointing=DAE.enable_checkpointing
         ).to(self.device, dtype=torch.float32)
         self.opt_dae = optim.Adam(
             self.autoencoder.parameters(), 
-            lr=self.config.model.dae.learning_rate.base_rate, 
-            betas=self.config.model.dae.betas)
+            lr=DAE.learning_rate.base_rate, 
+            betas=DAE.betas, fused=True)
         if self.config.model.mixed_precision:
             self.g_scaler = torch.amp.GradScaler(self.device)
 
@@ -186,7 +197,8 @@ class PixelDiffusionModel(nn.Module):
             self, 
             batches: int=1,
             spatial_size: int | None=None,
-            context: torch.Tensor | None=None
+            context: torch.Tensor | None=None,
+            **kwargs
         ) -> torch.Tensor:
         '''Performs iterative denoising to generate and return an output image.
         
@@ -210,10 +222,10 @@ class PixelDiffusionModel(nn.Module):
                 x = self.p_sample(x, t, idx=i, context=context)
         return x.detach().cpu()
         
-    def _trainer_core(
+    def trainer_core(
             self, 
             train_step_fn: Callable[[torch.Tensor, torch.Tensor, int], None],
-            train_step_kwargs: dict[str, Any]
+            train_step_kwargs: dict[str, Any] | None=None
         ) -> None:
         '''Trainer core callback for unconditional diffusion.
         
@@ -224,7 +236,7 @@ class PixelDiffusionModel(nn.Module):
         '''
         for idx, x in enumerate(self.dataloader):
             start_time = time.time()
-            x: torch.Tensor = x.to(self.device)
+            x: torch.Tensor = x.to(self.device, non_blocking=True)
             train_step_fn(x, None, idx, **train_step_kwargs)
             batch_time = time.time() - start_time
             self.batch_times.append(batch_time)  

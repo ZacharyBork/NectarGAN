@@ -1,39 +1,80 @@
 import time
 import random
-from typing import Any, Callable, Literal
+from typing import Literal, Callable, Any
 
 import torch
 
-from nectargan.models import LatentDiffusionModel
-from nectargan.models.diffusion.blocks import \
-    TimeEmbeddedUnetBlock, CrossAttentionUnetBlock
+from nectargan.models import PixelDiffusionModel
 from nectargan.models.diffusion.text_encoder import TextEncoder
+from nectargan.models.unet.blocks import \
+    TimeEmbeddedUnetBlock, CrossAttentionUnetBlock
+from nectargan.latent import LatentManager
 from nectargan.config import DiffusionConfig
 
-class StableDiffusionModel(LatentDiffusionModel):
+class LatentDiffusionModel(PixelDiffusionModel):
     def __init__(
             self, 
             config: DiffusionConfig
         ) -> None:
-        '''Initialized a StableDiffusionModel.
+        '''Initialized a LatentDiffusionModel.
         
         Args:
             config : The DiffusionConfig to use for the model.
         '''
         super().__init__(config, False)
-        self.text_encoder = TextEncoder(
-            device=config.common.device,
-            max_length=self.config.captions.max_length,
-            freeze=True
-        ).to(config.common.device)
+        self.use_captions = self.config.captions.use_captions
+        self.read_from_cache = False
 
-        block_type = TimeEmbeddedUnetBlock if not \
-            self.config.captions.use_captions else CrossAttentionUnetBlock
-        context, _ = self.text_encoder(
-            ['Those who can imagine anything, can create the impossible.'])
-        self._init_autoencoder(
-            block_type=block_type,
-            context_dimension=context.shape[-1])
+        self._init_latent_manager()
+        self._init_dataloader()
+        self._init_autoencoder()
+
+    ##### INIT #####
+
+    def _init_text_encoder(self) -> None:
+        device = self.config.common.device
+        C = self.config.captions
+        self.text_encoder = TextEncoder(
+            device=device, model_name=C.encoder_model, 
+            max_length=C.max_length, freeze=C.freeze_encoder)
+        self.text_encoder = self.text_encoder.to(device)
+
+    def _init_autoencoder(self) -> None:
+        if self.use_captions:
+            block_type = CrossAttentionUnetBlock
+            self._init_text_encoder()
+            context, _ = self.text_encoder(
+                ['Those who can imagine anything, can create the impossible.'])
+            context_dimension=context.shape[-1]
+        else:
+            block_type = TimeEmbeddedUnetBlock
+            context_dimension = None
+        super()._init_autoencoder(
+            block_type=block_type, context_dimension=context_dimension)
+
+    def _init_latent_manager(self) -> None:
+        '''Initializes a LatentManager and aliases some of its methods.'''
+        self.latent_manager = LatentManager(self.config)
+        self.encode = self.latent_manager.encode_to_latent
+        self.decode = self.latent_manager.decode_from_latent
+        self.cache_latents = self.latent_manager.cache_latents
+
+    def _init_dataloader(self) -> None:
+        '''Initializes a dataloader for the model.
+        
+        If latent pre-caching is enabled in the DiffusionConfig, this method
+        will also run the pre-caching pass.
+        '''
+        cache_cfg = self.config.latents.caching
+        if cache_cfg.precache:
+            self.dataloader = self.cache_latents(
+                batch_size=cache_cfg.batch_size,
+                shard_size=cache_cfg.shard_size,
+                metadata_file=self.config.captions.metadata_file)
+            self.read_from_cache = True
+        else: super()._init_dataloader()
+
+    ##### CAPTIONS & CONTEXTS #####
 
     def _drop_captions(
             self, 
@@ -95,7 +136,7 @@ class StableDiffusionModel(LatentDiffusionModel):
             t: torch.Tensor,
             context: torch.Tensor | None,
             nullcontext: torch.Tensor | None,
-            cfg_scale: float
+            cfg_scale: float | None
         ) -> torch.Tensor:
         '''Runs DAE to predict noise with context.
 
@@ -111,14 +152,71 @@ class StableDiffusionModel(LatentDiffusionModel):
             torch.Tensor : The predicted noise tensor.
         '''
         if cfg_scale != 1.0 \
-         and context is not None \
-         and nullcontext is not None:
+         and not context is None \
+         and not nullcontext is None:
             cond = self.autoencoder(x, t, context=context)
             uncond = self.autoencoder(x, t, context=nullcontext)
             pred_noise = uncond + cfg_scale * (cond - uncond)
         else: pred_noise = self.autoencoder(x, t, context=context)
         return pred_noise
+    
+    ##### SAMPLING #####
 
+    def sample_ddim(
+            self,
+            x: torch.Tensor,
+            t: torch.Tensor,
+            t_prev: torch.Tensor,
+            idx: int,
+            predictions: torch.Tensor | None=None
+        ) -> torch.Tensor:
+        self.noiseparams(t)
+        x0 = self._predict_x0(x, predictions)
+        if idx == 0: return x0
+
+        abar = self.noiseparams.alphas_cumprod.to(self.device)
+        a_prev = abar[t_prev].view(x.shape[0], 1, 1, 1)
+
+        if self.config.model.sampling.ddim_recompute_epsilon:
+            a_t = abar[t].view(x.shape[0], 1, 1, 1)
+            direction = (x - a_t.sqrt() * x0) / (1.0 - a_t).sqrt()   
+            x_prev = a_prev.sqrt() * x0 \
+                + (1.0 - a_prev).sqrt() * direction
+        else: x_prev = a_prev.sqrt() * x0 + (1.0 - a_prev).sqrt() * predictions
+        return x_prev
+
+    def q_sample(
+            self, 
+            x: torch.Tensor, 
+            t: torch.Tensor, 
+            noise: torch.Tensor | None=None
+        ) -> tuple[torch.Tensor, torch.Tensor]:
+        '''Forward diffusion (see pixel diffusion model q_sample()).
+        
+        This is just a wrapper for the parent PixelDiffusionModel.q_sample() 
+        which first encodes the tensor to latent space before performing the 
+        forward diffusion step.
+
+        Args:
+            x : The current input tensor.
+            t : The corresponding timestep tensor.
+            noise : The noise tensor to use for the diffusion step, or `None` 
+                to generate a random noise tensor.
+            idx : Index of the current batch from the dataloader. Only needed
+                if `precache_latents` is enabled.
+
+        Returns:
+            tuple[torch.Tensor] : The noisy image tensor created by the
+                diffusion step, and the noise tensor used for the step.
+
+        Raises:
+            ValueError : Is self.precache_latents=True and idx of current batch
+                is not provided.
+        '''
+        if not self.read_from_cache: 
+            with torch.no_grad(): x = self.encode(x).to(self.device)
+        return super().q_sample(x, t, noise)
+    
     def p_sample(
             self,
             x: torch.Tensor,
@@ -143,27 +241,18 @@ class StableDiffusionModel(LatentDiffusionModel):
         Returns:
             torch.Tensor : The denoised image tensor.
         '''
-        pred = predictions
+        P = predictions
         match mode:
-            case 'DDPM': return super().p_sample(x, t, idx, direct, None, pred)
-            case 'DDIM':
-                self.noiseparams(t)
-                x0 = self._predict_x0(x, pred)
-                if idx == 0: return x0
-
-                abar = self.noiseparams.alphas_cumprod.to(self.device)
-                a_prev = abar[t_prev].to(self.device)
-                a_prev = a_prev.view(x.shape[0], 1, 1, 1)
-                x_prev = a_prev.sqrt() * x0 + (1.0 - a_prev).sqrt() * pred
-                return x_prev
+            case 'DDPM': return super().p_sample(x, t, idx, direct, None, P)
+            case 'DDIM': return self.sample_ddim(x, t, t_prev, idx, P)
             case _: raise ValueError(f'Invalid sampler mode: {mode}')
-
+    
     def sample(
             self, 
             batches: int=1,
             latent_spatial_size: int | None=None,
             context: torch.Tensor | None=None,
-            cfg_scale: float | None=None,
+            cfg_scale: float=7.5,
             inference_steps: int=100,
             mode: Literal['DDPM', 'DDIM']='DDIM'
         ) -> torch.Tensor:
@@ -188,13 +277,10 @@ class StableDiffusionModel(LatentDiffusionModel):
         '''
         if not mode == 'DDIM': inference_steps = self.timesteps
         lss = latent_spatial_size or self.latent_manager.latent_size
-        cfg_scale = cfg_scale or self.config.model.cfg_scale
         shape = (batches, self.config.model.dae.in_channels, lss, lss)
         
         with torch.no_grad():
             x = torch.randn(shape, device=self.device)
-            
-
             steps = torch.linspace(
                 self.timesteps - 1, 0, inference_steps,
                 dtype=torch.long, device=self.device)
@@ -207,19 +293,26 @@ class StableDiffusionModel(LatentDiffusionModel):
                 t_prev = torch.full(
                     (batches,), steps[min(len(steps)-1, i+1)], 
                     device=self.device, dtype=torch.long)
-                context, nullcontext = self._get_nullcontexts(context, batches)
-                predictions = self._predict_from_contexts(
-                    x, t, context, nullcontext, cfg_scale)
+                
+                if self.use_captions:
+                    context, nullcontext = self._get_nullcontexts(
+                        context, batches)
+                    predictions = self._predict_from_contexts(
+                        x, t, context, nullcontext, cfg_scale)
+                else: predictions = self.autoencoder(x, t, context=None)
+                
                 x = self.p_sample(
-                    x, t, idx=idx, t_prev=t_prev, context=context,
-                    predictions=predictions, cfg_scale=cfg_scale)
-        
+                    x, t, idx=idx, t_prev=t_prev, 
+                    predictions=predictions, mode=mode)
+                
         return self.decode(x.detach().cpu())
     
-    def _trainer_core(
+    ##### TRAINER CORE #####
+
+    def trainer_core(
             self, 
             train_step_fn: Callable[[torch.Tensor, torch.Tensor, int], None],
-            train_step_kwargs: dict[str, Any],
+            train_step_kwargs: dict[str, Any] | None=None,
             unconditional_probability: float=0.1
         ) -> None:
         '''Trainer core callback for conditional diffusion.
@@ -229,16 +322,24 @@ class StableDiffusionModel(LatentDiffusionModel):
                 "Trainer.train()".
             train_step_kwargs : Optional keyword args for train step function.
         '''
-        for idx, (x, y) in enumerate(self.dataloader):
-            self.captions = y
-            
+        if not self.use_captions:
+            return super().trainer_core(train_step_fn, train_step_kwargs)
+        for idx, data in enumerate(self.dataloader):
             start_time = time.time()
-            image: torch.Tensor = x.to(self.device, dtype=torch.float32)
-            captions = self._drop_captions(y, unconditional_probability)
-
-            contexts, _ = self.text_encoder(captions)
-            contexts = contexts.to(self.device, dtype=torch.float32)
+            if self.config.captions.use_captions:
+                image: torch.Tensor = data[0]
+                image = image.to(
+                    self.device, dtype=torch.float32, non_blocking=True)
+                self.captions = data[1]
+                captions = self._drop_captions(
+                    self.captions, unconditional_probability)
+                contexts, _ = self.text_encoder(captions)
+                contexts = contexts.to(self.device, dtype=torch.float32)
+            else: 
+                image = data
+                contexts = None
 
             train_step_fn(image, contexts, idx, **train_step_kwargs)
             batch_time = time.time() - start_time
-            self.batch_times.append(batch_time)      
+            self.batch_times.append(batch_time) 
+
