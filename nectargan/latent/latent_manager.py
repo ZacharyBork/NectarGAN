@@ -9,10 +9,11 @@ import torch
 from torch.utils.data.dataloader import DataLoader
 from diffusers import AutoencoderKL
 
-import nectargan.dataset.utility.latent_utils as latent_utils
+from nectargan.latent import latent_utils
 from nectargan.config import DiffusionConfig 
 from nectargan.dataset import \
     DiffusionDataset, LatentDataset, ImageTextDataset
+from nectargan.dataset.latent_dataset import LatentShardHotloader
 
 @dataclass
 class CacheData:
@@ -45,6 +46,8 @@ class LatentManager():
         Ref:
             https://huggingface.co/stabilityai/sd-vae-ft-ema
         '''
+        # dtype = torch.float16 if torch.cuda.is_available() \
+        #     and self.config.model.mixed_precision else torch.float32
         dtype = torch.float16 if torch.cuda.is_available() else torch.float32
         self.vae = AutoencoderKL.from_pretrained(
             'stabilityai/sd-vae-ft-ema', 
@@ -69,7 +72,7 @@ class LatentManager():
             p = next(self.vae.parameters())
             x = x.to(device=p.device, dtype=p.dtype)
             dist = self.vae.encode(x).latent_dist
-            return self.scale * dist.mean
+            return self.scale * dist.sample()
 
     def decode_from_latent(self, z: torch.Tensor) -> torch.Tensor:
         '''Decodes a tensor from latent space to pixel space.
@@ -192,7 +195,7 @@ class LatentManager():
               f'Batch Size : {batch_size}\n'
               f'Shard Size : {shard_size}\n')
         dataset = DiffusionDataset(
-            config=self.config, root_dir=self.dataroot, 
+            root_dir=self.dataroot, load_size=self.config.model.input_size,
             is_train=False, cache_builder=True, recurse=True)
         dataloader = DataLoader(
             dataset, batch_size=batch_size, 
@@ -206,7 +209,7 @@ class LatentManager():
             shard_size : The number of batches being saved per shard file.
         '''
         self.cache_data.manifest = {
-            'dataroot': self.dataroot,
+            'dataroot': self.dataroot.as_posix(),
             'total_length': 0,
             'shard_size': shard_size,
             'shards': [],
@@ -234,7 +237,7 @@ class LatentManager():
             store_file_names : Whether to store the original image file names 
                 of the encoded tensors for each shard in the manifest.
         '''
-        num_batches = len(dataset)
+        num_batches = len(dataloader)
         export = lambda x: self._export_shard(stack=not x==1)
         for idx, x in enumerate(dataloader):
             latent_utils.print_progress(idx+1, num_batches)
@@ -309,19 +312,21 @@ class LatentManager():
         '''
         print('Initializing latent precache...')
         self.cache_data = CacheData()
-        if not metadata_file is None:
+        if self.config.captions.use_captions and not metadata_file is None:
             metadata_file = self._validate_metadata_file(metadata_file)
-            print(metadata_file)
             self._cache_latents(batch_size, shard_size, True)
             new_dataset = ImageTextDataset(
-                config=self.config, 
                 shard_directory=self.cache_data.output_dir,
                 metadata_file=metadata_file,
                 latent_size=self.latent_size)
         else: 
+            print('building latent dataset')
             self._cache_latents(batch_size, shard_size)
-            new_dataset = LatentDataset(
-                config=self.config, shard_directory=self.cache_data.output_dir, 
+            # new_dataset = LatentDataset(
+            #     shard_directory=self.cache_data.output_dir, 
+            #     latent_size=self.latent_size)
+            new_dataset = LatentShardHotloader(
+                shard_directory=self.cache_data.output_dir, 
                 latent_size=self.latent_size)
 
         if validate_cache:
@@ -330,7 +335,8 @@ class LatentManager():
         return DataLoader(
             new_dataset, batch_size=self.config.dataloader.batch_size, 
             num_workers=self.config.dataloader.num_workers,
-            drop_last=True)
+            drop_last=True, pin_memory=True,
+            shuffle=True)
     
     def validate_cache(
             self, 
@@ -361,5 +367,4 @@ class LatentManager():
                 sys.stdout.write('\x1b[2K')
                 print(f'Validating shard ({idx+1}). Iteration: {idy+1}')
         print('Validation complete. No issues found.')
-
 
