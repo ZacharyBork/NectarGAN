@@ -7,6 +7,7 @@ import torch
 import torch.nn as nn
 
 from nectargan.models.patchgan.blocks import CNNBlock
+import torch.nn.functional as F
 
 class Discriminator(nn.Module):
     '''Defines a PatchGAN discriminator model with a configurable layer count.
@@ -97,6 +98,31 @@ class Discriminator(nn.Module):
         '''
         x = torch.cat([x, y], dim=1)
         return self.model(x)
+
+class MultiScaleDiscriminator(nn.Module):
+    def __init__(
+            self, 
+            in_channels = 3, 
+            base_channels = 64, 
+            n_layers = 3, 
+            max_channels = 512
+        ) -> None:
+        super().__init__()
+        self.discriminators = nn.ModuleList([
+            Discriminator(in_channels, base_channels, n_layers, max_channels),
+            Discriminator(in_channels, base_channels, n_layers, max_channels),
+            Discriminator(in_channels, base_channels, n_layers, max_channels)])
+    
+    def _interpolate(self, x: torch.Tensor) -> torch.Tensor:
+        return F.interpolate(
+            input=x, scale_factor=0.5, mode='bilinear', align_corners=False)
+        
+    def forward(self, x: torch.Tensor, y: torch.Tensor) -> list[torch.Tensor]:
+        result = []
+        for discriminator in self.discriminators:
+            result.append(discriminator(x, y))
+            x, y = self._interpolate(x), self._interpolate(y)
+        return result
 
 if __name__ == "__main__":
     x = torch.randn((1, 3, 256, 256))
