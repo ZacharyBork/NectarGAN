@@ -74,21 +74,24 @@ class DiffusionVisualizer(VisdomVisualizer):
     def _update(self) -> None:
         while not self._stop.is_set():
             try: image_data = self._image_queue.get(timeout=1)
-            except queue.Empty: continue
+            except queue.Empty: pass
+            else:
+                self._update_images_core(
+                    x=image_data['tensors'][0], 
+                    y=image_data['tensors'][1], 
+                    z=image_data['tensors'][2], 
+                    title=image_data['title'], 
+                    image_size=image_data['image_size'])
+                self._image_queue.task_done()
+                if self._stop.is_set(): break
             try: graph_data = self._graph_queue.get(timeout=1)
-            except queue.Empty: continue
-            if self._stop.is_set(): break
-            self._update_loss_graphs_core(
-                graph_step=graph_data['graph_step'], 
-                losses_G=graph_data['losses_G'])
-            self._graph_queue.task_done()
-            if self._stop.is_set(): break
-            self._update_images_core(
-                x=image_data['tensors'][0], 
-                y=image_data['tensors'][1], 
-                z=image_data['tensors'][2], 
-                title=image_data['title'], 
-                image_size=image_data['image_size'])
-            self._image_queue.task_done()
+            except queue.Empty: pass
+            else:
+                self._update_loss_graphs_core(
+                    graph_step=graph_data['graph_step'], 
+                    losses_G=graph_data['losses_G'])
+                self._graph_queue.task_done()
+                if self._stop.is_set(): break
+            
 
 

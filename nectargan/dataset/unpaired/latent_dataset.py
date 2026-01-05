@@ -1,0 +1,70 @@
+# import json
+# from os import PathLike
+# from pathlib import Path
+# from typing import Any
+
+# import torch
+# from torchvision.transforms import RandomCrop
+
+# class LatentDataset(torch.utils.data.Dataset):
+#     def __init__(
+#             self, 
+#             shard_directory: PathLike,
+#             latent_size: int
+#         ) -> None:
+#         super(LatentDataset, self).__init__()
+#         self.latent_size = latent_size
+#         self.shard_directory = shard_directory
+#         self.cached_shard: torch.Tensor = None
+#         self.cached_shard_info: dict[str, Any] = None
+        
+#         self._parse_manifest()
+        
+#     def __len__(self) -> int:
+#         return self.length
+    
+#     def __getitem__(self, index: int) -> torch.Tensor:
+#         start_index = self._check_index(index)
+#         self.current_mapped_index = index - start_index
+#         t = self.cached_shard[self.current_mapped_index]
+#         if t.ndim == 4 and t.shape[0] == 1: t = t.squeeze(0)
+#         crop = RandomCrop(size=(self.latent_size, self.latent_size))
+#         return crop(t)
+
+#     def _parse_manifest(self) -> None:
+#         manifest = Path(self.shard_directory, 'manifest.json')
+#         if not manifest.exists():
+#             raise FileNotFoundError(
+#                 f'Unable to locate manifest at path: {manifest.as_posix()}')
+#         with open(manifest, 'r') as f: data = json.loads(f.read())
+#         self.length = data['total_length']
+#         self.shard_size = data['shard_size']
+#         self.shards = data['shards']
+#         self.shard_count = len(self.shards)
+#         self.indices = [(x['start'], x['end']) for x in self.shards]
+#         self._cache_shard(self.shards[0])
+        
+#     def _get_shard_by_index(self, index: int) -> dict[str, Any]:
+#         for idx, x in enumerate(self.indices):
+#             if (x[0] <= index < x[1]): return self.shards[idx]
+            
+#     def _cache_shard(self, shard: dict[str, Any]) -> None:
+#         self.cached_shard_info = shard
+#         path = shard['filepath']
+#         try: self.cached_shard = torch.load(path)
+#         except Exception as e:
+#             raise RuntimeError(
+#                 f'Unable to load shard file at path: {path}') from e
+#         if isinstance(self.cached_shard, list):
+#             self.cached_shard = [i.cpu() for i in self.cached_shard]
+#         else: self.cached_shard = self.cached_shard.cpu()
+
+#     def _check_index(self, index: int) -> None:
+#         start_index = self.cached_shard_info['start']
+#         end_index = self.cached_shard_info['end']
+#         if not (start_index <= index < end_index):
+#             new_shard = self._get_shard_by_index(index)
+#             self._cache_shard(new_shard)
+#             start_index = self.cached_shard_info['start']
+#         return start_index
+

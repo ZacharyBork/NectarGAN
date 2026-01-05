@@ -2,12 +2,12 @@
     "config": {
         "config_type": "pix2pix",
         "common": {
-            "device": "cpu",
+            "device": "cuda",
             "gpu_ids": [
                 0
             ],
             "output_directory": "",
-            "experiment_name": "NectarGAN",
+            "experiment_name": "Pix2pix",
             "experiment_version": 1
         },
         "dataloader": {
@@ -19,6 +19,17 @@
                 "input_nc": 3,
                 "load_size": 286,
                 "crop_size": 256
+            },
+            "masking": {
+                "enable": false,
+                "mask_directory": "",
+                "mask_channel": 0,
+                "combination_type": "single_channel",
+                "blend_channel": 1,
+                "blend_amount": 0.5,
+                "visdom_overlay_mask": true,
+                "visdom_mask_color": [1.0, 0.0, 0.0],
+                "visdom_mask_opacity": 0.5
             },
             "augmentations": {
                 "both": {

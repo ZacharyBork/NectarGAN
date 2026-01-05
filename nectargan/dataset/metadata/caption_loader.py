@@ -265,10 +265,3 @@ class CaptionLoader_COCO(CaptionLoader):
             new_metadata = self._build_new_metadata(images, caption_map)
             self._write_metadata_file(new_metadata)
         return self.output_path
-
-if __name__ == "__main__":
-    root = Path('/media/zach/UE/ML/test_data/diffusion/CUB200')
-    loader = CaptionLoader_CUB200(
-        image_root=Path(root, 'images'),
-        caption_root=Path(root, 'text_c10'))
-    loader.load()

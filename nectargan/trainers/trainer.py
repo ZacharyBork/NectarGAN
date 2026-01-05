@@ -8,20 +8,20 @@ import random
 import pathlib
 import time
 from os import PathLike
-from typing import Callable, Any, Literal
+from typing import TypeVar, Generic, Any, Callable, Literal
 
 import torch
 import torch.optim as optim
 import torch.nn as nn
 from torchvision.utils import save_image
 
-from nectargan.config.config_manager import ConfigManager
+from nectargan.config import Config, ConfigManager
 from nectargan.losses.loss_manager import LossManager
 from nectargan.visualizer.visdom.visualizer import VisdomVisualizer
-from nectargan.dataset.paired_dataset import PairedDataset
-from nectargan.dataset.utility_datasets.paired_mask_loader import PairedMaskDataset
 
-class Trainer():
+TConfig = TypeVar('TConfig', bound=Config)
+
+class Trainer(Generic[TConfig]):
     def __init__(
             self, 
             config: str|PathLike|ConfigManager|dict[str, Any]|None=None,
@@ -48,12 +48,11 @@ class Trainer():
                 and periodically dumped to the loss log JSON.
         '''
         # These are either set by child classes, or passed by training script
+        self.current_epoch = 0
         self.log_losses = log_losses
-        self.current_epoch: int | None = None
         self.last_epoch_time: float = 0.0
         self.train_loader: torch.utils.data.DataLoader | None = None
         self.val_loader: torch.utils.data.DataLoader | None = None
-        self.mask: torch.Tensor | None = None
 
         self.init_config(config)                # Init config
         self.device = self.config.common.device # Store device for easy lookup
@@ -93,7 +92,7 @@ class Trainer():
             case _:
                 x = [type(str), type(PathLike), type(ConfigManager), None]
                 raise ValueError(f'Invalid config type. Valid types are {x}')
-        self.config = self.config_manager.data # Store values for easier access 
+        self.config: TConfig = self.config_manager.data
 
     def build_output_directory(self) -> None:
         '''Builds an output directory structure for the experiment.
@@ -169,7 +168,9 @@ class Trainer():
             net_type: Literal['G', 'g', 'D', 'd'],
             network: nn.Module,
             optimizer: optim.Optimizer | None=None,
-            learning_rate: float | None=None
+            learning_rate: float | None=None,
+            unit: str='epoch',
+            value: int | None=None
         ) -> None:
         '''Loads pre-trained model weights to continue training.
 
@@ -180,8 +181,9 @@ class Trainer():
                 load network checkpoint.
             learning_rate : The learning rate to load the network with.
         '''
-        load_epoch = self.config.train.load.load_epoch
-        base_name = f'epoch{load_epoch}'
+        load_epoch = value if not value is None \
+            else self.config.train.load.load_epoch
+        base_name = f'{unit}{load_epoch}'
 
         # Load checkpoint
         checkpoint_path = pathlib.Path(
@@ -225,7 +227,9 @@ class Trainer():
     def build_dataloader(
             self, 
             loader_type: str,
-            is_train: bool=True
+            dataset_type: torch.utils.data.DataLoader,
+            is_train: bool=True,
+            **kwargs
         ) -> torch.utils.data.DataLoader:
         '''Initializes a dataloader of the given type from a PairedDataset.
 
@@ -244,10 +248,9 @@ class Trainer():
         if not dataset_path.exists(): # Make sure data directory exists
             message = f'Unable to locate dataset at: {dataset_path.as_posix()}'
             raise FileNotFoundError(message)
-        # dataset = PairedDataset(
-        #     config=self.config, root_dir=dataset_path, is_train=is_train)
-        dataset = PairedMaskDataset(
-            config=self.config, root_dir=dataset_path, is_train=is_train)
+        dataset = dataset_type(
+            config=self.config, root_dir=dataset_path, 
+            is_train=is_train, **kwargs)
         return torch.utils.data.DataLoader( # Build dataloader from dataset
             dataset, batch_size=self.config.dataloader.batch_size, 
             shuffle=True, num_workers=self.config.dataloader.num_workers)
@@ -349,7 +352,7 @@ class Trainer():
     def trainer_core(
             self, 
             train_step_fn: Callable[[torch.Tensor, torch.Tensor, int], None],
-            train_step_kwargs: dict[str, Any]
+            train_step_kwargs: dict[str, Any] | None=None
         ) -> None:
         '''Training loop callback function.
 
@@ -409,9 +412,10 @@ class Trainer():
         '''
         # self.current_epoch is a sort of human-readable current epoch value
         # Basically just epoch+1 but it also accounts for loaded checkpoints
-        if self.config.train.load.continue_train:
-            self.current_epoch = 1 + epoch + self.config.train.load.load_epoch
-        else: self.current_epoch = epoch + 1
+        # if self.config.train.load.continue_train:
+        #     self.current_epoch = 1 + epoch + self.config.train.load.load_epoch
+        # else: self.current_epoch = epoch + 1
+        self.current_epoch += 1
 
         start_fn = on_epoch_start or self.on_epoch_start # Init pre-train fn
         train_fn = train_step or self.train_step         # Init train step fn

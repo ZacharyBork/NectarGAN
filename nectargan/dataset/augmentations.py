@@ -76,18 +76,19 @@ class Augmentations():
                 (b.optical_distortion_min, b.optical_distortion_max),
                 mode=b.optical_distortion_mode,
                 p=b.optical_distortion_chance))
-        if b.coarse_dropout_chance > 0.0:
-            xforms.append(A.CoarseDropout(
-                (b.coarse_dropout_holes_min, b.coarse_dropout_holes_max),
-                (b.coarse_dropout_height_min, b.coarse_dropout_height_max),
-                (b.coarse_dropout_width_min, b.coarse_dropout_width_max)))
+        # if b.coarse_dropout_chance > 0.0:
+        #     xforms.append(A.CoarseDropout(
+        #         (b.coarse_dropout_holes_min, b.coarse_dropout_holes_max),
+        #         (b.coarse_dropout_height_min, b.coarse_dropout_height_max),
+        #         (b.coarse_dropout_width_min, b.coarse_dropout_width_max)))
         
-        return A.Compose(xforms, additional_targets={ 'image0': 'image' })
+        return A.Compose(xforms, additional_targets={'image0': 'image', 'mask': 'mask', 'mask0': 'mask'})
 
     def _input_transform(self) -> A.Compose:
         '''Builds transform function that is applied only to input.
         '''
         i = self.augs.input
+        b = self.augs.both
         xforms = []
         if i.colorjitter_chance > 0.0:
             xforms.append(A.ColorJitter(
@@ -112,6 +113,11 @@ class Augmentations():
                 quality_range=(
                     i.compression_quality_min, i.compression_quality_max),
                 p=i.compression_chance))
+        if b.coarse_dropout_chance > 0.0:
+            xforms.append(A.CoarseDropout(
+                (b.coarse_dropout_holes_min, b.coarse_dropout_holes_max),
+                (b.coarse_dropout_height_min, b.coarse_dropout_height_max),
+                (b.coarse_dropout_width_min, b.coarse_dropout_width_max)))
     
         xforms.append(
             A.Normalize(
@@ -172,4 +178,49 @@ class Augmentations():
         _input = aug['image']
         _input = self.transform_input(image=_input)['image']
         return _input
+    
+    def apply_masked_transforms_paired(
+            self, 
+            input_image: np.ndarray, 
+            target_image: np.ndarray, 
+            input_mask: np.ndarray,
+            target_mask: np.ndarray
+        ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
+        aug = self.transform_both(
+            image=input_image, 
+            image0=target_image,
+            mask=input_mask,
+            mask0=target_mask)
+        
+        _input, _target = aug['image'], aug['image0']
+        _imask, _tmask = aug['mask'], aug['mask0']
+        
+        _input = self.transform_input(image=_input)['image']
+        _target = self.transform_target(image=_target)['image']
+        
+        _imask = torch.from_numpy(_imask).permute(2, 0, 1).float() / 255.0
+        _tmask = torch.from_numpy(_tmask).permute(2, 0, 1).float() / 255.0
+        
+        _imask = _imask[0:1, :, :]
+        _tmask = _tmask[0:1, :, :]
+            
+        return _input, _target, _imask, _tmask
+    
+    def apply_masked_transforms_unpaired(
+            self, 
+            input_image: np.ndarray, 
+            input_mask: np.ndarray,
+        ) -> tuple[torch.Tensor, torch.Tensor]:
+        aug = self.transform_both(
+            image=input_image,
+            mask=input_mask)
+        
+        _image = aug['image'], aug['image0']
+        _mask = aug['mask'], aug['mask0']
+        
+        _image = self.transform_input(image=_image)['image']
+        _mask = torch.from_numpy(_mask).permute(2, 0, 1).float() / 255.0
+        _mask = _mask[0:1, :, :]
+            
+        return _image, _mask
     

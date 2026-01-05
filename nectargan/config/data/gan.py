@@ -60,12 +60,25 @@ class ConfigDataloaderLoad:
     input_nc: int
 
 @dataclass
+class ConfigDataloaderMasking:
+    enable: bool
+    mask_directory: str
+    mask_channel: int
+    combination_type: str
+    blend_channel: int
+    blend_amount: float
+    visdom_overlay_mask: bool
+    visdom_mask_color: list[float]
+    visdom_mask_opacity: float
+
+@dataclass
 class ConfigDataloader:
     dataroot: str
     direction: str
     batch_size: int
     num_workers: int
     load: ConfigDataloaderLoad
+    masking: ConfigDataloaderMasking
     augmentations: ConfigDataLoaderAugmentations
 
 ##### TRAIN #####
