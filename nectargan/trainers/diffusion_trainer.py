@@ -306,7 +306,7 @@ class DiffusionTrainer(Trainer[DiffusionConfig]):
             for loss in self.pixel_losses:
                 if loss[1] > 0:
                     value += self.loss_manager.compute_loss_xy(
-                        loss[0], pred_x0, pixel_x, self.current_epoch)
+                        loss[0], pred_x0, pixel_x, self.current_step)
                     if loss[0] in sums.keys(): sums[loss[0]] += value.item()
                     else: sums[loss[0]] = value.item()
                     pixel_loss += value
@@ -701,7 +701,7 @@ class DiffusionTrainer(Trainer[DiffusionConfig]):
             
             predicted = self.model.autoencoder(x_t, self.timesteps, context=y)
             loss = self.loss_manager.compute_loss_xy(
-                'G_MSE', predicted, noise, self.current_epoch)
+                'G_MSE', predicted, noise, self.current_step)
             
             if self.print_avg_loss: 
                 self.loss_tracker.append_loss_value(

@@ -73,37 +73,35 @@ class NoiseParameters:
                     1e-8, 0.999)
 
                 self.alphas = 1.0 - self.betas
-                self.alphas_cumprod = torch.cumprod(
-                    self.alphas, dim=0).to(device)
+                self.alphas_cumprod = acumprod
 
 @dataclass
 class AverageLossTracker:
-    config: DiffusionConfig
-    loss_values:        list = field(default_factory=list)
+    update_freq_visdom:  int
+    update_freq_console: int
+
     steps_visdom:        int = 0
     steps_console:       int = 0
-
-    update_freq_visdom:  int = 0
-    update_freq_console: int = 0
     stored_value_cap:    int = 0
 
-    def __post_init__(self) -> None:
-        self.vcon = self.config.visualizer
-        V = self.update_freq_visdom = self.vcon.visdom.update_frequency
-        C = self.update_freq_console = self.vcon.console.print_frequency
-        self.stored_value_cap = max(V, C)
+    loss_values: dict[str, list[float]] = field(default_factory=dict)
 
-    def append_loss_value(self, value: float) -> None:
-        self.loss_values.insert(0, value)
-        self.loss_values = self.loss_values[:self.stored_value_cap]
+    def __post_init__(self) -> None:
+        self.stored_value_cap = max(
+            self.update_freq_visdom, self.update_freq_console)
+
+    def append_loss_value(self, loss: str, value: float) -> None:
+        self.loss_values[loss].insert(0, value)
+        self.loss_values[loss] = self.loss_values[loss][:self.stored_value_cap]
 
     def get_average(
             self, 
+            loss: str,
             get_type: Literal['visdom', 'console'],
             precision: int=3
         ) -> float:
         match get_type:
             case 'visdom': divisor = max(1, self.update_freq_visdom)
             case 'console': divisor = max(1, self.update_freq_console)
-        average = sum(self.loss_values[:divisor]) / divisor
+        average = sum(self.loss_values[loss][:divisor]) / divisor
         return round(average, precision)
