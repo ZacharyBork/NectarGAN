@@ -13,7 +13,8 @@ def pix2pix(
             'basic+vgg', 
             'extended', 
             'extended+vgg'
-        ] = 'basic'
+        ] = 'basic',
+        reduction='mean'
     ) -> dict[str, LMLoss]:
     '''Builds LMLoss objects for pix2pix model objective function.
 
@@ -75,8 +76,13 @@ def pix2pix(
     - https://medium.com/software-dev-explore/neural-style-transfer-vgg19-dab643ec6160
     '''
     device = config.common.device
-    BCE = nn.BCEWithLogitsLoss().to(device)  # G_GAN, D_real, D_fake
-    L1 = nn.L1Loss().to(device)              # G_L1 loss
+   
+    # G_GAN, D_real, D_fake
+    BCE = nn.BCEWithLogitsLoss(reduction=reduction).to(device) 
+    
+    # G_L1 loss
+    L1 = nn.L1Loss(reduction=reduction).to(device)              
+    
     loss_fns = {
         'G_GAN': LMLoss(
             name='G_GAN', function=BCE, 
@@ -89,20 +95,20 @@ def pix2pix(
         'D_fake': LMLoss(
             name='D_fake', function=BCE, tags=['D'])}
     if 'extended' in subspec:
-        L2 = nn.MSELoss().to(device)
+        L2 = nn.MSELoss(reduction=reduction).to(device)
         loss_fns['G_L2'] = LMLoss(
             name='G_L2',function=L2, 
             loss_weight=config.train.loss.lambda_l2, tags=['G'])
-        SOBEL = Sobel().to(device)
+        SOBEL = Sobel(reduction=reduction).to(device)
         loss_fns['G_SOBEL'] = LMLoss(
             name='G_SOBEL',function=SOBEL, 
             loss_weight=config.train.loss.lambda_sobel, tags=['G'])
-        LAP = Laplacian().to(device)
+        LAP = Laplacian(reduction=reduction).to(device)
         loss_fns['G_LAP'] = LMLoss(
             name='G_LAP', function=LAP, 
             loss_weight=config.train.loss.lambda_laplacian, tags=['G'])
     if '+vgg' in subspec:
-        VGG = VGGPerceptual().to(device)
+        VGG = VGGPerceptual(reduction=reduction).to(device)
         loss_fns['G_VGG'] = LMLoss(
             name='G_VGG', function=VGG, 
             loss_weight=config.train.loss.lambda_vgg, tags=['G'])

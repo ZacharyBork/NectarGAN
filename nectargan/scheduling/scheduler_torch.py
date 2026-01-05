@@ -16,15 +16,17 @@ class TorchScheduler(Scheduler):
             optimizer, lr_lambda=self.eval_schedule)
         self._old_lr = self._new_lr = optimizer.param_groups[0]['lr']
 
-    def step(self):
-        '''Step function for the LRScheduler. This function also stores
-        the previous and the new epochs learning rates when it steps forward.
+    def step(self) -> None:
+        '''Step function for the LRScheduler. 
+        
+        This function also stores the previous and the new timesteps learning 
+        rates when it steps forward.
         '''
         self.scheduler.step()
         self._old_lr = self._new_lr
         self._new_lr = self.scheduler.get_last_lr()[0]
 
-    def get_lr(self):
+    def get_lr(self) -> tuple[float, float]:
         '''To be called after step, returns the LR of the just completed epoch
         and the new epoch for printing or graphing purposes.
         '''

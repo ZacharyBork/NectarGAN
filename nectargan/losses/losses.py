@@ -2,6 +2,13 @@ import torch
 import torch.nn.functional as F
 from torchvision import models
 
+def build_return(loss: torch.Tensor, reduction: str) -> torch.Tensor:
+    match reduction:
+        case 'none': return loss
+        case 'mean': return loss.mean()
+        case 'sum':  return loss.sum()
+        case _: raise ValueError(f'Invalid reduction: {reduction}')
+        
 class Sobel(torch.nn.Module):
     '''Implements a Sobel based structure loss function.
 
@@ -20,18 +27,26 @@ class Sobel(torch.nn.Module):
     penalty, can lead the generator to create fairly believable images which 
     occasionally exibit some interesting hallucinated details.
     '''
-    def __init__(self) -> None:
+    def __init__(
+            self, 
+            device: str='cpu',
+            dtype: torch.dtype=torch.float32,
+            reduction: str='mean'
+        ) -> None:
         '''Init for Sobel loss function.
 
         Defines and registers the Sobel kernels.
         '''
         super().__init__()
+        self.reduction = reduction
+        self.device = device
+        self.dtype = dtype
         sobel_x = torch.tensor([[1, 0, -1],
                                 [2, 0, -2],
-                                [1, 0, -1]], dtype=torch.float32)
+                                [1, 0, -1]], dtype=dtype).to(device)
         sobel_y = torch.tensor([[1, 2, 1],
                                 [0, 0, 0],
-                                [-1, -2, -1]], dtype=torch.float32)
+                                [-1, -2, -1]], dtype=dtype).to(device)
         self.register_buffer('sobel_x', sobel_x.view(1, 1, 3, 3))
         self.register_buffer('sobel_y', sobel_y.view(1, 1, 3, 3))
 
@@ -40,15 +55,19 @@ class Sobel(torch.nn.Module):
         
         Converts tensors to grayscale, applies sobel filter, compares result.
         '''
-        fake_gray = fake.mean(dim=1, keepdim=True)
-        real_gray = real.mean(dim=1, keepdim=True)
+        fake_gray = fake.mean(
+            dim=1, keepdim=True, dtype=self.dtype).to(self.device)
+        real_gray = real.mean(
+            dim=1, keepdim=True, dtype=self.dtype).to(self.device)
         grad_fx = F.conv2d(fake_gray, self.sobel_x, padding=1)
         grad_fy = F.conv2d(fake_gray, self.sobel_y, padding=1)
         grad_rx = F.conv2d(real_gray, self.sobel_x, padding=1)
         grad_ry = F.conv2d(real_gray, self.sobel_y, padding=1)
         grad_fake = torch.sqrt(grad_fx ** 2 + grad_fy ** 2 + 1e-6)
         grad_real = torch.sqrt(grad_rx ** 2 + grad_ry ** 2 + 1e-6)
-        return F.l1_loss(grad_fake, grad_real)
+        
+        loss = F.l1_loss(grad_fake, grad_real)
+        return build_return(loss, self.reduction)
     
 class Laplacian(torch.nn.Module):
     '''Basically Sobel but with a Laplacian filter rather than a Sobel filter.
@@ -62,12 +81,13 @@ class Laplacian(torch.nn.Module):
     - https://www.nv5geospatialsoftware.com/docs/LaplacianFilters.html
     - https://en.wikipedia.org/wiki/Discrete_Laplace_operator
     '''
-    def __init__(self) -> None:
+    def __init__(self, reduction: str='mean') -> None:
         '''Init for Laplacian loss.
         
         Defines and registers a Laplacian kernal.
         '''
         super().__init__()
+        self.reduction = reduction
         kernel = torch.tensor([
             [0,  1, 0],
             [1, -4, 1],
@@ -89,7 +109,8 @@ class Laplacian(torch.nn.Module):
             real.mean(dim=1, keepdim=True), 
             self.kernel, padding=1)
 
-        return F.l1_loss(fake_lap, real_lap)
+        loss = F.l1_loss(fake_lap, real_lap)
+        return build_return(loss, self.reduction)
     
 class VGGPerceptual(torch.nn.Module):
     '''Implements a VGG19-based perceptual loss function.
@@ -110,12 +131,13 @@ class VGGPerceptual(torch.nn.Module):
     Datasets (facades/cityscapes):
     - https://efrosgans.eecs.berkeley.edu/pix2pix/datasets/
     '''
-    def __init__(self) -> None:
+    def __init__(self, reduction: str='mean') -> None:
         '''Init for VGGPerceptual loss.
         
         Initializes VGG19 with default weights, 
         '''
         super().__init__()
+        self.reduction = reduction
         vgg19_weights = models.VGG19_Weights.DEFAULT
         vgg = models.vgg19(weights=vgg19_weights).features.eval()
         vgg.requires_grad_(False)
@@ -125,9 +147,10 @@ class VGGPerceptual(torch.nn.Module):
         self.L1 = torch.nn.L1Loss()
 
     def forward(self, fake: torch.Tensor, real: torch.Tensor) -> torch.Tensor:
-        fake, real = fake.clone(), real.clone()
+        fake, real = fake.clone()[:, :3, :, :], real.clone()[:, :3, :, :]
         loss = 0.0
         for i, block in enumerate(self.blocks):
             fake, real = block(fake), block(real)
             loss += self.layer_weights[i] * self.L1(fake, real)
-        return loss
+        return build_return(loss, self.reduction)
+    

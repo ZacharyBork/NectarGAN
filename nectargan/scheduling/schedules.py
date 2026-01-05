@@ -2,23 +2,24 @@ from nectargan.scheduling import Schedule
 
 class ScheduleDefs:
     @staticmethod
-    def linear(schedule: Schedule, epoch: int) -> float:
+    def linear(schedule: Schedule, timestep: int) -> float:
         '''Defines a linear loss weight schedule.
 
         Graph:
         - https://www.desmos.com/calculator/xaponwctch
-        - e1, e2 : start, end epoch
+        - e1, e2 : start, end timestep
         - v1, v2 : start, end value
 
         Args:
             schedule : Schedule object to use when computing the new weight.
-            epoch : Current epoch that the time this function is called.
+            timestep : Current timestep at the time this function is called.
         '''
         initial, target = schedule.initial_value, schedule.target_value
 
-        # Normalized sample position from current epoch
-        sample = ((float(epoch) - float(schedule.start_epoch)) / 
-                  (float(schedule.end_epoch) - float(schedule.start_epoch)))
+        # Normalized sample position from current timestep
+        sample = (
+            (float(timestep) - float(schedule.start_timestep)) / 
+            (float(schedule.end_timestep) - float(schedule.start_timestep)))
         sample = max(0.0, min(1.0, sample)) # Clamp value [0.0, 1.0]
         
         # Sample function at that position
@@ -34,7 +35,7 @@ class ScheduleDefs:
     @staticmethod
     def exponential(
             schedule: Schedule, 
-            epoch: int,
+            timestep: int,
             epsilon: float=1e-09,
             allow_zero_weights: bool=True,
             silent: bool=False
@@ -43,12 +44,12 @@ class ScheduleDefs:
 
         Graph:
         - https://www.desmos.com/calculator/adqximccwt
-        - e1, e2 : start, end epoch
+        - e1, e2 : start, end timestep
         - v1, v2 : start, end value
 
         Args:
             schedule : Schedule object to use when computing the new weight.
-            epoch : Current epoch that the time this function is called.
+            timestep : Current timestep at the time this function is called.
             epsilon : Epsilon for initial and target values. Only used if
                 `allow_zero_weights` is True (default).
             allow_zero_weights : If True (default), this function will allow
@@ -67,9 +68,10 @@ class ScheduleDefs:
         '''
         initial, target = schedule.initial_value, schedule.target_value
 
-        # Normalized sample position from current epoch
-        sample = ((float(epoch) - float(schedule.start_epoch)) / 
-                  (float(schedule.end_epoch) - float(schedule.start_epoch)))
+        # Normalized sample position from current timestep
+        sample = (
+            (float(timestep) - float(schedule.start_timestep)) / 
+            (float(schedule.end_timestep) - float(schedule.start_timestep)))
         sample = max(0.0, min(1.0, sample)) # Clamp value [0.0, 1.0]
         
         if initial == 0.0 or target == 0.0:

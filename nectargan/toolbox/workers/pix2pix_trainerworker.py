@@ -129,8 +129,9 @@ class TrainerWorker(QObject, Pix2pixTrainer):
                         x.detach().cpu(), 
                         y.detach().cpu(), 
                         y_fake.detach().cpu()))
-                    self.losses.emit(self.loss_manager.get_loss_values(precision=4))
-                    self.log.emit(self.loss_manager.print_losses(
+                    self.losses.emit(
+                        self.loss_manager.get_loss_values(precision=4))
+                    self.log.emit(self.print_losses(
                         self.current_epoch, idx, capture=True))
                 
 
@@ -144,7 +145,8 @@ class TrainerWorker(QObject, Pix2pixTrainer):
 
             if epoch == self.epoch_count-1:
                 self.log.emit(self.save_checkpoint(capture=True))
-            elif self.cfg.save.save_model and (epoch+1) % self.cfg.save.model_save_rate == 0:
+            elif self.cfg.save.save_model \
+             and (epoch+1) % self.cfg.save.model_save_rate == 0:
                 self.log.emit(self.save_checkpoint(capture=True))
 
             if (self.cfg.save.save_examples
