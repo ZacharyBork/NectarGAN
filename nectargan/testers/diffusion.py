@@ -19,7 +19,6 @@ class DiffusionTester(DiffusionTrainer):
         self.output_root = self._init_test_output_root()
         super().__init__(self.config_file, log_losses=False, testing=True)
 
-        self.current_step -= 1
         self.latent_size = latent_size
         self.inference_mode = inference_mode
         self.inference_steps = inference_steps
@@ -27,7 +26,9 @@ class DiffusionTester(DiffusionTrainer):
         self.CFG_M.use_ema = sample_ema
         if self.CFG_M.use_ema: self._init_ema()
 
-        if not load_step is None: self.config.train.load.load_step = load_step
+        if not load_step is None: 
+            self.current_step = load_step
+            self.config.train.load.load_step = load_step
         self._load_checkpoints()
 
     def _parse_experiment_directory(

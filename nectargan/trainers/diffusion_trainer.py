@@ -53,8 +53,8 @@ class DiffusionTrainer(Trainer[DiffusionConfig]):
         
         self._init_model()
         self._build_timesteps()
-        self._get_step_counts()
         if not self.testing:
+            self._get_step_counts()
             self._validate_fixed_captions()
             self.register_losses()
             if self.CFG_M.use_ema: self._init_ema()
