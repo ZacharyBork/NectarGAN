@@ -17,7 +17,8 @@ class PixelDiffusionModel(nn.Module):
     def __init__(
             self, 
             config: DiffusionConfig, 
-            init_dae: bool=True
+            init_dae: bool=True,
+            testing: bool = False
         ) -> None:
         '''Initialized a PixelDiffusionModel.
         
@@ -28,6 +29,7 @@ class PixelDiffusionModel(nn.Module):
         '''
         super(PixelDiffusionModel, self).__init__()
         self.config = config
+        self.testing = testing
         self.device = config.common.device
         self.timesteps = config.model.noise_schedule.timesteps
         
@@ -39,7 +41,7 @@ class PixelDiffusionModel(nn.Module):
             device=self.device, timesteps=self.timesteps, 
             schedule_type=config.model.noise_schedule.schedule_type,
             cosine_offset=self.config.model.noise_schedule.cosine_offset)
-        if init_dae: self._init_autoencoder()
+        if init_dae: self._init_unet()
 
     def _init_dataloader(self) -> None:
         '''Initializes a dataloader for the model.'''
@@ -68,7 +70,7 @@ class PixelDiffusionModel(nn.Module):
             dataset, batch_size=self.config.dataloader.batch_size, 
             num_workers=self.config.dataloader.num_workers)
 
-    def _init_autoencoder(
+    def _init_unet(
             self, 
             block_type: TimeEmbeddedUnetBlock,
             context_dimension: int | None=None

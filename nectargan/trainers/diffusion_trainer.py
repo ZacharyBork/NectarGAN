@@ -2,7 +2,7 @@ import math
 import random
 import pathlib
 from os import PathLike
-from typing import Any
+from typing import Any, Literal
 from contextlib import nullcontext, AbstractContextManager
 
 import torch
@@ -22,7 +22,8 @@ class DiffusionTrainer(Trainer[DiffusionConfig]):
     def __init__(
             self, 
             config: str | PathLike | ConfigManager, 
-            log_losses: bool=True
+            log_losses: bool = True,
+            testing: bool = False
         ) -> None:
         '''Init function for the DiffusionTrainer class.
 
@@ -36,7 +37,10 @@ class DiffusionTrainer(Trainer[DiffusionConfig]):
                 and periodically dumped to the loss log JSON.
         '''
         assert config
-        super().__init__(config=config, quicksetup=True, log_losses=log_losses)
+        self.testing = testing
+        
+        super().__init__(
+            config=config, quicksetup=not self.testing, log_losses=log_losses)
         self.CFG_M = self.config.model
         self.CFG_LR = self.CFG_M.dae.learning_rate
         self.current_iteration = 0
@@ -47,14 +51,15 @@ class DiffusionTrainer(Trainer[DiffusionConfig]):
             torch.backends.cudnn.benchmark = cudnn.benchmark
             torch.backends.cudnn.deterministic = cudnn.deterministic
         
-        self._get_step_counts()
-        self._validate_fixed_captions()
         self._init_model()
-        self.register_losses()
-        if self.CFG_M.use_ema: self._init_ema()
-        self._load_checkpoints()
         self._build_timesteps()
-
+        self._get_step_counts()
+        if not self.testing:
+            self._validate_fixed_captions()
+            self.register_losses()
+            if self.CFG_M.use_ema: self._init_ema()
+            self._load_checkpoints()
+        
     ##### OPTIMIZATION #####
 
     def _flush_cache(self) -> None:
@@ -86,7 +91,7 @@ class DiffusionTrainer(Trainer[DiffusionConfig]):
             case 'pixel' : model = PixelDiffusionModel
             case 'latent': model = LatentDiffusionModel
             case _: raise ValueError(f'Invalid model_type: {self.model_type}')
-        self.model = model(config=self.config)
+        self.model = model(config=self.config, testing=self.testing)
         self.trainer_core = self.model.trainer_core
         self.model.opt_dae.zero_grad()
 
@@ -343,24 +348,31 @@ class DiffusionTrainer(Trainer[DiffusionConfig]):
     def _save_inference_example(
             self,
             idx: int,
-            context: torch.Tensor,
-            cfg_scale: float
+            output_directory: PathLike,
+            batches: int = 1,
+            latent_spatial_size: int | None = None,
+            context: torch.Tensor | None = None,
+            cfg_scale: float = 7.5,
+            inference_steps: int = 100,
+            mode: Literal['DDPM', 'DDIM'] = 'DDIM'
         ) -> None:
-        sampling = self.config.model.sampling
         with self.ema_context():
             with self.autocast_context(), torch.no_grad():
                 self._flush_cache()
                 output = self.model.sample(
-                    context=context, 
-                    cfg_scale=cfg_scale, 
-                    mode=sampling.function,
-                    inference_steps=sampling.ddim_timesteps)
+                    batches=batches, latent_spatial_size=latent_spatial_size,
+                    context=context, cfg_scale=cfg_scale, 
+                    mode=mode, inference_steps=inference_steps)
+                
                 
         output = torch.clamp((output + 1) * 0.5, 0.0, 1.0)
         scale_tag = str(cfg_scale).replace('.', '-')
-        name = f'step{self.current_step}_{idx}_cfg{scale_tag}.png'
-        filepath = pathlib.Path(self.examples_dir, name).resolve()
-        save_image(output, filepath.as_posix())
+        for i in range(batches):
+            name = (
+                f'step{self.current_step}_idx{idx+1}_'
+                f'b{i+1}_cfg{scale_tag}.png')
+            filepath = pathlib.Path(output_directory, name).resolve()
+            save_image(output[i], filepath.as_posix())
 
     def export_examples(
             self, 
@@ -372,6 +384,7 @@ class DiffusionTrainer(Trainer[DiffusionConfig]):
             context : The context Tensor to pass to the diffusion model, or
                 None if not using text conditioning.
         '''
+        smp = self.config.model.sampling
         was_training = self.model.training
         self.model.eval()
         try: 
@@ -384,7 +397,10 @@ class DiffusionTrainer(Trainer[DiffusionConfig]):
                     context = None
                     cfg_scales = [1.0]
                 for scale in cfg_scales:
-                    self._save_inference_example(i, context, scale)
+                    self._save_inference_example(
+                        idx=i, output_directory=self.examples_dir, 
+                        context=context, cfg_scale=scale, 
+                        inference_steps=smp.ddim_timesteps, mode=smp.function)
         finally: self.model.train(was_training)
         
     ##### VISUALIZATION #####

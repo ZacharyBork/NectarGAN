@@ -14,21 +14,22 @@ from nectargan.config import DiffusionConfig
 class LatentDiffusionModel(PixelDiffusionModel):
     def __init__(
             self, 
-            config: DiffusionConfig
+            config: DiffusionConfig,
+            testing: bool = False
         ) -> None:
         '''Initialized a LatentDiffusionModel.
         
         Args:
             config : The DiffusionConfig to use for the model.
         '''
-        super().__init__(config, False)
+        super().__init__(config, init_dae=False, testing=testing)
         self.use_captions = self.config.captions.use_captions
         self.read_from_cache = False
 
         self._init_latent_manager()
-        self._init_dataloader()
-        self._init_autoencoder()
-
+        self._init_unet()
+        if not self.testing: self._init_dataloader()
+        
     ##### INIT #####
 
     def _init_text_encoder(self) -> None:
@@ -39,7 +40,7 @@ class LatentDiffusionModel(PixelDiffusionModel):
             max_length=C.max_length, freeze=C.freeze_encoder)
         self.text_encoder = self.text_encoder.to(device)
 
-    def _init_autoencoder(self) -> None:
+    def _init_unet(self) -> None:
         if self.use_captions:
             block_type = CrossAttentionUnetBlock
             self._init_text_encoder()
@@ -49,7 +50,7 @@ class LatentDiffusionModel(PixelDiffusionModel):
         else:
             block_type = TimeEmbeddedUnetBlock
             context_dimension = None
-        super()._init_autoencoder(
+        super()._init_unet(
             block_type=block_type, context_dimension=context_dimension)
 
     def _init_latent_manager(self) -> None:
