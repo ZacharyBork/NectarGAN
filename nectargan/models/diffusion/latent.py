@@ -60,8 +60,7 @@ class LatentDiffusionModel(PixelDiffusionModel):
             block_type=block_type, context_dimension=context_dimension)
 
     def _init_vae(self) -> None:
-        dtype = torch.float16 if self.config.model.mixed_precision \
-           else torch.float32
+        dtype = 'float16' if self.config.model.mixed_precision else 'float32'
         self.vae = VAE(
             device=self.device, dtype=dtype, model=self.config.latents.vae,
             scaling_factor=self.config.latents.scaling_factor)
