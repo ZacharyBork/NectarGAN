@@ -50,7 +50,7 @@ class DiffusionTester(DiffusionTrainer):
                     f'No config files found in experiment directory! '
                     f'Please pass a config_file to the Tester init.')
             self.config_file = configs[-1]
-        else: config_file = Path(config_file)
+        else: self.config_file = Path(config_file)
 
     def _init_test_output_root(self) -> Path:
         '''Builds a root output directory, or gets the path to an existing one.

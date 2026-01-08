@@ -30,6 +30,9 @@ class ConfigDataloader:
     dataroot: str
     batch_size: int
     num_workers: int
+    drop_last: bool
+    pin_memory: bool
+    shuffle: bool
     streaming: ConfigDataloaderStreaming
     load: ConfigDataloaderLoad
     augmentations: ConfigAugmentations
@@ -76,7 +79,7 @@ class ConfigMLP:
     hidden_dimension: int
     output_dimension: int
 
-##### DAE #####
+##### UNet #####
 
 @dataclass
 class ConfigLearningRate:
@@ -88,19 +91,19 @@ class ConfigLearningRate:
     decay_steps: int
 
 @dataclass
-class ConfigDAECompile:
+class ConfigUNetCompile:
     enable: bool
     mode: str
 
 @dataclass
-class ConfigDAE:
+class ConfigUNet:
     in_channels: int
     features: int
     n_downs: int
     betas: list[float]
     self_attention: bool
     enable_checkpointing: bool
-    compile: ConfigDAECompile
+    compile: ConfigUNetCompile
     learning_rate: ConfigLearningRate
     
 ##### NOISE_SCHEDULE #####
@@ -125,7 +128,7 @@ class ConfigModel:
     noise_schedule: ConfigNoiseSchedule
     sampling: ConfigSampling
     mlp: ConfigMLP
-    dae: ConfigDAE
+    unet: ConfigUNet
 
 ##### CAPTIONS #####
 
@@ -143,17 +146,18 @@ class ConfigCaptions:
 
 @dataclass
 class ConfigLatentCache:
-    precache: bool
-    runtime_cache: bool
-    batch_size: int
-    shard_size: int
+    read_from_cache: bool
+    cache_directory: str
+    loader_type: str
 
 @dataclass
 class ConfigLatents:
     latent_size_divisor: int
     override_latent_size: bool
     latent_size: int
-    caching: ConfigLatentCache
+    vae: str
+    scaling_factor: float
+    cache: ConfigLatentCache
 
 
 ##### SAVING #####
@@ -218,5 +222,5 @@ class DiffusionConfig(cfgcommon.Config):
         # This is hacky and needs to be fixed in the future.
         self.dataloader.load = ConfigDataloaderLoad(
             load_size=self.model.input_size, crop_size=self.model.input_size, 
-            input_nc=self.model.dae.in_channels)
+            input_nc=self.model.unet.in_channels)
 

@@ -78,23 +78,23 @@ class PixelDiffusionModel(nn.Module):
         '''Initializes the denoising autoencoder network.
         
         Args:
-            blocks_type : What UNet block type to use for the DAE.
-            context_dimension : The context dimension to use for the DAE, or
+            blocks_type : What UNet block type to use for the UNet.
+            context_dimension : The context dimension to use for the UNet, or
                 None if not using text conditioning. Derived in the Stable
                 model variant by passing a dummy caption to the CLIP model and
                 evaluating the shape of the returned context tensor.
         '''
-        DAE = self.config.model.dae
-        self.autoencoder = DiffusionUnet(
+        UNET = self.config.model.unet
+        self.unet = DiffusionUnet(
             config=self.config, block_type=block_type,
             context_dimension=context_dimension,
-            use_attention=DAE.self_attention,
-            use_checkpointing=DAE.enable_checkpointing
+            use_attention=UNET.self_attention,
+            use_checkpointing=UNET.enable_checkpointing
         ).to(self.device, dtype=torch.float32)
-        self.opt_dae = optim.Adam(
-            self.autoencoder.parameters(), 
-            lr=DAE.learning_rate.base_rate, 
-            betas=DAE.betas, fused=True)
+        self.opt_unet = optim.Adam(
+            self.unet.parameters(), 
+            lr=UNET.learning_rate.base_rate, 
+            betas=UNET.betas, fused=True)
         if self.config.model.mixed_precision:
             self.g_scaler = torch.amp.GradScaler(self.device)
 
@@ -173,7 +173,7 @@ class PixelDiffusionModel(nn.Module):
             https://arxiv.org/pdf/2006.11239 (3.2)
         '''
         # Predict noise
-        pred_noise = self.autoencoder(x, t, context=context) \
+        pred_noise = self.unet(x, t, context=context) \
             if pred_noise is None else pred_noise
 
         # Get parms at timestep (t)
@@ -208,14 +208,14 @@ class PixelDiffusionModel(nn.Module):
             batches : The batch size of the tensor to sample.
             spatial_size : The spatial size of the input tensor for the
                 denoising autoencoder, or `None` to use the input size from the
-                DAE config.
+                UNet config.
 
         Returns:
             torch.Tensor : The final denoised tensor, decoded to pixel space.
         '''
         size = spatial_size if not spatial_size is None \
             else self.config.model.input_size
-        shape = (batches, self.config.model.dae.in_channels, size, size)
+        shape = (batches, self.config.model.unet.in_channels, size, size)
         with torch.no_grad():
             x = torch.randn(shape).to(self.device) # Generate noise tensor
             for i in reversed(range(self.timesteps)):

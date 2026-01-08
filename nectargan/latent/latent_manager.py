@@ -4,6 +4,7 @@ from os import PathLike
 from pathlib import Path
 from typing import Any
 from dataclasses import dataclass, field
+from contextlib import nullcontext
 
 import torch
 from torch.utils.data.dataloader import DataLoader
@@ -11,9 +12,8 @@ from diffusers import AutoencoderKL
 
 from nectargan.latent import latent_utils
 from nectargan.config import DiffusionConfig 
-from nectargan.dataset import \
-    DiffusionDataset, LatentDataset, ImageTextDataset
-from nectargan.dataset.latent_dataset import LatentShardHotloader
+from nectargan.dataset import DiffusionDataset, ImageTextDataset
+from dataset.cache_loading.loaders import CacheLoader, CacheShardHotloader
 
 @dataclass
 class CacheData:
@@ -25,20 +25,32 @@ class CacheData:
     manifest:  dict[str, Any] = field(default_factory=dict)
     shard: list[torch.Tensor] = field(default_factory=list)
     file_names:     list[str] = field(default_factory=list)
-    
-class LatentManager():
+
+class VAE():
     def __init__(
             self,
-            config: DiffusionConfig
+            device: str = 'cuda',
+            dtype: str = 'float16',
+            model: str = 'stabilityai/sd-vae-ft-ema',
+            scaling_factor: float = 0.18215,
+            decoder_range: tuple[float, float] = (-1.0, 1.0),
+            require_grad: bool = False
         ) -> None:
-        self.config = config
-        self.device = config.common.device
-        self.latent_size = latent_utils.get_latent_spatial_size(config)
-        self.cache_data: CacheData = None
+        self.device = device
+        self.model = model
+        self.scaling_factor = scaling_factor
+        self.decoder_range = decoder_range
+        self.require_grad = require_grad
+
+        match dtype:
+            case 'float16': self.dtype = torch.float16
+            case 'float32': self.dtype = torch.float32
+            case _: raise ValueError(f'VAE recieved unexpected dtype: {dtype}')
 
         self._init_vae()
 
-    ##### VAE #####
+    def _gradient_context(self) -> None:
+        return nullcontext() if self.require_grad else torch.no_grad()
 
     def _init_vae(self) -> None:
         '''Initializes a pre-trained VAE from Stability AI.
@@ -46,18 +58,12 @@ class LatentManager():
         Ref:
             https://huggingface.co/stabilityai/sd-vae-ft-ema
         '''
-        # dtype = torch.float16 if torch.cuda.is_available() \
-        #     and self.config.model.mixed_precision else torch.float32
-        dtype = torch.float16 if torch.cuda.is_available() else torch.float32
-        self.vae = AutoencoderKL.from_pretrained(
-            'stabilityai/sd-vae-ft-ema', 
-            torch_dtype=dtype)
-        self.vae = self.vae.to(self.device)
+        vae = AutoencoderKL.from_pretrained(self.model, torch_dtype=self.dtype)
+        self.vae = vae.to(self.device)
         self.vae.eval()
         for p in self.vae.parameters(): p.requires_grad = False
-        self.scale = getattr(self.vae.config, 'scaling_factor', 0.18215)        
-
-    ##### ENCODE / DECODE #####
+        self.scale = getattr(
+            self.vae.config, 'scaling_factor', self.scaling_factor)        
 
     def encode_to_latent(self, x: torch.Tensor) -> torch.Tensor:
         '''Encodes an input tensor from pixel space to latent space.
@@ -68,9 +74,8 @@ class LatentManager():
         Returns:
             torch.Tensor : The resulting tensor encoded to latent space.
         '''
-        with torch.no_grad():
-            p = next(self.vae.parameters())
-            x = x.to(device=p.device, dtype=p.dtype)
+        with self._gradient_context():
+            x = x.to(device=self.device, dtype=self.dtype)
             dist = self.vae.encode(x).latent_dist
             return self.scale * dist.sample()
 
@@ -83,10 +88,36 @@ class LatentManager():
         Returns:
             torch.Tensor : The resulting tensor decoded to pixel space.
         '''
-        with torch.no_grad():
-            p = next(self.vae.parameters())
-            z = z.to(device=p.device, dtype=p.dtype)
-            return self.vae.decode(z / self.scale).sample.clamp(-1, 1)
+        with self._gradient_context():
+            z = z.to(device=self.device, dtype=self.dtype)
+            z = self.vae.decode(z / self.scale).sample
+            return z.clamp(self.decoder_range[0], self.decoder_range[1])
+
+
+class LatentManager():
+    def __init__(
+            self,
+            dataroot: PathLike,
+            device: str = 'cuda',
+            dtype: str = 'float16',
+            model: str = 'stabilityai/sd-vae-ft-ema',
+            latent_spatial_size: int = 64,
+            batch_size: int = 32,
+            shard_size: int = 4096,
+            num_workers: int = 0,
+            store_file_names: bool = True
+        ) -> None:
+        self.dataroot = Path(dataroot).resolve()
+        self.device = device
+        self.latent_size = latent_spatial_size
+        self.input_size = 8 * self.latent_size
+        self.batch_size = batch_size
+        self.shard_size = shard_size
+        self.num_workers = num_workers
+        self.store_file_names = store_file_names
+
+        self.cache_data: CacheData = None
+        self.vae = VAE(device=device, dtype=dtype, model=model)
 
     ##### LATENT_CACHING #####
 
@@ -164,42 +195,26 @@ class LatentManager():
             bool : True if a new directory was created for the cache, False if
                 a valid cache directory already existed.
         '''
-        self.dataroot = Path(self.config.dataloader.dataroot).resolve()
         split = self.dataroot.name
         self.cache_data.output_dir, new = latent_utils.init_latent_cache(
             dataroot=self.dataroot, cache_name=split)
         return new
 
-    def _build_dataloader(
-            self, 
-            batch_size: int, 
-            shard_size: int
-        ) -> tuple[DiffusionDataset, DataLoader]:
+    def _build_dataloader(self) -> tuple[DiffusionDataset, DataLoader]:
         '''Build a new DiffusionDataset and a Dataloader to load it.
         
-        The dataloader built here will be a duplicate of the Dataloader defined
-        by the configuration file. This step is only necessary so that we can
-        flag the DiffusionDataset as a cache_builder, and so we can override
-        the batch sized defined by the config with the batch size we would like
-        to use for latent caching. 
-
-        Args:
-            batch_size : The batch size to use for the caching operation.
-            shard_size : The number of batches to save per shard file.
-
         Returns:
             tuple[DiffusionDataset, DataLoader] : The new Dataloader, and the
                 dataset it's loading.
         '''
         print(f'Building duplicate Dataloader...\n'
-              f'Batch Size : {batch_size}\n'
-              f'Shard Size : {shard_size}\n')
+              f'Batch Size : {self.batch_size}\n'
+              f'Shard Size : {self.shard_size}\n')
         dataset = DiffusionDataset(
-            root_dir=self.dataroot, load_size=self.config.model.input_size,
+            root_dir=self.dataroot, load_size=self.input_size,
             is_train=False, cache_builder=True, recurse=True)
         dataloader = DataLoader(
-            dataset, batch_size=batch_size, 
-            num_workers=self.config.dataloader.num_workers)
+            dataset, batch_size=self.batch_size, num_workers=self.num_workers)
         return dataset, dataloader
 
     def _init_manifest(self, shard_size: int) -> None:
@@ -218,10 +233,7 @@ class LatentManager():
     def _iterate_dataloader(
             self, 
             dataset: DiffusionDataset,
-            dataloader: DataLoader,
-            batch_size: int,
-            shard_size: int,
-            store_file_names: bool
+            dataloader: DataLoader
         ) -> None:
         '''Iterate dataloader, encode to latent, append to current shard.
         
@@ -242,14 +254,15 @@ class LatentManager():
         for idx, x in enumerate(dataloader):
             latent_utils.print_progress(idx+1, num_batches)
             x = x.to(self.device, non_blocking=True)
-            self.cache_data.shard.append(self.encode_to_latent(x).cpu())
+            self.cache_data.shard.append(self.vae.encode_to_latent(x).cpu())
             
-            if store_file_names:
+            if self.store_file_names:
                 file_name = dataset.list_files[idx].stem
                 self.cache_data.file_names.append(file_name)
 
-            if len(self.cache_data.shard) == shard_size: export(x=batch_size)
-        if not len(self.cache_data.shard) == 0: export(x=batch_size)
+            current_size = len(self.cache_data.shard)
+            if current_size == self.shard_size: export(x=self.batch_size)
+        if not current_size == 0: export(x=self.batch_size)
 
     def _save_manifest(self) -> None:
         '''Writes manifest data to a JSON file in the cache directory.'''
@@ -258,86 +271,6 @@ class LatentManager():
         with open(Path(self.cache_data.output_dir, 'manifest.json'), 'w') as f:
             f.write(json.dumps(self.cache_data.manifest))
 
-    def _cache_latents(
-            self, 
-            batch_size: int=64,
-            shard_size: int=512,
-            store_file_names: bool=False
-        ) -> None:
-        '''Loops through Dataloader, encodes tensors to latent space, exports.
-
-        Args:
-            batch_size : The batch size to use when caching the latents.
-            shard_size : The number of batches to save per shard.
-
-        Returns:
-            Path : The path to the cache output directory.
-        '''
-        new = self._init_cache_output()
-        if not new: 
-            print('Bypassing caching operation...')
-            return self.cache_data.output_dir
-        
-        dataset, dataloader = self._build_dataloader(batch_size, shard_size)
-        self._init_manifest(shard_size)
-        self._iterate_dataloader(
-            dataset=dataset, dataloader=dataloader, batch_size=batch_size, 
-            shard_size=shard_size, store_file_names=store_file_names)
-        self._save_manifest()
-
-    def cache_latents(
-            self,
-            batch_size: int=64,
-            shard_size: int=512,
-            metadata_file: PathLike | None=None,
-            validate_cache: bool=False
-        ) -> DataLoader:
-        '''Caches latent tensors and builds new dataset to load cache.
-        
-        Saves cached latents as shards to new subdirectory of the dataroot from 
-        the config used to initialize the LatentManager. The dataloader which
-        is returned from this function will mirror the original dataloader
-        defined by the config (including using the original batch size, not the
-        one used as an input argument for this function).
-        
-        This means that you can directly overwrite your original dataloader 
-        with this functions return, or just use this in lieu of the Trainer's 
-        build_dataloader() method.
-        Args:
-            batch_size : The batch size to use when caching the latents.
-            shard_size : The number of batches to save per shard.
-        Returns:
-            Dataloader : A torch.utils.data.Dataloader initialized to read the
-                cached latents.
-        '''
-        print('Initializing latent precache...')
-        self.cache_data = CacheData()
-        if self.config.captions.use_captions and not metadata_file is None:
-            metadata_file = self._validate_metadata_file(metadata_file)
-            self._cache_latents(batch_size, shard_size, True)
-            new_dataset = ImageTextDataset(
-                shard_directory=self.cache_data.output_dir,
-                metadata_file=metadata_file,
-                latent_size=self.latent_size)
-        else: 
-            print('building latent dataset')
-            self._cache_latents(batch_size, shard_size)
-            # new_dataset = LatentDataset(
-            #     shard_directory=self.cache_data.output_dir, 
-            #     latent_size=self.latent_size)
-            new_dataset = LatentShardHotloader(
-                shard_directory=self.cache_data.output_dir, 
-                latent_size=self.latent_size)
-
-        if validate_cache:
-            self.validate_cache(shard_directory=self.cache_data.output_dir)
-        print('Building new dataloader...')
-        return DataLoader(
-            new_dataset, batch_size=self.config.dataloader.batch_size, 
-            num_workers=self.config.dataloader.num_workers,
-            drop_last=True, pin_memory=True,
-            shuffle=True)
-    
     def validate_cache(
             self, 
             shard_directory: PathLike,
@@ -368,3 +301,33 @@ class LatentManager():
                 print(f'Validating shard ({idx+1}). Iteration: {idy+1}')
         print('Validation complete. No issues found.')
 
+    def cache(
+            self, 
+            validate_cache: bool=False
+        ) -> None:
+        '''Loops through Dataloader, encodes tensors to latent space, exports.
+
+        Args:
+            batch_size : The batch size to use when caching the latents.
+            shard_size : The number of batches to save per shard.
+
+        Returns:
+            Path : The path to the cache output directory.
+        '''
+        self.cache_data = CacheData()
+        new = self._init_cache_output()
+        if not new: 
+            print('Bypassing caching operation...')
+            return self.cache_data.output_dir
+        
+        B, S = self.batch_size, self.shard_size
+        dataset, dataloader = self._build_dataloader()
+        self._init_manifest(S)
+        self._iterate_dataloader(
+            dataset=dataset, dataloader=dataloader)
+        self._save_manifest()
+
+        if validate_cache:
+            self.validate_cache(shard_directory=self.cache_data.output_dir)
+
+    

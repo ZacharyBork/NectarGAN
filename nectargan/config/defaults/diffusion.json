@@ -40,16 +40,16 @@
                 "cosine_offset": 0.008
             },
             "sampling": {
-                "function": "DDIM",
-                "ddim_timesteps": 250,
-                "ddim_recompute_epsilon": false
+                "function": "DDPM",
+                "ddim_timesteps": 1000,
+                "ddim_recompute_epsilon": true
             },
             "mlp": {
                 "time_embedding_dimension": 1024,
                 "hidden_dimension": 1024,
                 "output_dimension": 1024
             },
-            "dae": {
+            "unet": {
                 "in_channels": 4,
                 "features": 256,
                 "n_downs": 3,
@@ -74,6 +74,9 @@
             "dataroot": "",
             "batch_size": 32,
             "num_workers": 0,
+            "drop_last": true,
+            "pin_memory": true,
+            "shuffle": true,
             "streaming": {
                 "enable": false,
                 "dataset": "LAION",
@@ -91,13 +94,14 @@
         },
         "latents": {
             "latent_size_divisor": 8,
-            "override_latent_size": false,
+            "override_latent_size": true,
             "latent_size": 64,
-            "caching": {
-                "precache": true,
-                "runtime_cache": false,
-                "batch_size": 16,
-                "shard_size": 10000
+            "vae": "stabilityai/sd-vae-ft-ema",
+            "scaling_factor": 0.18215,
+            "cache": {
+                "read_from_cache": true,
+                "cache_directory": "",
+                "loader_type": "CacheShardHotloader"
             }
         },
         "captions": {
@@ -107,14 +111,14 @@
             "max_length": 77,
             "freeze_encoder": true,
             "use_fixed_captions": true,
-            "fixed_captions": []
+            "fixed_captions": [ ]
         },
         "save": {
             "save_model": true,
             "model_save_rate": 10000,
             "auto_increment_version": true,
             "save_examples": true,
-            "example_save_rate": 1000,
+            "example_save_rate": 500,
             "num_examples": 1,
             "sample_cfg_scales": [7.5]
         },
@@ -128,7 +132,7 @@
                 "display_images": false,
                 "image_size": 150,
                 "max_images": 9,
-                "update_frequency": 250
+                "update_frequency": 500
             },
             "console": {
                 "average_loss": true,

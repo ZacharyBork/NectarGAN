@@ -3,13 +3,18 @@ import random
 from typing import Literal, Callable, Any
 
 import torch
+from torch.utils.data import DataLoader
 
 from nectargan.models import PixelDiffusionModel
 from nectargan.models.diffusion.text_encoder import TextEncoder
 from nectargan.models.unet.blocks import \
     TimeEmbeddedUnetBlock, CrossAttentionUnetBlock
-from nectargan.latent import LatentManager
+from nectargan.latent.latent_manager import VAE
 from nectargan.config import DiffusionConfig
+
+from nectargan.latent import latent_utils
+from nectargan.dataset import ImageTextDataset
+from dataset.cache_loading.loaders import CacheLoader, CacheShardHotloader
 
 class LatentDiffusionModel(PixelDiffusionModel):
     def __init__(
@@ -24,9 +29,10 @@ class LatentDiffusionModel(PixelDiffusionModel):
         '''
         super().__init__(config, init_dae=False, testing=testing)
         self.use_captions = self.config.captions.use_captions
-        self.read_from_cache = False
+        self.read_from_cache = self.config.latents.cache.read_from_cache
+        self.latent_size = latent_utils.get_latent_spatial_size(config)
 
-        self._init_latent_manager()
+        self._init_vae()
         self._init_unet()
         if not self.testing: self._init_dataloader()
         
@@ -53,27 +59,49 @@ class LatentDiffusionModel(PixelDiffusionModel):
         super()._init_unet(
             block_type=block_type, context_dimension=context_dimension)
 
-    def _init_latent_manager(self) -> None:
-        '''Initializes a LatentManager and aliases some of its methods.'''
-        self.latent_manager = LatentManager(self.config)
-        self.encode = self.latent_manager.encode_to_latent
-        self.decode = self.latent_manager.decode_from_latent
-        self.cache_latents = self.latent_manager.cache_latents
-
+    def _init_vae(self) -> None:
+        dtype = torch.float16 if self.config.model.mixed_precision \
+           else torch.float32
+        self.vae = VAE(
+            device=self.device, dtype=dtype, model=self.config.latents.vae,
+            scaling_factor=self.config.latents.scaling_factor)
+        self.encode = self.vae.encode_to_latent
+        self.decode = self.vae.decode_from_latent
+        
     def _init_dataloader(self) -> None:
         '''Initializes a dataloader for the model.
         
         If latent pre-caching is enabled in the DiffusionConfig, this method
         will also run the pre-caching pass.
         '''
-        cache_cfg = self.config.latents.caching
-        if cache_cfg.precache:
-            self.dataloader = self.cache_latents(
-                batch_size=cache_cfg.batch_size,
-                shard_size=cache_cfg.shard_size,
-                metadata_file=self.config.captions.metadata_file)
-            self.read_from_cache = True
-        else: super()._init_dataloader()
+        if not self.read_from_cache: super()._init_dataloader()
+        else:
+            cache_cfg = self.config.latents.cache
+            if self.config.captions.use_captions:
+                dataset = ImageTextDataset(
+                    shard_directory=cache_cfg.cache_directory,
+                    metadata_file=self.config.captions.metadata_file,
+                    latent_size=self.latent_size)
+            else:
+                match cache_cfg.loader_type:
+                    case 'CacheLoader':
+                        dataset = CacheLoader(
+                            shard_directory=cache_cfg.cache_directory, 
+                            load_size=self.latent_size)
+                    case 'CacheShardHotloader':
+                        dataset = CacheShardHotloader(
+                            shard_directory=cache_cfg.cache_directory, 
+                            load_size=self.latent_size)
+                    case _:
+                        raise ValueError(
+                            f'Invalid cache loader type: '
+                            f'{cache_cfg.loader_type}')
+            
+            loader = self.config.dataloader
+            self.dataloader = DataLoader(
+                dataset, batch_size=loader.batch_size,
+                num_workers=loader.num_workers, drop_last=loader.drop_last, 
+                pin_memory=loader.pin_memory, shuffle=loader.shuffle)
 
     ##### CAPTIONS & CONTEXTS #####
 
@@ -139,7 +167,7 @@ class LatentDiffusionModel(PixelDiffusionModel):
             nullcontext: torch.Tensor | None,
             cfg_scale: float | None
         ) -> torch.Tensor:
-        '''Runs DAE to predict noise with context.
+        '''Runs UNet to predict noise with context.
 
         Args:
             x : The input image tensor.
@@ -155,10 +183,10 @@ class LatentDiffusionModel(PixelDiffusionModel):
         if cfg_scale != 1.0 \
          and not context is None \
          and not nullcontext is None:
-            cond = self.autoencoder(x, t, context=context)
-            uncond = self.autoencoder(x, t, context=nullcontext)
+            cond = self.unet(x, t, context=context)
+            uncond = self.unet(x, t, context=nullcontext)
             pred_noise = uncond + cfg_scale * (cond - uncond)
-        else: pred_noise = self.autoencoder(x, t, context=context)
+        else: pred_noise = self.unet(x, t, context=context)
         return pred_noise
     
     ##### SAMPLING #####
@@ -236,7 +264,7 @@ class LatentDiffusionModel(PixelDiffusionModel):
             t_prev : The previous timestep as torch.Tensor.
             idx : Current index of the denoiser loop.
             direct : See PixelDiffusionModel.p_sample(). Only applies to DDPM.
-            predictions : The predicted noise tensors from the DAE.
+            predictions : The predicted noise tensors from the UNet.
             mode : What sampling mode to use ["DDPM", "DDIM"].
             
         Returns:
@@ -277,8 +305,8 @@ class LatentDiffusionModel(PixelDiffusionModel):
             torch.Tensor : The denoised image tensor.
         '''
         if not mode == 'DDIM': inference_steps = self.timesteps
-        lss = latent_spatial_size or self.latent_manager.latent_size
-        shape = (batches, self.config.model.dae.in_channels, lss, lss)
+        lss = latent_spatial_size or self.latent_size
+        shape = (batches, self.config.model.unet.in_channels, lss, lss)
         
         with torch.no_grad():
             x = torch.randn(shape, device=self.device)
@@ -300,7 +328,7 @@ class LatentDiffusionModel(PixelDiffusionModel):
                         context, batches)
                     predictions = self._predict_from_contexts(
                         x, t, context, nullcontext, cfg_scale)
-                else: predictions = self.autoencoder(x, t, context=None)
+                else: predictions = self.unet(x, t, context=None)
                 
                 x = self.p_sample(
                     x, t, idx=idx, t_prev=t_prev, 

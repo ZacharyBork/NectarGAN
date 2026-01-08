@@ -42,7 +42,7 @@ class DiffusionTrainer(Trainer[DiffusionConfig]):
         super().__init__(
             config=config, quicksetup=not self.testing, log_losses=log_losses)
         self.CFG_M = self.config.model
-        self.CFG_LR = self.CFG_M.dae.learning_rate
+        self.CFG_LR = self.CFG_M.unet.learning_rate
         self.current_iteration = 0
         
         self.cuda = self.device == 'cuda'
@@ -93,12 +93,12 @@ class DiffusionTrainer(Trainer[DiffusionConfig]):
             case _: raise ValueError(f'Invalid model_type: {self.model_type}')
         self.model = model(config=self.config, testing=self.testing)
         self.trainer_core = self.model.trainer_core
-        self.model.opt_dae.zero_grad()
+        self.model.opt_unet.zero_grad()
 
-        compile_cfg = self.config.model.dae.compile
+        compile_cfg = self.config.model.unet.compile
         if compile_cfg.enable:
-            self.model.autoencoder = torch.compile(
-                self.model.autoencoder, mode=compile_cfg.mode)
+            self.model.unet = torch.compile(
+                self.model.unet, mode=compile_cfg.mode)
         self._flush_cache()
 
     def init_visdom(self) -> None:
@@ -114,7 +114,7 @@ class DiffusionTrainer(Trainer[DiffusionConfig]):
     def _init_ema(self) -> None:
         '''Initializes a PyTorch EMA module.'''
         self.ema = ExponentialMovingAverage(
-            self.model.autoencoder.parameters(), 
+            self.model.unet.parameters(), 
             decay=self.config.model.ema_decay)
         for param in self.ema.shadow_params:
             param.data = param.data.to(self.device)
@@ -182,8 +182,8 @@ class DiffusionTrainer(Trainer[DiffusionConfig]):
         '''Loads model checkpoint(s) to continue training.'''
         if self.config.train.load.continue_train:
             self.load_checkpoint(
-                'DAE', self.model.autoencoder, self.model.opt_dae, 
-                self.config.model.dae.learning_rate.base_rate, unit='step',
+                'UNet', self.model.unet, self.model.opt_unet, 
+                self.config.model.unet.learning_rate.base_rate, unit='step',
                 value=self.config.train.load.load_step)
             if self.CFG_M.use_ema: 
                 self.load_checkpoint(
@@ -206,7 +206,7 @@ class DiffusionTrainer(Trainer[DiffusionConfig]):
         Args:
             mod : The nn.Module to save a checkpoint file for.
             opt : The optimizer for the Module, if applicable.
-            net : A human-readable tag for the Module being saved (i.e. "DAE",
+            net : A human-readable tag for the Module being saved (i.e. "UNet",
                 "EMA"). Will be used to name the checkpoint file.
 
         Raises:
@@ -241,8 +241,8 @@ class DiffusionTrainer(Trainer[DiffusionConfig]):
                 if capture is False. 
         '''
         path = self.export_model_weights(
-            self.model.autoencoder, self.model.opt_dae, 'DAE')
-        output = f'Checkpoint Saved (DAE): {path}'
+            self.model.unet, self.model.opt_unet, 'UNet')
+        output = f'Checkpoint Saved (UNet): {path}'
         if self.CFG_M.use_ema:
             path = self.export_model_weights(self.ema, None, 'EMA')
             output += f'\nCheckpoint Saved (EMA): {path}'
@@ -378,7 +378,7 @@ class DiffusionTrainer(Trainer[DiffusionConfig]):
             self, 
             context: torch.Tensor | None=None
         ) -> None: 
-        '''Evals DAE and exports resulting images to the experiment directory.
+        '''Evals UNet and exports resulting images to the experiment directory.
         
         Args:
             context : The context Tensor to pass to the diffusion model, or
@@ -469,7 +469,7 @@ class DiffusionTrainer(Trainer[DiffusionConfig]):
         Args:
             x : The input image tensor.
             x_t : The noise tensor from the given timestep.
-            z : The predicted clean image tensor from the DAE.
+            z : The predicted clean image tensor from the UNet.
 
         Returns : The input tensors decoded from latent space as a tuple,
             ordered as: (x, x_t, predicted)
@@ -529,7 +529,7 @@ class DiffusionTrainer(Trainer[DiffusionConfig]):
         Args:
             x : The input image tensor.
             x_t : The noise tensor from the given timestep.
-            z : The predicted clean image tensor from the DAE.
+            z : The predicted clean image tensor from the UNet.
         '''
         vis = self.config.visualizer
         if self.current_step % vis.console.print_frequency == 0:
@@ -552,28 +552,28 @@ class DiffusionTrainer(Trainer[DiffusionConfig]):
             device=self.device).long()
     
     def _warm_up_lr(self) -> None:
-        '''Warms up learning rate for the DAE's optimizer.
+        '''Warms up learning rate for the UNet's optimizer.
         
-        The values used for the warm up are derived from the DAE learning rate
+        The values used for the warm up are derived from the UNet learning rate
         settings in the input config.
         '''
         if self.current_step <= self.CFG_LR.warm_up_steps:
             steps = max(1, self.CFG_LR.warm_up_steps)
             lr = self.CFG_LR.base_rate * (self.current_step / steps)
-            for param_group in self.model.opt_dae.param_groups:
+            for param_group in self.model.opt_unet.param_groups:
                 param_group['lr'] = lr
 
     def _decay_lr(self) -> None:
-        '''Decays learning rate for the DAE's optimizer.
+        '''Decays learning rate for the UNet's optimizer.
         
-        The values used for the decay are derived from the DAE learning rate
+        The values used for the decay are derived from the UNet learning rate
         settings in the input config.
         '''
         if self.current_step > self.CFG_LR.steps_before_decay:
             steps = max(1, self.CFG_LR.decay_steps)
             current = self.current_step - self.CFG_LR.steps_before_decay
             lr = self.CFG_LR.base_rate * (1.0 - current / steps)
-            for param_group in self.model.opt_dae.param_groups:
+            for param_group in self.model.opt_unet.param_groups:
                 param_group['lr'] = lr
 
     def backward(
@@ -596,14 +596,14 @@ class DiffusionTrainer(Trainer[DiffusionConfig]):
             - Computes gradients from input loss tensor.
             - If step=True:
                 - Clips loss gradients to the value of "max_norm".
-                - Steps DAE optimizer.
+                - Steps UNet optimizer.
 
         Mixed precision:
             - Scales loss, then computs gradients.
             - If step=True:
                 - Unscales loss gradients.
                 - Clips gradients to the value of "max_norm".
-                - Steps DAE optimizer with gradient scaler.
+                - Steps UNet optimizer with gradient scaler.
                 - Updates gradient scaler.
 
         EMA update:
@@ -622,17 +622,17 @@ class DiffusionTrainer(Trainer[DiffusionConfig]):
         if self.CFG_M.mixed_precision:
             self.model.g_scaler.scale(loss).backward()
             if step:
-                self.model.g_scaler.unscale_(self.model.opt_dae)
+                self.model.g_scaler.unscale_(self.model.opt_unet)
                 torch.nn.utils.clip_grad_norm_(
-                    self.model.autoencoder.parameters(), max_norm)
-                self.model.g_scaler.step(self.model.opt_dae)
+                    self.model.unet.parameters(), max_norm)
+                self.model.g_scaler.step(self.model.opt_unet)
                 self.model.g_scaler.update()
         else:
             loss.backward()
             if step:
                 torch.nn.utils.clip_grad_norm_(
-                    self.model.autoencoder.parameters(), max_norm)
-                self.model.opt_dae.step()
+                    self.model.unet.parameters(), max_norm)
+                self.model.opt_unet.step()
         if step and self.CFG_M.use_ema: self.ema.update()
 
     def _step(
@@ -642,7 +642,7 @@ class DiffusionTrainer(Trainer[DiffusionConfig]):
             x_t: torch.Tensor,
             predicted: torch.Tensor
         ) -> None:
-        self.model.opt_dae.zero_grad()
+        self.model.opt_unet.zero_grad()
         self.current_step += 1
 
         if self.current_step == self.total_steps:
@@ -682,7 +682,7 @@ class DiffusionTrainer(Trainer[DiffusionConfig]):
         1.) Warms up/ decays learning rate (if enabled)
         2.) Runs model "q_sample()" method to generate base and
             timestep embedded noise.
-        3.) Predicts noise at timestep from DAE.
+        3.) Predicts noise at timestep from UNet.
         4.) Calculates loss from base noise and predicted noise.
         5.) Run backward pass (see "DiffusionTrainer.backward()")
         6.) Exports examples, saves checkpoints, displays results.
@@ -715,7 +715,7 @@ class DiffusionTrainer(Trainer[DiffusionConfig]):
                 if y is not None and torch.is_floating_point(y):
                     y = y.to(self.device, dtype=torch.float32)
             
-            predicted = self.model.autoencoder(x_t, self.timesteps, context=y)
+            predicted = self.model.unet(x_t, self.timesteps, context=y)
             loss = self.loss_manager.compute_loss_xy(
                 'G_MSE', predicted, noise, self.current_step)
             
