@@ -6,6 +6,7 @@ from dataclasses import dataclass
 class ConfigCUDNN:
     benchmark: bool
     deterministic: bool
+    fp32_precision: str
 
 @dataclass
 class ConfigCommon:

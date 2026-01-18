@@ -30,6 +30,7 @@ class ConfigDataloader:
     dataroot: str
     batch_size: int
     num_workers: int
+    crop_type: str | None
     drop_last: bool
     pin_memory: bool
     shuffle: bool
@@ -156,6 +157,8 @@ class ConfigLatents:
     override_latent_size: bool
     latent_size: int
     vae: str
+    vae_device: str
+    vae_dtype: str
     scaling_factor: float
     cache: ConfigLatentCache
 

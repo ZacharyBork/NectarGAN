@@ -213,6 +213,10 @@ class VisdomVisualizer():
 
     def start_thread(self) -> None:
         '''Starts a thread for updating the Visdom visualizer.'''
+        if hasattr(self, '_thread'): 
+            if self._thread and self._thread.is_alive():
+                self.stop_thread()
+
         self.is_threaded = True
         self._image_queue = queue.Queue()
         self._graph_queue = queue.Queue()
@@ -225,26 +229,35 @@ class VisdomVisualizer():
             try: image_data = self._image_queue.get(timeout=1)
             except queue.Empty: continue
             else:
-                self._update_images_core(
-                    x=image_data['tensors'][0], 
-                    y=image_data['tensors'][1], 
-                    z=image_data['tensors'][2], 
-                    title=image_data['title'], 
-                    image_size=image_data['image_size'])
-                self._image_queue.task_done()
+                try:
+                    self._update_images_core(
+                        x=image_data['tensors'][0], 
+                        y=image_data['tensors'][1], 
+                        z=image_data['tensors'][2], 
+                        title=image_data['title'], 
+                        image_size=image_data['image_size'])
+                finally: 
+                    try: self._image_queue.task_done()
+                    except ValueError: pass
                 if self._stop.is_set(): break
             try: graph_data = self._graph_queue.get(timeout=1)
             except queue.Empty: continue
             else:
-                self._update_loss_graphs_core(
-                    graph_step=graph_data['graph_step'], 
-                    losses_G=graph_data['losses_G'], 
-                    losses_D=graph_data['losses_D'])
-                self._graph_queue.task_done()
-            if self._stop.is_set(): break
+                try:
+                    self._update_loss_graphs_core(
+                        graph_step=graph_data['graph_step'], 
+                        losses_G=graph_data['losses_G'], 
+                        losses_D=graph_data['losses_D'])
+                finally:
+                    try: self._graph_queue.task_done()
+                    except ValueError: pass
+                if self._stop.is_set(): break
 
     def stop_thread(self) -> None:
         '''Stops the visdom visualizer thread.'''
-        self._stop.set()
-        
+        if hasattr(self, '_stop'):
+            self._stop.set()
+        if hasattr(self, '_thread'):
+            if self._thread and self._thread.is_alive():
+                self._thread.join(timeout=5.0)        
 

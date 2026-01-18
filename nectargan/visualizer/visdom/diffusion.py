@@ -56,7 +56,7 @@ class DiffusionVisualizer(VisdomVisualizer):
         self._update_graph(
             values=values, steps=steps, 
             window_internal_name=graph_info[1], window_title=graph_info[2], 
-            xlabel='Iterations', ylabel='Loss', legend=legend)
+            xlabel='Steps', ylabel='Loss', legend=legend)
 
     ### STORE THREAD DATA ###
         
@@ -76,21 +76,27 @@ class DiffusionVisualizer(VisdomVisualizer):
             try: image_data = self._image_queue.get(timeout=1)
             except queue.Empty: pass
             else:
-                self._update_images_core(
-                    x=image_data['tensors'][0], 
-                    y=image_data['tensors'][1], 
-                    z=image_data['tensors'][2], 
-                    title=image_data['title'], 
-                    image_size=image_data['image_size'])
-                self._image_queue.task_done()
+                try:
+                    self._update_images_core(
+                        x=image_data['tensors'][0], 
+                        y=image_data['tensors'][1], 
+                        z=image_data['tensors'][2], 
+                        title=image_data['title'], 
+                        image_size=image_data['image_size'])
+                finally:
+                    try: self._image_queue.task_done()
+                    except ValueError: pass
                 if self._stop.is_set(): break
             try: graph_data = self._graph_queue.get(timeout=1)
             except queue.Empty: pass
             else:
-                self._update_loss_graphs_core(
-                    graph_step=graph_data['graph_step'], 
-                    losses_G=graph_data['losses_G'])
-                self._graph_queue.task_done()
+                try:
+                    self._update_loss_graphs_core(
+                        graph_step=graph_data['graph_step'], 
+                        losses_G=graph_data['losses_G'])
+                finally:
+                    try: self._graph_queue.task_done()
+                    except ValueError: pass
                 if self._stop.is_set(): break
             
 

@@ -11,9 +11,7 @@ from torch.utils.data.dataloader import DataLoader
 from diffusers import AutoencoderKL
 
 from nectargan.latent import latent_utils
-from nectargan.config import DiffusionConfig 
-from nectargan.dataset import DiffusionDataset, ImageTextDataset
-from dataset.cache_loading.loaders import CacheLoader, CacheShardHotloader
+from nectargan.dataset import DiffusionDataset
 
 @dataclass
 class CacheData:
@@ -207,7 +205,7 @@ class LatentManager():
             tuple[DiffusionDataset, DataLoader] : The new Dataloader, and the
                 dataset it's loading.
         '''
-        print(f'Building duplicate Dataloader...\n'
+        print(f'Building Dataloader...\n'
               f'Batch Size : {self.batch_size}\n'
               f'Shard Size : {self.shard_size}\n')
         dataset = DiffusionDataset(

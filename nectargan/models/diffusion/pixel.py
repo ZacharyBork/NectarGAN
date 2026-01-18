@@ -216,13 +216,17 @@ class PixelDiffusionModel(nn.Module):
         size = spatial_size if not spatial_size is None \
             else self.config.model.input_size
         shape = (batches, self.config.model.unet.in_channels, size, size)
-        with torch.no_grad():
+        with torch.inference_mode():
             x = torch.randn(shape).to(self.device) # Generate noise tensor
             for i in reversed(range(self.timesteps)):
                 t = torch.full( # Build timesteps for batch
                     (shape[0],), i, device=self.device, dtype=torch.long)
                 x = self.p_sample(x, t, idx=i, context=context)
-        return x.detach().cpu()
+                del t
+        result = torch.clamp((x + 1) * 0.5, 0.0, 1.0).detach().cpu()
+        del x
+        if self.device == 'cuda': torch.cuda.empty_cache()
+        return result
         
     def trainer_core(
             self, 

@@ -31,6 +31,8 @@ class LatentDiffusionModel(PixelDiffusionModel):
         self.use_captions = self.config.captions.use_captions
         self.read_from_cache = self.config.latents.cache.read_from_cache
         self.latent_size = latent_utils.get_latent_spatial_size(config)
+        self.dtype = torch.float16 if self.config.model.mixed_precision \
+            else torch.float32
 
         self._init_vae()
         self._init_unet()
@@ -58,12 +60,15 @@ class LatentDiffusionModel(PixelDiffusionModel):
             context_dimension = None
         super()._init_unet(
             block_type=block_type, context_dimension=context_dimension)
+        
+        parameters = sum(p.numel() for p in self.unet.parameters())
+        print(f'Parameter Count: {parameters}')
 
     def _init_vae(self) -> None:
-        dtype = 'float16' if self.config.model.mixed_precision else 'float32'
+        cfg_l = self.config.latents
         self.vae = VAE(
-            device=self.device, dtype=dtype, model=self.config.latents.vae,
-            scaling_factor=self.config.latents.scaling_factor)
+            device=cfg_l.vae_device, dtype=cfg_l.vae_dtype, 
+            model=cfg_l.vae, scaling_factor=cfg_l.scaling_factor)
         self.encode = self.vae.encode_to_latent
         self.decode = self.vae.decode_from_latent
         
@@ -75,6 +80,7 @@ class LatentDiffusionModel(PixelDiffusionModel):
         '''
         if not self.read_from_cache: super()._init_dataloader()
         else:
+            loader = self.config.dataloader
             cache_cfg = self.config.latents.cache
             if self.config.captions.use_captions:
                 dataset = ImageTextDataset(
@@ -86,17 +92,19 @@ class LatentDiffusionModel(PixelDiffusionModel):
                     case 'CacheLoader':
                         dataset = CacheLoader(
                             shard_directory=cache_cfg.cache_directory, 
-                            load_size=self.latent_size)
+                            load_size=self.latent_size,
+                            crop_type=loader.crop_type)
                     case 'CacheShardHotloader':
                         dataset = CacheShardHotloader(
                             shard_directory=cache_cfg.cache_directory, 
-                            load_size=self.latent_size)
+                            load_size=self.latent_size,
+                            crop_type=loader.crop_type)
                     case _:
                         raise ValueError(
                             f'Invalid cache loader type: '
                             f'{cache_cfg.loader_type}')
             
-            loader = self.config.dataloader
+            
             self.dataloader = DataLoader(
                 dataset, batch_size=loader.batch_size,
                 num_workers=loader.num_workers, drop_last=loader.drop_last, 
@@ -185,6 +193,7 @@ class LatentDiffusionModel(PixelDiffusionModel):
             cond = self.unet(x, t, context=context)
             uncond = self.unet(x, t, context=nullcontext)
             pred_noise = uncond + cfg_scale * (cond - uncond)
+            del cond, uncond
         else: pred_noise = self.unet(x, t, context=context)
         return pred_noise
     
@@ -202,7 +211,7 @@ class LatentDiffusionModel(PixelDiffusionModel):
         x0 = self._predict_x0(x, predictions)
         if idx == 0: return x0
 
-        abar = self.noiseparams.alphas_cumprod.to(self.device)
+        abar = self.noiseparams.alphas_cumprod
         a_prev = abar[t_prev].view(x.shape[0], 1, 1, 1)
 
         if self.config.model.sampling.ddim_recompute_epsilon:
@@ -307,7 +316,7 @@ class LatentDiffusionModel(PixelDiffusionModel):
         lss = latent_spatial_size or self.latent_size
         shape = (batches, self.config.model.unet.in_channels, lss, lss)
         
-        with torch.no_grad():
+        with torch.inference_mode():
             x = torch.randn(shape, device=self.device)
             steps = torch.linspace(
                 self.timesteps - 1, 0, inference_steps,
@@ -333,7 +342,13 @@ class LatentDiffusionModel(PixelDiffusionModel):
                     x, t, idx=idx, t_prev=t_prev, 
                     predictions=predictions, mode=mode)
                 
-        return self.decode(x.detach().cpu())
+                del predictions, t, t_prev
+                
+        z = self.decode(x)
+        result = torch.clamp((z + 1) * 0.5, 0.0, 1.0).detach().cpu()
+        del z, x
+        if self.device == 'cuda': torch.cuda.empty_cache()
+        return result
     
     ##### TRAINER CORE #####
 
@@ -357,12 +372,12 @@ class LatentDiffusionModel(PixelDiffusionModel):
             if self.config.captions.use_captions:
                 image: torch.Tensor = data[0]
                 image = image.to(
-                    self.device, dtype=torch.float32, non_blocking=True)
+                    self.device, dtype=self.dtype, non_blocking=True)
                 self.captions = data[1]
                 captions = self._drop_captions(
                     self.captions, unconditional_probability)
                 contexts, _ = self.text_encoder(captions)
-                contexts = contexts.to(self.device, dtype=torch.float32)
+                contexts = contexts.to(self.device, dtype=self.dtype)
             else: 
                 image = data
                 contexts = None

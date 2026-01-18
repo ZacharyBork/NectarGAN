@@ -1,3 +1,4 @@
+import gc
 import math
 import random
 import pathlib
@@ -45,12 +46,6 @@ class DiffusionTrainer(Trainer[DiffusionConfig]):
         self.CFG_LR = self.CFG_M.unet.learning_rate
         self.current_iteration = 0
         
-        self.cuda = self.device == 'cuda'
-        if self.cuda:
-            cudnn = self.config.common.cudnn
-            torch.backends.cudnn.benchmark = cudnn.benchmark
-            torch.backends.cudnn.deterministic = cudnn.deterministic
-        
         self._init_model()
         self._build_timesteps()
         if not self.testing:
@@ -63,7 +58,9 @@ class DiffusionTrainer(Trainer[DiffusionConfig]):
     ##### OPTIMIZATION #####
 
     def _flush_cache(self) -> None:
-        if self.cuda: torch.cuda.empty_cache()
+        if self.cuda: 
+            torch.cuda.empty_cache()
+            torch.cuda.synchronize()
 
     ##### INIT #####                
 
@@ -285,7 +282,7 @@ class DiffusionTrainer(Trainer[DiffusionConfig]):
                 ('Laplacian', cfg_p.lambda_laplacian, Laplacian)]
             for x in self.pixel_losses:
                 if x[1] > 0.0:
-                    print(f'Lambda {x[0]}: {cfg_p.lambda_l1}')
+                    print(f'Lambda {x[0]}: {x[1]}')
                     self.loss_manager.register_loss_fn(
                         loss_name=f'G_{x[0]}', loss_fn=x[2]().to(self.device), 
                         loss_weight=x[1], tags=['G'])
@@ -308,6 +305,7 @@ class DiffusionTrainer(Trainer[DiffusionConfig]):
             pred_x0 = self.model.decode(pred_x0)
             pixel_x = self.model.decode(x[batch:batch+1])   
             
+            value = torch.zeros(1, device=self.device)
             for loss in self.pixel_losses:
                 if loss[1] > 0:
                     value += self.loss_manager.compute_loss_xy(
@@ -329,21 +327,16 @@ class DiffusionTrainer(Trainer[DiffusionConfig]):
             return self.config.captions.fixed_captions 
         else: return self.model.captions
 
-    def _get_example_context(
-            self, 
-            context: torch.Tensor,
-            captions: list[str]
-        ) -> torch.Tensor:
-        caption = 'nullcaption'
-        if not captions is None and not context is None:
-            context, _ = self.model.text_encoder(captions)
-            count = float(len(captions))
-            if count > 0.0:
-                idx = int(math.floor(random.random() * count))
-                context = context[idx].unsqueeze(0).detach()
-                context = context.to(self.device)
-                caption = captions[idx]
-        print(f'Running inference with caption:\n{caption}')
+    def _get_example_context(self, silent: bool=False) -> torch.Tensor:
+        captions = self._get_example_captions()
+        count = len(captions)
+        if count > 0:
+            caption = captions[int(math.floor(random.random() * float(count)))]
+        else: caption = 'nullcaption'
+        if not silent: print(f'Running inference with caption:\n{caption}')
+        
+        context, _ = self.model.text_encoder([caption])
+        return context.unsqueeze(0).detach().to(self.device)
 
     def _save_inference_example(
             self,
@@ -356,16 +349,14 @@ class DiffusionTrainer(Trainer[DiffusionConfig]):
             inference_steps: int = 100,
             mode: Literal['DDPM', 'DDIM'] = 'DDIM'
         ) -> None:
-        with self.ema_context():
-            with self.autocast_context(), torch.no_grad():
-                self._flush_cache()
+        with torch.no_grad():
+            with self.autocast_context(), self.ema_context():
                 output = self.model.sample(
                     batches=batches, latent_spatial_size=latent_spatial_size,
                     context=context, cfg_scale=cfg_scale, 
                     mode=mode, inference_steps=inference_steps)
-                
-                
-        output = torch.clamp((output + 1) * 0.5, 0.0, 1.0)
+
+        self._flush_cache()
         scale_tag = str(cfg_scale).replace('.', '-')
         for i in range(batches):
             name = (
@@ -374,24 +365,16 @@ class DiffusionTrainer(Trainer[DiffusionConfig]):
             filepath = pathlib.Path(output_directory, name).resolve()
             save_image(output[i], filepath.as_posix())
 
-    def export_examples(
-            self, 
-            context: torch.Tensor | None=None
-        ) -> None: 
+    def export_examples(self, silent: bool=False) -> None: 
         '''Evals UNet and exports resulting images to the experiment directory.
-        
-        Args:
-            context : The context Tensor to pass to the diffusion model, or
-                None if not using text conditioning.
         '''
         smp = self.config.model.sampling
         was_training = self.model.training
         self.model.eval()
         try: 
-            captions = self._get_example_captions()
             for i in range(self.config.save.num_examples):
                 if self.config.captions.use_captions:
-                    context = self._get_example_context(context, captions)
+                    context = self._get_example_context(silent=silent)
                     cfg_scales = self.config.save.sample_cfg_scales
                 else: 
                     context = None
@@ -401,7 +384,9 @@ class DiffusionTrainer(Trainer[DiffusionConfig]):
                         idx=i, output_directory=self.examples_dir, 
                         context=context, cfg_scale=scale, 
                         inference_steps=smp.ddim_timesteps, mode=smp.function)
-        finally: self.model.train(was_training)
+        finally: 
+            self._flush_cache()
+            self.model.train(was_training)
         
     ##### VISUALIZATION #####
 
@@ -409,7 +394,8 @@ class DiffusionTrainer(Trainer[DiffusionConfig]):
             self, 
             x: torch.Tensor, 
             y: torch.Tensor, 
-            z: torch.Tensor
+            z: torch.Tensor,
+            timesteps: torch.Tensor
         ) -> None:
         '''Updates Visdom during training with loss info and examples.
         
@@ -431,7 +417,7 @@ class DiffusionTrainer(Trainer[DiffusionConfig]):
 
             if self.config.model.model_type == 'latent':
                 x, y, z = self._build_latent_vis_tensors(
-                    x, y, z, self.timesteps)
+                    x, y, z, timesteps)
                 
             self.vis.update_images(
                 x=x, y=y, z=z, title='x | x_t | pred x0', 
@@ -441,9 +427,9 @@ class DiffusionTrainer(Trainer[DiffusionConfig]):
             _get = lambda i: self.loss_tracker.get_average(i, 'visdom')
             loss = { 'G_MSE': _get('G_MSE') }
             if self.do_pixel_loss:
-                for loss in self.pixel_losses:
-                    if loss[1] == 0.0: continue
-                    loss[loss[0]] = _get(loss[0])
+                for loss_info in self.pixel_losses:
+                    if loss_info[1] == 0.0: continue
+                    loss[loss_info[0]] = _get(loss_info[0])
         else: loss = self.loss_manager.get_loss_values(query=['G'])
         self.vis.update_loss_graphs(self.current_step, loss)
 
@@ -451,10 +437,11 @@ class DiffusionTrainer(Trainer[DiffusionConfig]):
             self, 
             x_t: torch.Tensor, 
             predicted: torch.Tensor,
+            timesteps: torch.Tensor,
             range: float=4.0
         ) -> torch.Tensor:
         params = self.model.noiseparams
-        abar = params.alphas_cumprod[self.timesteps].view(-1,1,1,1)
+        abar = params.alphas_cumprod[timesteps].view(-1,1,1,1)
         pred_x0 = (x_t - (1.0 - abar).sqrt() * predicted) /  abar.sqrt()
         return torch.clamp(pred_x0, -range, range)
 
@@ -462,7 +449,8 @@ class DiffusionTrainer(Trainer[DiffusionConfig]):
             self, 
             x: torch.Tensor,
             x_t: torch.Tensor,
-            predicted: torch.Tensor
+            predicted: torch.Tensor,
+            timesteps: torch.Tensor
         ) -> tuple[torch.Tensor]:
         '''Decodes tensors from latent space for viewing in Visdom.
 
@@ -475,8 +463,9 @@ class DiffusionTrainer(Trainer[DiffusionConfig]):
             ordered as: (x, x_t, predicted)
         '''
         with self.autocast_context():
-            pred_x0 = self._predict_x0(x_t, predicted)
-            tensors = [self.model.decode(t) for t in (x, x_t, pred_x0)]
+            pred_x0 = self._predict_x0(x_t, predicted, timesteps)
+            tensors = [
+                self.model.decode(t).detach().cpu() for t in (x, x_t, pred_x0)]
         return tuple(tensors)
 
     ##### CONSOLE #####
@@ -518,7 +507,8 @@ class DiffusionTrainer(Trainer[DiffusionConfig]):
             self,
             x: torch.Tensor,
             x_t: torch.Tensor,
-            predicted: torch.Tensor
+            predicted: torch.Tensor,
+            timesteps: torch.Tensor
         ) -> None:
         '''Updates Visdom and prints loss values to the console.
 
@@ -540,14 +530,14 @@ class DiffusionTrainer(Trainer[DiffusionConfig]):
             print(f'Average batch time: {avg_time} seconds')
             self.model.batch_times.clear()
         if self.current_step % vis.visdom.update_frequency == 0:
-            self.update_display(x, x_t, predicted)
+            self.update_display(x, x_t, predicted, timesteps)
 
     ##### TRAINING METHODS #####
 
-    def _build_timesteps(self) -> None:
+    def _build_timesteps(self) -> torch.Tensor:
         '''Builds a timestep tensor for the current batch.'''
         B = self.config.dataloader.batch_size
-        self.timesteps = torch.randint(
+        return torch.randint(
             0, self.config.model.noise_schedule.timesteps, (B,),
             device=self.device).long()
     
@@ -638,28 +628,31 @@ class DiffusionTrainer(Trainer[DiffusionConfig]):
     def _step(
             self,
             x: torch.Tensor,
-            y: torch.Tensor | None,
             x_t: torch.Tensor,
-            predicted: torch.Tensor
+            predicted: torch.Tensor,
+            timesteps: torch.Tensor
         ) -> None:
         self.model.opt_unet.zero_grad()
         self.current_step += 1
 
         if self.current_step == self.total_steps:
-            self.export_examples(context=y)
+            self.export_examples()
             self.save_checkpoint()
             print('Training complete!')
             exit(0) # Should make this a more graceful exit eventually
 
         cfg = self.config.save
         if x.shape[1] == 3:
-            x = torch.cat([x, torch.full_like(x[:, :1, :, :], 0.0)], dim=1)
-        self._display(x, x_t, predicted)
+            x = torch.cat(
+                [x, torch.full_like(x[:, :1, :, :], 0.0)], dim=1).detach()
+        self._display(x, x_t, predicted, timesteps)
         if self.current_step % cfg.example_save_rate == 0: 
-            self.export_examples(context=y)    
+            self.export_examples()
+            gc.collect()
+            self._flush_cache()
         if cfg.save_model and self.current_step % cfg.model_save_rate == 0:
             self.save_checkpoint()
-
+        
     ##### TRAINING HOOKS #####
 
     def on_epoch_start(self, **kwargs: Any) -> None:
@@ -698,24 +691,24 @@ class DiffusionTrainer(Trainer[DiffusionConfig]):
                 information.
         '''
         self._flush_cache()
-
+        
         self.current_iteration += 1
         step = not self.CFG_M.accumulate_gradients or self.current_iteration %\
            self.CFG_M.gradient_accumulation_iterations == 0
                         
         if self.CFG_LR.warm_up: self._warm_up_lr()
         if self.CFG_LR.do_decay: self._decay_lr()
-        self._build_timesteps()
+        timesteps = self._build_timesteps()
 
         with self.autocast_context(): 
-            x_t, noise = self.model.q_sample(x=x, t=self.timesteps)            
+            x_t, noise = self.model.q_sample(x=x, t=timesteps)            
             if not self.CFG_M.mixed_precision:
                 x_t = x_t.to(device=self.device, dtype=torch.float32)
                 noise = noise.to(device=self.device, dtype=torch.float32)
                 if y is not None and torch.is_floating_point(y):
                     y = y.to(self.device, dtype=torch.float32)
             
-            predicted = self.model.unet(x_t, self.timesteps, context=y)
+            predicted = self.model.unet(x_t, timesteps, context=y)
             loss = self.loss_manager.compute_loss_xy(
                 'G_MSE', predicted, noise, self.current_step)
             
@@ -724,12 +717,12 @@ class DiffusionTrainer(Trainer[DiffusionConfig]):
                     'G_MSE', loss.mean().item())
 
             if self.do_pixel_loss and self.current_step % \
-               self.config.train.loss.pixel.frequency == 1:
+               self.config.train.loss.pixel.frequency == 0:
                 loss += self._compute_pixel_loss(x, x_t, predicted)
 
         if assert_finite: self._assert_finite(x, x_t, noise)
         self.backward(loss, step)
-        if step: self._step(x, y, x_t, predicted)
+        if step: self._step(x, x_t, predicted, timesteps)
         
     def on_epoch_end(self, **kwargs: Any) -> None:
         '''Epoch end callback for DiffusionTrainer.

@@ -58,6 +58,9 @@ class Trainer(Generic[TConfig]):
         self.device = self.config.common.device # Store device for easy lookup
         if quicksetup: self.quicksetup()        # Do quicksetup if applicable
 
+        self.cuda = self.device == 'cuda'
+        if self.cuda: self._init_cudnn()
+
     ### TRAINER QUICKSETUP ###
 
     def quicksetup(self) -> None:
@@ -70,6 +73,16 @@ class Trainer(Generic[TConfig]):
             self.init_visdom()         # Init visualizer
 
     ### INITIALIZATION HELPERS ###
+
+    def _init_cudnn(self) -> None:
+        '''Initializes CUDNN settings from config values.'''
+        cudnn = self.config.common.cudnn
+        torch.backends.cudnn.benchmark = cudnn.benchmark
+        torch.backends.cudnn.deterministic = cudnn.deterministic
+        if hasattr(torch.backends.cudnn, 'conv'):
+            precision = cudnn.fp32_precision
+            torch.backends.cudnn.conv.fp32_precision = precision
+            torch.backends.cuda.matmul.fp32_precision = precision
 
     def init_config(
             self, 
