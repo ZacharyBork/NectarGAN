@@ -9,6 +9,67 @@
 
 **If you come across any issues with the documentation, please feel free to open an issue, or if you are comfortable doing so, a PR with your updates. Help is always appreciated!**
 
+## Install
+
+Please see the NectarGAN [getting started guide](https://github.com/ZacharyBork/NectarGAN/blob/main/docs/getting_started.md) for steps on how to install NectarGAN and configure your environment.
+
+Using the NectarGAN diffusion models also requires some additional dependencies. To install all the required diffusion dependencies, after working through the getting started guide, please navigate to the NectarGAN root directory in your terminal and run this command:
+
+```bash
+python -m pip install ".[diffusion]"
+```
+
+If you intend to use the dataset streaming functionality (**BETA**), please also run:
+```bash
+python -m pip install ".[dataset_streaming]"
+```
+
+## The Models
+
+### Pixel Diffusion Model
+
+A simple pixel-space diffusion model, based largely on the [Denoising Diffusion Probabilistic Models (DDPM) (Ho et al., 2020)](https://arxiv.org/pdf/2006.11239).
+
+### Latent Diffusion Model
+
+A lightweight latent-space diffusion model. The architecture is based heavily on [Stable Diffusion](https://arxiv.org/pdf/2112.10752), but it is not as compute intensive. It uses the same self-attention pattern as SD, and has a deeper (configurable) middle layer, but does not incorporate the additional residual blocks on the shallower layers of the encoder/decoder path. It instead just uses a single identity connection inside of each of the conv blocks. This allows the model to be trained to convergence relatively quickly on lower end hardware (a single 2080Ti, in my case), but limits the model to largely single-domain use cases.
+
+Eventually, I will add the ability to add back the additional residual blocks, likely in a configurable fashion so that you can decide where exactly to allocate the blocks to best suit your use case. Right now, though, I am a little compute limited, and likely would not be able to personally validate a model as heavy as Stable Diffusion.
+
+This model also allows the use of [DDIM sampling](https://arxiv.org/pdf/2010.02502), in addition to DDPM.
+
+## Using the models
+Training and testing of diffusion models can be performed from the command line. 
+
+### Training
+When training diffusion models, all training settings will be pulled from the Diffusion config (outlined below). To begin a training session, first navigate to the NectarGAN root directory in your console, then run:
+
+```bash
+python -m nectargan.start.training.diffusion
+```
+
+### Testing
+Testing of trained diffusion models can also be run from the command line using the following command:
+
+```bash
+python -m nectargan.start.testing.diffusion -e "/path/to/directory/of/model/to/test" -l 100
+```
+This command has a number of arguments which can be used to alter the testing behavior. These are:
+
+| Argument | Description |
+| --- | --- |
+| `-e`, `--experiment_directory` | **REQUIRED.** The directory of the experiment to load for testing. |
+| `-l`, `--load_step` | **REQUIRED.** The checkpoint step number to load for testing. |
+| `-f`, `--config_file` | The system path to config file to use for testing. If not provided, the script will instead look for the most recent config file located in the gived experiment directory. |
+| `-i`, `--test_iterations` | The number of test iterations to run. |
+| `-b`, `--batches` | The number of batches to use in each iteration. |
+| `-s`, `--latent_spatial_size` | The spatial size of the latent-space noise tensors used as input. |
+| `-m`, `--inference_mode` | What inference mode to use (i.e. `DDIM`, `DDPM`) |
+| `-is`, `--inference_steps` | The number of denoising steps to use for inference. |
+| `-c`, `--caption` | The caption to use for text conditioning during inference, if applicable. |
+| `-cfg`, `--cfg_scale` | The classifier free guidance scale to use for inference if using text conditioning. |
+| `-ema`, `--sample_ema` | Whether to sample directly from the model's weights, or from the EMA weights. Requires an EMA checkpoint for the given step to be present in the experiment directory. |
+
 ## The Diffusion Config
 The diffusion models use a different configuration file than the GAN models. The file can be found at:
 
@@ -102,9 +163,16 @@ The `model` section is broken up in to categories. At the top are some core opti
 | `features` | The output feature count of the first encoder layer. |
 | `n_downs` | The number of downsampling layers in the encoder path. |
 | `middle_layer_depth` | The number of residual blocks to add to the middle layer. If `self_attention` is enabled, an attention block will be added after each residual block, save for the final one. |
-| `betas` | The betas for the UNet optimizer. |
 | `self_attention` | If true, self attention blocks will be added to the deepest layers on the encoder and decoder path, and also to the middle layer. |
 | `enable_checkpointing` | Enabled checkpointing of residual and attention blocks in the UNet to reduce VRAM overhead. |
+
+##### UNet Optimizer Settings
+
+| Settings | Description |
+| --- | --- |
+| `optimizer_type` | What type of optimizer to use for the UNet. Options are [`Adam`, `AdamW`] |
+| `betas` | The betas for the UNet optimizer. |
+| `fused` | Whether to fuse the optimizer. This can help save a bit of VRAM when training with CUDA. |
 
 ##### Compile settings
 
@@ -120,9 +188,23 @@ The `model` section is broken up in to categories. At the top are some core opti
 | `base_rate` | The learning rate to use after warmup, and before decay. |
 | `warm_up` | If true, learning rate will be warmed up from 0.0 to `base_rate` over `warm_up_steps` number of optimizer steps. |
 | `warm_up_steps` | The number of steps over which to warm up the learning rate. When the current step equals `warm_up_steps`, the model will have reached its full learning rate, defined by `base_rate`. |
-| `decay` | If true, the learning rate will be decayed from `base_rate` to 0.0 over `decay_steps` number of optimizer steps after `steps_before_decay` have elapsed. |
-| `steps_before_decay` | The number of optimizer steps to run before beginning to decay the learning rate. |
-| `decay_steps` | The number of optimizer steps over which to decay the learning rate to 0.0. |
+
+**Next we have some settings related to learning rate decay.** These are:
+
+| Settings | Description |
+| --- | --- |
+| `enable` | Whether to enable LR decay for the UNet optimizer. |
+| `schedule_type` | What type of decay schedule to use. Options are [`Linear`, `CosineAnnealing`, `CosineAnnealingWarmRestarts`] |
+| `steps_before_decay` | The number of optimizer steps (after the warmup period has completed, if applicable) to hold the LR at its `base_rate` before beginning the decay schedule. |
+| `decay_steps` | The number of steps over which to decay the LR from its `base_rate` down to the `minimum_lr` |
+| `minimum_lr` | The desired LR after the decay has been fully completed. |
+
+**And then we have a couple settings which are specifically related to warm restarts. These settings only apply when `schedule_type` is set to `CosineAnnealingWarmRestarts`.**
+
+| Settings | Description |
+| --- | --- |
+| `steps_before_first_restart` | The number of optimizer steps to perform before the first warm restart. |
+| `restart_steps_multiplier` | The value to multiply the number of restart steps by after each restart. |
 
 ### `dataloader`
 
@@ -228,38 +310,6 @@ And lastly, we have settings related to data visualization during training. This
 | `average_loss` | Whether to average the losses displayed in the console over the given update period, rather than sampling the loss stochastically at the time which the update occurs. |
 | `print_frequency` | The frequency (in steps) at which to send updates to the console during training. |
 
-## CLI
-Training and testing of diffusion models can be performed from the command line. 
-
-### Training
-When training diffusion models, all training settings will be pulled from the Diffusion config. To begin a training session, first navigate to the NectarGAN root directory in your console, then run:
-
-```bash
-python -m nectargan.start.training.diffusion
-```
-
-### Testing
-Testing of trained diffusion models can also be run from the command line using the following command:
-
-```bash
-python -m nectargan.start.testing.diffusion -e "/path/to/experiment/directory/of/model/to/test" -l 100
-```
-This command has a number of arguments which can be used to alter the testing behavior. These are:
-
-| Argument | Description |
-| --- | --- |
-| `-e`, `--experiment_directory` | **REQUIRED.** The directory of the experiment to load for testing. |
-| `-l`, `--load_step` | **REQUIRED.** The checkpoint step number to load for testing. |
-| `-f`, `--config_file` | The system path to config file to use for testing. If not provided, the script will instead look for the most recent config file located in the gived experiment directory. |
-| `-i`, `--test_iterations` | The number of test iterations to run. |
-| `-b`, `--batches` | The number of batches to use in each iteration. |
-| `-s`, `--latent_spatial_size` | The spatial size of the latent-space noise tensors used as input. |
-| `-m`, `--inference_mode` | What inference mode to use (i.e. `DDIM`, `DDPM`) |
-| `-is`, `--inference_steps` | The number of denoising steps to use for inference. |
-| `-c`, `--caption` | The caption to use for text conditioning during inference, if applicable. |
-| `-cfg`, `--cfg_scale` | The classifier free guidance scale to use for inference if using text conditioning. |
-| `-ema`, `--sample_ema` | Whether to sample directly from the model's weights, or from the EMA weights. Requires an EMA checkpoint for the given step to be present in the experiment directory. |
-
 ## Latent Tensor Pre-Caching
 NectarGAN includes a system to pre-cache latent-space tensors for local datasets. This eliminates the need for VAE encoding at runtime and can significantly speed up training of latent diffusion models. The pre-caching system is fully compatible with text conditional training. To begin, first navigate to the NectarGAN root directory in your terminal, the run the command:
 
@@ -287,6 +337,64 @@ When run, this command takes all the images in the directory specified with the 
 ***PLEASE NOTE: Currently, the manifest is only written out at the very end of the caching operation! This will be changed in the future to write progressively as shards are cached out. For now though, you must wait for the entire caching operation to complete if you intend to use the cache manifest!***
 
 ## Captions & Contexts
+
+It is possible to train text-conditioned diffusion models with NectarGAN. Currently, this is limited to the latent diffusion model, and can be enabled from the config in the `captions` section. To train with text conditioning, you must first generate a NectarGAN compatible metadata file for your captions. 
+
+As no two datasets in the wild really use the same caption format, NectarGAN instead has its own standardized caption metadata format, stored as a `.json` file. The current schema follows this pattern:
+
+```json
+{
+    "info": {
+        "schema_version": 1,
+        "total_captions": 6,
+        "total_images": 2
+    },
+    "items": {
+        "file_name_1": {
+            "filepath": "/path/to/image/file_1",
+            "captions": [
+                "Caption number 1.",
+                "Caption number 2.",
+                "Caption number 3."
+            ]
+        },
+        "file_name_2": {
+            "filepath": "/path/to/image/file_2",
+            "captions": [
+                "Caption number 1.",
+                "Caption number 2.",
+                "Caption number 3."
+            ]
+        }
+    },
+    "other": {}
+}
+```
+**Let's break this down real quick,** then we will touch on how to generate this format for your own datasets. 
+
+#### First, we have a section called `info`
+In this section, we store the schema version (for eventual backward compatibility, should the metadata format ever change in the future). Currently, the only schema version is `1`.
+
+Next, we store the total number of captions. This is the sum of all captions for every image in the dataset.
+
+And lastly, we store the total number of images in the dataset.
+
+#### Next, we have a section called `items`
+
+Items is a dict-like object where the keys are the file names (**without file suffixes**), and the values are also dict-like objects. These values house two things:
+
+1. The system path to the image file.
+2. A list of strings containing all of the captions for the given image file.
+
+#### And lastly, we have a section called `other`
+
+In the native NectarGAN datasets, this is not used. It is included in the event you would like to write your own dataloader and wish to include some sort of additional metadata along with your captions.
+
+### Now, let's have a quick look at how to generate this metadata file
+
+NectarGAN includes a few classes to generate captions for commonly used datasets. These can be found [here](https://github.com/ZacharyBork/NectarGAN/blob/main/nectargan/dataset/metadata/caption_loader.py). Included are a class which can be used to generate a metadata file for the [COCO2017](https://cocodataset.org/#home) captions, and for the [CUB200](https://www.vision.caltech.edu/datasets/cub_200_2011/) captions. These are both relatively simple. They just load up the annotations file for the dataset, and based on how the original annotations are laid out, convert them to follow the NectarGAN standard. These can be used as a guide to write a script which can generate the metadata file for your own dataset, and the default classes will likely be expanded in the future. If there is a caption set you want which is not listed, please feel free to submit a GitHub issue with your caption request, and I will try to get a default class added for the given dataset!
+
+
 
 
 
