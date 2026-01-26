@@ -83,13 +83,26 @@ class ConfigMLP:
 ##### UNet #####
 
 @dataclass
+class ConfigLearningRateWarmRestarts:
+    steps_before_first_restart: int
+    restart_steps_multiplier: float
+
+@dataclass
+class ConfigLearningRateDecay:
+    enable: bool
+    schedule_type: str
+    steps_before_decay: int
+    decay_steps: int
+    minimum_lr: float
+    cosine_cycle_length: int
+    warm_restarts: ConfigLearningRateWarmRestarts
+
+@dataclass
 class ConfigLearningRate:
     base_rate: float
     warm_up: bool
     warm_up_steps: int
-    do_decay: bool
-    steps_before_decay: int 
-    decay_steps: int
+    decay: ConfigLearningRateDecay
 
 @dataclass
 class ConfigUNetCompile:
@@ -97,13 +110,20 @@ class ConfigUNetCompile:
     mode: str
 
 @dataclass
+class ConfigUNetOptimizer:
+    optimizer_type: str
+    betas: list[float]
+    fused: bool
+
+@dataclass
 class ConfigUNet:
     in_channels: int
     features: int
     n_downs: int
-    betas: list[float]
+    middle_layer_depth: int
     self_attention: bool
     enable_checkpointing: bool
+    optimizer: ConfigUNetOptimizer
     compile: ConfigUNetCompile
     learning_rate: ConfigLearningRate
     

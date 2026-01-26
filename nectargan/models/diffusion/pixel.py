@@ -88,13 +88,18 @@ class PixelDiffusionModel(nn.Module):
         self.unet = DiffusionUnet(
             config=self.config, block_type=block_type,
             context_dimension=context_dimension,
+            bottleneck_depth=UNET.middle_layer_depth,
             use_attention=UNET.self_attention,
             use_checkpointing=UNET.enable_checkpointing
         ).to(self.device, dtype=torch.float32)
-        self.opt_unet = optim.Adam(
-            self.unet.parameters(), 
-            lr=UNET.learning_rate.base_rate, 
-            betas=UNET.betas, fused=True)
+        
+        match UNET.optimizer.optimizer_type:
+            case 'Adam': optimizer = optim.Adam
+            case 'AdamW': optimizer = optim.AdamW
+        self.opt_unet = optimizer(
+            self.unet.parameters(), lr=UNET.learning_rate.base_rate,
+            betas=UNET.optimizer.betas, fused=UNET.optimizer.fused)
+        
         if self.config.model.mixed_precision:
             self.g_scaler = torch.amp.GradScaler(self.device)
 

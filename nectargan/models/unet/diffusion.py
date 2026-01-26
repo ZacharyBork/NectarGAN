@@ -1,7 +1,6 @@
 import torch
 import torch.nn as nn
 from torch.utils.checkpoint import checkpoint
-from dataclasses import dataclass, field
 
 from nectargan.models import UnetGenerator
 from nectargan.models.unet.blocks import \
@@ -15,7 +14,7 @@ class DiffusionUnet(UnetGenerator):
             config: DiffusionConfig,
             block_type: TimeEmbeddedUnetBlock,
             context_dimension: int | None=None,
-            bottleneck_depth: int=3,
+            bottleneck_depth: int=6,
             use_attention: bool=True,
             use_checkpointing: bool=True,
             **kwargs
@@ -23,7 +22,7 @@ class DiffusionUnet(UnetGenerator):
         '''Initialized a DiffusionUnet.
         
         Args:
-            config : The DiffusionConfig to use for the DAE.
+            config : The DiffusionConfig to use for the UNet.
             block_type : The conv block type for the network to use.
             context_dimension : The context dimension for the UNet blocks, if
                 using text conditioning.
@@ -36,7 +35,7 @@ class DiffusionUnet(UnetGenerator):
         '''
         self.config  = config
         self.device  = config.common.device
-        self.cfg_dae = config.model.dae
+        self.cfg_unet = config.model.unet
         self.cfg_mlp = config.model.mlp
         
         self.block_type = block_type
@@ -52,9 +51,9 @@ class DiffusionUnet(UnetGenerator):
         self.dropout_chance = 0.0
         
         super().__init__(
-            in_channels=self.cfg_dae.in_channels, n_downs=self.cfg_dae.n_downs,
+            in_channels=self.cfg_unet.in_channels, n_downs=self.cfg_unet.n_downs,
             input_size=config.model.input_size, block_type=self.block_type,
-            features=self.cfg_dae.features, init_weights=False, **kwargs)
+            features=self.cfg_unet.features, init_weights=False, **kwargs)
         
         self.get_embedding_frequency()
         self.init_mlp()
@@ -100,14 +99,14 @@ class DiffusionUnet(UnetGenerator):
         '''Initialize self-attention blocks.'''
         self.down_attentions = nn.ModuleList()
         for i, (in_ch, out_ch) in enumerate(self.channel_map['downs']):
-            if i >= len(self.channel_map['downs']) - 2:
+            if i >= len(self.channel_map['downs']) - 1:
                 self.down_attentions.append(
                     AttentionBlock(out_ch, num_heads=num_heads))
             else: self.down_attentions.append(nn.Identity())
-        
+
         self.up_attentions = nn.ModuleList()
         for i in range(1, len(self.channel_map['ups'])):
-            if i <= 2:
+            if i <= 1:
                 out_ch = self.channel_map['ups'][i][1]
                 self.up_attentions.append(
                     AttentionBlock(out_ch, num_heads=num_heads))

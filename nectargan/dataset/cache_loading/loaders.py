@@ -12,11 +12,14 @@ class CacheLoader(torch.utils.data.Dataset):
     def __init__(
             self, 
             shard_directory: PathLike,
-            load_size: int
+            load_size: int,
+            crop_type: Literal['random', 'center'] | None = 'center',
         ) -> None:
         super(CacheLoader, self).__init__()
-        self.load_size = load_size
         self.shard_directory = shard_directory
+        self.load_size = load_size
+        self.crop_type = crop_type
+
         self.cached_shard: torch.Tensor = None
         self.cached_shard_info: dict[str, Any] = None
         
@@ -31,7 +34,16 @@ class CacheLoader(torch.utils.data.Dataset):
         t = self.cached_shard[self.current_mapped_index]
         if t.ndim == 4 and t.shape[0] == 1: t = t.squeeze(0)
         crop = RandomCrop(size=(self.load_size, self.load_size))
-        return crop(t)
+        return self._crop_tensor(t)
+
+    def _crop_tensor(self, tensor: torch.Tensor) -> torch.Tensor:
+        size = (self.load_size, self.load_size)
+        match self.crop_type:
+            case 'random': crop = RandomCrop(size=size)
+            case 'center': crop = CenterCrop(size=size)
+            case None:     crop = Resize(size=size)
+            case _: raise ValueError(f'Invalid crop type: {self.crop_type}')
+        return crop(tensor)
 
     def _parse_manifest(self) -> None:
         manifest = Path(self.shard_directory, 'manifest.json')
@@ -206,7 +218,6 @@ class CacheMixer(CacheShardHotloader):
         ) -> None:
         torch.utils.data.Dataset.__init__(self)
         self.weights: list[float] = []
-        self.caches = self._init_caches(caches)
         self.load_size = load_size
         self.crop_type = crop_type
         self.silent = silent
@@ -214,6 +225,9 @@ class CacheMixer(CacheShardHotloader):
         self.length = 999999999
         self.initialized = False
     
+        self.caches = self._init_caches(caches)
+        self._normalize_weights()
+
     def __getitem__(self, index: int) -> torch.Tensor:
         cache = random.choices(self.caches, weights=self.weights, k=1)[0]
         buffer = cache.buffer
@@ -251,6 +265,10 @@ class CacheMixer(CacheShardHotloader):
             self.weights.append(value)
         self.initialized = True
         return output
+    
+    def _normalize_weights(self) -> None:
+        total = sum(self.weights)
+        self.weights = [i / max(1e-6, total) for i in self.weights]
 
 
 

@@ -44,6 +44,10 @@ class DiffusionTrainer(Trainer[DiffusionConfig]):
             config=config, quicksetup=not self.testing, log_losses=log_losses)
         self.CFG_M = self.config.model
         self.CFG_LR = self.CFG_M.unet.learning_rate
+        if self.CFG_LR.decay.schedule_type == 'CosineAnnealingWarmRestarts':
+            warm_restarts = self.CFG_LR.decay.warm_restarts
+            self.restart_period = warm_restarts.steps_before_first_restart
+
         self.current_iteration = 0
         
         self._init_model()
@@ -68,8 +72,11 @@ class DiffusionTrainer(Trainer[DiffusionConfig]):
         if self.config.train.load.continue_train:
             self.current_step = 1 + self.config.train.load.load_step
         else: self.current_step = 1
-        self.total_steps = self.CFG_LR.steps_before_decay
-        if self.CFG_LR.do_decay: self.total_steps += self.CFG_LR.decay_steps
+        
+        self.total_steps = self.CFG_LR.decay.steps_before_decay
+        if self.CFG_LR.warm_up: self.total_steps += self.CFG_LR.warm_up_steps
+        if self.CFG_LR.decay.enable: 
+            self.total_steps += self.CFG_LR.decay.decay_steps
 
     def _validate_fixed_captions(self) -> None:
         '''Ensures that fixed captions exist if enabled in the config.'''
@@ -559,12 +566,39 @@ class DiffusionTrainer(Trainer[DiffusionConfig]):
         The values used for the decay are derived from the UNet learning rate
         settings in the input config.
         '''
-        if self.current_step > self.CFG_LR.steps_before_decay:
-            steps = max(1, self.CFG_LR.decay_steps)
-            current = self.current_step - self.CFG_LR.steps_before_decay
-            lr = self.CFG_LR.base_rate * (1.0 - current / steps)
-            for param_group in self.model.opt_unet.param_groups:
-                param_group['lr'] = lr
+        decay = self.CFG_M.unet.learning_rate.decay        
+        start_step = decay.steps_before_decay
+        if self.CFG_LR.warm_up: start_step += self.CFG_LR.warm_up_steps
+        if self.current_step <= start_step: return
+
+        decay_step = self.current_step - start_step
+        base_lr = self.CFG_LR.base_rate
+        min_lr = decay.minimum_lr
+        
+        match decay.schedule_type:
+            case 'Linear': 
+                progress = min(1.0, decay_step / decay.decay_steps)
+                lr = base_lr - (base_lr - min_lr) * progress
+            case 'CosineAnnealing':
+                progress = min(1.0, decay_step / decay.decay_steps)
+                cosine_factor = 0.5 * (1 + math.cos(math.pi * progress))
+                lr = min_lr + (base_lr - min_lr) * cosine_factor
+            case 'CosineAnnealingWarmRestarts':
+                t_cur = decay_step
+                t_i = self.restart_period
+                
+                while t_cur >= t_i:
+                    t_cur -= t_i
+                    t_i *= decay.warm_restarts.restart_steps_multiplier
+                
+                cosine_factor = 0.5 * (1 + math.cos(math.pi * (t_cur / t_i)))
+                lr = min_lr + (base_lr - min_lr) * cosine_factor
+            case _: 
+                raise ValueError(
+                    f'Invalid LR decay type: {decay.schedule_type}')
+            
+        for param_group in self.model.opt_unet.param_groups:
+            param_group['lr'] = lr
 
     def backward(
             self, 
@@ -697,7 +731,7 @@ class DiffusionTrainer(Trainer[DiffusionConfig]):
            self.CFG_M.gradient_accumulation_iterations == 0
                         
         if self.CFG_LR.warm_up: self._warm_up_lr()
-        if self.CFG_LR.do_decay: self._decay_lr()
+        if self.CFG_LR.decay.enable: self._decay_lr()
         timesteps = self._build_timesteps()
 
         with self.autocast_context(): 

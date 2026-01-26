@@ -4,7 +4,7 @@
         "common": {
             "device": "cuda",
             "gpu_ids": [ 0 ],
-            "cudnn": { "benchmark": true, "deterministic": false },
+            "cudnn": { "benchmark": true, "deterministic": false, "fp32_precision": "tf32" },
             "output_directory": "",
             "experiment_name": "Diffusion",
             "experiment_version": 1
@@ -40,8 +40,8 @@
                 "cosine_offset": 0.008
             },
             "sampling": {
-                "function": "DDPM",
-                "ddim_timesteps": 1000,
+                "function": "DDIM",
+                "ddim_timesteps": 100,
                 "ddim_recompute_epsilon": true
             },
             "mlp": {
@@ -51,22 +51,33 @@
             },
             "unet": {
                 "in_channels": 4,
-                "features": 256,
+                "features": 320,
                 "n_downs": 3,
-                "betas": [0.9, 0.999],
+                "middle_layer_depth": 6,
                 "self_attention": true,
                 "enable_checkpointing": true,
-                "compile": {
-                    "enable": true,
-                    "mode": "reduce-overhead"
+                "optimizer": {
+                    "optimizer_type": "Adam",
+                    "betas": [0.9, 0.999],
+                    "fused": true
                 },
+                "compile": { "enable": true, "mode": "default" },
                 "learning_rate": {
                     "base_rate": 0.0001,
                     "warm_up": true,
                     "warm_up_steps": 10000,
-                    "decay": false,
-                    "steps_before_decay": 2e+6,
-                    "decay_steps": 1e+6
+                    "decay": {
+                        "enable": false,
+                        "schedule_type": "CosineAnnealingWarmRestarts",
+                        "steps_before_decay": 0,
+                        "decay_steps": 1e+6,
+                        "minimum_lr": 1e-6,
+                        "cosine_cycle_length": 1000,
+                        "warm_restarts": {
+                            "steps_before_first_restart": 10000,
+                            "restart_steps_multiplier": 2
+                        }
+                    }
                 }
             }
         },
@@ -74,6 +85,7 @@
             "dataroot": "",
             "batch_size": 32,
             "num_workers": 0,
+            "crop_type": "center",
             "drop_last": true,
             "pin_memory": true,
             "shuffle": true,
@@ -97,11 +109,13 @@
             "override_latent_size": true,
             "latent_size": 64,
             "vae": "stabilityai/sd-vae-ft-ema",
+            "vae_device": "cuda",
+            "vae_dtype": "float16",
             "scaling_factor": 0.18215,
             "cache": {
-                "read_from_cache": true,
+                "read_from_cache": false,
                 "cache_directory": "",
-                "loader_type": "CacheShardHotloader"
+                "loader_type": "CacheLoader"
             }
         },
         "captions": {
@@ -111,14 +125,14 @@
             "max_length": 77,
             "freeze_encoder": true,
             "use_fixed_captions": true,
-            "fixed_captions": [ ]
+            "fixed_captions": []
         },
         "save": {
             "save_model": true,
             "model_save_rate": 10000,
             "auto_increment_version": true,
             "save_examples": true,
-            "example_save_rate": 500,
+            "example_save_rate": 1000,
             "num_examples": 1,
             "sample_cfg_scales": [7.5]
         },
@@ -132,11 +146,11 @@
                 "display_images": false,
                 "image_size": 150,
                 "max_images": 9,
-                "update_frequency": 500
+                "update_frequency": 100
             },
             "console": {
                 "average_loss": true,
-                "print_frequency": 250
+                "print_frequency": 100
             }
         }
     }
