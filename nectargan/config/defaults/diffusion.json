@@ -72,7 +72,6 @@
                         "steps_before_decay": 0,
                         "decay_steps": 1e+6,
                         "minimum_lr": 1e-6,
-                        "cosine_cycle_length": 1000,
                         "warm_restarts": {
                             "steps_before_first_restart": 10000,
                             "restart_steps_multiplier": 2

@@ -94,7 +94,6 @@ class ConfigLearningRateDecay:
     steps_before_decay: int
     decay_steps: int
     minimum_lr: float
-    cosine_cycle_length: int
     warm_restarts: ConfigLearningRateWarmRestarts
 
 @dataclass
