@@ -105,6 +105,26 @@ class LatentManager():
             num_workers: int = 0,
             store_file_names: bool = True
         ) -> None:
+        '''Initialization function for LatentManager
+        
+        Args:
+            dataroot : The system path the the directory containing the image
+                files to encode and cache.
+            device : The PyTorch device to use when encoding the tensors to
+                latent space.
+            dtype : The dtype to encode the latent space tensors in.
+            model : The AutoencoderKL.from_pretrained model to use for 
+                encoding.
+            latent_spatial_size : The desired spatial size (^2) of the encoded
+                latent space tensors.
+            batch_size : The batch size to use for encoding.
+            shard_size : The desired size (in batches) of each shard file.
+            num_workers : The number of workers to allocate to the dataloader
+                used for loading the images for encoding.
+            store_file_names : Whether to store the names of the original image
+                files in the cache manifest. REQUIRED WHEN TRAINING WITH TEXT
+                CONDITIONING.
+        '''
         self.dataroot = Path(dataroot).resolve()
         self.device = device
         self.latent_size = latent_spatial_size
@@ -240,12 +260,6 @@ class LatentManager():
                 is really only required when caching with metadata, so it can
                 find the correct file name for each tensor is encodes.
             dataloader : The DiffusionDataloader to iterate over.
-            batch_size : The batch size to use for the caching operation. This
-                override exists to allow a larger batch size for caching than
-                the one specified in training.
-            shard_size : The number of batches to save per shard file.
-            store_file_names : Whether to store the original image file names 
-                of the encoded tensors for each shard in the manifest.
         '''
         num_batches = len(dataloader)
         export = lambda x: self._export_shard(stack=not x==1)
@@ -306,11 +320,8 @@ class LatentManager():
         '''Loops through Dataloader, encodes tensors to latent space, exports.
 
         Args:
-            batch_size : The batch size to use when caching the latents.
-            shard_size : The number of batches to save per shard.
-
-        Returns:
-            Path : The path to the cache output directory.
+            validate_cache : Whether to enable a validation pass after the
+                caching operation has completed.
         '''
         self.cache_data = CacheData()
         new = self._init_cache_output()

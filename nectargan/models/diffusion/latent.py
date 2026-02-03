@@ -26,8 +26,10 @@ class LatentDiffusionModel(PixelDiffusionModel):
         
         Args:
             config : The DiffusionConfig to use for the model.
+            testing : Enables inference-only testing mode. Disables automatic
+                dataloader initialization.
         '''
-        super().__init__(config, init_dae=False, testing=testing)
+        super().__init__(config, init_unet=False, testing=testing)
         self.use_captions = self.config.captions.use_captions
         self.read_from_cache = self.config.latents.cache.read_from_cache
         self.latent_size = latent_utils.get_latent_spatial_size(config)
@@ -103,7 +105,6 @@ class LatentDiffusionModel(PixelDiffusionModel):
                         raise ValueError(
                             f'Invalid cache loader type: '
                             f'{cache_cfg.loader_type}')
-            
             
             self.dataloader = DataLoader(
                 dataset, batch_size=loader.batch_size,

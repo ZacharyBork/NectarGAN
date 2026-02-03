@@ -554,11 +554,12 @@ class DiffusionTrainer(Trainer[DiffusionConfig]):
         The values used for the warm up are derived from the UNet learning rate
         settings in the input config.
         '''
-        if self.current_step <= self.CFG_LR.warm_up_steps:
-            steps = max(1, self.CFG_LR.warm_up_steps)
-            lr = self.CFG_LR.base_rate * (self.current_step / steps)
-            for param_group in self.model.opt_unet.param_groups:
-                param_group['lr'] = lr
+        if self.current_step > self.CFG_LR.warm_up_steps: return
+        
+        steps = max(1, self.CFG_LR.warm_up_steps)
+        lr = self.CFG_LR.base_rate * (self.current_step / steps)
+        for param_group in self.model.opt_unet.param_groups:
+            param_group['lr'] = lr
 
     def _decay_lr(self) -> None:
         '''Decays learning rate for the UNet's optimizer.

@@ -1,0 +1,23 @@
+{
+    "queries": [
+        {
+            "title": "Checkbox Example",
+            "type": "checkbox",
+            "settings": {}
+        },
+        {
+            "title": "Slider Example",
+            "type": "slider",
+            "settings": {
+                "range": [0, 10]
+            }
+        },
+        {
+            "title": "Radio Buttons Example",
+            "type": "radio_buttons",
+            "settings": {
+                "choices": ["Choice 1", "Choice 2", "Choice 3"]
+            }
+        }
+    ]
+}

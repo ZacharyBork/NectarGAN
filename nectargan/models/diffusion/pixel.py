@@ -17,15 +17,17 @@ class PixelDiffusionModel(nn.Module):
     def __init__(
             self, 
             config: DiffusionConfig, 
-            init_dae: bool=True,
+            init_unet: bool = True,
             testing: bool = False
         ) -> None:
         '''Initialized a PixelDiffusionModel.
         
         Args:
             config : The DiffusionConfig to use for the model.
-            init_dae : Whether to init the denoising autoencoder as part of the
-                model __init__().
+            init_unet : Whether to init the noise prediction unet as part of 
+                the model __init__().
+            testing : Enables inference-only testing mode. Disables automatic
+                dataloader initialization.
         '''
         super(PixelDiffusionModel, self).__init__()
         self.config = config
@@ -41,7 +43,7 @@ class PixelDiffusionModel(nn.Module):
             device=self.device, timesteps=self.timesteps, 
             schedule_type=config.model.noise_schedule.schedule_type,
             cosine_offset=self.config.model.noise_schedule.cosine_offset)
-        if init_dae: self._init_unet()
+        if init_unet: self._init_unet()
 
     def _init_dataloader(self) -> None:
         '''Initializes a dataloader for the model.'''
