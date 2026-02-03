@@ -51,7 +51,32 @@ class Interface(QObject):
     def _warn(self, message: str) -> None:
         QMessageBox.warning(
             None, 'Warning', message, QMessageBox.StandardButton.Ok)
-        
+
+    def _update_example_caption(self) -> None:
+        caption = ''
+        for key, value in self.query_widgets.items():
+            for x in self.queries:
+                if x['title'] == key:
+                    query = x
+            
+            match query['type']:
+                case 'checkbox':
+                    caption_key = 'caption_true' if value.isChecked() \
+                        else 'caption_false'
+                    caption += f'{query['settings'][caption_key]}, '
+                case 'slider':
+                    current = str(value.value())
+                    text = query['settings']['caption'].replace('{}', current)
+                    caption += f'{text}, '
+                case 'radio_buttons':
+                    layout = value.layout()
+                    for i in range(layout.count()): 
+                        if layout.itemAt(i).widget().isChecked():
+                            current = query['settings']['choices'][i]
+                    text = query['settings']['caption'].replace('{}', current)
+                    caption += f'{text}, '
+        self.find(QLabel, 'caption_text').setText(caption)
+
     def _build_query_ui(self) -> None:
         queries_layout = self.find(QVBoxLayout, 'queries_layout')
         for i in reversed(range(queries_layout.count())): 
@@ -65,14 +90,25 @@ class Interface(QObject):
             match query['type']:
                 case 'checkbox':
                     widget = QCheckBox()
-                    query_layout.addWidget(widget)
+                    widget.released.connect(self._update_example_caption)
                 case 'slider':
                     widget = QSlider(Qt.Orientation.Horizontal)
                     widget.setMinimum(query['settings']['range'][0])
                     widget.setMaximum(query['settings']['range'][1])
-                    query_layout.addWidget(widget)
+                    widget.valueChanged.connect(self._update_example_caption)
                 case 'radio_buttons':
-                    pass
+                    widget = QFrame()
+                    buttons_layout = QHBoxLayout()
+                    widget.setLayout(buttons_layout)
+
+                    choices = query['settings']['choices']
+                    for choice in choices:
+                        button = QRadioButton(text=choice)
+                        button.clicked.connect(self._update_example_caption)
+                        buttons_layout.addWidget(button)
+            
+            
+            query_layout.addWidget(widget)
                 
             frame = QFrame()
             frame.setLayout(query_layout)
@@ -224,7 +260,7 @@ class Interface(QObject):
             '/media/zach/UE/ML/test_data/diffusion/temp_celeba_raw/celeba/train')
         
         self.find(QLineEdit, 'config_file').setText(
-            '/media/zach/UE/ML/NectarGAN/nectargan/annotations/creator/example_config.json')
+            '/media/zach/UE/ML/NectarGAN/nectargan/annotations/creator/celeba_config.json')
         
         self.find(QLineEdit, 'output_directory').setText(
             '/media/zach/UE/ML/NectarGAN/nectargan/annotations/creator')
