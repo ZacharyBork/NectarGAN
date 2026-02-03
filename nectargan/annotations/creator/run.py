@@ -4,17 +4,19 @@ from pathlib import Path
 from importlib.resources import files
 
 from PySide6.QtWidgets import (
-    QPushButton, QApplication, QFileDialog, QLineEdit, QMessageBox, QLabel,
-    QVBoxLayout, QHBoxLayout, QFrame, QCheckBox, QSlider, QRadioButton)
+    QWidget, QPushButton, QApplication, QFileDialog, QLineEdit, QMessageBox, 
+    QLabel, QVBoxLayout, QHBoxLayout, QFrame, QCheckBox, QSlider, QRadioButton)
 from PySide6.QtUiTools import QUiLoader
 from PySide6.QtCore import Qt, QFile, QObject
 from PySide6.QtGui import QShortcut, QKeySequence, QPixmap
 
 class Interface(QObject):    
-    def __init__(self) -> None:
+    def __init__(self, schema_version: int=1) -> None:
         super().__init__()
+        self.schema_version = schema_version
         self.current_index = -1
         self.current_image: Path = None 
+        self.query_widgets: dict[str, QWidget] = {}
 
     def _get_ui_file(self) -> QFile:
         root = Path(__file__).parent.resolve()
@@ -51,30 +53,49 @@ class Interface(QObject):
             None, 'Warning', message, QMessageBox.StandardButton.Ok)
         
     def _build_query_ui(self) -> None:
-        queries = self.config['queries']
         queries_layout = self.find(QVBoxLayout, 'queries_layout')
         for i in reversed(range(queries_layout.count())): 
             queries_layout.itemAt(i).widget().setParent(None)
 
-        for query in queries:
+        self.query_widgets.clear()
+
+        for query in self.queries:
             query_layout = QHBoxLayout()
             query_layout.addWidget(QLabel(text=query['title']))
             match query['type']:
                 case 'checkbox':
-                    checkbox = QCheckBox()
-                    query_layout.addWidget(checkbox)
+                    widget = QCheckBox()
+                    query_layout.addWidget(widget)
                 case 'slider':
-                    slider = QSlider(Qt.Orientation.Horizontal)
-                    slider.setMinimum(query['settings']['range'][0])
-                    slider.setMaximum(query['settings']['range'][1])
-                    query_layout.addWidget(slider)
+                    widget = QSlider(Qt.Orientation.Horizontal)
+                    widget.setMinimum(query['settings']['range'][0])
+                    widget.setMaximum(query['settings']['range'][1])
+                    query_layout.addWidget(widget)
                 case 'radio_buttons':
                     pass
                 
             frame = QFrame()
             frame.setLayout(query_layout)
             queries_layout.addWidget(frame)
-    
+
+            self.query_widgets[query['title']] = widget
+
+    def _write_metadata(self, caption: str) -> None:
+        with open(self.metadata_file, 'r') as file:
+            metadata = json.loads(file.read())
+        items = metadata['items']
+        
+        file_tag = self.current_image.stem
+        items[file_tag] = {
+            'filepath': self.current_image.as_posix(),
+            'captions': [caption]
+        }
+
+        with open(self.metadata_file, 'w') as file:
+            file.write(json.dumps(metadata, indent=4))
+
+    ### IMAGE METHODS ###
+
     def _load_image(self, previous: bool=False) -> None:
         if not previous:
             self.current_index = min(
@@ -88,6 +109,14 @@ class Interface(QObject):
         image_label.setScaledContents(True)
 
         self._build_query_ui()
+
+    def _previous_image(self) -> None:
+        self._load_image(previous=True)
+
+    def _next_image(self) -> None:
+        caption = 'Test caption'
+        self._write_metadata(caption=caption)
+        self._load_image()
 
     ### CALLBACKS ###
 
@@ -122,9 +151,44 @@ class Interface(QObject):
         except Exception as e:
             self._warn(f'Unable to load config file. Reason: {e}')
             return False
+        
+        self.queries = self.config['queries']
         return True
 
     def _build_metadata_file(self) -> bool:
+        version = self.schema_version
+        match version:
+            case 1:
+                base = {
+                    "info": {
+                        "schema_version": version,
+                        "total_captions": 0,
+                        "total_images": 0
+                    },
+                    "items": {},
+                    "other": {}
+                }
+            case _: raise ValueError(f'Schema version not valid: {version}')
+        input_outdir = self.find(QLineEdit, 'output_directory').text()
+        output_directory = Path(input_outdir)
+        if input_outdir.strip() == '' or not output_directory.exists():
+            self._warn(
+                f'Unable to locate output directory at path: '
+                f'{output_directory.as_posix()}')
+            return False
+        
+        self.metadata_file = Path(output_directory, 'metadata.json')
+        if self.metadata_file.exists():
+            self._warn(
+                f'Found existing metadata file at path: '
+                f'{self.metadata_file.as_posix()}')
+            return False
+        try:
+            with open(self.metadata_file, 'w') as file:
+                file.write(json.dumps(base, indent=4))
+        except Exception as e:
+            self._warn(f'Unable to write metadata file. Reason: {e}')
+            return False
         return True
     
     def _load_set(self) -> None:
@@ -142,9 +206,8 @@ class Interface(QObject):
     def _init_callbacks(self) -> None:
         self.find(QPushButton, 'exit_btn').clicked.connect(self._exit_app)
         self.find(QPushButton, 'load_set').clicked.connect(self._load_set)
-        self.find(QPushButton, 'next_image').clicked.connect(self._load_image)
-        self.find(QPushButton, 'previous_image').clicked.connect(
-            lambda : self._load_image(previous=True))
+        self.find(QPushButton, 'next_image').clicked.connect(self._next_image)
+        self.find(QPushButton, 'previous_image').clicked.connect(self._previous_image)
 
     ### ENTRYPOINT ###
 
@@ -162,6 +225,9 @@ class Interface(QObject):
         
         self.find(QLineEdit, 'config_file').setText(
             '/media/zach/UE/ML/NectarGAN/nectargan/annotations/creator/example_config.json')
+        
+        self.find(QLineEdit, 'output_directory').setText(
+            '/media/zach/UE/ML/NectarGAN/nectargan/annotations/creator')
 
 
         self._init_callbacks()

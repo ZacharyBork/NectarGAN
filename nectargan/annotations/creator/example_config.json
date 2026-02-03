@@ -3,11 +3,13 @@
         {
             "title": "Checkbox Example",
             "type": "checkbox",
+            "required": true,
             "settings": {}
         },
         {
             "title": "Slider Example",
             "type": "slider",
+            "required": true,
             "settings": {
                 "range": [0, 10]
             }
@@ -15,6 +17,7 @@
         {
             "title": "Radio Buttons Example",
             "type": "radio_buttons",
+            "required": true,
             "settings": {
                 "choices": ["Choice 1", "Choice 2", "Choice 3"]
             }
