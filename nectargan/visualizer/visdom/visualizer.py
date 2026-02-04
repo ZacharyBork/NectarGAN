@@ -115,13 +115,14 @@ class VisdomVisualizer():
             title : The title of the concatenated image window.
             image_size : The width and height, in pixels, to render each image. 
         '''
-        composite = torch.cat([
-            self._denorm_tensor(x), 
-            self._denorm_tensor(y), 
-            self._denorm_tensor(z)], dim=3)
-        self.vis.images(
-            composite, win='comparison_grid', nrow=1, padding=2,
-            opts=dict(title=title, width=image_size*3, height=image_size))
+        for i in range(x.shape[0]):
+            composite = torch.cat([
+                self._denorm_tensor(x[i]), 
+                self._denorm_tensor(y[i]), 
+                self._denorm_tensor(z[i])], dim=2)
+            self.vis.images(
+                composite, win=f'comparison_grid{i}', nrow=1, padding=2,
+                opts=dict(title=title, width=image_size*3, height=image_size))
 
     def _update_graph(
             self, 
