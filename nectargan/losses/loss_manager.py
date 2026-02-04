@@ -138,7 +138,6 @@ class LossManager():
                     f'[spec functions must return dict[str, LMLoss]]')
                 raise RuntimeError(message) from e
             self.loss_fns = _spec # If spec is valid, register the losses
-            self._reset_last_lost_tensors() # Init last_loss_map tensor
         else: self.loss_fns = {} # If spec=None, init empty LossManager
 
     ### GETTER FUNCTIONS ### 

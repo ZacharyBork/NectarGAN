@@ -94,8 +94,8 @@ class Pix2pixTrainer(Trainer[GANConfig]):
                         + tg.learning_rate.epochs_decay)
         self.gen_lr_scheduler = TorchScheduler( # Init LR scheduler
             self.opt_gen, Schedule(
-                start_epoch=tg.learning_rate.epochs, 
-                end_epoch=total_epochs,
+                start_timestep=tg.learning_rate.epochs, 
+                end_timestep=total_epochs,
                 initial_value=tg.learning_rate.initial, 
                 target_value=tg.learning_rate.target))
         
@@ -119,8 +119,8 @@ class Pix2pixTrainer(Trainer[GANConfig]):
                         + td.learning_rate.epochs_decay)
         self.disc_lr_scheduler = TorchScheduler( # Init LR scheduler
             self.opt_disc, Schedule(
-                start_epoch=td.learning_rate.epochs, 
-                end_epoch=total_epochs,
+                start_timestep=td.learning_rate.epochs, 
+                end_timestep=total_epochs,
                 initial_value=td.learning_rate.initial, 
                 target_value=td.learning_rate.target)) 
         
@@ -139,9 +139,9 @@ class Pix2pixTrainer(Trainer[GANConfig]):
             self.val_loader = build(
                 'val', loader_type=PairedDataset, is_train=False)
         else:
-            self.train_loader = build('train', loader_type=PairedDataset)
+            self.train_loader = build('train', dataset_type=PairedDataset)
             self.val_loader = build(
-                'val', loader_type=PairedDataset, is_train=False)
+                'val', dataset_type=PairedDataset, is_train=False)
 
     def _init_gradscalers(self) -> None:
         '''Defines gradient scalers for generator and discriminator.
@@ -285,7 +285,7 @@ class Pix2pixTrainer(Trainer[GANConfig]):
             capture : If true, function will return loss values string instead 
                 of printing.
         '''
-        losses = self.get_loss_values(precision=precision)
+        losses = self.loss_manager.get_loss_values(precision=precision)
         output = f'(epoch: {epoch}, iters: {iter}) Loss:'
         for loss in losses:
             output += f' {loss}: {losses[loss]}'
@@ -449,20 +449,25 @@ class Pix2pixTrainer(Trainer[GANConfig]):
         lm = self.loss_manager # Get loss manager and compute L1 loss
         loss_G_L1 = lm.compute_loss_xy(
             'G_L1', y_fake, y, self.current_epoch, mask=self.mask)
+        loss_G_L1 = loss_G_L1.to(self.device)
 
         loss_G_L2 = torch.zeros_like(loss_G_L1)    # Dummy tensor for MSE
         loss_G_SOBEL = torch.zeros_like(loss_G_L1) # And for sobel
         loss_G_LAP = torch.zeros_like(loss_G_L1)   # And Laplacian
         loss_G_VGG = torch.zeros_like(loss_G_L1)   # And also for VGG
         
+        cfg = self.config.train.loss
         if self.extend_loss_spec: # Extended losses, if enabled 
-            loss_G_L2 = lm.compute_loss_xy(
-                'G_L2', y_fake, y, self.current_epoch, mask=self.mask)
-            loss_G_SOBEL = lm.compute_loss_xy(
-                'G_SOBEL', y_fake, y, self.current_epoch, mask=self.mask)
-            loss_G_LAP = lm.compute_loss_xy(
-                'G_LAP', y_fake, y, self.current_epoch, mask=self.mask)   
-        if self.vgg_loss_enabled: # VGG perceptual, if enabled
+            if cfg.lambda_l2 > 0.0:
+                loss_G_L2 = lm.compute_loss_xy(
+                    'G_L2', y_fake, y, self.current_epoch, mask=self.mask)
+            if cfg.lambda_sobel > 0.0:
+                loss_G_SOBEL = lm.compute_loss_xy(
+                    'G_SOBEL', y_fake, y, self.current_epoch, mask=self.mask)
+            if cfg.lambda_laplacian > 0.0:
+                loss_G_LAP = lm.compute_loss_xy(
+                    'G_LAP', y_fake, y, self.current_epoch, mask=self.mask)   
+        if self.vgg_loss_enabled and cfg.lambda_vgg > 0.0: # VGG perceptual
             loss_G_VGG = lm.compute_loss_xy('G_VGG', y_fake, y, mask=self.mask)          
 
         return (loss_G_L1, loss_G_L2, loss_G_SOBEL, loss_G_LAP, loss_G_VGG)

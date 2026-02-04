@@ -76,6 +76,7 @@ def pix2pix(
     - https://medium.com/software-dev-explore/neural-style-transfer-vgg19-dab643ec6160
     '''
     device = config.common.device
+    cfg = config.train.loss
    
     # G_GAN, D_real, D_fake
     BCE = nn.BCEWithLogitsLoss(reduction=reduction).to(device) 
@@ -95,19 +96,22 @@ def pix2pix(
         'D_fake': LMLoss(
             name='D_fake', function=BCE, tags=['D'])}
     if 'extended' in subspec:
-        L2 = nn.MSELoss(reduction=reduction).to(device)
-        loss_fns['G_L2'] = LMLoss(
-            name='G_L2',function=L2, 
-            loss_weight=config.train.loss.lambda_l2, tags=['G'])
-        SOBEL = Sobel(reduction=reduction).to(device)
-        loss_fns['G_SOBEL'] = LMLoss(
-            name='G_SOBEL',function=SOBEL, 
-            loss_weight=config.train.loss.lambda_sobel, tags=['G'])
-        LAP = Laplacian(reduction=reduction).to(device)
-        loss_fns['G_LAP'] = LMLoss(
-            name='G_LAP', function=LAP, 
-            loss_weight=config.train.loss.lambda_laplacian, tags=['G'])
-    if '+vgg' in subspec:
+        if cfg.lambda_l2 > 0.0:
+            L2 = nn.MSELoss(reduction=reduction).to(device)
+            loss_fns['G_L2'] = LMLoss(
+                name='G_L2',function=L2, 
+                loss_weight=config.train.loss.lambda_l2, tags=['G'])
+        if cfg.lambda_sobel > 0.0:
+            SOBEL = Sobel(reduction=reduction).to(device)
+            loss_fns['G_SOBEL'] = LMLoss(
+                name='G_SOBEL',function=SOBEL, 
+                loss_weight=config.train.loss.lambda_sobel, tags=['G'])
+        if cfg.lambda_laplacian > 0.0:
+            LAP = Laplacian(reduction=reduction).to(device)
+            loss_fns['G_LAP'] = LMLoss(
+                name='G_LAP', function=LAP, 
+                loss_weight=config.train.loss.lambda_laplacian, tags=['G'])
+    if '+vgg' in subspec and cfg.lambda_vgg > 0.0:
         VGG = VGGPerceptual(reduction=reduction).to(device)
         loss_fns['G_VGG'] = LMLoss(
             name='G_VGG', function=VGG, 
