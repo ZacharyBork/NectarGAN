@@ -9,14 +9,13 @@ import copy
 import warnings
 import pathlib
 from os import PathLike
-from typing import Any, Callable, Literal
+from typing import Any, Callable
 
 import torch
 import torch.nn as nn
 
 from nectargan.config import Config
-from nectargan.scheduling import Schedule
-from nectargan.scheduling import schedule_map
+from nectargan.scheduling import Schedule, schedule_map
 from nectargan.losses import LMLoss, LMHistory
 
 class LossManager():
