@@ -29,6 +29,7 @@ Input: [1, 3, 512, 512] (512^2 RGB)                     Output:  [1, 3, 512, 512
 import torch
 import torch.nn as nn
 import torch.nn.init as init
+from torch.utils.checkpoint import checkpoint
 
 from nectargan.models.unet.blocks import UnetBlock
 
@@ -56,7 +57,8 @@ class UnetGenerator(nn.Module):
             use_dropout_layers: int=3, 
             block_type=UnetBlock, 
             upconv_type: str='Transposed',
-            init_weights: bool=True
+            init_weights: bool=True,
+            use_checkpointing: bool=True
         ) -> None:
         super().__init__()
         self.input_size = input_size
@@ -65,6 +67,7 @@ class UnetGenerator(nn.Module):
         self.use_dropout_layers = use_dropout_layers
         self.block_type = block_type
         self.upconv_type = upconv_type
+        self.use_checkpointing = use_checkpointing
 
         # n_downs doesn't account for initial encoder layer
         self.n_down = n_downs - 1
@@ -100,6 +103,11 @@ class UnetGenerator(nn.Module):
             # Raise error if input size is too small
             e = 'Input too small for n_down={}. Min size: {}x{}'
             raise ValueError(e.format(self.n_down, min_size, min_size)) 
+        
+    def _checkpoint_block(self, block, x):
+        '''Wrapper for checkpointing a block with its arguments.'''
+        def custom_forward(x): return block(x)
+        return checkpoint(custom_forward, x, use_reentrant=False)
 
     def build_channel_map(self) -> None:
         '''Assembles Unet channel structure.'''
@@ -216,22 +224,32 @@ class UnetGenerator(nn.Module):
         Args:
             x : The input tensor to run the generator's inference on.
         '''
-        x = self.initial_down(x) # Run downsampling layer
+        if self.use_checkpointing:
+            x = self._checkpoint_block(self.initial_down, x)
+        else: x = self.initial_down(x) # Run downsampling layer
         skips = [x] # Store outputs for skip connections
         for down in self.downs:
-            x = down(x)
+            if self.use_checkpointing: x = self._checkpoint_block(down, x)
+            else: x = down(x)
             skips.append(x)
 
         skips.reverse() # Align skips with up conv layer
-        x = self.bottleneck(x) # Run bottleneck layer
+        if self.use_checkpointing: 
+            x = self._checkpoint_block(self.bottleneck, x)
+        else: x = self.bottleneck(x) # Run bottleneck layer
         # x = self.ups[0](x)
 
         for i, up in enumerate(self.ups[1:]):
-            skip = skips[i]
-            x = up(torch.cat([x, skip], dim=1))
+            y = torch.cat([x, skips[i]], dim=1)
+            if self.use_checkpointing: x = self._checkpoint_block(up, y)
+            else: x = up(y)
 
         # Return result of final upsampling layer
-        return self.final_up(torch.cat([x, skips[-1]], dim=1))
+        y = torch.cat([x, skips[-1]], dim=1)
+        if self.use_checkpointing: 
+            output = self._checkpoint_block(self.final_up, y)
+        else: output = self.final_up(y)
+        return output
 
 if __name__ == "__main__":
     x = torch.randn((1, 3, 32, 32))

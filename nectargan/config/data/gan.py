@@ -8,6 +8,15 @@ class ConfigAugsBoth:
     h_flip_chance: float
     v_flip_chance: float
     rot90_chance: float
+    colorjitter_chance: float
+    colorjitter_min_brightness: float
+    colorjitter_max_brightness: float
+    colorjitter_min_contrast: float
+    colorjitter_max_contrast: float
+    colorjitter_min_saturation: float
+    colorjitter_max_saturation: float
+    colorjitter_min_hue: float
+    colorjitter_max_hue: float
     elastic_transform_chance: float
     elastic_transform_alpha: float
     elastic_transform_sigma: float
@@ -28,6 +37,12 @@ class ConfigAugsInput:
     colorjitter_chance: float
     colorjitter_min_brightness: float
     colorjitter_max_brightness: float
+    colorjitter_min_contrast: float
+    colorjitter_max_contrast: float
+    colorjitter_min_saturation: float
+    colorjitter_max_saturation: float
+    colorjitter_min_hue: float
+    colorjitter_max_hue: float
     gaussnoise_chance: float
     gaussnoise_min: float
     gaussnoise_max: float
@@ -100,6 +115,7 @@ class ConfigGenerator:
     n_downs: int
     block_type: str
     upsample_type: str
+    use_checkpointing: bool
     learning_rate: ConfigLearningRate
     optimizer: ConfigOptimizer
     

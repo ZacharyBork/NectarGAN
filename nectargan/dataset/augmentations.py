@@ -66,6 +66,23 @@ class Augmentations():
         self._append_xform_by_value(
             A.RandomRotate90,
             seq=xforms, value=b.rot90_chance)
+        
+        if b.colorjitter_chance > 0.0:
+            xforms.append(
+                A.ColorJitter(
+                    brightness=(
+                        b.colorjitter_min_brightness, 
+                        b.colorjitter_max_brightness),
+                    contrast=(
+                        b.colorjitter_min_contrast,
+                        b.colorjitter_max_contrast),
+                    saturation=(
+                        b.colorjitter_min_saturation,
+                        b.colorjitter_max_saturation),
+                    hue=(
+                        b.colorjitter_min_hue,
+                        b.colorjitter_max_hue),
+                    p=b.colorjitter_chance))
         if b.elastic_transform_chance > 0.0:
             xforms.append(A.ElasticTransform(
                 alpha=b.elastic_transform_alpha,
@@ -76,11 +93,11 @@ class Augmentations():
                 (b.optical_distortion_min, b.optical_distortion_max),
                 mode=b.optical_distortion_mode,
                 p=b.optical_distortion_chance))
-        # if b.coarse_dropout_chance > 0.0:
-        #     xforms.append(A.CoarseDropout(
-        #         (b.coarse_dropout_holes_min, b.coarse_dropout_holes_max),
-        #         (b.coarse_dropout_height_min, b.coarse_dropout_height_max),
-        #         (b.coarse_dropout_width_min, b.coarse_dropout_width_max)))
+        if b.coarse_dropout_chance > 0.0:
+            xforms.append(A.CoarseDropout(
+                (b.coarse_dropout_holes_min, b.coarse_dropout_holes_max),
+                (b.coarse_dropout_height_min, b.coarse_dropout_height_max),
+                (b.coarse_dropout_width_min, b.coarse_dropout_width_max)))
         
         return A.Compose(xforms, additional_targets={'image0': 'image', 'mask': 'mask', 'mask0': 'mask'})
 
@@ -88,12 +105,23 @@ class Augmentations():
         '''Builds transform function that is applied only to input.
         '''
         i = self.augs.input
-        b = self.augs.both
         xforms = []
         if i.colorjitter_chance > 0.0:
-            xforms.append(A.ColorJitter(
-                (i.colorjitter_min_brightness, i.colorjitter_max_brightness), 
-                p=i.colorjitter_chance))
+            xforms.append(
+                A.ColorJitter(
+                    brightness=(
+                        i.colorjitter_min_brightness, 
+                        i.colorjitter_max_brightness),
+                    contrast=(
+                        i.colorjitter_min_contrast,
+                        i.colorjitter_max_contrast),
+                    saturation=(
+                        i.colorjitter_min_saturation,
+                        i.colorjitter_max_saturation),
+                    hue=(
+                        i.colorjitter_min_hue,
+                        i.colorjitter_max_hue),
+                    p=i.colorjitter_chance))
         if i.gaussnoise_chance > 0.0:
            xforms.append(A.GaussNoise(
                 (i.gaussnoise_min, i.gaussnoise_max), p=i.gaussnoise_chance))
@@ -113,11 +141,6 @@ class Augmentations():
                 quality_range=(
                     i.compression_quality_min, i.compression_quality_max),
                 p=i.compression_chance))
-        if b.coarse_dropout_chance > 0.0:
-            xforms.append(A.CoarseDropout(
-                (b.coarse_dropout_holes_min, b.coarse_dropout_holes_max),
-                (b.coarse_dropout_height_min, b.coarse_dropout_height_max),
-                (b.coarse_dropout_width_min, b.coarse_dropout_width_max)))
     
         xforms.append(
             A.Normalize(

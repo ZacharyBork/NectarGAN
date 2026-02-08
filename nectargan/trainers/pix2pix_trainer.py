@@ -57,7 +57,7 @@ class Pix2pixTrainer(Trainer[GANConfig]):
                 self.config.train.generator.learning_rate.initial)
             self.load_checkpoint('D', self.disc, self.opt_disc, 
                 self.config.train.discriminator.learning_rate.initial)
-            self.current_epoch = 1 + self.config.train.load.load_epoch
+            self.current_epoch = self.config.train.load.load_epoch
 
     ### INITIALIZATION ###
 
@@ -78,10 +78,9 @@ class Pix2pixTrainer(Trainer[GANConfig]):
         self.gen = UnetGenerator( # Init Generator
             input_size=self.config.dataloader.load.crop_size, 
             in_channels=self.config.dataloader.load.input_nc,
-            features=tg.features,
-            n_downs=tg.n_downs,
-            block_type=block_type,
-            upconv_type=tg.upsample_type)
+            features=tg.features, n_downs=tg.n_downs, block_type=block_type,
+            upconv_type=tg.upsample_type,
+            use_checkpointing=tg.use_checkpointing)
         self.gen.to(self.device)  # Cast to current device
 
         self.opt_gen = self.build_optimizer(
@@ -599,6 +598,8 @@ class Pix2pixTrainer(Trainer[GANConfig]):
                 to the callback during training. See 
                 `Pix2pixTrainer.on_epoch_start()` for example implementation.
         '''
+        torch.compiler.cudagraph_mark_step_begin()
+        
         with torch.amp.autocast(self.device): 
             y_fake = self.gen(x)
 
