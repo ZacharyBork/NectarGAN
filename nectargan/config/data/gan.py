@@ -116,6 +116,8 @@ class ConfigGenerator:
     block_type: str
     upsample_type: str
     use_checkpointing: bool
+    compile_network: bool
+    compile_method: str
     learning_rate: ConfigLearningRate
     optimizer: ConfigOptimizer
     
@@ -124,6 +126,8 @@ class ConfigDiscriminator:
     n_layers: int
     base_channels: int
     max_channels: int
+    compile_network: bool
+    compile_method: str
     learning_rate: ConfigLearningRate
     optimizer: ConfigOptimizer
 

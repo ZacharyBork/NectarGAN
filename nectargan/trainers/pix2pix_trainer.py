@@ -98,6 +98,10 @@ class Pix2pixTrainer(Trainer[GANConfig]):
                 initial_value=tg.learning_rate.initial, 
                 target_value=tg.learning_rate.target))
         
+        if self.config.train.generator.compile_network:
+            self.gen = torch.compile(
+                self.gen, mode=self.config.train.generator.compile_method)
+        
     def _init_discriminator(self) -> None:
         '''Initializes discriminator with optimizer and lr scheduler.'''
         td = self.config.train.discriminator # Get config train data
@@ -122,6 +126,10 @@ class Pix2pixTrainer(Trainer[GANConfig]):
                 end_timestep=total_epochs,
                 initial_value=td.learning_rate.initial, 
                 target_value=td.learning_rate.target)) 
+        
+        if self.config.train.discriminator.compile_network:
+            self.disc = torch.compile(
+                self.disc, mode=self.config.train.discriminator.compile_method)
         
     def _init_dataloaders(self) -> None:
         '''Builds dataloaders for training and validation datasets.'''

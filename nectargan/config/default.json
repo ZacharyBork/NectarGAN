@@ -99,6 +99,8 @@
                 "block_type": "UnetBlock",
                 "upsample_type": "Transposed",
                 "use_checkpointing": true,
+                "compile_network": true,
+                "compile_method": "reduce-overhead",
                 "learning_rate": {
                     "epochs": 100,
                     "epochs_decay": 100,
@@ -113,6 +115,8 @@
                 "n_layers": 3,
                 "base_channels": 64,
                 "max_channels": 512,
+                "compile_network": true,
+                "compile_method": "reduce-overhead",
                 "learning_rate": {
                     "epochs": 100,
                     "epochs_decay": 100,

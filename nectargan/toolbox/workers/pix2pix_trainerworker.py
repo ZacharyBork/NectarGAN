@@ -68,6 +68,7 @@ class TrainerWorker(QObject, Pix2pixTrainer):
             idx: int,
             **kwargs: Any
         ) -> torch.Tensor:
+        torch.compiler.cudagraph_mark_step_begin()
         with torch.amp.autocast('cuda'): 
             y_fake = self.gen(x)
 

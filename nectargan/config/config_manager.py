@@ -13,7 +13,7 @@ class ConfigManager():
             self, 
             input_config: str | PathLike | dict[str, Any] | None=None
         ) -> None:
-        self.config_type: str = None
+        self.config_type: Config = None
 
         if isinstance(input_config, dict):
             self._validate_config_dict(input_config)
@@ -67,7 +67,7 @@ class ConfigManager():
     def _validate_config_dict(self, input_data: dict[str, Any]) -> None:
         assert isinstance(input_data, dict)
         self._try_get_config_type(input_data)
-        self._get_default_config_file()
+        self._get_default_config_file(self.config_type.DEFAULT_FILE)
         
         with open(self.default_file_path.as_posix(), 'r') as file:
             default_data = json.loads(file.read())['config']

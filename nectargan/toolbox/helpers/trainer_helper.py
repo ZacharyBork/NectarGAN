@@ -227,9 +227,11 @@ class TrainerHelper(QObject):
 
         step = 1.0 + self.current_epoch_progress + float(self.last_epoch)
         for name in losses_g: 
-            loss_g_graph.update_plot(name, losses[name], step)
+            try: loss_g_graph.update_plot(name, losses[name], step)
+            except KeyError: pass
         for name in losses_d: 
-            loss_d_graph.update_plot(name, losses[name], step)
+            try: loss_d_graph.update_plot(name, losses[name], step)
+            except KeyError: pass
 
     ### UI STATES ###
     def _set_ui_state(

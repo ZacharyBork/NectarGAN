@@ -44,15 +44,16 @@ class PixelDiffusionModel(nn.Module):
             schedule_type=config.model.noise_schedule.schedule_type,
             cosine_offset=self.config.model.noise_schedule.cosine_offset)
         if init_unet: self._init_unet()
+        if not self.testing: self._init_dataloader()
 
     def _init_dataloader(self) -> None:
         '''Initializes a dataloader for the model.'''
         if not self.config.dataloader.streaming.enable:
             dataset = DiffusionDataset(
-                config=self.config, 
                 root_dir=self.config.dataloader.dataroot, 
-                metadata_file=self.config.captions.metadata_file,
-                is_train=True, cache_builder=False, recurse=False)
+                load_size=self.config.model.input_size,
+                metadata_file=None, is_train=True, 
+                cache_builder=False, recurse=False)
         else:
             streaming_cfg = self.config.dataloader.streaming
             match streaming_cfg.dataset:
@@ -74,7 +75,7 @@ class PixelDiffusionModel(nn.Module):
 
     def _init_unet(
             self, 
-            block_type: TimeEmbeddedUnetBlock,
+            block_type: TimeEmbeddedUnetBlock=TimeEmbeddedUnetBlock,
             context_dimension: int | None=None
         ) -> None:
         '''Initializes the denoising autoencoder network.

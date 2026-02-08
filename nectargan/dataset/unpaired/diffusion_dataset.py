@@ -53,9 +53,10 @@ class DiffusionDataset(BaseDataset[DiffusionConfig]):
         if not self.cache_builder: 
             transforms.insert(0, A.RandomCrop(self.load_size, self.load_size))
             _image = A.Compose(transforms)(image=image)['image']
-            caption = self._get_caption(index) \
-                if not self.metadata is None else None
-            return _image, caption
+            if not self.metadata is None:
+                caption = self._get_caption(index)
+                return _image, caption
+            else: return _image
         else:
             _image = A.Compose(transforms)(image=image)['image']
             return _image
