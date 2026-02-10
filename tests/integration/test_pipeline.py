@@ -1,9 +1,12 @@
 # Tests model training, export, and testing
 
+import os
 import json
 import subprocess
 from pathlib import Path
 from typing import Any
+
+import pytest
 
 from nectargan.utils.rebuild_default_config import DEFINITION
 from nectargan.config.utils import get_default_config
@@ -88,6 +91,7 @@ def _start_testing(
     assert return_code == 0
     print('Testing completed successfully!')
 
+@pytest.mark.slow
 def test_pipeline() -> None:
     root = Path(__file__).parent.parent.parent.resolve()
     tmp = Path(root, 'tests/tmp')
