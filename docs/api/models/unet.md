@@ -62,22 +62,24 @@ generator = UnetGenerator(
 >                         ↓                                 ↑ 
 > [1, 512, 8, 8] -----> down6 -----> [1, 512, 4, 4] -----> up2 -------> [1, 512, 8, 8]
 >                         ↓                                 ↑
-> [1, 512, 4, 4] ---> bottleneck --> [1, 512, 2, 2] → → → → up1 -> [1, 512, 4, 4]
+>                  [1, 512, 4, 4] ---> bottleneck --> [1, 512, 4, 4]
 > ```
 This is a diagram I made to help me conceptualize the tensor shapes of the inputs and skip connections at various depths in a UNet-style architecture (pardon the formatting, I wrote it directly inside of the python file). **This diagram shows a network with an input which has 3 `in_channels` (R, G, B), 64 `features`, and an input resolution of 512^2.**
 
 **Let's walk through it, starting at the top left:**
+
 > [!NOTE]
 > **Skip connections:** *(This is explained in more depth below, but here is a quick explanation to start.)*
 >
 >  For every `down` layer, the output tensor is passed to the next down layer as input, but it is also passed via the skip connection to the corresponding `up` layer, as denoted by the rightward facing arrows (**not directly passed as input, but concatenated with the output tensor of the up layer below**). So, the output tensor from `init_down` is passed to the `final_up`, same for `down1` and `up7`, etc.
+
 - We take our input (`[1, 3, 512, 512]`) and feed it into the `init_down` layer. This gives us an output tensor with the shape `[1, 64, 256, 256]`. So we halved the spatial resolution of the tensor, and increased the feature count to `64`, as defined by the generator's `features` value. 
 - We take that output tensor (`[1, 64, 256, 256]`) and feed it in to `down1`, giving us an output shape of `[1, 128, 128, 128]`. Double the features, halve the resolution.
 - We do this again for `down2` and `down3`. Now, though, we've hit our feature cap (`features * 8`, or `512`).
 - So, for `down4`, `down5`, and `down6`, we continue to halve the spatial resolution, but the feature count remains at the cap of `512`
-- Then we hit the bottleneck. As with the previous few downsampling layers, we halve the resolution, but keep the same feature count. This time, though, note that there is no skip connection, since there's obviously nothing to connect it to, as the output of the bottleneck is fed directly into the first upsampling layer, `up1`.
+- Then we hit the bottleneck. Here, we keep our feature count and spatial resolution the same as we want to be able to stack the output tensor with the output tensor of the final downsampling layer to feed in to the first upsampling layer layer.
 
-**Then, we have our upsampling path.** As noted, the first upsampling layer, `up1`, takes the output tensor of the bottneck layer directly. This layer doubles the spatial resolution of the tensor, but, mirroring the feature counts on the downsampling path, this layer keeps the feature count at the `512` cap. This results in an output tensor shape of `[1, 512, 4, 4]`.
+**Then, we have our upsampling path.** As noted, the first upsampling layer, `up1`, takes the output of the bottleneck layer, stacked with the output of the final downsampling later. This layer doubles the spatial resolution of the tensor, but, mirroring the feature counts on the downsampling path, this layer keeps the feature count at the `512` cap. This results in an output tensor shape of `[1, 512, 4, 4]`.
 
 **Then things start to become interesting.** Note that the output tensor from `down6` has the same shape as the output tensor from `up1`. This allows us to take those two tensors and stack the feature maps before passing them to the next up layer. These `skip connections` are the magic of the UNet architecture (and a couple others. [ResNet](https://arxiv.org/pdf/1512.03385), for example, also uses skip connections, albeit in a slightly different manner and for a slightly different reason). 
 

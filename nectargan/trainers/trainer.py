@@ -8,19 +8,20 @@ import random
 import pathlib
 import time
 from os import PathLike
-from typing import Callable, Any, Literal
+from typing import TypeVar, Generic, Any, Callable, Literal
 
 import torch
 import torch.optim as optim
 import torch.nn as nn
 from torchvision.utils import save_image
 
-from nectargan.config.config_manager import ConfigManager
+from nectargan.config import Config, ConfigManager
 from nectargan.losses.loss_manager import LossManager
 from nectargan.visualizer.visdom.visualizer import VisdomVisualizer
-from nectargan.dataset.paired_dataset import PairedDataset
 
-class Trainer():
+TConfig = TypeVar('TConfig', bound=Config)
+
+class Trainer(Generic[TConfig]):
     def __init__(
             self, 
             config: str|PathLike|ConfigManager|dict[str, Any]|None=None,
@@ -47,8 +48,8 @@ class Trainer():
                 and periodically dumped to the loss log JSON.
         '''
         # These are either set by child classes, or passed by training script
+        self.current_epoch = 0
         self.log_losses = log_losses
-        self.current_epoch: int | None = None
         self.last_epoch_time: float = 0.0
         self.train_loader: torch.utils.data.DataLoader | None = None
         self.val_loader: torch.utils.data.DataLoader | None = None
@@ -56,6 +57,9 @@ class Trainer():
         self.init_config(config)                # Init config
         self.device = self.config.common.device # Store device for easy lookup
         if quicksetup: self.quicksetup()        # Do quicksetup if applicable
+
+        self.cuda = self.device == 'cuda'
+        if self.cuda: self._init_cudnn()
 
     ### TRAINER QUICKSETUP ###
 
@@ -69,6 +73,16 @@ class Trainer():
             self.init_visdom()         # Init visualizer
 
     ### INITIALIZATION HELPERS ###
+
+    def _init_cudnn(self) -> None:
+        '''Initializes CUDNN settings from config values.'''
+        cudnn = self.config.common.cudnn
+        torch.backends.cudnn.benchmark = cudnn.benchmark
+        torch.backends.cudnn.deterministic = cudnn.deterministic
+        if hasattr(torch.backends.cudnn, 'conv'):
+            precision = cudnn.fp32_precision
+            torch.backends.cudnn.conv.fp32_precision = precision
+            torch.backends.cuda.matmul.fp32_precision = precision
 
     def init_config(
             self, 
@@ -91,7 +105,7 @@ class Trainer():
             case _:
                 x = [type(str), type(PathLike), type(ConfigManager), None]
                 raise ValueError(f'Invalid config type. Valid types are {x}')
-        self.config = self.config_manager.data # Store values for easier access 
+        self.config: TConfig = self.config_manager.data
 
     def build_output_directory(self) -> None:
         '''Builds an output directory structure for the experiment.
@@ -167,7 +181,9 @@ class Trainer():
             net_type: Literal['G', 'g', 'D', 'd'],
             network: nn.Module,
             optimizer: optim.Optimizer | None=None,
-            learning_rate: float | None=None
+            learning_rate: float | None=None,
+            unit: str='epoch',
+            value: int | None=None
         ) -> None:
         '''Loads pre-trained model weights to continue training.
 
@@ -178,8 +194,9 @@ class Trainer():
                 load network checkpoint.
             learning_rate : The learning rate to load the network with.
         '''
-        load_epoch = self.config.train.load.load_epoch
-        base_name = f'epoch{load_epoch}'
+        load_epoch = value if not value is None \
+            else self.config.train.load.load_epoch
+        base_name = f'{unit}{load_epoch}'
 
         # Load checkpoint
         checkpoint_path = pathlib.Path(
@@ -223,7 +240,9 @@ class Trainer():
     def build_dataloader(
             self, 
             loader_type: str,
-            is_train: bool=True
+            dataset_type: torch.utils.data.DataLoader,
+            is_train: bool=True,
+            **kwargs
         ) -> torch.utils.data.DataLoader:
         '''Initializes a dataloader of the given type from a PairedDataset.
 
@@ -242,8 +261,9 @@ class Trainer():
         if not dataset_path.exists(): # Make sure data directory exists
             message = f'Unable to locate dataset at: {dataset_path.as_posix()}'
             raise FileNotFoundError(message)
-        dataset = PairedDataset(
-            config=self.config, root_dir=dataset_path, is_train=is_train)
+        dataset = dataset_type(
+            config=self.config, root_dir=dataset_path, 
+            is_train=is_train, **kwargs)
         return torch.utils.data.DataLoader( # Build dataloader from dataset
             dataset, batch_size=self.config.dataloader.batch_size, 
             shuffle=True, num_workers=self.config.dataloader.num_workers)
@@ -342,23 +362,26 @@ class Trainer():
 
     ### TRAINING LOOP ###
 
-    def _train_paired_core(
+    def trainer_core(
             self, 
             train_step_fn: Callable[[torch.Tensor, torch.Tensor, int], None],
-            train_step_kwargs: dict[str, Any]
+            train_step_kwargs: dict[str, Any] | None=None
         ) -> None:
-        '''Paired adversarial training loop.
+        '''Training loop callback function.
+
+        This function should be overridden by the child class to define the
+        behavior of the model training loop (i.e. how data is loaded and passed
+        to the "train_step" function). See "Pix2pixTrainer.trainer_core()" for
+        more information.
         
         Args:
-            train_step_fn : Train step function, Run once per batch.
+            train_step_fn : Train step function, run once per batch.
             train_step_kwargs : Optional keyword args for train step function.
         '''
-        for idx, (x, y) in enumerate(self.train_loader):
-            # Loop through (x, y) of batch[idx] from training dataset
-            x, y = x.to(self.device), y.to(self.device)
-            train_step_fn(x, y, idx, **train_step_kwargs)
+        message = 'trainer_core() is not implemented by the child class.'
+        raise NotImplementedError(message)
 
-    def train_paired(
+    def train(
             self, 
             epoch:int,
             on_epoch_start: Callable[[], None] | None=None,
@@ -402,9 +425,10 @@ class Trainer():
         '''
         # self.current_epoch is a sort of human-readable current epoch value
         # Basically just epoch+1 but it also accounts for loaded checkpoints
-        if self.config.train.load.continue_train:
-            self.current_epoch = 1 + epoch + self.config.train.load.load_epoch
-        else: self.current_epoch = epoch + 1
+        # if self.config.train.load.continue_train:
+        #     self.current_epoch = 1 + epoch + self.config.train.load.load_epoch
+        # else: self.current_epoch = epoch + 1
+        self.current_epoch += 1
 
         start_fn = on_epoch_start or self.on_epoch_start # Init pre-train fn
         train_fn = train_step or self.train_step         # Init train step fn
@@ -417,12 +441,12 @@ class Trainer():
         if multithreaded and self.config.visualizer.visdom.enable: 
             try:
                 self.vis.start_thread()
-                self._train_paired_core(
+                self.trainer_core(
                     train_fn, callback_kwargs.get('train_step', {}))
             except KeyboardInterrupt:
                 sys.exit('Interrupt Recieved: Stopping training...')
             finally: self.vis.stop_thread()
-        else: self._train_paired_core(
+        else: self.trainer_core(
             train_fn, callback_kwargs.get('train_step', {}))
         
         # Run post-train function
@@ -451,7 +475,7 @@ class Trainer():
     def export_model_weights(
             self,
             mod: nn.Module, 
-            opt: optim.Optimizer, 
+            opt: optim.Optimizer | None, 
             net: str,
         ) -> str | None: 
         '''Save a checkpoint for a single network and associated optimizer.
@@ -461,7 +485,7 @@ class Trainer():
 
         Args:
             mod : The network to save.
-            opt : The network's optimizer
+            opt : The network's optimizer, or None if not applicable.
             net : The name of the network being saved (e.g G for generator).
 
         Returns:
@@ -470,9 +494,9 @@ class Trainer():
         Raises:
             RuntimeError : If unable to save checkpoint file.
         '''
-        checkpoint = {
-            'state_dict': mod.state_dict(), 
-            'optimizer': opt.state_dict()}
+        checkpoint = { 'state_dict': mod.state_dict() }
+        if not opt is None: checkpoint['optimizer'] = opt.state_dict()
+
         name = f'epoch{str(self.current_epoch)}_net{net}.pth.tar'
         output_path = pathlib.Path(self.experiment_dir, name)
         try: torch.save(checkpoint, output_path.as_posix())
@@ -506,12 +530,13 @@ class Trainer():
             range(len(val_data)), 
             self.config.save.num_examples)
         for i, idx in enumerate(indices):
-            x, y = val_data[idx]
+            data = val_data[idx]
+            x, y = data[0], data[1]
 
             x: torch.Tensor = x.unsqueeze(0).to(self.device)
             y: torch.Tensor = y.unsqueeze(0).to(self.device)
 
-            with torch.amp.autocast('cuda'):
+            with torch.amp.autocast(self.device):
                 with torch.no_grad():
                     y_fake: torch.Tensor = network(x)
             

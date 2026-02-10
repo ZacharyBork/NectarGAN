@@ -1,0 +1,256 @@
+import time
+from typing import Any, Callable
+
+import torch
+import torch.nn as nn
+import torch.optim as optim
+from torch.utils.data import DataLoader
+
+from nectargan.config import DiffusionConfig
+from nectargan.dataset import DiffusionDataset
+from nectargan.dataset.streaming_datasets.laion_dataset import LAIONDataset
+from nectargan.models import DiffusionUnet
+from nectargan.models.diffusion.data import NoiseParameters
+from nectargan.models.unet.blocks import TimeEmbeddedUnetBlock
+
+class PixelDiffusionModel(nn.Module):
+    def __init__(
+            self, 
+            config: DiffusionConfig, 
+            init_unet: bool = True,
+            testing: bool = False
+        ) -> None:
+        '''Initialized a PixelDiffusionModel.
+        
+        Args:
+            config : The DiffusionConfig to use for the model.
+            init_unet : Whether to init the noise prediction unet as part of 
+                the model __init__().
+            testing : Enables inference-only testing mode. Disables automatic
+                dataloader initialization.
+        '''
+        super(PixelDiffusionModel, self).__init__()
+        self.config = config
+        self.testing = testing
+        self.device = config.common.device
+        self.timesteps = config.model.noise_schedule.timesteps
+        
+        self.fixed_seed_count = 1
+        self.batch_times = []
+
+        self.noiseparams = NoiseParameters()
+        self.noiseparams.build_schedule(
+            device=self.device, timesteps=self.timesteps, 
+            schedule_type=config.model.noise_schedule.schedule_type,
+            cosine_offset=self.config.model.noise_schedule.cosine_offset)
+        if init_unet: self._init_unet()
+        if not self.testing: self._init_dataloader()
+
+    def _init_dataloader(self) -> None:
+        '''Initializes a dataloader for the model.'''
+        if not self.config.dataloader.streaming.enable:
+            dataset = DiffusionDataset(
+                root_dir=self.config.dataloader.dataroot, 
+                load_size=self.config.model.input_size,
+                metadata_file=None, is_train=True, 
+                cache_builder=False, recurse=False)
+        else:
+            streaming_cfg = self.config.dataloader.streaming
+            match streaming_cfg.dataset:
+                case 'LAION':
+                    dataset = LAIONDataset(
+                        config=self.config, dataset=streaming_cfg.set,
+                        subset=streaming_cfg.subset,
+                        split='train', min_aesthetic_score=6.0,
+                        max_caption_length=self.config.captions.max_length,
+                        max_samples=streaming_cfg.max_samples, 
+                        cache_dir=streaming_cfg.cache_directory, 
+                        require_login=streaming_cfg.require_login)
+                case _: raise ValueError(
+                    f'Invalid streaming dataset: {streaming_cfg.dataset}')
+                
+        self.dataloader = DataLoader(
+            dataset, batch_size=self.config.dataloader.batch_size, 
+            num_workers=self.config.dataloader.num_workers)
+
+    def _init_unet(
+            self, 
+            block_type: TimeEmbeddedUnetBlock=TimeEmbeddedUnetBlock,
+            context_dimension: int | None=None
+        ) -> None:
+        '''Initializes the denoising autoencoder network.
+        
+        Args:
+            blocks_type : What UNet block type to use for the UNet.
+            context_dimension : The context dimension to use for the UNet, or
+                None if not using text conditioning. Derived in the Stable
+                model variant by passing a dummy caption to the CLIP model and
+                evaluating the shape of the returned context tensor.
+        '''
+        UNET = self.config.model.unet
+        self.unet = DiffusionUnet(
+            config=self.config, block_type=block_type,
+            context_dimension=context_dimension,
+            bottleneck_depth=UNET.middle_layer_depth,
+            use_attention=UNET.self_attention,
+            use_checkpointing=UNET.enable_checkpointing
+        ).to(self.device, dtype=torch.float32)
+        
+        match UNET.optimizer.optimizer_type:
+            case 'Adam': optimizer = optim.Adam
+            case 'AdamW': optimizer = optim.AdamW
+        self.opt_unet = optimizer(
+            self.unet.parameters(), lr=UNET.learning_rate.base_rate,
+            betas=UNET.optimizer.betas, fused=UNET.optimizer.fused)
+        
+        if self.config.model.mixed_precision:
+            self.g_scaler = torch.amp.GradScaler(self.device)
+
+    def q_sample(
+            self, 
+            x: torch.Tensor, 
+            t: torch.Tensor, 
+            noise: torch.Tensor=None
+        ) -> tuple[torch.Tensor, torch.Tensor]:
+        '''Forward diffusion.
+        
+        Args:
+            x : The current input tensor.
+            t : The corresponding timestep tensor.
+            noise : The noise tensor to use for the diffusion step, or `None` 
+                to generate a random noise tensor.
+
+        Returns:
+            tuple[torch.Tensor] : The noisy image tensor created by the
+                diffusion step, and the noise tensor used for the step.
+
+        Ref:
+            https://arxiv.org/pdf/2006.11239 (2)
+        '''    
+        with torch.no_grad():
+            # Generate noise if not provided 
+            if noise is None: noise = torch.randn_like(x)
+
+            # Sample noisy image at timestep (t) from input x0 and noise
+            acum = self.noiseparams.alphas_cumprod[t].view(-1,1,1,1)
+            x_t = acum.sqrt() * x + (1.0 - acum).sqrt() * noise
+
+            # Return noisy image + noise used (for loss)
+            return x_t, noise
+
+    def _predict_x0(
+            self, 
+            x: torch.Tensor,
+            pred_noise: torch.Tensor, 
+            range: float=4.0
+        ) -> torch.Tensor:
+        n = self.noiseparams
+        return torch.clamp(
+            (x - n.sqrt_inv_abar_t * pred_noise) / n.sqrt_abar_t, 
+            -range, range)
+    
+    def p_sample(
+            self, 
+            x: torch.Tensor, 
+            t: torch.Tensor, 
+            idx: int,
+            direct: bool=False,
+            context: torch.Tensor | None=None,
+            pred_noise: torch.Tensor | None=None
+        ) -> torch.Tensor:
+        '''Reverse diffusion.
+
+        This sampler has two 'modes'. If direct=False, it will perform a single 
+        reverse diffusion step (see Refs) on x_t to estimate x_(t-1). 
+
+        If direct=True, it will instead estimate the clean image x0 directly
+        from x_t. This is a very aggressive method of prediction, and can cause 
+        the model to learn very quickly, but is also very unstable.
+
+        Args:
+            x : Noisy image as torch.Tensor
+            t : Current timestep as torch.Tensor
+            idx : Current index of the denoiser loop.
+            direct : See note on sampler modes.
+
+        Returns:
+            torch.Tensor : The resulting denoised image tensor from the reverse
+                diffusion step.
+        
+        Ref: 
+            https://arxiv.org/pdf/2006.11239 (3.2)
+        '''
+        # Predict noise
+        pred_noise = self.unet(x, t, context=context) \
+            if pred_noise is None else pred_noise
+
+        # Get parms at timestep (t)
+        self.noiseparams(t)
+            
+        # Sample denoised image x0
+        x0 = self._predict_x0(x, pred_noise)
+
+        n = self.noiseparams
+        if not direct: # Reverse diffusion, timestep (t) -> (t)-1
+            p1 = (n.sqrt_abar_prev * n.beta_t) / n.inv_abar_t
+            p2 = (n.sqrt_alpha_t * n.inv_abar_prev) / n.inv_abar_t
+            mean = x0 * p1 +  x  * p2
+            var = n.beta_t * n.inv_abar_prev / n.inv_abar_t
+        else: # Predict clean image directly
+            mean, var = x0, n.beta_t
+
+        # Return clean image on final step, otherwise noisy image at (t)-1
+        if idx == 0: return mean
+        else: return mean + torch.sqrt(var) * torch.randn_like(x)
+
+    def sample(
+            self, 
+            batches: int=1,
+            spatial_size: int | None=None,
+            context: torch.Tensor | None=None,
+            **kwargs
+        ) -> torch.Tensor:
+        '''Performs iterative denoising to generate and return an output image.
+        
+        Args:
+            batches : The batch size of the tensor to sample.
+            spatial_size : The spatial size of the input tensor for the
+                denoising autoencoder, or `None` to use the input size from the
+                UNet config.
+
+        Returns:
+            torch.Tensor : The final denoised tensor, decoded to pixel space.
+        '''
+        size = spatial_size if not spatial_size is None \
+            else self.config.model.input_size
+        shape = (batches, self.config.model.unet.in_channels, size, size)
+        with torch.inference_mode():
+            x = torch.randn(shape).to(self.device) # Generate noise tensor
+            for i in reversed(range(self.timesteps)):
+                t = torch.full( # Build timesteps for batch
+                    (shape[0],), i, device=self.device, dtype=torch.long)
+                x = self.p_sample(x, t, idx=i, context=context)
+                del t
+        result = torch.clamp((x + 1) * 0.5, 0.0, 1.0).detach().cpu()
+        del x
+        if self.device == 'cuda': torch.cuda.empty_cache()
+        return result
+        
+    def trainer_core(
+            self, 
+            train_step_fn: Callable[[torch.Tensor, torch.Tensor, int], None],
+            train_step_kwargs: dict[str, Any] | None=None
+        ) -> None:
+        '''Trainer core callback for unconditional diffusion.
+        
+        Args:
+            train_step_fn : Train step function, run once per batch. Passed by
+                "Trainer.train()".
+            train_step_kwargs : Optional keyword args for train step function.
+        '''
+        for idx, x in enumerate(self.dataloader):
+            start_time = time.time()
+            x: torch.Tensor = x.to(self.device, non_blocking=True)
+            train_step_fn(x, None, idx, **train_step_kwargs)
+            batch_time = time.time() - start_time
+            self.batch_times.append(batch_time)  

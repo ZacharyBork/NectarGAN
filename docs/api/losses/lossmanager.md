@@ -150,28 +150,6 @@ loss_manager.update_loss_log(silent=True, capture=False)
 #### See [here](../losses/loss_spec.md) for more information on loss specifications
 
 ## Convenience Functions
-#### The `LossManager` includes two convenience functions for printing debug values to the console during training. These are:
-### `LossManager.print_losses()`
-> From: [nectargan.losses.loss_manager.print_losses()](https://github.com/ZacharyBork/NectarGAN/blob/main/nectargan/losses/loss_manager.py)
-
-    Prints (or returns) a string of all the most recent loss values.
-
-    Note: This function uses the last value stored in LossManager.history 
-    for each loss. As such, this function should generally be called AFTER 
-    all of the registered loss functions have been run for the batch. 
-    Calling it before running some or all of the loss funtions could lead 
-    to unexpected results.
-
-    By default, this function will print a string of all registered losses 
-    and their most recent values, tagged with epoch and iter, formatted as:
-
-    "(epoch: {e}, iters: {i}) Loss: {L_1_N}: {L_1_V} {L_2_N}: {L_2_V} ..."
-
-    Key:
-        e : input epoch
-        i : input iter
-        L_X_N : Loss X name
-        L_X_V : Loss X value
 ### `LossManager.print_weights()`
 > From: [nectargan.losses.loss_manager.print_weights()](https://github.com/ZacharyBork/NectarGAN/blob/main/nectargan/losses/loss_manager.py)
 

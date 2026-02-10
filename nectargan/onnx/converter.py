@@ -5,10 +5,10 @@ from typing import Any
 
 import torch
 
-from nectargan.trainers.trainer import Trainer
-from nectargan.models.unet.model import UnetGenerator
+from nectargan.trainers import Trainer
+from nectargan.models import UnetGenerator
 import nectargan.models.unet.blocks as unetblocks 
-from nectargan.config.config_manager import ConfigManager
+from nectargan.config import ConfigManager
 
 class ONNXConverter(Trainer):
     def __init__(

@@ -24,11 +24,12 @@ Input: [1, 3, 512, 512] (512^2 RGB)                     Output:  [1, 3, 512, 512
                         ↓                                 ↑ 
 [1, 512, 8, 8] -----> down6 -----> [1, 512, 4, 4] -----> up2 -------> [1, 512, 8, 8]
                         ↓                                 ↑
-[1, 512, 4, 4] ---> bottleneck --> [1, 512, 2, 2] → → → → up1 -> [1, 512, 4, 4]
+                 [1, 512, 4, 4] ---> bottleneck --> [1, 512, 4, 4]
 '''
 import torch
 import torch.nn as nn
 import torch.nn.init as init
+from torch.utils.checkpoint import checkpoint
 
 from nectargan.models.unet.blocks import UnetBlock
 
@@ -55,27 +56,34 @@ class UnetGenerator(nn.Module):
             n_downs: int=6, 
             use_dropout_layers: int=3, 
             block_type=UnetBlock, 
-            upconv_type: str='Transposed'
+            upconv_type: str='Transposed',
+            init_weights: bool=True,
+            use_checkpointing: bool=True
         ) -> None:
         super().__init__()
         self.input_size = input_size
         self.in_channels = in_channels
         self.features = features
         self.use_dropout_layers = use_dropout_layers
-        self.n_down = n_downs
         self.block_type = block_type
         self.upconv_type = upconv_type
+        self.use_checkpointing = use_checkpointing
 
+        # n_downs doesn't account for initial encoder layer
+        self.n_down = n_downs - 1
+        
         self.build_model() # Initialize generator model
+        if init_weights: self.apply(self.init_weights)
 
     def build_model(self) -> None:
         '''Wrapper function to assemble a full UNet generator model.'''
         self.validate_layer_count()       # Validate layer count for in shape
         self.build_channel_map()          # Build channel map
+        self.define_initial_down()
         self.define_downsampling_blocks() # Define downsampling blocks
         self.define_bottleneck()          # Define bottleneck
         self.define_upsampling_blocks()   # Define Upsampling Blocks
-        self.apply(self.init_weights)     # Initialize layer weights
+        self.define_final_up()
 
     def validate_layer_count(self) -> None:
         '''Checks number of downsampling layers against input image
@@ -95,6 +103,11 @@ class UnetGenerator(nn.Module):
             # Raise error if input size is too small
             e = 'Input too small for n_down={}. Min size: {}x{}'
             raise ValueError(e.format(self.n_down, min_size, min_size)) 
+        
+    def _checkpoint_block(self, block, x):
+        '''Wrapper for checkpointing a block with its arguments.'''
+        def custom_forward(x): return block(x)
+        return checkpoint(custom_forward, x, use_reentrant=False)
 
     def build_channel_map(self) -> None:
         '''Assembles Unet channel structure.'''
@@ -104,6 +117,7 @@ class UnetGenerator(nn.Module):
             in_features = min(out_features, self.features*8)
             out_features = min(out_features*2, self.features*8)
             down_channels.append((in_features, out_features))
+            final_down_size = out_features
 
         # Create layer IO shapes skip channels
         skip_channels = list(reversed(
@@ -113,58 +127,80 @@ class UnetGenerator(nn.Module):
         up_channels = [(in_ch*2, out_ch) for in_ch, out_ch in skip_channels] 
 
         # Add IO shape for first up layer
-        up_channels.insert(0, (self.features*8, self.features*8)) 
+        up_channels.insert(0, (final_down_size, final_down_size)) 
 
         self.channel_map = {
             'initial_down': down_channels[0],
             'downs': down_channels[1:],
-            'bottleneck': (self.features*8, self.features*8),
+            'bottleneck': (final_down_size, final_down_size),
             'ups': up_channels[:-1],
             'final_up': up_channels[-1]
         }
-    
-    def define_downsampling_blocks(self) -> None:
-        '''Defines the layers in the downsampling path.'''
-        # Define initial downsampling layer
-        self.initial_down = self.block_type(
-            self.channel_map['initial_down'][0], 
-            self.channel_map['initial_down'][1], 
-            upconv_type=self.upconv_type, activation='leaky',
-            norm=None, down=True, bias=True, use_dropout=False)
 
-        # Define additional downsampling layers
+    def define_initial_down(
+            self, activation: str='leaky', norm: str | None=None,
+            stride: int=2, bias: bool=True, use_dropout: bool=False, 
+            dropout_chance: float=0.5, **kwargs
+        ) -> None:
+        self.initial_down = self.block_type(
+            in_channels=self.channel_map['initial_down'][0], 
+            out_channels=self.channel_map['initial_down'][1], 
+            upconv_type=self.upconv_type, activation=activation,
+            norm=norm, down=True, stride=stride, bias=bias, 
+            use_dropout=use_dropout, dropout_chance=dropout_chance, **kwargs)
+    
+    def define_downsampling_blocks(
+            self, activation: str='leaky', norm: str | None='instance',
+            stride: int=2, bias: bool=False, use_dropout: bool=False, 
+            dropout_chance: float=0.5, **kwargs
+        ) -> None:
+        '''Defines the layers in the downsampling path.'''
         self.downs = nn.ModuleList()
         for (in_ch, out_ch) in self.channel_map['downs']:
             self.downs.append(
                 self.block_type(
-                    in_ch, out_ch, 
-                    upconv_type=self.upconv_type, activation='leaky',
-                    norm='instance', down=True, bias=False, use_dropout=False))
+                    in_channels=in_ch, out_channels=out_ch, 
+                    upconv_type=self.upconv_type, activation=activation, 
+                    norm=norm, down=True, stride=stride, bias=bias, 
+                    use_dropout=use_dropout, dropout_chance=dropout_chance,
+                    **kwargs))
 
-    def define_bottleneck(self) -> None:
+    def define_bottleneck(
+            self, activation: str='relu', norm: str | None=None,
+            stride: int=1, bias: bool=True, use_dropout: bool=False, 
+            dropout_chance: float=0.5, **kwargs
+        ) -> None:
         '''Defines the bottleneck layer.'''
-        # Define bottleneck
         self.bottleneck = self.block_type(
-            self.channel_map['bottleneck'][0], 
-            self.channel_map['bottleneck'][1], 
-            upconv_type=self.upconv_type, activation='relu',
-            norm=None, down=True, bias=True, use_dropout=False)
+            in_channels=self.channel_map['bottleneck'][0], 
+            out_channels=self.channel_map['bottleneck'][1], 
+            upconv_type=self.upconv_type, activation=activation,
+            norm=norm, down=True, stride=stride, bias=bias, 
+            use_dropout=use_dropout, dropout_chance=dropout_chance, **kwargs)
 
-    def define_upsampling_blocks(self) -> None:
+    def define_upsampling_blocks(
+            self, activation: str='relu', norm: str | None='instance',
+            bias: bool=False, dropout_chance: float=0.5, **kwargs
+        ) -> None:
         '''Defines the layers in the upsampling path.'''
-        # Define upsampling layers
         self.ups = nn.ModuleList()
         for i, (in_ch, out_ch) in enumerate(self.channel_map['ups']):
             self.ups.append(self.block_type(
-                in_ch, out_ch, upconv_type=self.upconv_type, 
-                activation='relu', norm='instance', down=False, bias=False, 
-                use_dropout=i<self.use_dropout_layers))
+                in_channels=in_ch, out_channels=out_ch, 
+                upconv_type=self.upconv_type, activation=activation, 
+                norm=norm, down=False, bias=bias, 
+                use_dropout=i<self.use_dropout_layers, 
+                dropout_chance=dropout_chance, **kwargs))
 
-        # Define final upsampling layer
+    def define_final_up(
+            self, activation: str='tanh', norm: str | None=None,
+            bias: bool=True, **kwargs
+        ) -> None:
         self.final_up = self.block_type(
-            self.channel_map['final_up'][0], self.channel_map['final_up'][1], 
-            upconv_type=self.upconv_type, activation='tanh',
-            norm=None, down=False, bias=True, use_dropout=False)
+            in_channels=self.channel_map['final_up'][0], 
+            out_channels=self.channel_map['final_up'][1], 
+            upconv_type=self.upconv_type, activation=activation,
+            norm=norm, down=False, bias=bias, use_dropout=False, **kwargs)
 
     def init_weights(self, m: nn.Module) -> None:
         '''Initializes layer weights based on layer type.
@@ -188,25 +224,35 @@ class UnetGenerator(nn.Module):
         Args:
             x : The input tensor to run the generator's inference on.
         '''
-        x = self.initial_down(x) # Run downsampling layer
+        if self.use_checkpointing:
+            x = self._checkpoint_block(self.initial_down, x)
+        else: x = self.initial_down(x) # Run downsampling layer
         skips = [x] # Store outputs for skip connections
         for down in self.downs:
-            x = down(x)
+            if self.use_checkpointing: x = self._checkpoint_block(down, x)
+            else: x = down(x)
             skips.append(x)
 
         skips.reverse() # Align skips with up conv layer
-        x = self.bottleneck(x) # Run bottleneck layer
-        x = self.ups[0](x)
+        if self.use_checkpointing: 
+            x = self._checkpoint_block(self.bottleneck, x)
+        else: x = self.bottleneck(x) # Run bottleneck layer
+        # x = self.ups[0](x)
 
         for i, up in enumerate(self.ups[1:]):
-            skip = skips[i]
-            x = up(torch.cat([x, skip], dim=1))
+            y = torch.cat([x, skips[i]], dim=1)
+            if self.use_checkpointing: x = self._checkpoint_block(up, y)
+            else: x = up(y)
 
         # Return result of final upsampling layer
-        return self.final_up(torch.cat([x, skips[-1]], dim=1))
+        y = torch.cat([x, skips[-1]], dim=1)
+        if self.use_checkpointing: 
+            output = self._checkpoint_block(self.final_up, y)
+        else: output = self.final_up(y)
+        return output
 
 if __name__ == "__main__":
-    x = torch.randn((1, 3, 256, 256))
-    model = UnetGenerator()
+    x = torch.randn((1, 3, 32, 32))
+    model = UnetGenerator(input_size=32, n_downs=2)
     output = model(x)
     print(output.shape)

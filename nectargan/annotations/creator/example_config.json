@@ -1,0 +1,31 @@
+{
+    "queries": [
+        {
+            "title": "Checkbox Example",
+            "type": "checkbox",
+            "required": true,
+            "settings": {
+                "caption_true": "True",
+                "caption_false": "False"
+            }
+        },
+        {
+            "title": "Slider Example",
+            "type": "slider",
+            "required": true,
+            "settings": {
+                "range": [0, 10],
+                "caption": "slider value {}"
+            }
+        },
+        {
+            "title": "Radio Buttons Example",
+            "type": "radio_buttons",
+            "required": true,
+            "settings": {
+                "choices": ["Choice 1", "Choice 2", "Choice 3"],
+                "caption": "choice {}"
+            }
+        }
+    ]
+}

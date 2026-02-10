@@ -12,8 +12,23 @@ CONFIG = Path(TMP, 'config.json')
 
 def pytest_addoption(parser: pytest.Parser) -> None:
     parser.addoption(
-        "--force-cpu", action="store_true", default=False,
-        help="Forces config.common.device='cpu' in default NectarGAN config.")
+        '--force-cpu', action='store_true', default=False,
+        help='Forces config.common.device="cpu" in default NectarGAN config.')
+    parser.addoption(
+        '--run-slow',
+        action='store_true',
+        default=False,
+        help='Run slow tests (like full pipeline tests)')
+
+def pytest_configure(config: pytest.Config):
+    config.addinivalue_line('markers', 'slow: mark test as slow to run')
+
+def pytest_collection_modifyitems(config: pytest.Config, items: pytest.Item):
+    if config.getoption('--run-slow'): return
+    skip_slow = pytest.mark.skip(reason='--run-slow flag not present')
+    for item in items:
+        if 'slow' in item.keywords:
+            item.add_marker(skip_slow)
 
 def _cleanup() -> None:
     assert TMP.exists()

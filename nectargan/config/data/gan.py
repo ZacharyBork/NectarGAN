@@ -1,18 +1,22 @@
 from dataclasses import dataclass
+import nectargan.config.data.common as cfgcommon
 
-@dataclass
-class ConfigCommon:
-    device: str
-    gpu_ids: list[int]
-    output_directory: str
-    experiment_name: str
-    experiment_version: int
+##### DATALOADER #####
 
 @dataclass
 class ConfigAugsBoth:
     h_flip_chance: float
     v_flip_chance: float
     rot90_chance: float
+    colorjitter_chance: float
+    colorjitter_min_brightness: float
+    colorjitter_max_brightness: float
+    colorjitter_min_contrast: float
+    colorjitter_max_contrast: float
+    colorjitter_min_saturation: float
+    colorjitter_max_saturation: float
+    colorjitter_min_hue: float
+    colorjitter_max_hue: float
     elastic_transform_chance: float
     elastic_transform_alpha: float
     elastic_transform_sigma: float
@@ -33,6 +37,12 @@ class ConfigAugsInput:
     colorjitter_chance: float
     colorjitter_min_brightness: float
     colorjitter_max_brightness: float
+    colorjitter_min_contrast: float
+    colorjitter_max_contrast: float
+    colorjitter_min_saturation: float
+    colorjitter_max_saturation: float
+    colorjitter_min_hue: float
+    colorjitter_max_hue: float
     gaussnoise_chance: float
     gaussnoise_min: float
     gaussnoise_max: float
@@ -57,13 +67,25 @@ class ConfigDataLoaderAugmentations:
     both: ConfigAugsBoth
     input: ConfigAugsInput
     output: ConfigAugsOutput
-
+    
 @dataclass
 class ConfigDataloaderLoad:
     load_size: int
     crop_size: int
     input_nc: int
-    
+
+@dataclass
+class ConfigDataloaderMasking:
+    enable: bool
+    mask_directory: str
+    mask_channel: int
+    combination_type: str
+    blend_channel: int
+    blend_amount: float
+    visdom_overlay_mask: bool
+    visdom_mask_color: list[float]
+    visdom_mask_opacity: float
+
 @dataclass
 class ConfigDataloader:
     dataroot: str
@@ -71,12 +93,14 @@ class ConfigDataloader:
     batch_size: int
     num_workers: int
     load: ConfigDataloaderLoad
+    masking: ConfigDataloaderMasking
     augmentations: ConfigDataLoaderAugmentations
 
+##### TRAIN #####
+
 @dataclass
-class ConfigLoad:
-    continue_train: bool
-    load_epoch: int
+class ConfigOptimizer:
+    beta1: float
 
 @dataclass
 class ConfigLearningRate:
@@ -86,15 +110,14 @@ class ConfigLearningRate:
     target: float
 
 @dataclass
-class ConfigOptimizer:
-    beta1: float
-
-@dataclass
 class ConfigGenerator:
     features: int
     n_downs: int
     block_type: str
     upsample_type: str
+    use_checkpointing: bool
+    compile_network: bool
+    compile_method: str
     learning_rate: ConfigLearningRate
     optimizer: ConfigOptimizer
     
@@ -103,6 +126,8 @@ class ConfigDiscriminator:
     n_layers: int
     base_channels: int
     max_channels: int
+    compile_network: bool
+    compile_method: str
     learning_rate: ConfigLearningRate
     optimizer: ConfigOptimizer
 
@@ -116,12 +141,19 @@ class ConfigLoss:
     lambda_vgg: float
 
 @dataclass
+class ConfigLoad:
+    continue_train: bool
+    load_epoch: int
+
+@dataclass
 class ConfigTrain:
     separate_lr_schedules: bool
     load: ConfigLoad
     generator: ConfigGenerator
     discriminator: ConfigDiscriminator
     loss: ConfigLoss
+
+##### SAVE #####
 
 @dataclass
 class ConfigSave:
@@ -132,6 +164,8 @@ class ConfigSave:
     example_save_rate: int
     num_examples: int
 
+##### VISUALIZER #####
+
 @dataclass
 class ConfigVisdom:
     enable: bool
@@ -140,15 +174,23 @@ class ConfigVisdom:
     port: int
     image_size: int
     update_frequency: int
-    
+
 @dataclass
 class ConfigVisualizer:
     visdom: ConfigVisdom
 
+##### MAIN #####
+
 @dataclass
-class Config:
-    common: ConfigCommon
+class GANConfig(cfgcommon.Config):
     dataloader: ConfigDataloader
     train: ConfigTrain
     save: ConfigSave
     visualizer: ConfigVisualizer
+
+    DEFAULT_FILE = 'default.json'
+    GROUP_SCHEMA = cfgcommon.Config.GROUP_SCHEMA | {
+        'dataloader': ConfigDataloader,
+        'train': ConfigTrain,
+        'save': ConfigSave,
+        'visualizer': ConfigVisualizer}

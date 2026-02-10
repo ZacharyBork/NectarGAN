@@ -1,7 +1,7 @@
 from typing import Callable
 
-from nectargan.scheduling.data import Schedule
-from nectargan.scheduling.schedules import schedule_map
+from nectargan.scheduling import Schedule
+from nectargan.scheduling import schedule_map
 
 class Scheduler():
     def __init__(self, schedule: Schedule) -> None:
@@ -29,12 +29,12 @@ class Scheduler():
             raise TypeError(message)
         return schedule_fn
 
-    def eval_schedule(self, epoch: int) -> float:
+    def eval_schedule(self, timestep: int) -> float:
         s = self.schedule # Get current `Schedule`
         # If no LR schedule, just apply weight and return
         if s == Schedule(): return s.current_value
 
-        s.current_value = self.schedule_fn(s, epoch)
+        s.current_value = self.schedule_fn(s, timestep)
         assert isinstance(s.current_value, float)
         return self._normalize(s.current_value)
         

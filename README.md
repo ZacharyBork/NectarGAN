@@ -4,7 +4,8 @@
   <source media="(prefers-color-scheme: light)" srcset="./docs/resources/images/banner_light.png">
   <img src="./docs/resources/images/banner.png" alt="NectarGAN" style="vertical-align: middle;" width=950>
 </picture>
-<h4>A graphical development environment and model assembly framework for Pix2pix-style conditional GANs.</h4>
+<h4>A PyTorch-based image synthesis and computer vision framework.</h4>
+<!-- <h4>A graphical development environment and model assembly framework for Pix2pix-style conditional GANs.</h4> -->
 </div>
 
 ___
@@ -31,7 +32,17 @@ ___
 **NectarGAN is comprised of two core components:**
 ### 1. The NectarGAN Toolbox
 
-A modern, high performance interface encapsulating a full end-to-end, production-ready cGAN pipeline. From assembling and managing Pix2pix-style datasets, to building and training conditional GAN models, to tracking and reviewing experiments, to testing trained models and preparing them for deployment. Your models can go from an idea to production, all without leaving the Toolbox.
+A modern, high-performance graphical interface for end-to-end model development. Build datasets, configure architectures, train models, track experiments, and prepare for deployment, all through an intuitive unified UI.
+
+**Currently supports:**
+- Pix2pix-style conditional GANs (paired image translation).
+- Full dataset management and augmentation pipeline.
+- Real-time training visualization and experiment tracking.
+- Model testing and ONNX conversion.
+
+**Coming soon:**
+- Diffusion model training dashboard.
+- Classifier training/testing interface.
 
 <br>
 <div align="center">
@@ -48,14 +59,14 @@ A modern, high performance interface encapsulating a full end-to-end, production
 
 ### 2. The NectarGAN API
 
-A fully modular, highly extensible PyTorch-based framework comprised of easy to use building blocks for assembling, training, and testing conditional GAN models. The API offers developers the tools needed to quickly write cGAN training/testing scripts with maximum functionality and minimal boilerplate.
+A fully modular, highly extensible PyTorch-based framework comprised of easy to use building blocks for assembling, training, and testing CV and image synth models. The API offers developers the tools needed to quickly write training/testing scripts with maximum functionality and minimal boilerplate.
 
 ```python
 from nectargan.trainers.pix2pix_trainer import Pix2pixTrainer
 
 if __name__ == "__main__":
     trainer = Pix2pixTrainer(
-    config='/path/to/config/file.json', 
+        config='/path/to/config/file.json', 
         loss_subspec='extended', log_losses=True)
 
     for epoch in range(100):
@@ -65,25 +76,75 @@ if __name__ == "__main__":
         trainer.print_end_of_epoch()
 ```
 <br>
+
 <div align="center">
 
 **For more information, please see the [*NectarGAN API documentation*](docs/api.md).**
 
 </div>
 
+<div align="center">
+
 ## Who is this for?
-- Artists wanting to experiment with paired image translation tasks (why I first starting experimenting with Pix2pix).
-- Researchers who want a flexible environment in which to explore conditional GAN behavior.
-- Startups looking for an easy and flexible way to experiment with and deploy image translation models.
-- Students wishing to learn about and explore GANs in a visual, easy to use environment.
-- Engineers/TDs wanting to painlessly integrate paired image translation models into their pre-existing pipelines.
+- Artists and researchers exploring image synthesis techniques (cGAN, diffusion, autoencoders).
+- Startups looking for an easy and flexible way to experiment with and deploy image synth/CV models.
+- Students wishing to learn about and explore modern image synthsis techniques in a visual, easy to use environment.
+- Engineers/TDs wanting to painlessly integrate computer vision and image synthesis models into their pre-existing pipelines.
 
 ## Getting Started
 **Please refer to the [*quickstart documentation*](docs/getting_started.md) for information on how to get started using NectarGAN.**
 
 **NectarGAN also supports headless training and testing of models in Docker containers.** See below for more information. 
 
+</div>
+
+<div align="center">
+
+## *Prebuilt Models*
+
+<table>
+<tr>
+  <td width="25%"><b>Model</b></td>
+  <td width="30%"><b>Domain</b></td>
+  <td width="100%"><b>Currently Available With</b></td>
+</tr>
+<tr>
+  <td><b>PatchGAN (Discriminator)</b></td><td>Images (2D)</td><td>API · CLI · Toolbox · Docker</td>
+</tr>
+<tr>
+  <td><b>PatchGAN (Multi-scale)</b></td><td>Images (2D)</td><td>API</td>
+</tr>
+<tr>
+  <td><b>UNet (Generator)</b></td><td>Images (2D)</td><td>API · CLI · Toolbox · Docker</td>
+</tr>
+<tr>
+  <td><b>UNet (Diffusion)</b></td><td>Images (2D)</td><td>API</td>
+</tr>
+<tr>
+  <td><b>ResNet (Generator)</b></td><td>Images (2D)</td><td>API</td>
+</tr>
+<tr>
+  <td><b>ResNet (Classifier)</b></td><td>Images (2D)</td><td>API</td>
+</tr>
+<tr>
+  <td><b>Diffusion (Pixel)</b></td><td>Pixel space</td><td>API · CLI</td>
+</tr>
+<tr>
+  <td><b>Diffusion (Latent)</b></td><td>Latent space</td><td>API · CLI</td>
+</tr>
+</table>
+
+<br>
+
+**Toolbox Support:** Currently, the Toolbox interface and Docker wrapper support PatchGAN (Discriminator) and UNet (Generator) for Pix2pix-style image translations workflows. All other models are accessible via the API and/or CLI, with Toolbox integration planned for future releases.
+
+</div>
+
+<div align="center">
+
 ## Performance
+
+### Pix2pix
 
 **Training and inference benchmarks** (*1x Nvidia RTX 2080Ti, PyTorch 2.9.0 cu128, facades dataset, 256x256*):
 | Operation | Time | GPU Memory |
@@ -94,19 +155,29 @@ if __name__ == "__main__":
 | Training (per epoch, batch size 16) | ~3.2 seconds | 1.94 GB |
 | Inference (single image) | ~30ms | ~0.23 GB |
 
-## Features
-<div align="center">
+<br>
 
-## [*Training Framework*](docs/api.md)
-![Training framework example](docs/resources/images/readme/readme_training_framework_example.png)
-
+*Diffusion model performance metrics will be added in a future release.*
 
 </div>
 
+## Project Status
 
+**NectarGAN is under active development with regular feature releases and improvements.** While the framework is functional and tested, you may occasionally encounter edge cases or bugs. **Please report any issues via GitHub** so they can be addressed quickly!
 
-- **Fully modular, PyTorch-based GAN training framework**.
+**Backward Compatibility:** Every effort is made to maintain compatibility between releases, but significant feature additions may occasionally require changes to core components. Please see the CHANGELOG for details on any breaking changes.
+
+## Features
+<div align="center">
+
+## [*Multi-model Training Framework*](docs/api.md)
+![Training framework example](docs/resources/images/readme/readme_training_framework_example.png)
+
+</div>
+
+- **Fully modular, PyTorch-based training framework** supporting conditional GANs, diffusion models, autoencoders, and classifiers.
 - **Configurable [*UNet-style generator*](docs/api/models/unet.md)** with support for multiple UNet block types, and drop-in support for your own custom blocks.
+- **Modular and highly configurable pixel and latent space [diffusion models](docs/getting_started/diffusion.md).**
 - **Easy loss tracking and logging** during and after training with a custom [*LossManager system*](docs/api/losses/lossmanager.md).
 - **Modular [*loss spec system*](docs/api/losses/loss_spec.md)** allows you to quickly define reusable objective functions which can be loaded by the LossManager. Also included is a [*prebuilt Pix2pix objective function*](https://github.com/ZacharyBork/NectarGAN/blob/main/nectargan/losses/pix2pix_objective.py) with a number of additional subspecs which add some extra loss functions for rapid prototyping.
 - **The LossManager also supports a custom loss weight [*scheduling system*](docs/api/scheduling.md)** allowing you to apply one of the included weight schedules, or to easily drop your own custom scheduling function in and have the LossManager take care of the rest.
@@ -136,9 +207,7 @@ if __name__ == "__main__":
 
 </div>
 
-
-
-- **Modern, fully graphical GAN training, testing, and evaluation tool.**
+- **Modern, fully graphical model training, testing, and evaluation tool.**
 - **Configure your model architecture, build your dataset processing chain, define your objective function, and run your training, all with just a few clicks.** No code needed, just drag some sliders and see how it changes the models behavior.
 - **Real time progress and timing stats, inference visualization, and loss graphing** with a highly configurable [*training interface*](docs/getting_started/toolbox_training.md) allowing you to put the most focus on whatever metrics you're most interested in seeing.
 - **A [*testing interface*](docs/getting_started/toolbox_testing.md) allowing you to quickly load and validate your models on test datasets.** The results will be evaluated with various loss functions and all the images and information will be displayed to you in the interface where you can sort by these metrics.
@@ -148,6 +217,9 @@ if __name__ == "__main__":
 - **View time statistics during training** including slowest, fastest, and average epoch and iteration time, total train time, and a real time time graph of all previous epoch times.
 
 <br>
+
+*NOTE: Diffusion models will be added to the NectarGAN Toolbox in a future release.*
+
 <div align="center">
 
 ## [*Easy Dataset Augmentation*](docs/toolbox/dataset.md)
@@ -228,16 +300,7 @@ if __name__ == "__main__":
 ## Looking to contribute?
 **Please see [*the contribution guide*](docs/faq.md) for more information.**
 
-## Project Status
-**NectarGAN is under active development.** In its current state, however, it already offers:
-- A robust framework for running and tracking experiments.
-- An interactive dashboard for visualizing experiment results.
-- A developer friendly API for constructing, training, and testing paired image-to-image adversarial models.
-- An expansive and easy to use data augmentation pipeline and a variety of dataset processing tools.
-- An interface to test your trained models, both as a `.pth` and as a `.onnx` to ensure consistency at deployment time.
-
-**Planned future updates include:**
-- Unpaired model assembly and training. More core trainer/tester classes.
+## Planned future updates
 - Multi-GPU support.
 - More CLI support.
 - Exposed normalization options in the Toolbox interface.
@@ -252,5 +315,5 @@ if __name__ == "__main__":
 This project is inspired by Jun-Yan Zhu's [*PyTorch-CycleGAN-and-pix2pix*](https://github.com/junyanz/pytorch-CycleGAN-and-pix2pix) implementation.
 
 ## References
-- [*Pix2Pix: Image-to-Image Translation with Conditional Adversarial Networks (Isola et al., 2017)*](https://arxiv.org/abs/1611.07004)
+Please see [REFERENCES.md](REFERENCES.md) for a complete list of citations.
 

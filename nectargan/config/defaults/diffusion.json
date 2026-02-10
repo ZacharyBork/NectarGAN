@@ -1,0 +1,156 @@
+{
+    "config": {
+        "config_type": "diffusion",
+        "common": {
+            "device": "cuda",
+            "gpu_ids": [ 0 ],
+            "cudnn": { "benchmark": true, "deterministic": false, "fp32_precision": "tf32" },
+            "output_directory": "",
+            "experiment_name": "Diffusion",
+            "experiment_version": 1
+        },
+        "train": {
+            "load": {
+                "continue_train": false,
+                "load_step": 0
+            },
+            "loss": {
+                "lambda_mse": 1.0,
+                "pixel": {
+                    "frequency": 10,
+                    "max_batches": 999999,
+                    "lambda_l1": 0.0,
+                    "lambda_vgg": 0.0,
+                    "lambda_sobel": 0.0,
+                    "lambda_laplacian": 0.0
+                }
+            }
+        },
+        "model": {
+            "model_type": "latent",
+            "input_size": 512,
+            "mixed_precision": true,
+            "use_ema": true,
+            "ema_decay": 0.9999,
+            "accumulate_gradients": false,
+            "gradient_accumulation_iterations": 2,
+            "noise_schedule": {
+                "timesteps": 1000,
+                "schedule_type": "cosine",
+                "cosine_offset": 0.008
+            },
+            "sampling": {
+                "function": "DDIM",
+                "ddim_timesteps": 100,
+                "ddim_recompute_epsilon": true
+            },
+            "mlp": {
+                "time_embedding_dimension": 1024,
+                "hidden_dimension": 1024,
+                "output_dimension": 1024
+            },
+            "unet": {
+                "in_channels": 4,
+                "features": 320,
+                "n_downs": 3,
+                "middle_layer_depth": 6,
+                "self_attention": true,
+                "enable_checkpointing": true,
+                "optimizer": {
+                    "optimizer_type": "Adam",
+                    "betas": [0.9, 0.999],
+                    "fused": true
+                },
+                "compile": { "enable": true, "mode": "default" },
+                "learning_rate": {
+                    "base_rate": 0.0001,
+                    "warm_up": true,
+                    "warm_up_steps": 10000,
+                    "decay": {
+                        "enable": false,
+                        "schedule_type": "CosineAnnealingWarmRestarts",
+                        "steps_before_decay": 0,
+                        "decay_steps": 1e+6,
+                        "minimum_lr": 1e-6,
+                        "warm_restarts": {
+                            "steps_before_first_restart": 10000,
+                            "restart_steps_multiplier": 2
+                        }
+                    }
+                }
+            }
+        },
+        "dataloader": {
+            "dataroot": "",
+            "batch_size": 32,
+            "num_workers": 0,
+            "crop_type": "center",
+            "drop_last": true,
+            "pin_memory": true,
+            "shuffle": true,
+            "streaming": {
+                "enable": false,
+                "dataset": "LAION",
+                "set": "aesthetics",
+                "subset": "square",
+                "max_samples": 999999999,
+                "cache_directory": null,
+                "require_login": false
+            },
+            "augmentations": {
+                "h_flip_chance": 0.5,
+                "v_flip_chance": 0.0,
+                "rot90_chance": 0.0
+            }
+        },
+        "latents": {
+            "latent_size_divisor": 8,
+            "override_latent_size": true,
+            "latent_size": 64,
+            "vae": "stabilityai/sd-vae-ft-ema",
+            "vae_device": "cuda",
+            "vae_dtype": "float16",
+            "scaling_factor": 0.18215,
+            "cache": {
+                "read_from_cache": false,
+                "cache_directory": "",
+                "loader_type": "CacheLoader"
+            }
+        },
+        "captions": {
+            "use_captions": false,
+            "metadata_file": "",
+            "encoder_model": "openai/clip-vit-large-patch14",
+            "max_length": 77,
+            "freeze_encoder": true,
+            "use_fixed_captions": true,
+            "fixed_captions": []
+        },
+        "save": {
+            "save_model": true,
+            "model_save_rate": 10000,
+            "auto_increment_version": true,
+            "save_examples": true,
+            "example_save_rate": 1000,
+            "num_examples": 1,
+            "sample_cfg_scales": [7.5]
+        },
+        "visualizer": {
+            "visdom": {
+                "enable": false,
+                "average_loss": true,
+                "env_name": "main",
+                "server": "http://localhost",
+                "port": 8097,
+                "display_images": false,
+                "image_size": 150,
+                "max_images": 9,
+                "update_frequency": 100
+            },
+            "console": {
+                "average_loss": true,
+                "print_frequency": 100
+            }
+        }
+    }
+}

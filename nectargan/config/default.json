@@ -1,12 +1,12 @@
 {
     "config": {
+        "config_type": "pix2pix",
         "common": {
-            "device": "cpu",
-            "gpu_ids": [
-                0
-            ],
+            "device": "cuda",
+            "gpu_ids": [ 0 ],
+            "cudnn": { "benchmark": true, "deterministic": false, "fp32_precision": "tf32" },
             "output_directory": "",
-            "experiment_name": "NectarGAN",
+            "experiment_name": "Pix2pix",
             "experiment_version": 1
         },
         "dataloader": {
@@ -19,11 +19,31 @@
                 "load_size": 286,
                 "crop_size": 256
             },
+            "masking": {
+                "enable": false,
+                "mask_directory": "",
+                "mask_channel": 0,
+                "combination_type": "single_channel",
+                "blend_channel": 1,
+                "blend_amount": 0.5,
+                "visdom_overlay_mask": true,
+                "visdom_mask_color": [1.0, 0.0, 0.0],
+                "visdom_mask_opacity": 0.5
+            },
             "augmentations": {
                 "both": {
                     "h_flip_chance": 0.5,
                     "v_flip_chance": 0.0,
                     "rot90_chance": 0.0,
+                    "colorjitter_chance": 0.0,
+                    "colorjitter_min_brightness": 0.85,
+                    "colorjitter_max_brightness": 1.15,
+                    "colorjitter_min_contrast": 0.85,
+                    "colorjitter_max_contrast": 1.15,
+                    "colorjitter_min_saturation": 0.85,
+                    "colorjitter_max_saturation": 1.15,
+                    "colorjitter_min_hue": -0.1,
+                    "colorjitter_max_hue": 0.1,
                     "elastic_transform_chance": 0.0,
                     "elastic_transform_alpha": 1.0,
                     "elastic_transform_sigma": 50.0,
@@ -41,8 +61,14 @@
                 },
                 "input": {
                     "colorjitter_chance": 0.0,
-                    "colorjitter_min_brightness": 0.8,
-                    "colorjitter_max_brightness": 1.2,
+                    "colorjitter_min_brightness": 0.85,
+                    "colorjitter_max_brightness": 1.15,
+                    "colorjitter_min_contrast": 0.85,
+                    "colorjitter_max_contrast": 1.15,
+                    "colorjitter_min_saturation": 0.85,
+                    "colorjitter_max_saturation": 1.15,
+                    "colorjitter_min_hue": -0.1,
+                    "colorjitter_max_hue": 0.1,
                     "gaussnoise_chance": 0.0,
                     "gaussnoise_min": 0.2,
                     "gaussnoise_max": 0.44,
@@ -72,6 +98,9 @@
                 "n_downs": 6,
                 "block_type": "UnetBlock",
                 "upsample_type": "Transposed",
+                "use_checkpointing": true,
+                "compile_network": true,
+                "compile_method": "reduce-overhead",
                 "learning_rate": {
                     "epochs": 100,
                     "epochs_decay": 100,
@@ -86,6 +115,8 @@
                 "n_layers": 3,
                 "base_channels": 64,
                 "max_channels": 512,
+                "compile_network": true,
+                "compile_method": "reduce-overhead",
                 "learning_rate": {
                     "epochs": 100,
                     "epochs_decay": 100,

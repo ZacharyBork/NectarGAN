@@ -1,11 +1,15 @@
 # Tests model training, export, and testing
 
+import os
 import json
 import subprocess
 from pathlib import Path
 from typing import Any
 
+import pytest
+
 from nectargan.utils.rebuild_default_config import DEFINITION
+from nectargan.config.utils import get_default_config
 
 def _get_dataset_directory(root: Path) -> Path:
     dataset_directory = Path(root, 'tests/dataset/noise').resolve()
@@ -22,17 +26,23 @@ def _update_config_file(
         root: Path,
         dataset_path: Path,
         output_directory: Path
-    ) -> tuple[dict[str, Any], Path]:
+    ) -> Path:
     print('Updating config file...')
 
-    updated_config = DEFINITION
+    # updated_config = DEFINITION
+    updated_config = get_default_config('pix2pix', as_json=True)
     cfg = updated_config['config']
+    cfg['common']['device'] = 'cpu'
     cfg['common']['output_directory'] = output_directory.as_posix()
     cfg['common']['experiment_name'] = 'pipeline_validation_output'
     cfg['dataloader']['dataroot'] = dataset_path.as_posix()
     cfg['train']['generator']['learning_rate']['epochs'] = 2
     cfg['train']['generator']['learning_rate']['epochs_decay'] = 0
-    cfg['save']['model_save_rate'] = 1    
+    cfg['train']['generator']['compile_network'] = False
+    cfg['train']['generator']['use_checkpointing'] = False
+    cfg['train']['discriminator']['compile_network'] = False
+    cfg['save']['model_save_rate'] = 1  
+    #cfg['train']['load']['load_epoch'] = 2  
 
     test_config_path = Path(root, 'tests/tmp/config.json').resolve()
     with open(test_config_path, 'w') as file:
@@ -81,6 +91,7 @@ def _start_testing(
     assert return_code == 0
     print('Testing completed successfully!')
 
+@pytest.mark.slow
 def test_pipeline() -> None:
     root = Path(__file__).parent.parent.parent.resolve()
     tmp = Path(root, 'tests/tmp')

@@ -2,7 +2,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from torch import nn, Tensor, empty
 
-from nectargan.scheduling.data import Schedule
+from nectargan.scheduling import Schedule
 
 @dataclass
 class LMHistory:

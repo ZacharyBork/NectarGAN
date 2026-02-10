@@ -37,14 +37,14 @@ def test_import_key_files() -> None:
     '''Import individual key components directly.'''
     key_files = [
         'nectargan.config.config_manager',
-        'nectargan.dataset.paired_dataset',
+        'nectargan.dataset.paired.paired_dataset',
         'nectargan.losses.loss_manager',
         'nectargan.losses.lm_data',
         'nectargan.losses.losses',
         'nectargan.losses.pix2pix_objective',
         'nectargan.models.patchgan.model',
         'nectargan.models.patchgan.blocks',
-        'nectargan.models.unet.model',
+        'nectargan.models.unet.generator',
         'nectargan.models.unet.blocks',
         'nectargan.scheduling.data',
         'nectargan.scheduling.scheduler',

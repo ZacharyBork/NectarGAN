@@ -4,15 +4,15 @@
 # You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
 
 from os import PathLike
-from typing import Literal, Any
+from typing import Literal, Any, Callable
 
 import torch
 from torch import optim
 
 from nectargan.trainers.trainer import Trainer
-from nectargan.config.config_manager import ConfigManager
+from nectargan.config import ConfigManager, GANConfig
 
-from nectargan.models.unet.model import UnetGenerator
+from nectargan.models import UnetGenerator
 from nectargan.models.unet.blocks import UnetBlock, ResidualUnetBlock
 from nectargan.models.patchgan.model import Discriminator
 import nectargan.losses.pix2pix_objective as spec
@@ -20,7 +20,10 @@ import nectargan.losses.pix2pix_objective as spec
 from nectargan.scheduling.scheduler_torch import TorchScheduler
 from nectargan.scheduling.data import Schedule
 
-class Pix2pixTrainer(Trainer):
+from dataset.paired.paired_dataset import PairedDataset
+from nectargan.dataset.masking.paired_mask_dataset import PairedMaskDataset
+
+class Pix2pixTrainer(Trainer[GANConfig]):
     def __init__(
             self, 
             config: str | PathLike | ConfigManager | None=None,
@@ -37,6 +40,9 @@ class Pix2pixTrainer(Trainer):
         self.extend_loss_spec = 'basic' not in loss_subspec 
         self.vgg_loss_enabled = '+vgg' in loss_subspec 
         self.log_losses = log_losses
+
+        self.use_mask = self.config.dataloader.masking.enable
+        self.mask: torch.Tensor | None = None
            
         self._init_lr_scheduling() # Handle split LR logic 
         self._init_generator()     # Init generator
@@ -51,6 +57,7 @@ class Pix2pixTrainer(Trainer):
                 self.config.train.generator.learning_rate.initial)
             self.load_checkpoint('D', self.disc, self.opt_disc, 
                 self.config.train.discriminator.learning_rate.initial)
+            self.current_epoch = self.config.train.load.load_epoch
 
     ### INITIALIZATION ###
 
@@ -71,10 +78,9 @@ class Pix2pixTrainer(Trainer):
         self.gen = UnetGenerator( # Init Generator
             input_size=self.config.dataloader.load.crop_size, 
             in_channels=self.config.dataloader.load.input_nc,
-            features=tg.features,
-            n_downs=tg.n_downs,
-            block_type=block_type,
-            upconv_type=tg.upsample_type)
+            features=tg.features, n_downs=tg.n_downs, block_type=block_type,
+            upconv_type=tg.upsample_type,
+            use_checkpointing=tg.use_checkpointing)
         self.gen.to(self.device)  # Cast to current device
 
         self.opt_gen = self.build_optimizer(
@@ -87,10 +93,14 @@ class Pix2pixTrainer(Trainer):
                         + tg.learning_rate.epochs_decay)
         self.gen_lr_scheduler = TorchScheduler( # Init LR scheduler
             self.opt_gen, Schedule(
-                start_epoch=tg.learning_rate.epochs, 
-                end_epoch=total_epochs,
+                start_timestep=tg.learning_rate.epochs, 
+                end_timestep=total_epochs,
                 initial_value=tg.learning_rate.initial, 
                 target_value=tg.learning_rate.target))
+        
+        if self.config.train.generator.compile_network:
+            self.gen = torch.compile(
+                self.gen, mode=self.config.train.generator.compile_method)
         
     def _init_discriminator(self) -> None:
         '''Initializes discriminator with optimizer and lr scheduler.'''
@@ -112,15 +122,33 @@ class Pix2pixTrainer(Trainer):
                         + td.learning_rate.epochs_decay)
         self.disc_lr_scheduler = TorchScheduler( # Init LR scheduler
             self.opt_disc, Schedule(
-                start_epoch=td.learning_rate.epochs, 
-                end_epoch=total_epochs,
+                start_timestep=td.learning_rate.epochs, 
+                end_timestep=total_epochs,
                 initial_value=td.learning_rate.initial, 
                 target_value=td.learning_rate.target)) 
         
+        if self.config.train.discriminator.compile_network:
+            self.disc = torch.compile(
+                self.disc, mode=self.config.train.discriminator.compile_method)
+        
     def _init_dataloaders(self) -> None:
         '''Builds dataloaders for training and validation datasets.'''
-        self.train_loader = self.build_dataloader('train')
-        self.val_loader = self.build_dataloader('val', is_train=False)
+        build = self.build_dataloader
+        if self.use_mask:
+            masking = self.config.dataloader.masking
+            self.train_loader = build(
+                'train', loader_type=PairedMaskDataset,
+                mask_directory=masking.mask_directory,
+                mask_channel=masking.mask_channel,
+                combination_type=masking.combination_type,
+                blend_channel=masking.blend_channel,
+                blend_amount=masking.blend_amount)
+            self.val_loader = build(
+                'val', loader_type=PairedDataset, is_train=False)
+        else:
+            self.train_loader = build('train', dataset_type=PairedDataset)
+            self.val_loader = build(
+                'val', dataset_type=PairedDataset, is_train=False)
 
     def _init_gradscalers(self) -> None:
         '''Defines gradient scalers for generator and discriminator.
@@ -168,7 +196,7 @@ class Pix2pixTrainer(Trainer):
             raise ValueError(
                 f'Invalid loss subspec. Valid options are: {valid_subspecs}')
         self.loss_manager.init_from_spec( # Init loss manager
-            spec.pix2pix, self.config, loss_subspec)
+            spec.pix2pix, self.config, loss_subspec, reduction='none')
 
     ### DATA VISUALIZATION ###
 
@@ -187,11 +215,26 @@ class Pix2pixTrainer(Trainer):
             y_fake : Generated fake image as torch.Tensor.
             idx : Batch iteration value from training loop.
         '''
-        self.loss_manager.print_losses(self.current_epoch, idx) # Print losses
+        self.print_losses(self.current_epoch, idx) # Print losses
         
         if self.config.visualizer.visdom.enable:
+            masking = self.config.dataloader.masking
+            if self.use_mask \
+            and masking.visdom_overlay_mask \
+            and not self.mask is None:
+                color = masking.visdom_mask_color
+                alpha = masking.visdom_mask_opacity
+
+                m = self.mask.repeat(1, 3, 1, 1)
+                c = torch.tensor(color, device=x.device).view(1, 3, 1, 1)
+                x = x[:, :3, :, :] * (1 - alpha * m) 
+                x = x + (c * m) * alpha
+            else: x = x[:, :3, :, :]
             self.vis.update_images( # Update x, y_fake, y image grid
-                x=x, y=y_fake, z=y, title='real_A | fake_B | real_B', 
+                x=x, 
+                y=y_fake[:, :3, :, :], 
+                z=y[:, :3, :, :], 
+                title='real_A | fake_B | real_B', 
                 image_size=self.config.visualizer.visdom.image_size)
             
             # Get G and D loss values from LossManager
@@ -201,6 +244,60 @@ class Pix2pixTrainer(Trainer):
             # Normalize by epoch to get graph step
             graph_step = self.current_epoch + idx / len(self.train_loader) 
             self.vis.update_loss_graphs(graph_step, losses_G, losses_D)
+
+    def print_losses(
+        self,
+        epoch: int,
+        iter: int,
+        precision: int = 2,
+        capture: bool = False
+    ) -> str | None:
+        '''Prints (or returns) a string of all the most recent loss values.
+
+        Note: This function uses the last value stored in LossManager.history 
+        for each loss. As such, this function should generally be called AFTER 
+        all of the registered loss functions have been run for the batch. 
+        Calling it before running some or all of the loss funtions could lead 
+        to unexpected results.
+
+        By default, this function will print a string of all registered losses 
+        and their most recent values, tagged with epoch and iter, formatted as:
+
+        "(epoch: {e}, iters: {i}) Loss: {L_1_N}: {L_1_V} {L_2_N}: {L_2_V} ..."
+
+        Key:
+            e : input epoch
+            i : input iter
+            L_X_N : Loss X name
+            L_X_V : Loss X value
+
+        If capture=True, however, the function will return the above formatted 
+        string rather than printing it. 
+
+        If you would prefer to get the loss values as a dict, please see: 
+            - LossManager.get_loss_values()
+
+        Or if you are trying to get the prev loss results as torch.Tensors: 
+            - LossManager.get_loss_tensors()
+
+        If you are trying to access the registered LMLoss items, please see: 
+            - LossManager.get_registered_losses()
+
+        Args:
+            epoch : The current epoch value. training_loop_iter+1 in the 
+                default train script.
+            iter : The current iteration.
+            precision : The rounding precision of the loss values as they are 
+                added to the output string.
+            capture : If true, function will return loss values string instead 
+                of printing.
+        '''
+        losses = self.loss_manager.get_loss_values(precision=precision)
+        output = f'(epoch: {epoch}, iters: {iter}) Loss:'
+        for loss in losses:
+            output += f' {loss}: {losses[loss]}'
+        if not capture: print(output)
+        else: return output
 
     def print_end_of_epoch(
             self, 
@@ -260,7 +357,7 @@ class Pix2pixTrainer(Trainer):
             y : Ground truth image as torch.Tensor.
             y_fake : Generated fake image as torch.Tensor.
         '''
-        with torch.amp.autocast('cuda'):
+        with torch.amp.autocast(self.device):
             D_real = self.disc(x, y)               # Predict on real image
             D_fake = self.disc(x, y_fake.detach()) # Then on fake image
 
@@ -357,22 +454,28 @@ class Pix2pixTrainer(Trainer):
             tuple[torch.Tensor] : Generator structural losses.
         '''        
         lm = self.loss_manager # Get loss manager and compute L1 loss
-        loss_G_L1 = lm.compute_loss_xy('G_L1', y_fake, y, self.current_epoch)
+        loss_G_L1 = lm.compute_loss_xy(
+            'G_L1', y_fake, y, self.current_epoch, mask=self.mask)
+        loss_G_L1 = loss_G_L1.to(self.device)
 
         loss_G_L2 = torch.zeros_like(loss_G_L1)    # Dummy tensor for MSE
         loss_G_SOBEL = torch.zeros_like(loss_G_L1) # And for sobel
         loss_G_LAP = torch.zeros_like(loss_G_L1)   # And Laplacian
         loss_G_VGG = torch.zeros_like(loss_G_L1)   # And also for VGG
         
+        cfg = self.config.train.loss
         if self.extend_loss_spec: # Extended losses, if enabled 
-            loss_G_L2 = lm.compute_loss_xy(
-                'G_L2', y_fake, y, self.current_epoch)
-            loss_G_SOBEL = lm.compute_loss_xy(
-                'G_SOBEL', y_fake, y, self.current_epoch)
-            loss_G_LAP = lm.compute_loss_xy(
-                'G_LAP', y_fake, y, self.current_epoch)   
-        if self.vgg_loss_enabled: # VGG perceptual, if enabled
-            loss_G_VGG = lm.compute_loss_xy('G_VGG', y_fake, y)          
+            if cfg.lambda_l2 > 0.0:
+                loss_G_L2 = lm.compute_loss_xy(
+                    'G_L2', y_fake, y, self.current_epoch, mask=self.mask)
+            if cfg.lambda_sobel > 0.0:
+                loss_G_SOBEL = lm.compute_loss_xy(
+                    'G_SOBEL', y_fake, y, self.current_epoch, mask=self.mask)
+            if cfg.lambda_laplacian > 0.0:
+                loss_G_LAP = lm.compute_loss_xy(
+                    'G_LAP', y_fake, y, self.current_epoch, mask=self.mask)   
+        if self.vgg_loss_enabled and cfg.lambda_vgg > 0.0: # VGG perceptual
+            loss_G_VGG = lm.compute_loss_xy('G_VGG', y_fake, y, mask=self.mask)          
 
         return (loss_G_L1, loss_G_L2, loss_G_SOBEL, loss_G_LAP, loss_G_VGG)
         
@@ -397,7 +500,7 @@ class Pix2pixTrainer(Trainer):
         Returns:
             torch.Tensor : Total generator loss for batch.
         '''
-        with torch.amp.autocast('cuda'):
+        with torch.amp.autocast(self.device):
             loss_G = self.compute_GAN_loss(x, y_fake)
             structure_losses = self.compute_structure_loss(y, y_fake)
             for loss in structure_losses:
@@ -503,7 +606,9 @@ class Pix2pixTrainer(Trainer):
                 to the callback during training. See 
                 `Pix2pixTrainer.on_epoch_start()` for example implementation.
         '''
-        with torch.amp.autocast('cuda'): 
+        torch.compiler.cudagraph_mark_step_begin()
+        
+        with torch.amp.autocast(self.device): 
             y_fake = self.gen(x)
 
         # Get discriminator losses, apply gradients
@@ -531,6 +636,23 @@ class Pix2pixTrainer(Trainer):
         
         # Update schedulers after training
         self.update_schedulers()
+
+    def trainer_core(
+            self, 
+            train_step_fn: Callable[[torch.Tensor, torch.Tensor, int], None],
+            train_step_kwargs: dict[str, Any] | None=None
+        ) -> None:
+        '''Paired adversarial training loop.
+        
+        Args:
+            train_step_fn : Train step function, Run once per batch.
+            train_step_kwargs : Optional keyword args for train step function.
+        '''
+        for idx, output in enumerate(self.train_loader):
+            # Loop through (x, y) of batch[idx] from training dataset
+            x, y = output[0].to(self.device), output[1].to(self.device)
+            if self.use_mask: self.mask = output[2].to(self.device)
+            train_step_fn(x, y, idx, **train_step_kwargs)
         
     ### SAVE MODEL/EXAMPLE ###
 

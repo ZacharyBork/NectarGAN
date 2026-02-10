@@ -1,7 +1,7 @@
 import torch
 import numpy as np
 import albumentations as A
-from nectargan.config.config_data import Config
+from nectargan.config import Config
 
 class Augmentations():
     '''Manages dataset transforms.
@@ -66,6 +66,23 @@ class Augmentations():
         self._append_xform_by_value(
             A.RandomRotate90,
             seq=xforms, value=b.rot90_chance)
+        
+        if b.colorjitter_chance > 0.0:
+            xforms.append(
+                A.ColorJitter(
+                    brightness=(
+                        b.colorjitter_min_brightness, 
+                        b.colorjitter_max_brightness),
+                    contrast=(
+                        b.colorjitter_min_contrast,
+                        b.colorjitter_max_contrast),
+                    saturation=(
+                        b.colorjitter_min_saturation,
+                        b.colorjitter_max_saturation),
+                    hue=(
+                        b.colorjitter_min_hue,
+                        b.colorjitter_max_hue),
+                    p=b.colorjitter_chance))
         if b.elastic_transform_chance > 0.0:
             xforms.append(A.ElasticTransform(
                 alpha=b.elastic_transform_alpha,
@@ -82,7 +99,7 @@ class Augmentations():
                 (b.coarse_dropout_height_min, b.coarse_dropout_height_max),
                 (b.coarse_dropout_width_min, b.coarse_dropout_width_max)))
         
-        return A.Compose(xforms, additional_targets={ 'image0': 'image' })
+        return A.Compose(xforms, additional_targets={'image0': 'image', 'mask': 'mask', 'mask0': 'mask'})
 
     def _input_transform(self) -> A.Compose:
         '''Builds transform function that is applied only to input.
@@ -90,9 +107,21 @@ class Augmentations():
         i = self.augs.input
         xforms = []
         if i.colorjitter_chance > 0.0:
-            xforms.append(A.ColorJitter(
-                (i.colorjitter_min_brightness, i.colorjitter_max_brightness), 
-                p=i.colorjitter_chance))
+            xforms.append(
+                A.ColorJitter(
+                    brightness=(
+                        i.colorjitter_min_brightness, 
+                        i.colorjitter_max_brightness),
+                    contrast=(
+                        i.colorjitter_min_contrast,
+                        i.colorjitter_max_contrast),
+                    saturation=(
+                        i.colorjitter_min_saturation,
+                        i.colorjitter_max_saturation),
+                    hue=(
+                        i.colorjitter_min_hue,
+                        i.colorjitter_max_hue),
+                    p=i.colorjitter_chance))
         if i.gaussnoise_chance > 0.0:
            xforms.append(A.GaussNoise(
                 (i.gaussnoise_min, i.gaussnoise_max), p=i.gaussnoise_chance))
@@ -132,7 +161,7 @@ class Augmentations():
             A.ToTensorV2(),
         ]) 
 
-    def apply_transforms(
+    def apply_transforms_paired(
             self, 
             input_image: np.ndarray, 
             target_image: np.ndarray
@@ -142,6 +171,9 @@ class Augmentations():
         Args:
             input_image : The input image of the current dataset pair.
             target_image : The target image of the current dataset pair.
+
+        Returns:
+            tuple[torch.Tensor] : The transformed images as tensors.
         '''
         aug = self.transform_both(image=input_image, image0=target_image)
         
@@ -151,3 +183,67 @@ class Augmentations():
         _target = self.transform_target(image=_target)['image']
 
         return _input, _target
+    
+    def apply_transforms_unpaired(
+            self, 
+            input_image: np.ndarray
+        ) -> torch.Tensor:
+        '''Applies transforms to an input image and returns the result.
+
+        Args:
+            input_image : The input image to transform.
+        
+        Returns:
+            torch.Tensor : The transformed image as a tensor.
+        '''
+        aug = self.transform_both(
+            image=input_image, image0=np.ndarray(shape=input_image.shape))
+        _input = aug['image']
+        _input = self.transform_input(image=_input)['image']
+        return _input
+    
+    def apply_masked_transforms_paired(
+            self, 
+            input_image: np.ndarray, 
+            target_image: np.ndarray, 
+            input_mask: np.ndarray,
+            target_mask: np.ndarray
+        ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
+        aug = self.transform_both(
+            image=input_image, 
+            image0=target_image,
+            mask=input_mask,
+            mask0=target_mask)
+        
+        _input, _target = aug['image'], aug['image0']
+        _imask, _tmask = aug['mask'], aug['mask0']
+        
+        _input = self.transform_input(image=_input)['image']
+        _target = self.transform_target(image=_target)['image']
+        
+        _imask = torch.from_numpy(_imask).permute(2, 0, 1).float() / 255.0
+        _tmask = torch.from_numpy(_tmask).permute(2, 0, 1).float() / 255.0
+        
+        _imask = _imask[0:1, :, :]
+        _tmask = _tmask[0:1, :, :]
+            
+        return _input, _target, _imask, _tmask
+    
+    def apply_masked_transforms_unpaired(
+            self, 
+            input_image: np.ndarray, 
+            input_mask: np.ndarray,
+        ) -> tuple[torch.Tensor, torch.Tensor]:
+        aug = self.transform_both(
+            image=input_image,
+            mask=input_mask)
+        
+        _image = aug['image'], aug['image0']
+        _mask = aug['mask'], aug['mask0']
+        
+        _image = self.transform_input(image=_image)['image']
+        _mask = torch.from_numpy(_mask).permute(2, 0, 1).float() / 255.0
+        _mask = _mask[0:1, :, :]
+            
+        return _image, _mask
+    

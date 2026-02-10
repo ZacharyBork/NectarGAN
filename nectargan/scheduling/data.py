@@ -10,7 +10,7 @@ class Schedule:
         When creating an LMLoss object, if you do not initialize the values of 
         its internal `Schedule`, it's created with a default `Schedule`. This 
         schedule doesn't really do anything. If it was actually used, it would 
-        start at 1.0, do nothing for 10,000,000 epochs, and end at 1.0. 
+        start at 1.0, do nothing for 10,000,000 timesteps, and end at 1.0. 
         
         In the loss manager, when we are applying loss weights, we first check 
         to see if the `LMLoss`'s `Schedule` matches the default definition 
@@ -22,7 +22,7 @@ class Schedule:
     Args:
         schedule : Either the name of an included scheduling function as a 
             string, or a custom callable scheduling function. Custom functions 
-            must accept a `Schedule` object and an int (current epoch), and 
+            must accept a `Schedule` object and an int (current timestep), and 
             return a float. Examples can be found at:
                 
                 - `nectargan.scheduling.schedules`
@@ -31,10 +31,11 @@ class Schedule:
                 
                 - `LossManager._weight_loss()`
         
-        start_epoch : Epoch to start increasing or decreasing the loss values.
-        end_epoch : Epoch to stop increasing or decreasing the loss values.
-        initial_value : The value to use until start_epoch.
-        target_value : The value to interpolate to at, and hold after, end_epoch.
+        start_timestep : Timestep at which to start the schedule.
+        end_timestep : Timestep at which to end the schedule.
+        initial_value : The value to use until start_timestep.
+        target_value : The value to interpolate to at, and hold after, 
+            end_timestep.
         current_value : Not meant to be set directly, this value is instead 
             set by the `Schedule`'s function, and used by the LossManager to 
             weight the return value of registered losses when they are run.
@@ -44,8 +45,8 @@ class Schedule:
     schedule: (
         Literal['linear', 'exponential'] | 
         Callable[[Schedule, int], None])='linear'
-    start_epoch: int=0
-    end_epoch: int=int(1e07)
+    start_timestep: int=0
+    end_timestep: int=int(1e+9)
     initial_value: float=1.0
     target_value: float=1.0
     current_value: float=1.0
@@ -71,20 +72,20 @@ class Schedule:
         `current_value` to its `initial_value` if the user initialized the
         Schedule with their own values (i.e. not all default).
         
-        It will also subtract 1 from `start_epoch` and `end_epoch` in that case
-        to compensate for the fact that the Trainer classes treat epoch as 
-        though it was indexed from 1 rather than 0.
+        It will also subtract 1 from `start_timestep` and `end_timestep` in 
+        that case to compensate for the fact that the Trainer classes treat 
+        timestep as though it was indexed from 1 rather than 0.
         '''
         if not self._check_for_defaults():
             self.current_value = self.initial_value
-            self.start_epoch = self.start_epoch - 1
-            self.end_epoch = self.end_epoch - 1
+            self.start_timestep = self.start_timestep - 1
+            self.end_timestep = self.end_timestep - 1
 
     def __eq__(self, value: Schedule) -> bool:
-        '''Checks if `start_epoch` and `end_epoch` are at their default values.
+        '''Checks if `start_timestep` and `end_timestep` are at default values.
 
         Since it's relatively safe to assume that no one is going to be 
-        training a model for 10,000,000 epochs([0, 1e07]), this basically 
+        training a model for 1 billion timestep([0, 1e+9]), this basically 
         serves as a check to see if the Schedule instance is being used for the 
         parent object. This frees us up to initialize weight values when the 
         parent object is first instantiated, since those are no longer checked
@@ -94,9 +95,10 @@ class Schedule:
             value : The other Schedule object which is being compared.
         
         Returns:
-            bool : True if start_epoch and end_epoch match, otherwise false.
+            bool : True if start_timestep and end_timestep match, otherwise 
+                False.
         '''
         return (
-            value.start_epoch == self.start_epoch and 
-            value.end_epoch == self.end_epoch)
+            value.start_timestep == self.start_timestep and 
+            value.end_timestep == self.end_timestep)
             

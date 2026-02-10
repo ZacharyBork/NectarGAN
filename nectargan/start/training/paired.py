@@ -29,9 +29,10 @@ def main():
     # Build epoch count from generator LR schedule
     epoch_counts = cfg.train.generator.learning_rate
     epoch_count = epoch_counts.epochs + epoch_counts.epochs_decay
-    
+    if cfg.train.load.continue_train: epoch_count -= cfg.train.load.load_epoch
+
     for epoch in range(epoch_count):
-        trainer.train_paired( # Train generator and discriminator
+        trainer.train( # Train generator and discriminator
             epoch, 
             callback_kwargs={ 'on_epoch_start': {'print_train_start': True} }) 
         

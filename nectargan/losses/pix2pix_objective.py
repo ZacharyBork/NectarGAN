@@ -2,18 +2,19 @@ from typing import Literal
 
 import torch.nn as nn
 
-from nectargan.config.config_data import Config
-from nectargan.losses.losses import Sobel, Laplacian, VGGPerceptual
-from nectargan.losses.lm_data import LMLoss
+from nectargan.config import GANConfig
+from nectargan.losses import Sobel, Laplacian, VGGPerceptual
+from nectargan.losses import LMLoss
 
 def pix2pix(
-        config: Config,
+        config: GANConfig,
         subspec: Literal[
             'basic', 
             'basic+vgg', 
             'extended', 
             'extended+vgg'
-        ] = 'basic'
+        ] = 'basic',
+        reduction='mean'
     ) -> dict[str, LMLoss]:
     '''Builds LMLoss objects for pix2pix model objective function.
 
@@ -75,8 +76,14 @@ def pix2pix(
     - https://medium.com/software-dev-explore/neural-style-transfer-vgg19-dab643ec6160
     '''
     device = config.common.device
-    BCE = nn.BCEWithLogitsLoss().to(device)  # G_GAN, D_real, D_fake
-    L1 = nn.L1Loss().to(device)              # G_L1 loss
+    cfg = config.train.loss
+   
+    # G_GAN, D_real, D_fake
+    BCE = nn.BCEWithLogitsLoss(reduction=reduction).to(device) 
+    
+    # G_L1 loss
+    L1 = nn.L1Loss(reduction=reduction).to(device)              
+    
     loss_fns = {
         'G_GAN': LMLoss(
             name='G_GAN', function=BCE, 
@@ -89,20 +96,23 @@ def pix2pix(
         'D_fake': LMLoss(
             name='D_fake', function=BCE, tags=['D'])}
     if 'extended' in subspec:
-        L2 = nn.MSELoss().to(device)
-        loss_fns['G_L2'] = LMLoss(
-            name='G_L2',function=L2, 
-            loss_weight=config.train.loss.lambda_l2, tags=['G'])
-        SOBEL = Sobel().to(device)
-        loss_fns['G_SOBEL'] = LMLoss(
-            name='G_SOBEL',function=SOBEL, 
-            loss_weight=config.train.loss.lambda_sobel, tags=['G'])
-        LAP = Laplacian().to(device)
-        loss_fns['G_LAP'] = LMLoss(
-            name='G_LAP', function=LAP, 
-            loss_weight=config.train.loss.lambda_laplacian, tags=['G'])
-    if '+vgg' in subspec:
-        VGG = VGGPerceptual().to(device)
+        if cfg.lambda_l2 > 0.0:
+            L2 = nn.MSELoss(reduction=reduction).to(device)
+            loss_fns['G_L2'] = LMLoss(
+                name='G_L2',function=L2, 
+                loss_weight=config.train.loss.lambda_l2, tags=['G'])
+        if cfg.lambda_sobel > 0.0:
+            SOBEL = Sobel(reduction=reduction).to(device)
+            loss_fns['G_SOBEL'] = LMLoss(
+                name='G_SOBEL',function=SOBEL, 
+                loss_weight=config.train.loss.lambda_sobel, tags=['G'])
+        if cfg.lambda_laplacian > 0.0:
+            LAP = Laplacian(reduction=reduction).to(device)
+            loss_fns['G_LAP'] = LMLoss(
+                name='G_LAP', function=LAP, 
+                loss_weight=config.train.loss.lambda_laplacian, tags=['G'])
+    if '+vgg' in subspec and cfg.lambda_vgg > 0.0:
+        VGG = VGGPerceptual(reduction=reduction).to(device)
         loss_fns['G_VGG'] = LMLoss(
             name='G_VGG', function=VGG, 
             loss_weight=config.train.loss.lambda_vgg, tags=['G'])

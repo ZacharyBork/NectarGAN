@@ -6,8 +6,9 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 RUN apk add --no-cache curl \
  && python -m ensurepip \
- && python -m pip install --upgrade pip setuptools \
- && python -m pip install visdom 
+ && python -m pip install --upgrade pip \
+ && python -m pip install "setuptools==80.10.2" wheel \
+ && python -m pip install --no-build-isolation visdom 
 
 FROM base AS server
 
