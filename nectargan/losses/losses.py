@@ -32,7 +32,49 @@ class LossFunction(torch.nn.Module):
     def forward(self, x: torch.Tensor, y: torch.Tensor) -> torch.Tensor:
         raise NotImplementedError
         
-class Sobel(LossFunction):
+class KernelLoss(LossFunction):
+    def __init__(self, *args, **kwargs) -> None:
+        super(KernelLoss, self).__init__(*args, **kwargs)
+
+        self.kernels: dict[str, torch.Tensor] = {} 
+
+    def register_kernel(self, name: str, kernel: list[list[float]]) -> None:
+        _kernel = torch.tensor(kernel, dtype=self.dtype).to(self.device)
+        self.kernels[name] = _kernel.view(1, 1, 3, 3)
+
+    def eval_kernel(
+            self, 
+            kernel: str, 
+            input_tensor: torch.Tensor,
+            padding: int = 1,
+            cast: bool = True
+        ) -> torch.Tensor:
+        result = F.conv2d(input_tensor, self.kernels[kernel], padding=padding)
+        if cast: result = result.to(self.device, dtype=self.dtype)
+        return result
+
+    def eval_kernels_sqrt(
+            self, 
+            input_tensor: torch.Tensor, 
+            padding: int = 1,
+            epsilon: float = 1e-6,
+            cast: bool = True
+        ) -> torch.Tensor:
+        def _eval(key: str) -> torch.Tensor:
+            return self.eval_kernel(key, input_tensor, padding, False) ** 2
+                
+        keys = list(self.kernels.keys())
+        total = _eval(keys[0])
+        for key in keys[1:]: total += _eval(key)
+        result = torch.sqrt(total + epsilon)
+        if cast: result = result.to(self.device, dtype=self.dtype)
+        return result
+
+    def to_grayscale(self, original: torch.Tensor) -> torch.Tensor:
+        gray = original.mean(dim=1, keepdim=True, dtype=self.dtype)
+        return gray.to(self.device)
+
+class Sobel(KernelLoss):
     '''Implements a Sobel based structure loss function.
 
     This loss takes a real and a generated image as tensors, converts them to 
@@ -56,40 +98,32 @@ class Sobel(LossFunction):
         Defines and registers the Sobel kernels.
         '''
         super(Sobel, self).__init__(*args, **kwargs)
-        kernel_x = torch.tensor([
-            [1, 0, -1],
-            [2, 0, -2],
-            [1, 0, -1]
-        ], dtype=self.dtype).to(self.device)
-        self.sobel_x = kernel_x.view(1, 1, 3, 3)
-
-        kernel_y = torch.tensor([
-            [1, 2, 1],
-            [0, 0, 0],
-            [-1, -2, -1]
-        ], dtype=self.dtype).to(self.device)
-        self.sobel_y = kernel_y.view(1, 1, 3, 3)
+        self.register_kernel(
+            'x', [
+                [1, 0, -1],
+                [2, 0, -2],
+                [1, 0, -1]
+            ])
+        
+        self.register_kernel(
+            'y', [
+                [1, 2, 1],
+                [0, 0, 0],
+                [-1, -2, -1]
+            ])
 
     def forward(self, fake: torch.Tensor, real: torch.Tensor) -> torch.Tensor:
         '''Forward step for Sobel module.
         
         Converts tensors to grayscale, applies sobel filter, compares result.
         '''
-        fake_gray = fake.mean(
-            dim=1, keepdim=True, dtype=self.dtype).to(self.device)
-        real_gray = real.mean(
-            dim=1, keepdim=True, dtype=self.dtype).to(self.device)
-        grad_fx = F.conv2d(fake_gray, self.sobel_x, padding=1)
-        grad_fy = F.conv2d(fake_gray, self.sobel_y, padding=1)
-        grad_rx = F.conv2d(real_gray, self.sobel_x, padding=1)
-        grad_ry = F.conv2d(real_gray, self.sobel_y, padding=1)
-        grad_fake = torch.sqrt(grad_fx ** 2 + grad_fy ** 2 + 1e-6)
-        grad_real = torch.sqrt(grad_rx ** 2 + grad_ry ** 2 + 1e-6)
+        grad_fake = self.eval_kernels_sqrt(self.to_grayscale(fake))
+        grad_real = self.eval_kernels_sqrt(self.to_grayscale(real))
         
         loss = self.loss_metric(grad_fake, grad_real)
         return self.build_return(loss)
-    
-class Laplacian(LossFunction):
+
+class Laplacian(KernelLoss):
     '''Basically Sobel but with a Laplacian filter rather than a Sobel filter.
     
     This can oftentimes encourage the generator to preserve more fine textural
@@ -107,12 +141,12 @@ class Laplacian(LossFunction):
         Defines and registers a Laplacian kernal.
         '''
         super(Laplacian, self).__init__(*args, **kwargs)
-        kernel = torch.tensor([
-            [0,  1, 0],
-            [1, -4, 1],
-            [0,  1, 0]
-        ], dtype=self.dtype).to(self.device)
-        self.kernel = kernel.view(1, 1, 3, 3)
+        self.register_kernel(
+            'kernel', [
+                [0,  1, 0],
+                [1, -4, 1],
+                [0,  1, 0]
+            ])
 
     def forward(self, fake: torch.Tensor, real: torch.Tensor) -> torch.Tensor:
         '''Forward step for Laplacian module.
@@ -120,12 +154,8 @@ class Laplacian(LossFunction):
         Converts tensors to grayscale and applies Laplacian filter, then 
         compares results with L1.
         '''
-        fake_lap = F.conv2d(
-            fake.mean(dim=1, keepdim=True, dtype=self.dtype).to(self.device), 
-            self.kernel, padding=1)
-        real_lap = F.conv2d(
-            real.mean(dim=1, keepdim=True, dtype=self.dtype).to(self.device), 
-            self.kernel, padding=1)
+        fake_lap = self.eval_kernel('kernel', self.to_grayscale(fake))
+        real_lap = self.eval_kernel('kernel', self.to_grayscale(real))
 
         loss = self.loss_metric(fake_lap, real_lap)
         return self.build_return(loss)
@@ -161,6 +191,7 @@ class VGGPerceptual(LossFunction):
         '''
         super(VGGPerceptual, self).__init__(*args, **kwargs)
         self.blocks = self._extract_feature_maps()
+        assert len(layer_weights) == len(self.blocks)
         self.layer_weights = layer_weights
 
     def _extract_feature_maps(self) -> torch.nn.ModuleList:
