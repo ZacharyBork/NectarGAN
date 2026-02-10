@@ -19,6 +19,9 @@ def test_scheduler() -> None:
 
     for index, schedule_type in enumerate(['linear', 'exponential']):
         scheduler = Scheduler(
-            Schedule(schedule=schedule_type, end_epoch=10, target_value=0.0))
+            Schedule(
+                schedule=schedule_type, 
+                end_timestep=10, 
+                target_value=0.0))
         result = [scheduler.eval_schedule(i) for i in range(10)]
         assert result == pytest.approx(expected[index], rel=1e-5, abs=1e-5)

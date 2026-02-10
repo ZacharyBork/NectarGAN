@@ -13,12 +13,13 @@ import torch
 from torchvision.utils import save_image
 
 from nectargan.trainers import Trainer
-from nectargan.config import ConfigManager
+from nectargan.config import ConfigManager, GANConfig
 from nectargan.models import UnetGenerator
 from nectargan.models.unet.blocks import UnetBlock, ResidualUnetBlock
 from nectargan.losses import losses
+from nectargan.dataset.paired.paired_dataset import PairedDataset
 
-class Tester(Trainer):
+class Tester(Trainer[GANConfig]):
     def __init__(
             self, 
             config: str | PathLike | ConfigManager | None=None,
@@ -52,11 +53,13 @@ class Tester(Trainer):
         self.gen = UnetGenerator( # Init Generator
             input_size=self.config.dataloader.load.crop_size, 
             in_channels=self.config.dataloader.load.input_nc,
-            features=tg.features,
-            n_downs=tg.n_downs,
-            block_type=block_type,
-            upconv_type=tg.upsample_type)
+            features=tg.features, n_downs=tg.n_downs, block_type=block_type,
+            upconv_type=tg.upsample_type,
+            use_checkpointing=tg.use_checkpointing)
         self.gen.to(self.device)  # Cast to current device
+        if self.config.train.generator.compile_network:
+            self.gen = torch.compile(
+                self.gen, mode=self.config.train.generator.compile_method)
         self.load_checkpoint('G', self.gen)
         self.gen.eval() # Switch generator into eval mode
 
@@ -68,7 +71,7 @@ class Tester(Trainer):
         
     def _init_dataloader(self) -> None:
         '''Initializes a dataloader for the test dataset.'''
-        self.test_loader = self.build_dataloader('test')
+        self.test_loader = self.build_dataloader('test', PairedDataset)
         self.test_data = list(self.test_loader.dataset)
 
     ### OUTPUT HANDLING ###

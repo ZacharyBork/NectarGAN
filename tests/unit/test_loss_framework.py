@@ -32,7 +32,7 @@ def test_loss_manager():
             loss_name='test_loss',
             x=torch.randn((1, 3, 64, 64)),
             y=torch.randn((1, 3, 64, 64)),
-            epoch=i)
+            timestep=i)
         
         # Validate loss mean value
         value = loss_manager.get_loss_values()['test_loss']

@@ -1,9 +1,12 @@
 import torch
-from nectargan.models.unet.model import UnetGenerator
+from nectargan.models import UnetGenerator
 from nectargan.models.patchgan.model import Discriminator
 from nectargan.models.resnet.classifier import ResNetClassifier
 from nectargan.models.resnet.generator import ResNetGenerator
-from nectargan.models.diffusion.denoising_autoencoder import UnetDAE
+from nectargan.models.unet.diffusion import DiffusionUnet
+from nectargan.models.unet.blocks import TimeEmbeddedUnetBlock
+
+from nectargan.config.utils import get_default_config
 
 def test_unet() -> None:
     '''Tests the UNet model in its default configuration.
@@ -53,20 +56,20 @@ def test_resnet_generator() -> None:
     y: torch.Tensor = net(x)
     assert y.shape == x.shape
 
-def test_unet_dae() -> None:
-    '''Tests the UNetDAE in its default configuration.
+def test_diffusion_unet() -> None:
+    '''Tests the DiffusionUnet in its default configuration.
     
     Passes a random tensor to the model and ensures that the output tensor is
     the same shape as the input,
     '''
     x = torch.randn(1, 3, 256, 256)
     t = torch.tensor([500])
+    config = get_default_config('diffusion')
+    config.common.device = 'cpu'
 
-    dae = UnetDAE(
-        device='cpu',
-        time_embedding_dimension=128,
-        mlp_hidden_dimension=256,
-        mlp_output_dimension=128)
-    y = dae(x, t)
+    unet = DiffusionUnet(
+        config=config,
+        block_type=TimeEmbeddedUnetBlock)
+    y = unet(x, t)
     assert y.shape == x.shape
 

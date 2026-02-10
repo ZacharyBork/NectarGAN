@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Any
 
 from nectargan.utils.rebuild_default_config import DEFINITION
+from nectargan.config.utils import get_default_config
 
 def _get_dataset_directory(root: Path) -> Path:
     dataset_directory = Path(root, 'tests/dataset/noise').resolve()
@@ -22,17 +23,19 @@ def _update_config_file(
         root: Path,
         dataset_path: Path,
         output_directory: Path
-    ) -> tuple[dict[str, Any], Path]:
+    ) -> Path:
     print('Updating config file...')
 
-    updated_config = DEFINITION
+    # updated_config = DEFINITION
+    updated_config = get_default_config('pix2pix', as_json=True)
     cfg = updated_config['config']
     cfg['common']['output_directory'] = output_directory.as_posix()
     cfg['common']['experiment_name'] = 'pipeline_validation_output'
     cfg['dataloader']['dataroot'] = dataset_path.as_posix()
     cfg['train']['generator']['learning_rate']['epochs'] = 2
     cfg['train']['generator']['learning_rate']['epochs_decay'] = 0
-    cfg['save']['model_save_rate'] = 1    
+    cfg['save']['model_save_rate'] = 1  
+    #cfg['train']['load']['load_epoch'] = 2  
 
     test_config_path = Path(root, 'tests/tmp/config.json').resolve()
     with open(test_config_path, 'w') as file:
