@@ -62,10 +62,11 @@ def test_diffusion_unet() -> None:
     Passes a random tensor to the model and ensures that the output tensor is
     the same shape as the input,
     '''
-    x = torch.randn(1, 3, 256, 256)
-    t = torch.tensor([500])
     config = get_default_config('diffusion')
     config.common.device = 'cpu'
+
+    x = torch.randn(1, config.model.unet.in_channels, 256, 256)
+    t = torch.tensor([500])
 
     unet = DiffusionUnet(
         config=config,
