@@ -33,7 +33,9 @@ COPY nectargan/ nectargan/
 
 RUN sed -i -E 's/"opencv-python([^"]*)"/"opencv-python-headless"/g' pyproject.toml \
  && sed -i '/PySide6==/d' pyproject.toml \
- && pip install --upgrade pip && pip install --no-compile .
+ && pip install --upgrade pip \
+ && python -m pip install "setuptools==80.10.2" wheel \
+ && pip install --no-compile --no-build-isolation .
 
 FROM python:3.12-slim-bookworm AS runtime
 ARG TORCH_TYPE
