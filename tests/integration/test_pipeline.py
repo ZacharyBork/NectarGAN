@@ -29,6 +29,7 @@ def _update_config_file(
     # updated_config = DEFINITION
     updated_config = get_default_config('pix2pix', as_json=True)
     cfg = updated_config['config']
+    cfg['common']['device'] = 'cpu'
     cfg['common']['output_directory'] = output_directory.as_posix()
     cfg['common']['experiment_name'] = 'pipeline_validation_output'
     cfg['dataloader']['dataroot'] = dataset_path.as_posix()
