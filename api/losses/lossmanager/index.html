@@ -1398,24 +1398,6 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#the-lossmanager-includes-two-convenience-functions-for-printing-debug-values-to-the-console-during-training-these-are" class="md-nav__link">
-    <span class="md-ellipsis">
-      The LossManager includes two convenience functions for printing debug values to the console during training. These are:
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#lossmanagerprint_losses" class="md-nav__link">
-    <span class="md-ellipsis">
-      LossManager.print_losses()
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#lossmanagerprint_weights" class="md-nav__link">
     <span class="md-ellipsis">
       LossManager.print_weights()
@@ -2145,24 +2127,6 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#the-lossmanager-includes-two-convenience-functions-for-printing-debug-values-to-the-console-during-training-these-are" class="md-nav__link">
-    <span class="md-ellipsis">
-      The LossManager includes two convenience functions for printing debug values to the console during training. These are:
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#lossmanagerprint_losses" class="md-nav__link">
-    <span class="md-ellipsis">
-      LossManager.print_losses()
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#lossmanagerprint_weights" class="md-nav__link">
     <span class="md-ellipsis">
       LossManager.print_weights()
@@ -2330,30 +2294,6 @@ This section is only applicable if the given <code>LossManager</code> instance w
 <p><strong>Loss specifications (specs) are a novel way to define reusable objective functions for your models. At their core, loss specs are just standard Python functions but with one specific requirement, the must return a dictionary of string-mapped <code>LMLoss</code> objects.</strong></p>
 <h4 id="see-here-for-more-information-on-loss-specifications">See <a href="../loss_spec/">here</a> for more information on loss specifications</h4>
 <h2 id="convenience-functions">Convenience Functions</h2>
-<h4 id="the-lossmanager-includes-two-convenience-functions-for-printing-debug-values-to-the-console-during-training-these-are">The <code>LossManager</code> includes two convenience functions for printing debug values to the console during training. These are:</h4>
-<h3 id="lossmanagerprint_losses"><code>LossManager.print_losses()</code></h3>
-<blockquote>
-<p>From: <a href="https://github.com/ZacharyBork/NectarGAN/blob/main/nectargan/losses/loss_manager.py">nectargan.losses.loss_manager.print_losses()</a></p>
-</blockquote>
-<pre><code>Prints (or returns) a string of all the most recent loss values.
-
-Note: This function uses the last value stored in LossManager.history 
-for each loss. As such, this function should generally be called AFTER 
-all of the registered loss functions have been run for the batch. 
-Calling it before running some or all of the loss funtions could lead 
-to unexpected results.
-
-By default, this function will print a string of all registered losses 
-and their most recent values, tagged with epoch and iter, formatted as:
-
-"(epoch: {e}, iters: {i}) Loss: {L_1_N}: {L_1_V} {L_2_N}: {L_2_V} ..."
-
-Key:
-    e : input epoch
-    i : input iter
-    L_X_N : Loss X name
-    L_X_V : Loss X value
-</code></pre>
 <h3 id="lossmanagerprint_weights"><code>LossManager.print_weights()</code></h3>
 <blockquote>
 <p>From: <a href="https://github.com/ZacharyBork/NectarGAN/blob/main/nectargan/losses/loss_manager.py">nectargan.losses.loss_manager.print_weights()</a></p>

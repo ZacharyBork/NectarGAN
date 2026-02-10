@@ -1,0 +1,2977 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://ZacharyBork.github.io/NectarGAN/getting_started/diffusion/">
+      
+      
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.22">
+    
+    
+      
+        <title>NectarGAN - Getting Started (Diffusion) - NectarGAN</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.84d31ad4.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="orange">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#nectargan-getting-started-diffusion" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="NectarGAN" class="md-header__button md-logo" aria-label="NectarGAN" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            NectarGAN
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              NectarGAN - Getting Started (Diffusion)
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="orange"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="teal" data-md-color-accent="orange"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ZacharyBork/NectarGAN" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="NectarGAN" class="md-nav__button md-logo" aria-label="NectarGAN" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    NectarGAN
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ZacharyBork/NectarGAN" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Getting Started
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Getting Started
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Install / Setup
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../testing_your_installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Testing Your Installation
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Toolbox
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Toolbox
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../toolbox/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Quickstart
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            Quickstart
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../toolbox_training/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Pt. 1 - Training
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../toolbox_testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Pt. 2 - Testing
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../toolbox_review/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Pt. 3 - Review
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Sections
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_3">
+            <span class="md-nav__icon md-icon"></span>
+            Sections
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../toolbox/experiment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Experiment
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../toolbox/dataset/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Dataset
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../toolbox/training/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Training
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../toolbox/testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Testing
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../toolbox/review/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Review
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../toolbox/utilities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Utilities
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../toolbox/settings/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Settings
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    API
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            API
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/config/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Config
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/dataset/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Datasets
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_4" id="__nav_4_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Trainers
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_4">
+            <span class="md-nav__icon md-icon"></span>
+            Trainers
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/trainers/trainer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Trainer Class
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/trainers/building_a_trainer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Building a Trainer
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_5" id="__nav_4_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Models
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_5">
+            <span class="md-nav__icon md-icon"></span>
+            Models
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_5_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_5_1" id="__nav_4_5_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    UNet
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_5_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_5_1">
+            <span class="md-nav__icon md-icon"></span>
+            UNet
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/models/unet/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Model
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/models/unet_blocks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Blocks
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/models/patchgan/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    PatchGAN
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_6" id="__nav_4_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Losses
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_6">
+            <span class="md-nav__icon md-icon"></span>
+            Losses
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/losses/lossmanager/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    LossManager
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/losses/loss_spec/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Loss Specs
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/losses/loss_functions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Loss Functions
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_7" id="__nav_4_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Scheduling
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_7">
+            <span class="md-nav__icon md-icon"></span>
+            Scheduling
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/scheduling/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/scheduling/schedulers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Schedulers
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/scheduling/schedule_functions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Schedule Functions
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/scheduling/schedule_dataclass/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Schedule Dataclass
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/scheduling/integrations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Integrations
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/testers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Testers
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/onnx_tools/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    ONNX Tools
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/visdom/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Visdom
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cli/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    CLI
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../docker/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Docker
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../scripts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Scripts
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../faq/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    FAQ
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" >
+        
+          
+          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Links
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            Links
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://github.com/ZacharyBork/NectarGAN/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Repository
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://github.com/ZacharyBork/NectarGAN/releases/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Releases
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://github.com/ZacharyBork/NectarGAN/blob/main/CONTRIBUTING.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Contributing
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#install" class="md-nav__link">
+    <span class="md-ellipsis">
+      Install
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-models" class="md-nav__link">
+    <span class="md-ellipsis">
+      The Models
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The Models">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pixel-diffusion-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      Pixel Diffusion Model
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#latent-diffusion-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      Latent Diffusion Model
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#using-the-models" class="md-nav__link">
+    <span class="md-ellipsis">
+      Using the models
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Using the models">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#training" class="md-nav__link">
+    <span class="md-ellipsis">
+      Training
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      Testing
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-diffusion-config" class="md-nav__link">
+    <span class="md-ellipsis">
+      The Diffusion Config
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The Diffusion Config">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#common" class="md-nav__link">
+    <span class="md-ellipsis">
+      common
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#train" class="md-nav__link">
+    <span class="md-ellipsis">
+      train
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="train">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#load" class="md-nav__link">
+    <span class="md-ellipsis">
+      load
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#loss" class="md-nav__link">
+    <span class="md-ellipsis">
+      loss
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#model" class="md-nav__link">
+    <span class="md-ellipsis">
+      model
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="model">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#next-we-have-settings-related-to-the-denoising-schedule-these-are" class="md-nav__link">
+    <span class="md-ellipsis">
+      Next we have settings related to the denoising schedule. These are:
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#then-we-have-settings-related-to-the-reverse-diffusion-algorithm" class="md-nav__link">
+    <span class="md-ellipsis">
+      Then we have settings related to the reverse diffusion algorithm:
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#next-are-settings-related-to-the-multi-layer-perceptron-used-for-timestep-embedding" class="md-nav__link">
+    <span class="md-ellipsis">
+      Next are settings related to the multi-layer perceptron used for timestep embedding:
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#and-finally-we-have-settings-related-to-the-unet-used-for-noise-prediction-these-are-broken-down-in-to-subsections" class="md-nav__link">
+    <span class="md-ellipsis">
+      And finally, we have settings related to the UNet used for noise prediction. These are broken down in to subsections:
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="And finally, we have settings related to the UNet used for noise prediction. These are broken down in to subsections:">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#base-unet-settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      Base UNet settings
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#unet-optimizer-settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      UNet Optimizer Settings
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#compile-settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      Compile settings
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#learning-rate-settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      Learning rate settings
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dataloader" class="md-nav__link">
+    <span class="md-ellipsis">
+      dataloader
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="dataloader">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#streaming" class="md-nav__link">
+    <span class="md-ellipsis">
+      streaming
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#augmentations" class="md-nav__link">
+    <span class="md-ellipsis">
+      augmentations
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#latents" class="md-nav__link">
+    <span class="md-ellipsis">
+      latents
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="latents">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cache" class="md-nav__link">
+    <span class="md-ellipsis">
+      cache
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#captions" class="md-nav__link">
+    <span class="md-ellipsis">
+      captions
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#save" class="md-nav__link">
+    <span class="md-ellipsis">
+      save
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#visualizer" class="md-nav__link">
+    <span class="md-ellipsis">
+      visualizer
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="visualizer">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#visdom" class="md-nav__link">
+    <span class="md-ellipsis">
+      visdom
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#console" class="md-nav__link">
+    <span class="md-ellipsis">
+      console
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#latent-tensor-pre-caching" class="md-nav__link">
+    <span class="md-ellipsis">
+      Latent Tensor Pre-Caching
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#captions-contexts" class="md-nav__link">
+    <span class="md-ellipsis">
+      Captions &amp; Contexts
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Captions &amp; Contexts">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#first-we-have-a-section-called-info" class="md-nav__link">
+    <span class="md-ellipsis">
+      First, we have a section called info
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#next-we-have-a-section-called-items" class="md-nav__link">
+    <span class="md-ellipsis">
+      Next, we have a section called items
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#and-lastly-we-have-a-section-called-other" class="md-nav__link">
+    <span class="md-ellipsis">
+      And lastly, we have a section called other
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#now-lets-have-a-quick-look-at-how-to-generate-this-metadata-file" class="md-nav__link">
+    <span class="md-ellipsis">
+      Now, let's have a quick look at how to generate this metadata file
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="nectargan-getting-started-diffusion">NectarGAN - Getting Started (Diffusion)</h1>
+<blockquote>
+<p><a href="../"><code>Getting Started - Home</code></a></p>
+</blockquote>
+<p><strong>NectarGAN includes prebuilt pixel and latent-space diffusion models.</strong> Currently, these models can only be interacted with using CLI, or by via the API with your own custom training script. They will be added to NectarGAN Toolbox at some point in the future.</p>
+<p><strong><em>PLEASE NOTE:</em> These models are in beta currently. You may find bugs or things which do not work correctly, and the functionality of these models is likely to change in the future. If you do come across something which is throwing exceptions or which you feel is not working as intended, please feel free to open a GitHub issue detailing your problem with steps to reproduce.</strong></p>
+<p><strong>Additionally, the documentation for these models may be incomplete or outdated in some areas. Much of the documentation for the API components related to the diffusion models does not exist yet, but will come in a future release. <em>ALL API CODE HAS THOROUGH INLINE DOCUMENTATION,</em> if you would like to know how a given API component works, please refer to the docstrings for the given component.</strong></p>
+<p><strong>If you come across any issues with the documentation, please feel free to open an issue, or if you are comfortable doing so, a PR with your updates. Help is always appreciated!</strong></p>
+<h2 id="install">Install</h2>
+<p>Please see the NectarGAN <a href="https://github.com/ZacharyBork/NectarGAN/blob/main/docs/getting_started.md">getting started guide</a> for steps on how to install NectarGAN and configure your environment.</p>
+<p>Using the NectarGAN diffusion models also requires some additional dependencies. To install all the required diffusion dependencies, after working through the getting started guide, please navigate to the NectarGAN root directory in your terminal and run this command:</p>
+<pre><code class="language-bash">python -m pip install &quot;.[diffusion]&quot;
+</code></pre>
+<p>If you intend to use the dataset streaming functionality (<strong>BETA</strong>), please also run:</p>
+<pre><code class="language-bash">python -m pip install &quot;.[dataset_streaming]&quot;
+</code></pre>
+<h2 id="the-models">The Models</h2>
+<h3 id="pixel-diffusion-model">Pixel Diffusion Model</h3>
+<p>A simple pixel-space diffusion model, based largely on the <a href="https://arxiv.org/pdf/2006.11239">Denoising Diffusion Probabilistic Models (DDPM) (Ho et al., 2020)</a>.</p>
+<h3 id="latent-diffusion-model">Latent Diffusion Model</h3>
+<p>A lightweight latent-space diffusion model. The architecture is based heavily on <a href="https://arxiv.org/pdf/2112.10752">Stable Diffusion</a>, but it is not as compute intensive. It uses the same self-attention pattern as SD, and has a deeper (configurable) middle layer, but does not incorporate the additional residual blocks on the shallower layers of the encoder/decoder path. It instead just uses a single identity connection inside of each of the conv blocks. This allows the model to be trained to convergence relatively quickly on lower end hardware (a single 2080Ti, in my case), but limits the model to largely single-domain use cases.</p>
+<p>Eventually, I will add the ability to add back the additional residual blocks, likely in a configurable fashion so that you can decide where exactly to allocate the blocks to best suit your use case. Right now, though, I am a little compute limited, and likely would not be able to personally validate a model as heavy as Stable Diffusion.</p>
+<p>This model also allows the use of <a href="https://arxiv.org/pdf/2010.02502">DDIM sampling</a>, in addition to DDPM.</p>
+<h2 id="using-the-models">Using the models</h2>
+<p>Training and testing of diffusion models can be performed from the command line. </p>
+<h3 id="training">Training</h3>
+<p>When training diffusion models, all training settings will be pulled from the Diffusion config (outlined below). To begin a training session, first navigate to the NectarGAN root directory in your console, then run:</p>
+<pre><code class="language-bash">python -m nectargan.start.training.diffusion
+</code></pre>
+<h3 id="testing">Testing</h3>
+<p>Testing of trained diffusion models can also be run from the command line using the following command:</p>
+<pre><code class="language-bash">python -m nectargan.start.testing.diffusion -e &quot;/path/to/directory/of/model/to/test&quot; -l 100
+</code></pre>
+<p>This command has a number of arguments which can be used to alter the testing behavior. These are:</p>
+<table>
+<thead>
+<tr>
+<th>Argument</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-e</code>, <code>--experiment_directory</code></td>
+<td><strong>REQUIRED.</strong> The directory of the experiment to load for testing.</td>
+</tr>
+<tr>
+<td><code>-l</code>, <code>--load_step</code></td>
+<td><strong>REQUIRED.</strong> The checkpoint step number to load for testing.</td>
+</tr>
+<tr>
+<td><code>-f</code>, <code>--config_file</code></td>
+<td>The system path to config file to use for testing. If not provided, the script will instead look for the most recent config file located in the gived experiment directory.</td>
+</tr>
+<tr>
+<td><code>-i</code>, <code>--test_iterations</code></td>
+<td>The number of test iterations to run.</td>
+</tr>
+<tr>
+<td><code>-b</code>, <code>--batches</code></td>
+<td>The number of batches to use in each iteration.</td>
+</tr>
+<tr>
+<td><code>-s</code>, <code>--latent_spatial_size</code></td>
+<td>The spatial size of the latent-space noise tensors used as input.</td>
+</tr>
+<tr>
+<td><code>-m</code>, <code>--inference_mode</code></td>
+<td>What inference mode to use (i.e. <code>DDIM</code>, <code>DDPM</code>)</td>
+</tr>
+<tr>
+<td><code>-is</code>, <code>--inference_steps</code></td>
+<td>The number of denoising steps to use for inference.</td>
+</tr>
+<tr>
+<td><code>-c</code>, <code>--caption</code></td>
+<td>The caption to use for text conditioning during inference, if applicable.</td>
+</tr>
+<tr>
+<td><code>-cfg</code>, <code>--cfg_scale</code></td>
+<td>The classifier free guidance scale to use for inference if using text conditioning.</td>
+</tr>
+<tr>
+<td><code>-ema</code>, <code>--sample_ema</code></td>
+<td>Whether to sample directly from the model's weights, or from the EMA weights. Requires an EMA checkpoint for the given step to be present in the experiment directory.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="the-diffusion-config">The Diffusion Config</h2>
+<p>The diffusion models use a different configuration file than the GAN models. The file can be found at:</p>
+<p><a href="https://github.com/ZacharyBork/NectarGAN/blob/main/nectargan/config/defaults/diffusion.json"><code>nectargan/config/defaults/diffusion.json</code></a></p>
+<p>Many of the options are mirrored from the default <a href="../../api/config/">GAN config</a>, but there are some new things to make note of. </p>
+<ol>
+<li><strong>All values in the diffusion config are based on optimizer steps, not epoch,</strong> like they are with the GAN config.</li>
+<li>Currently, augementations do not work. That will change in the future, but for now, the augmentations section of the config file can be ignored.</li>
+</ol>
+<p>Now, we will briefly go over each config section to see what the settings do.</p>
+<h3 id="common"><code>common</code></h3>
+<table>
+<thead>
+<tr>
+<th>Settings</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>device</code></td>
+<td>What PyTorch device to use. Options are [<code>cuda</code>, <code>cpu</code>].</td>
+</tr>
+<tr>
+<td><code>gpu_ids</code></td>
+<td>Currently this does nothing. Once multi-GPU is supported, this will allow you to define the GPUs to use for training and testing.</td>
+</tr>
+<tr>
+<td><code>cudnn</code></td>
+<td>This is a dict-like object containing a few settings related to CUDNN optimization for GPU training. <code>benchmark</code> will enable CUDNN benchmarking to reduce VRAM overhead. CUDNN will automatically benchmark various configuration settings to find the ones which will run best on the host system. <code>deterministic</code> will enable determinitic mode for CUDNN, allowing for more reproducable runs at the small compute cost.</td>
+</tr>
+<tr>
+<td><code>output_directory</code></td>
+<td>The root output directory to use. New subdirectories will be created in this root directory for each experiment / version.</td>
+</tr>
+<tr>
+<td><code>experiment_name</code></td>
+<td>The name for the experiment. This will be used to name the output subdirectory.</td>
+</tr>
+<tr>
+<td><code>experiment_version</code></td>
+<td>The version of the current experiment to run / load.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="train"><code>train</code></h3>
+<p>The <code>train</code> config section is broken down in to a couple smaller subsections. There are:</p>
+<h4 id="load"><code>load</code></h4>
+<table>
+<thead>
+<tr>
+<th>Settings</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>continue_train</code></td>
+<td>If true, enables loading of checkpoint files to continue training.</td>
+</tr>
+<tr>
+<td><code>load_step</code></td>
+<td>The checkpoint step to load.</td>
+</tr>
+</tbody>
+</table>
+<h4 id="loss"><code>loss</code></h4>
+<p>Generally, diffusion models only use MSE for UNet-based noise prediction. <code>lambda_mse</code> defines the weighting factor for the MSE loss. NectarGAN also allows you to apply pixel-space loss even when training latent-space models. This comes at a significant computational overhead, however, and likely will not improve the model's performance, but they can be fun to experiment with. The settings for these losses are defined in the <code>pixel</code> subcategory:</p>
+<table>
+<thead>
+<tr>
+<th>Settings</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>frequency</code></td>
+<td>The frequency (in steps) to apply pixel-space losses. Since these are quite expensive, you may not want to apply them every step. A value of 10 will apply them every 10th step, a value of 1 will apply them every step.</td>
+</tr>
+<tr>
+<td><code>max_batches</code></td>
+<td>In order to not inflate VRAM overhead for the pixel space losses in the latent model, the batches are split and each batch is evaluated separately. This lets you define a maximimum number of batches to eval the losses for.</td>
+</tr>
+<tr>
+<td><code>lambda_l1</code></td>
+<td>The weighting factor for L1 (MAE) pixel-space loss.</td>
+</tr>
+<tr>
+<td><code>lambda_vgg</code></td>
+<td>The weighting factor for VGG perceptual (VGG19/L1) pixel-space loss.</td>
+</tr>
+<tr>
+<td><code>lambda_sobel</code></td>
+<td>The weighting factor for Sobel pixel-space loss.</td>
+</tr>
+<tr>
+<td><code>lambda_laplacian</code></td>
+<td>The weighting factor for Laplacian pixel-space loss.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="model"><code>model</code></h3>
+<p>The <code>model</code> section is broken up in to categories. At the top are some core options related to training behavior. These are:
+| Settings | Description |
+| --- | --- |
+| <code>model_type</code> | What type of model to use as the base. Options are <code>pixel</code> for a pixel-space diffusion model, or <code>latent</code> for a latent-space diffusion model. |
+| <code>input_size</code> | The resolution (^2) of the input images used for training (Note: this value is the pixel-space size of the inputs. Latent size is handled elsewhere). 
+| <code>mixed_precision</code> | Whether to use mixed precision during training. This can save a significant amount of memory overhead at the cost of training stability. |
+| <code>use_ema</code> | Whether to apply an exponential moving average to the DAE model. Can help to stabilize training and improve model generalization. |
+| <code>ema_decay</code> | The momentum factor for the EMA. Higher values will cause the EMA to update more slowly. |
+| <code>accumulate_gradients</code> | If <code>false</code>, the gradients will be backpropegated each batch. If <code>true</code>, they will be accumulated for a number of batches equal to <code>gradient_accumulation_iterations</code>, then backpropagated. This allows you to simulate larger batch sizes on GPUs with smaller amounts of VRAM. Your effective batch size will be <code>batch_size</code> * <code>gradient_accumulation_iterations</code>. |
+| <code>gradient_accumulation_iterations</code> | The number of steps over which to accumulate the gradients. See above. |</p>
+<h4 id="next-we-have-settings-related-to-the-denoising-schedule-these-are">Next we have settings related to the denoising schedule. These are:</h4>
+<table>
+<thead>
+<tr>
+<th>Settings</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>timesteps</code></td>
+<td>The number of denoising timesteps to use during training (and sampling, if using DDPM).</td>
+</tr>
+<tr>
+<td><code>schedule_type</code></td>
+<td>What type of noise schedule to use. Options are [<code>linear</code>, <code>cosine</code>].</td>
+</tr>
+<tr>
+<td><code>cosine_offset</code></td>
+<td>How far to offset the cosine sampling if using a cosine noise schedule.</td>
+</tr>
+</tbody>
+</table>
+<h4 id="then-we-have-settings-related-to-the-reverse-diffusion-algorithm">Then we have settings related to the reverse diffusion algorithm:</h4>
+<table>
+<thead>
+<tr>
+<th>Settings</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>function</code></td>
+<td>What sampling algorithm to use. Options are [<code>DDPM</code>, <code>DDIM</code>] (Note: <code>DDIM</code> is only available for the latent-space diffusion model).</td>
+</tr>
+<tr>
+<td><code>ddim_timesteps</code></td>
+<td>How many timesteps to use for <code>DDIM</code> denoising. If using <code>DDPM</code>, the noise_schedule <code>timesteps</code> value will be used instead.</td>
+</tr>
+<tr>
+<td><code>ddim_recompute_epsilon</code></td>
+<td>Whether to recompute the epsilon each step when sampling with <code>DDIM</code>.</td>
+</tr>
+</tbody>
+</table>
+<h4 id="next-are-settings-related-to-the-multi-layer-perceptron-used-for-timestep-embedding">Next are settings related to the multi-layer perceptron used for timestep embedding:</h4>
+<table>
+<thead>
+<tr>
+<th>Settings</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>time_embedding_dimension</code></td>
+<td>The feature width of the MLP input layer. Higher values allow for more accurate timestep sampling at a small performance cost. A general rule is <code>time_embedding_dim = features * 4</code>.</td>
+</tr>
+<tr>
+<td><code>hidden_dimension</code></td>
+<td>The feature width of the MLP's hidden layer.</td>
+</tr>
+<tr>
+<td><code>output_dimension</code></td>
+<td>The feature width of the MLP's output layer. Should be equal to <code>time_embedding_dimension</code>.</td>
+</tr>
+</tbody>
+</table>
+<h4 id="and-finally-we-have-settings-related-to-the-unet-used-for-noise-prediction-these-are-broken-down-in-to-subsections">And finally, we have settings related to the UNet used for noise prediction. These are broken down in to subsections:</h4>
+<h5 id="base-unet-settings">Base UNet settings</h5>
+<table>
+<thead>
+<tr>
+<th>Settings</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>in_channels</code></td>
+<td>The number of input channels for the first encoder layer. Generally 3 for pixel-space, and 4 for latent-space.</td>
+</tr>
+<tr>
+<td><code>features</code></td>
+<td>The output feature count of the first encoder layer.</td>
+</tr>
+<tr>
+<td><code>n_downs</code></td>
+<td>The number of downsampling layers in the encoder path.</td>
+</tr>
+<tr>
+<td><code>middle_layer_depth</code></td>
+<td>The number of residual blocks to add to the middle layer. If <code>self_attention</code> is enabled, an attention block will be added after each residual block, save for the final one.</td>
+</tr>
+<tr>
+<td><code>self_attention</code></td>
+<td>If true, self attention blocks will be added to the deepest layers on the encoder and decoder path, and also to the middle layer.</td>
+</tr>
+<tr>
+<td><code>enable_checkpointing</code></td>
+<td>Enabled checkpointing of residual and attention blocks in the UNet to reduce VRAM overhead.</td>
+</tr>
+</tbody>
+</table>
+<h5 id="unet-optimizer-settings">UNet Optimizer Settings</h5>
+<table>
+<thead>
+<tr>
+<th>Settings</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>optimizer_type</code></td>
+<td>What type of optimizer to use for the UNet. Options are [<code>Adam</code>, <code>AdamW</code>]</td>
+</tr>
+<tr>
+<td><code>betas</code></td>
+<td>The betas for the UNet optimizer.</td>
+</tr>
+<tr>
+<td><code>fused</code></td>
+<td>Whether to fuse the optimizer. This can help save a bit of VRAM when training with CUDA.</td>
+</tr>
+</tbody>
+</table>
+<h5 id="compile-settings">Compile settings</h5>
+<table>
+<thead>
+<tr>
+<th>Settings</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>enable</code></td>
+<td>If True, enables pre-compilation of the UNet. This can significantly reduce memory overhead and speed up training. (Note: with pre-compilation enabled, the first training update will appear to take much longer. This only applies to the first update, however.)</td>
+</tr>
+<tr>
+<td><code>mode</code></td>
+<td>What compilation mode to use. See <a href="https://docs.pytorch.org/docs/stable/generated/torch.compile.html">here</a> for options. (Note: if using gradient acculumation, some modes, such as <code>reduce-overhead</code>, may not work currently).</td>
+</tr>
+</tbody>
+</table>
+<h5 id="learning-rate-settings">Learning rate settings</h5>
+<table>
+<thead>
+<tr>
+<th>Settings</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>base_rate</code></td>
+<td>The learning rate to use after warmup, and before decay.</td>
+</tr>
+<tr>
+<td><code>warm_up</code></td>
+<td>If true, learning rate will be warmed up from 0.0 to <code>base_rate</code> over <code>warm_up_steps</code> number of optimizer steps.</td>
+</tr>
+<tr>
+<td><code>warm_up_steps</code></td>
+<td>The number of steps over which to warm up the learning rate. When the current step equals <code>warm_up_steps</code>, the model will have reached its full learning rate, defined by <code>base_rate</code>.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Next we have some settings related to learning rate decay.</strong> These are:</p>
+<table>
+<thead>
+<tr>
+<th>Settings</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>enable</code></td>
+<td>Whether to enable LR decay for the UNet optimizer.</td>
+</tr>
+<tr>
+<td><code>schedule_type</code></td>
+<td>What type of decay schedule to use. Options are [<code>Linear</code>, <code>CosineAnnealing</code>, <code>CosineAnnealingWarmRestarts</code>]</td>
+</tr>
+<tr>
+<td><code>steps_before_decay</code></td>
+<td>The number of optimizer steps (after the warmup period has completed, if applicable) to hold the LR at its <code>base_rate</code> before beginning the decay schedule.</td>
+</tr>
+<tr>
+<td><code>decay_steps</code></td>
+<td>The number of steps over which to decay the LR from its <code>base_rate</code> down to the <code>minimum_lr</code></td>
+</tr>
+<tr>
+<td><code>minimum_lr</code></td>
+<td>The desired LR after the decay has been fully completed.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>And then we have a couple settings which are specifically related to warm restarts. These settings only apply when <code>schedule_type</code> is set to <code>CosineAnnealingWarmRestarts</code>.</strong></p>
+<table>
+<thead>
+<tr>
+<th>Settings</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>steps_before_first_restart</code></td>
+<td>The number of optimizer steps to perform before the first warm restart.</td>
+</tr>
+<tr>
+<td><code>restart_steps_multiplier</code></td>
+<td>The value to multiply the number of restart steps by after each restart.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="dataloader"><code>dataloader</code></h3>
+<table>
+<thead>
+<tr>
+<th>Settings</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>dataroot</code></td>
+<td>The system path to the directory containing the images to use for training.</td>
+</tr>
+<tr>
+<td><code>batch_size</code></td>
+<td>The batch size to use during training.</td>
+</tr>
+<tr>
+<td><code>num_workers</code></td>
+<td>The number of workers to allocate to the training dataloader.</td>
+</tr>
+<tr>
+<td><code>crop_type</code></td>
+<td>What crop type to use. Options are: <code>center</code> for a center crop, <code>random</code> for a random crop from the images original size to the <code>input_size</code> specified in the <code>model</code> category, or <code>null</code> for no cropping.</td>
+</tr>
+<tr>
+<td><code>drop_last</code></td>
+<td>Whether the dataloader should drop the last batch to maintain a constant batch size.</td>
+</tr>
+<tr>
+<td><code>pin_memory</code></td>
+<td>Whether to enable memory pinning on the dataloader. Can help save a bit of VRAM at training time.</td>
+</tr>
+<tr>
+<td><code>shuffle</code></td>
+<td>Whether to enable shuffling on the dataloader.</td>
+</tr>
+</tbody>
+</table>
+<h4 id="streaming"><code>streaming</code></h4>
+<p>Next we have some settings related to streaming dataloaders (i.e. dataloaders which pull data at runtime, like LAION)</p>
+<blockquote>
+<p>[!NOTE]
+This feature is in early beta. You may find bugs when using it, and the behavior of it is likely to change in the future. Use at your own risk!</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>Settings</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>enable</code></td>
+<td>Whether to enable dataset streaming.</td>
+</tr>
+<tr>
+<td><code>dataset</code></td>
+<td>What streaming dataset class to use. Currently the only option is <code>LAION</code>.</td>
+</tr>
+<tr>
+<td><code>set</code></td>
+<td>What dataset to stream. A list of available datasets can be found at the top of <a href="https://github.com/ZacharyBork/NectarGAN/blob/main/nectargan/dataset/streaming_datasets/laion_dataset.py">this file</a>. NOTE: The only one I have personally tested is <code>aesthetics/square</code>. Others may or may not work!</td>
+</tr>
+<tr>
+<td><code>subset</code></td>
+<td>What subset to stream. See <code>set</code> for more details.</td>
+</tr>
+<tr>
+<td><code>max_samples</code></td>
+<td>The maximum number of samples to pull from the dataset.</td>
+</tr>
+<tr>
+<td><code>cache_directory</code></td>
+<td>The system path to the directory to cache pulled data to, or <code>null</code> to disable caching.</td>
+</tr>
+<tr>
+<td><code>require_login</code></td>
+<td>Whether to require Hugging Face login for the dataset. In the future, this will be automatic. For now though, you must manually enable this option if your chosen set requires you to log in, otherwise the script will throw an exception.</td>
+</tr>
+</tbody>
+</table>
+<h4 id="augmentations"><code>augmentations</code></h4>
+<p><strong><em>Augmentations are currently disabled for the diffusion datasets. The will be re-enabled at some point in the near future.</em></strong></p>
+<h3 id="latents"><code>latents</code></h3>
+<p>Here you will find options related to the latent space tensors used for training the latent diffusion model. These are:</p>
+<table>
+<thead>
+<tr>
+<th>Settings</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>latent_size_divisor</code></td>
+<td>The spatial size divisor for the input images. Generally <code>8</code>, so 512x512 inputs become 64x64 latents.</td>
+</tr>
+<tr>
+<td><code>override_latent_size</code></td>
+<td>Enable to override the size divisor with the spatial size specified by <code>latent_size</code>.</td>
+</tr>
+<tr>
+<td><code>latent_size</code></td>
+<td>Allows you to specify an exact spatial size for the latent-space tensors used for training.</td>
+</tr>
+<tr>
+<td><code>vae</code></td>
+<td>What VAE model to use. The default is <code>stabilityai/sd-vae-ft-ema</code>, but you may specify any model from <code>diffusers.AutoencoderKL</code>.</td>
+</tr>
+<tr>
+<td><code>vae_device</code></td>
+<td>What PyTorch device to use for the VAE.</td>
+</tr>
+<tr>
+<td><code>vae_dtype</code></td>
+<td>What dtype to use for the VAE.</td>
+</tr>
+<tr>
+<td><code>scaling_factor</code></td>
+<td>What scaling factor to use for the VAE outputs.</td>
+</tr>
+</tbody>
+</table>
+<h4 id="cache"><code>cache</code></h4>
+<p>Next we have some options related to loading latent tensor caches, which is the preferred way to train currently with NectarGAN diffusion models.</p>
+<table>
+<thead>
+<tr>
+<th>Settings</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>read_from_cache</code></td>
+<td>If <code>true</code>, latent space tensors will be loaded from a cache during training, rather than directly encoding from input images at training time.</td>
+</tr>
+<tr>
+<td><code>cache_directory</code></td>
+<td>The system path the the latent cache directory.</td>
+</tr>
+<tr>
+<td><code>loader_type</code></td>
+<td>What loader type to use when reading the cache. Options are <code>CacheLoader</code> to use the traditional cache loader which reads single caches using the associated metadata file, or <code>CacheShardHotLoader</code> to use a <code>dumb</code> loader which will load any shards dumped in to the given <code>cache_directory</code> without requiring metadata (allowing you to mix and match caches by just copying their individual shard files in to the <code>cache_directory</code>).</td>
+</tr>
+</tbody>
+</table>
+<h3 id="captions"><code>captions</code></h3>
+<p>Next we have settings related to caption loading for text conditional diffusion training.</p>
+<table>
+<thead>
+<tr>
+<th>Settings</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>use_captions</code></td>
+<td>Whether to enable text conditioning during training.</td>
+</tr>
+<tr>
+<td><code>metadata_file</code></td>
+<td>The system path to the caption metadata file created with one of the provided caption loaders, or from your own metadata file which follows the metadata guidelines (discussed below).</td>
+</tr>
+<tr>
+<td><code>encoder_model</code></td>
+<td>What text encoder model to use. Default is <code>openai/clip-vit-large-patch14</code>, but you may use any model from <code>CLIPTokenizer.from_pretrained</code>.</td>
+</tr>
+<tr>
+<td><code>max_length</code></td>
+<td>The maximum caption length to allow.</td>
+</tr>
+<tr>
+<td><code>freeze_encoder</code></td>
+<td>Whether to freeze the encoder model during training.</td>
+</tr>
+<tr>
+<td><code>use_fixed_captions</code></td>
+<td>Whether to use the fixed captions defined by <code>fixed_captions</code> when generating example images during training.</td>
+</tr>
+<tr>
+<td><code>fixed_captions</code></td>
+<td>A list containing the captions you would like to use for example image generation during training. A single fixed caption will be selected randomly each time an example image is generated.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="save"><code>save</code></h3>
+<p>Here you will find settings related to checkpoint and example image saving during training.</p>
+<table>
+<thead>
+<tr>
+<th>Settings</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>save_model</code></td>
+<td>Whether to save model checkpoints during training.</td>
+</tr>
+<tr>
+<td><code>model_save_rate</code></td>
+<td>The rate (in steps) at which to save checkpoints during training.</td>
+</tr>
+<tr>
+<td><code>auto_increment_version</code></td>
+<td>Whether to auto-increment the experiment version.</td>
+</tr>
+<tr>
+<td><code>save_examples</code></td>
+<td>Whether to save example inference images during training.</td>
+</tr>
+<tr>
+<td><code>example_save_rate</code></td>
+<td>The rate (in steps) at which to save example images.</td>
+</tr>
+<tr>
+<td><code>num_examples</code></td>
+<td>The number of example images to save at each increment of <code>example_save_rate</code>. NOTE: This is the number of examples to save for each CFG scale specified in <code>sample_cfg_scales</code>.</td>
+</tr>
+<tr>
+<td><code>sample_cfg_scales</code></td>
+<td><strong>Only used if text conditioning is enabled.</strong> A list of floats specifying the CFG scales to use when generating example images. High CFG scales can make it difficult to identify early training issues, so using a low (1.0-2.0) and a high (~7.5) scale can be useful, especially early on in training, to ensure the the model is progressing well.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="visualizer"><code>visualizer</code></h3>
+<p>And lastly, we have settings related to data visualization during training. This includes both console logging of loss values, and also loss and training image visualization in Visdom.</p>
+<h4 id="visdom"><code>visdom</code></h4>
+<table>
+<thead>
+<tr>
+<th>Settings</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>enable</code></td>
+<td>Whether to enable Visdom visualization during training.</td>
+</tr>
+<tr>
+<td><code>average_loss</code></td>
+<td>Whether to average the losses displayed in Visdom over any given update period, rather than sampling the loss stochastically at the time which the update occurs.</td>
+</tr>
+<tr>
+<td><code>env_name</code></td>
+<td>The environment name to use in Visdom</td>
+</tr>
+<tr>
+<td><code>server</code></td>
+<td>What server to send the Visdom updates to.</td>
+</tr>
+<tr>
+<td><code>port</code></td>
+<td>The port over which to send the Visdom updates.</td>
+</tr>
+<tr>
+<td><code>display_images</code></td>
+<td>Whether to display example images in Visdom during training. NOTE: <strong>This adds 3 VAE decodes per example set when using the latent diffusion model! THIS IS VERY SLOW!</strong> It is generally best to only enable this during early training, to ensure that the model is learning correctly and that the VAE is able to correctly decode your training images.</td>
+</tr>
+<tr>
+<td><code>image_size</code></td>
+<td>The size to display the images in Visdom.</td>
+</tr>
+<tr>
+<td><code>max_images</code></td>
+<td>The maximum number of image sets to display. See <code>display_images</code> for the reasoning behind this option.</td>
+</tr>
+<tr>
+<td><code>update_frequency</code></td>
+<td>The frequency (in steps) at which to send updates to Visdom.</td>
+</tr>
+</tbody>
+</table>
+<h4 id="console"><code>console</code></h4>
+<table>
+<thead>
+<tr>
+<th>Settings</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>average_loss</code></td>
+<td>Whether to average the losses displayed in the console over the given update period, rather than sampling the loss stochastically at the time which the update occurs.</td>
+</tr>
+<tr>
+<td><code>print_frequency</code></td>
+<td>The frequency (in steps) at which to send updates to the console during training.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="latent-tensor-pre-caching">Latent Tensor Pre-Caching</h2>
+<p>NectarGAN includes a system to pre-cache latent-space tensors for local datasets. This eliminates the need for VAE encoding at runtime and can significantly speed up training of latent diffusion models. The pre-caching system is fully compatible with text conditional training. To begin, first navigate to the NectarGAN root directory in your terminal, the run the command:</p>
+<pre><code class="language-bash">python -m nectargan.latent.build_latent_cache -r &quot;/path/to/dataset/directory&quot;
+</code></pre>
+<p>When run, this command takes all the images in the directory specified with the <code>-r</code> flag, encodes them to latent space, caches them as shard files, and exports teh shards to a new output directory created as a subdirectory of the parent dataroot directory. This command includes a number of arguments which can be used to alter the functionality of caching operation. These are:</p>
+<table>
+<thead>
+<tr>
+<th>Argument</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-r</code>, <code>--dataroot</code></td>
+<td><strong>REQUIRED.</strong> The system path to the directory containing the image files you would like to cache.</td>
+</tr>
+<tr>
+<td><code>-d</code>, <code>--device</code></td>
+<td>The PyTorch device to use when encoding the latent-space tensors.</td>
+</tr>
+<tr>
+<td><code>-t</code>, <code>--dtype</code></td>
+<td>The dtype to use when encoding the latent-space tensors.</td>
+</tr>
+<tr>
+<td><code>-m</code>, <code>--model</code></td>
+<td>The VAE model to use for encoding. The default is <code>stabilityai/sd-vae-ft-ema</code>, but you may use any model from <code>diffusers.AutoencoderKL</code>.</td>
+</tr>
+<tr>
+<td><code>-s</code>, <code>--latent_spatial_size</code></td>
+<td>The desired spatial size (^2) of the latent tensors.</td>
+</tr>
+<tr>
+<td><code>-bs</code>, <code>--batch_size</code></td>
+<td>The batch size to use when encoding the tensors to latent space.</td>
+</tr>
+<tr>
+<td><code>-ss</code>, <code>--shard_size</code></td>
+<td>The number of batches to save per shard. The total number of latent tensors per shard will be <code>--batch_size * --shard_size</code>.</td>
+</tr>
+<tr>
+<td><code>-w</code>, <code>--num_workers</code></td>
+<td>The number of workers to allocate to the dataloader used to load input images for VAE encoding.</td>
+</tr>
+<tr>
+<td><code>--store_file_names</code></td>
+<td>If this flag is present, the file names of the original image files will be stored in the cache manifest. <strong>This is required if you intend to use text conditioning, as this is how the caption dataloader looks up the correct captions for each tensor!</strong></td>
+</tr>
+<tr>
+<td><code>--validate_cache</code></td>
+<td>If this flag is present, after the caching operation is fully completed, each shard will then be loaded and each tensor will be checked for NaNs, infs., etc.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>The caching mechanism has two modes it can run in,</strong> as determined by the <code>-bs/--batch_size</code> argument. If <code>--batch_size</code> is greater than 1, the cache manager will expect that the given dataset images have a consistent aspect ratio (i.e. every dataset image has the same aspect ratio). This allows you to encode in batches to speed up the caching. If <code>--batch_size</code> is set to 1, however, the cache manager allows you to cache datasets whos images have inconsistent aspect ratios. This allows you to encode and cache all data in the dataset without losing anything, meaning you can then random crop the latent tensors at runtime for added variation.</p>
+<p><strong><em>PLEASE NOTE: Currently, the manifest is only written out at the very end of the caching operation! This will be changed in the future to write progressively as shards are cached out. For now though, you must wait for the entire caching operation to complete if you intend to use the cache manifest!</em></strong></p>
+<h2 id="captions-contexts">Captions &amp; Contexts</h2>
+<p>It is possible to train text-conditioned diffusion models with NectarGAN. Currently, this is limited to the latent diffusion model, and can be enabled from the config in the <code>captions</code> section. To train with text conditioning, you must first generate a NectarGAN compatible metadata file for your captions. </p>
+<p>As no two datasets in the wild really use the same caption format, NectarGAN instead has its own standardized caption metadata format, stored as a <code>.json</code> file. The current schema follows this pattern:</p>
+<pre><code class="language-json">{
+    &quot;info&quot;: {
+        &quot;schema_version&quot;: 1,
+        &quot;total_captions&quot;: 6,
+        &quot;total_images&quot;: 2
+    },
+    &quot;items&quot;: {
+        &quot;file_name_1&quot;: {
+            &quot;filepath&quot;: &quot;/path/to/image/file_1&quot;,
+            &quot;captions&quot;: [
+                &quot;Caption number 1.&quot;,
+                &quot;Caption number 2.&quot;,
+                &quot;Caption number 3.&quot;
+            ]
+        },
+        &quot;file_name_2&quot;: {
+            &quot;filepath&quot;: &quot;/path/to/image/file_2&quot;,
+            &quot;captions&quot;: [
+                &quot;Caption number 1.&quot;,
+                &quot;Caption number 2.&quot;,
+                &quot;Caption number 3.&quot;
+            ]
+        }
+    },
+    &quot;other&quot;: {}
+}
+</code></pre>
+<p><strong>Let's break this down real quick,</strong> then we will touch on how to generate this format for your own datasets. </p>
+<h4 id="first-we-have-a-section-called-info">First, we have a section called <code>info</code></h4>
+<p>In this section, we store the schema version (for eventual backward compatibility, should the metadata format ever change in the future). Currently, the only schema version is <code>1</code>.</p>
+<p>Next, we store the total number of captions. This is the sum of all captions for every image in the dataset.</p>
+<p>And lastly, we store the total number of images in the dataset.</p>
+<h4 id="next-we-have-a-section-called-items">Next, we have a section called <code>items</code></h4>
+<p>Items is a dict-like object where the keys are the file names (<strong>without file suffixes</strong>), and the values are also dict-like objects. These values house two things:</p>
+<ol>
+<li>The system path to the image file.</li>
+<li>A list of strings containing all of the captions for the given image file.</li>
+</ol>
+<h4 id="and-lastly-we-have-a-section-called-other">And lastly, we have a section called <code>other</code></h4>
+<p>In the native NectarGAN datasets, this is not used. It is included in the event you would like to write your own dataloader and wish to include some sort of additional metadata along with your captions.</p>
+<h3 id="now-lets-have-a-quick-look-at-how-to-generate-this-metadata-file">Now, let's have a quick look at how to generate this metadata file</h3>
+<p>NectarGAN includes a few classes to generate captions for commonly used datasets. These can be found <a href="https://github.com/ZacharyBork/NectarGAN/blob/main/nectargan/dataset/metadata/caption_loader.py">here</a>. Included are a class which can be used to generate a metadata file for the <a href="https://cocodataset.org/#home">COCO2017</a> captions, and for the <a href="https://www.vision.caltech.edu/datasets/cub_200_2011/">CUB200</a> captions. These are both relatively simple. They just load up the annotations file for the dataset, and based on how the original annotations are laid out, convert them to follow the NectarGAN standard. These can be used as a guide to write a script which can generate the metadata file for your own dataset, and the default classes will likely be expanded in the future. If there is a caption set you want which is not listed, please feel free to submit a GitHub issue with your caption request, and I will try to get a default class added for the given dataset!</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.973d3a69.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.f55a23d4.min.js"></script>
+      
+    
+  </body>
+</html>

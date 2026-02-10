@@ -2026,7 +2026,7 @@ generator = UnetGenerator(
                         ↓                                 ↑ 
 [1, 512, 8, 8] -----&gt; down6 -----&gt; [1, 512, 4, 4] -----&gt; up2 -------&gt; [1, 512, 8, 8]
                         ↓                                 ↑
-[1, 512, 4, 4] ---&gt; bottleneck --&gt; [1, 512, 2, 2] → → → → up1 -&gt; [1, 512, 4, 4]
+                 [1, 512, 4, 4] ---&gt; bottleneck --&gt; [1, 512, 4, 4]
 <code>``
 This is a diagram I made to help me conceptualize the tensor shapes of the inputs and skip connections at various depths in a UNet-style architecture (pardon the formatting, I wrote it directly inside of the python file). **This diagram shows a network with an input which has 3</code>in_channels<code>(R, G, B), 64</code>features`, and an input resolution of 512^2.**</p>
 </blockquote>
@@ -2034,14 +2034,16 @@ This is a diagram I made to help me conceptualize the tensor shapes of the input
 <blockquote>
 <p>[!NOTE]
 <strong>Skip connections:</strong> <em>(This is explained in more depth below, but here is a quick explanation to start.)</em></p>
-<p>For every <code>down</code> layer, the output tensor is passed to the next down layer as input, but it is also passed via the skip connection to the corresponding <code>up</code> layer, as denoted by the rightward facing arrows (<strong>not directly passed as input, but concatenated with the output tensor of the up layer below</strong>). So, the output tensor from <code>init_down</code> is passed to the <code>final_up</code>, same for <code>down1</code> and <code>up7</code>, etc.
-- We take our input (<code>[1, 3, 512, 512]</code>) and feed it into the <code>init_down</code> layer. This gives us an output tensor with the shape <code>[1, 64, 256, 256]</code>. So we halved the spatial resolution of the tensor, and increased the feature count to <code>64</code>, as defined by the generator's <code>features</code> value. 
-- We take that output tensor (<code>[1, 64, 256, 256]</code>) and feed it in to <code>down1</code>, giving us an output shape of <code>[1, 128, 128, 128]</code>. Double the features, halve the resolution.
-- We do this again for <code>down2</code> and <code>down3</code>. Now, though, we've hit our feature cap (<code>features * 8</code>, or <code>512</code>).
-- So, for <code>down4</code>, <code>down5</code>, and <code>down6</code>, we continue to halve the spatial resolution, but the feature count remains at the cap of <code>512</code>
-- Then we hit the bottleneck. As with the previous few downsampling layers, we halve the resolution, but keep the same feature count. This time, though, note that there is no skip connection, since there's obviously nothing to connect it to, as the output of the bottleneck is fed directly into the first upsampling layer, <code>up1</code>.</p>
+<p>For every <code>down</code> layer, the output tensor is passed to the next down layer as input, but it is also passed via the skip connection to the corresponding <code>up</code> layer, as denoted by the rightward facing arrows (<strong>not directly passed as input, but concatenated with the output tensor of the up layer below</strong>). So, the output tensor from <code>init_down</code> is passed to the <code>final_up</code>, same for <code>down1</code> and <code>up7</code>, etc.</p>
 </blockquote>
-<p><strong>Then, we have our upsampling path.</strong> As noted, the first upsampling layer, <code>up1</code>, takes the output tensor of the bottneck layer directly. This layer doubles the spatial resolution of the tensor, but, mirroring the feature counts on the downsampling path, this layer keeps the feature count at the <code>512</code> cap. This results in an output tensor shape of <code>[1, 512, 4, 4]</code>.</p>
+<ul>
+<li>We take our input (<code>[1, 3, 512, 512]</code>) and feed it into the <code>init_down</code> layer. This gives us an output tensor with the shape <code>[1, 64, 256, 256]</code>. So we halved the spatial resolution of the tensor, and increased the feature count to <code>64</code>, as defined by the generator's <code>features</code> value. </li>
+<li>We take that output tensor (<code>[1, 64, 256, 256]</code>) and feed it in to <code>down1</code>, giving us an output shape of <code>[1, 128, 128, 128]</code>. Double the features, halve the resolution.</li>
+<li>We do this again for <code>down2</code> and <code>down3</code>. Now, though, we've hit our feature cap (<code>features * 8</code>, or <code>512</code>).</li>
+<li>So, for <code>down4</code>, <code>down5</code>, and <code>down6</code>, we continue to halve the spatial resolution, but the feature count remains at the cap of <code>512</code></li>
+<li>Then we hit the bottleneck. Here, we keep our feature count and spatial resolution the same as we want to be able to stack the output tensor with the output tensor of the final downsampling layer to feed in to the first upsampling layer layer.</li>
+</ul>
+<p><strong>Then, we have our upsampling path.</strong> As noted, the first upsampling layer, <code>up1</code>, takes the output of the bottleneck layer, stacked with the output of the final downsampling later. This layer doubles the spatial resolution of the tensor, but, mirroring the feature counts on the downsampling path, this layer keeps the feature count at the <code>512</code> cap. This results in an output tensor shape of <code>[1, 512, 4, 4]</code>.</p>
 <p><strong>Then things start to become interesting.</strong> Note that the output tensor from <code>down6</code> has the same shape as the output tensor from <code>up1</code>. This allows us to take those two tensors and stack the feature maps before passing them to the next up layer. These <code>skip connections</code> are the magic of the UNet architecture (and a couple others. <a href="https://arxiv.org/pdf/1512.03385">ResNet</a>, for example, also uses skip connections, albeit in a slightly different manner and for a slightly different reason). </p>
 <p>By stacking the feature map taken directly from the corresponding downsampling layer with the one from the previous upsampling layer, we allow the network to preserve sharp or fine details that would otherwise be lost with upsampling alone. </p>
 <p>A visual example of the concept:
