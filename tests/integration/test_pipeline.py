@@ -35,6 +35,8 @@ def _update_config_file(
     cfg['dataloader']['dataroot'] = dataset_path.as_posix()
     cfg['train']['generator']['learning_rate']['epochs'] = 2
     cfg['train']['generator']['learning_rate']['epochs_decay'] = 0
+    cfg['train']['generator']['compile_network'] = False
+    cfg['train']['discriminator']['compile_network'] = False
     cfg['save']['model_save_rate'] = 1  
     #cfg['train']['load']['load_epoch'] = 2  
 
