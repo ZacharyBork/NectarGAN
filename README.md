@@ -161,6 +161,12 @@ if __name__ == "__main__":
 
 </div>
 
+## Project Status
+
+**NectarGAN is under active development with regular feature releases and improvements.** While the framework is functional and tested, you may occasionally encounter edge cases or bugs. **Please report any issues via GitHub** so they can be addressed quickly!
+
+**Backward Compatibility:** Every effort is made to maintain compatibility between releases, but significant feature additions may occasionally require changes to core components. Please see the CHANGELOG for details on any breaking changes.
+
 ## Features
 <div align="center">
 
@@ -294,15 +300,7 @@ if __name__ == "__main__":
 ## Looking to contribute?
 **Please see [*the contribution guide*](docs/faq.md) for more information.**
 
-## Project Status
-**NectarGAN is under active development.** In its current state, however, it already offers:
-- A robust framework for running and tracking experiments.
-- An interactive dashboard for visualizing experiment results.
-- A developer friendly API for constructing, training, and testing computer vision and image synthesis models.
-- An expansive and easy to use data augmentation pipeline and a variety of dataset processing tools.
-- An interface to test your trained models, both as a `.pth` and as a `.onnx` to ensure consistency at deployment time.
-
-**Planned future updates include:**
+## Planned future updates
 - Multi-GPU support.
 - More CLI support.
 - Exposed normalization options in the Toolbox interface.
