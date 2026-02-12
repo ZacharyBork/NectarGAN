@@ -2,6 +2,7 @@ import sys
 import json
 from pathlib import Path
 from importlib.resources import files
+from typing import Any
 
 from PySide6.QtWidgets import (
     QWidget, QPushButton, QApplication, QFileDialog, QLineEdit, QMessageBox, 
@@ -54,27 +55,30 @@ class Interface(QObject):
 
     def _update_example_caption(self) -> None:
         caption = ''
-        for key, value in self.query_widgets.items():
+        count = len(self.query_widgets.keys())
+        for idx, (key, value) in enumerate(self.query_widgets.items()):
             for x in self.queries:
-                if x['title'] == key:
-                    query = x
+                if x['title'] == key: query = x
             
             match query['type']:
                 case 'checkbox':
                     caption_key = 'caption_true' if value.isChecked() \
                         else 'caption_false'
-                    caption += f'{query['settings'][caption_key]}, '
+                    caption += f'{query['settings'][caption_key]}'
                 case 'slider':
                     current = str(value.value())
                     text = query['settings']['caption'].replace('{}', current)
-                    caption += f'{text}, '
+                    caption += f'{text}'
                 case 'radio_buttons':
                     layout = value.layout()
                     for i in range(layout.count()): 
                         if layout.itemAt(i).widget().isChecked():
                             current = query['settings']['choices'][i]
                     text = query['settings']['caption'].replace('{}', current)
-                    caption += f'{text}, '
+                    caption += f'{text}'
+            
+            if idx == count-1: caption += '.'
+            else: caption += ', '
         self.find(QLabel, 'caption_text').setText(caption)
 
     def _build_query_ui(self) -> None:
@@ -106,7 +110,7 @@ class Interface(QObject):
                         button = QRadioButton(text=choice)
                         button.clicked.connect(self._update_example_caption)
                         buttons_layout.addWidget(button)
-            
+                    buttons_layout.itemAt(0).widget().setChecked(True)
             
             query_layout.addWidget(widget)
                 
@@ -116,20 +120,71 @@ class Interface(QObject):
 
             self.query_widgets[query['title']] = widget
 
-    def _write_metadata(self, caption: str) -> None:
+        self._update_example_caption()
+
+    def _load_metadata(self) -> dict[str, Any]:
         with open(self.metadata_file, 'r') as file:
             metadata = json.loads(file.read())
+        return metadata
+
+    def _write_metadata(self) -> None:
+        metadata = self._load_metadata()
         items = metadata['items']
-        
+        choices = metadata['other']['choices']
         file_tag = self.current_image.stem
+                
+        caption = self.find(QLabel, 'caption_text').text()
         items[file_tag] = {
             'filepath': self.current_image.as_posix(),
             'captions': [caption]
         }
+        
+        choices[file_tag] = {}
+        for query in self.queries:
+            match query['type']:
+                case 'checkbox':
+                    value = self.query_widgets[query['title']].isChecked()
+                case 'slider':
+                    value = self.query_widgets[query['title']].value()
+                case 'radio_buttons':
+                    layout = self.query_widgets[query['title']].layout()
+                    for i in range(layout.count()): 
+                        if layout.itemAt(i).widget().isChecked():
+                            value = query['settings']['choices'][i]
+            
+            choices[file_tag][query['title']] = value
 
         with open(self.metadata_file, 'w') as file:
             file.write(json.dumps(metadata, indent=4))
-
+            
+    def _get_current_choices(self) -> None:
+        metadata = self._load_metadata()
+        choices = metadata['other']['choices']
+        
+        file_tag = self.current_image.stem
+        try: current_choices = choices[file_tag]
+        except KeyError: return 
+        
+        for key in self.query_widgets.keys():
+            for x in self.queries:
+                if x['title'] == key: query = x
+            
+            match query['type']:
+                case 'checkbox':
+                    widget: QCheckBox = self.query_widgets[query['title']]
+                    widget.setChecked(current_choices[key])
+                case 'slider':
+                    widget: QSlider = self.query_widgets[query['title']]
+                    widget.setValue(current_choices[key])
+                case 'radio_buttons':
+                    layout = self.query_widgets[query['title']].layout()
+                    for i in range(layout.count()):
+                        widget: QRadioButton = layout.itemAt(i).widget()
+                        if widget.text() == current_choices[key]:
+                           widget.setChecked(True)
+                    
+        self._update_example_caption()
+        
     ### IMAGE METHODS ###
 
     def _load_image(self, previous: bool=False) -> None:
@@ -146,13 +201,17 @@ class Interface(QObject):
 
         self._build_query_ui()
 
+        curr_img_number = f'{self.current_index+1}/{len(self.image_files)}'
+        self.find(QLabel, 'current_image_number').setText(curr_img_number)
+
     def _previous_image(self) -> None:
         self._load_image(previous=True)
+        self._get_current_choices()
 
     def _next_image(self) -> None:
-        caption = 'Test caption'
-        self._write_metadata(caption=caption)
+        self._write_metadata()
         self._load_image()
+        self._get_current_choices()
 
     ### CALLBACKS ###
 
@@ -196,13 +255,13 @@ class Interface(QObject):
         match version:
             case 1:
                 base = {
-                    "info": {
-                        "schema_version": version,
-                        "total_captions": 0,
-                        "total_images": 0
+                    'info': {
+                        'schema_version': version,
+                        'total_captions': 0,
+                        'total_images': 0
                     },
-                    "items": {},
-                    "other": {}
+                    'items': {},
+                    'other': { 'choices': {} }
                 }
             case _: raise ValueError(f'Schema version not valid: {version}')
         input_outdir = self.find(QLineEdit, 'output_directory').text()
@@ -215,10 +274,26 @@ class Interface(QObject):
         
         self.metadata_file = Path(output_directory, 'metadata.json')
         if self.metadata_file.exists():
-            self._warn(
+            message = (
                 f'Found existing metadata file at path: '
-                f'{self.metadata_file.as_posix()}')
-            return False
+                f'{self.metadata_file.as_posix()}\n\n'
+                f'Press "Ok" to load existing file, or "Discard" to overwrite '
+                f' the existing file.')
+            buttons = QMessageBox.StandardButton
+            choice = QMessageBox.warning(
+                None, 'Existing Metadata File', message, 
+                buttons.Ok | buttons.Discard | buttons.Cancel)
+            if choice == buttons.Discard:
+                message = (
+                    f'This will delete the existing metadata file at path: '
+                    f'{self.metadata_file.as_posix()}\n\n'
+                    f'Are you sure you would like to continue?')
+                confirm = QMessageBox.warning(
+                    None, 'Warning', message,
+                    buttons.Ok | buttons.Cancel)
+                if confirm == buttons.Ok: self.metadata_file.unlink()
+                else: return False
+            else: return choice == buttons.Ok
         try:
             with open(self.metadata_file, 'w') as file:
                 file.write(json.dumps(base, indent=4))
@@ -238,6 +313,8 @@ class Interface(QObject):
         if not success: return
         
         self._load_image()
+        self._get_current_choices()
+        self.find(QFrame, 'main_frame').setDisabled(False)
 
     def _init_callbacks(self) -> None:
         self.find(QPushButton, 'exit_btn').clicked.connect(self._exit_app)
@@ -257,7 +334,7 @@ class Interface(QObject):
 
 
         self.find(QLineEdit, 'image_directory').setText(
-            '/media/zach/UE/ML/test_data/diffusion/temp_celeba_raw/celeba/train')
+            '/media/zach/UE/ML/test_data/diffusion/temp_celeba_raw/celeba/test')
         
         self.find(QLineEdit, 'config_file').setText(
             '/media/zach/UE/ML/NectarGAN/nectargan/annotations/creator/celeba_config.json')
@@ -267,6 +344,7 @@ class Interface(QObject):
 
 
         self._init_callbacks()
+        self.find(QFrame, 'main_frame').setDisabled(True)
 
         self.mainwidget.show()
 
