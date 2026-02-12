@@ -18,6 +18,7 @@ class Interface(QObject):
         self.current_index = -1
         self.current_image: Path = None 
         self.query_widgets: dict[str, QWidget] = {}
+        self.allow_override = False
 
     def _get_ui_file(self) -> QFile:
         root = Path(__file__).parent.resolve()
@@ -46,6 +47,19 @@ class Interface(QObject):
         with open(file.resolve().as_posix(), 'r') as file:
             stylesheet = file.read()
             self.app.setStyleSheet(stylesheet)
+            
+    def _set_ui_state(self, state: str) -> None:
+        match state:
+            case 'config':
+                self.main_frame.setDisabled(True)
+                self.main_frame.setHidden(True)
+                self.config_frame.setDisabled(False)
+                self.config_frame.setHidden(False)
+            case 'active':
+                self.main_frame.setDisabled(False)
+                self.main_frame.setHidden(False)
+                self.config_frame.setDisabled(True)
+                self.config_frame.setHidden(True)
 
     ### UTILS ###
 
@@ -53,7 +67,19 @@ class Interface(QObject):
         QMessageBox.warning(
             None, 'Warning', message, QMessageBox.StandardButton.Ok)
 
+    
+    def _update_remaining(self) -> None:
+        remaining = str(len(self.image_files))
+        self.find(QLabel, 'images_remaining').setText(remaining)
+        
+    def _update_caption_override(self) -> None:
+        enabled = self.find(QCheckBox, 'override_caption').isChecked()
+        self.allow_override = enabled
+        self.caption_text.setEnabled(enabled)
+
     def _update_example_caption(self) -> None:
+        if self.allow_override: return
+        
         caption = ''
         count = len(self.query_widgets.keys())
         for idx, (key, value) in enumerate(self.query_widgets.items()):
@@ -79,7 +105,7 @@ class Interface(QObject):
             
             if idx == count-1: caption += '.'
             else: caption += ', '
-        self.find(QLabel, 'caption_text').setText(caption)
+        self.caption_text.setText(caption)
 
     def _build_query_ui(self) -> None:
         queries_layout = self.find(QVBoxLayout, 'queries_layout')
@@ -133,7 +159,7 @@ class Interface(QObject):
         choices = metadata['other']['choices']
         file_tag = self.current_image.stem
                 
-        caption = self.find(QLabel, 'caption_text').text()
+        caption = self.caption_text.text()
         items[file_tag] = {
             'filepath': self.current_image.as_posix(),
             'captions': [caption]
@@ -156,34 +182,6 @@ class Interface(QObject):
 
         with open(self.metadata_file, 'w') as file:
             file.write(json.dumps(metadata, indent=4))
-            
-    def _get_current_choices(self) -> None:
-        metadata = self._load_metadata()
-        choices = metadata['other']['choices']
-        
-        file_tag = self.current_image.stem
-        try: current_choices = choices[file_tag]
-        except KeyError: return 
-        
-        for key in self.query_widgets.keys():
-            for x in self.queries:
-                if x['title'] == key: query = x
-            
-            match query['type']:
-                case 'checkbox':
-                    widget: QCheckBox = self.query_widgets[query['title']]
-                    widget.setChecked(current_choices[key])
-                case 'slider':
-                    widget: QSlider = self.query_widgets[query['title']]
-                    widget.setValue(current_choices[key])
-                case 'radio_buttons':
-                    layout = self.query_widgets[query['title']].layout()
-                    for i in range(layout.count()):
-                        widget: QRadioButton = layout.itemAt(i).widget()
-                        if widget.text() == current_choices[key]:
-                           widget.setChecked(True)
-                    
-        self._update_example_caption()
         
     ### IMAGE METHODS ###
 
@@ -193,7 +191,7 @@ class Interface(QObject):
                 len(self.image_files) - 1, self.current_index + 1)
         else: self.current_index = max(0, self.current_index - 1)
         self.current_image = self.image_files[self.current_index]
-
+        
         pixmap = QPixmap(self.current_image)
         image_label = self.find(QLabel, 'image_display')
         image_label.setPixmap(pixmap)
@@ -201,17 +199,21 @@ class Interface(QObject):
 
         self._build_query_ui()
 
-        curr_img_number = f'{self.current_index+1}/{len(self.image_files)}'
-        self.find(QLabel, 'current_image_number').setText(curr_img_number)
+        self._update_remaining()
 
     def _previous_image(self) -> None:
         self._load_image(previous=True)
-        self._get_current_choices()
 
     def _next_image(self) -> None:
-        self._write_metadata()
+        self.find(QCheckBox, 'override_caption').setChecked(False)
+        self._update_caption_override()
         self._load_image()
-        self._get_current_choices()
+        
+    def _apply_caption(self) -> None:
+        self._write_metadata()
+        self.image_files.remove(self.current_image)
+        self.current_index -= 1
+        self._next_image()
 
     ### CALLBACKS ###
 
@@ -230,6 +232,15 @@ class Interface(QObject):
             self._warn('No image files found in Image Directory!')
             return False
         
+        existing = self._load_metadata()['items']
+        temp = []
+        for file in self.image_files:
+            file_tag = file.stem
+            if file_tag in existing.keys():
+                temp.append(file)
+        [self.image_files.remove(i) for i in temp]
+        
+        self._update_remaining()
         return True
 
     def _get_config(self) -> bool:
@@ -303,24 +314,25 @@ class Interface(QObject):
         return True
     
     def _load_set(self) -> None:
+        success = self._build_metadata_file()
+        if not success: return
+        
         success = self._get_images()
         if not success: return
 
         success = self._get_config()
         if not success: return
 
-        success = self._build_metadata_file()
-        if not success: return
-        
         self._load_image()
-        self._get_current_choices()
-        self.find(QFrame, 'main_frame').setDisabled(False)
+        self._set_ui_state(state='active')
 
     def _init_callbacks(self) -> None:
         self.find(QPushButton, 'exit_btn').clicked.connect(self._exit_app)
         self.find(QPushButton, 'load_set').clicked.connect(self._load_set)
         self.find(QPushButton, 'next_image').clicked.connect(self._next_image)
         self.find(QPushButton, 'previous_image').clicked.connect(self._previous_image)
+        self.find(QPushButton, 'apply_caption').clicked.connect(self._apply_caption)
+        self.find(QCheckBox, 'override_caption').clicked.connect(self._update_caption_override)
 
     ### ENTRYPOINT ###
 
@@ -331,8 +343,11 @@ class Interface(QObject):
 
         self._init_mainwidget()
         self.find = self.mainwidget.findChild
-
-
+        self.main_frame = self.find(QFrame, 'main_frame')
+        self.config_frame = self.find(QFrame, 'config_frame')
+        self.caption_text = self.find(QLineEdit, 'caption_text')
+        self.caption_text.setEnabled(False)
+        
         self.find(QLineEdit, 'image_directory').setText(
             '/media/zach/UE/ML/test_data/diffusion/temp_celeba_raw/celeba/test')
         
@@ -344,7 +359,7 @@ class Interface(QObject):
 
 
         self._init_callbacks()
-        self.find(QFrame, 'main_frame').setDisabled(True)
+        self._set_ui_state(state='config')
 
         self.mainwidget.show()
 
