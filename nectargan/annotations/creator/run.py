@@ -9,7 +9,7 @@ from PySide6.QtWidgets import (
     QLabel, QVBoxLayout, QHBoxLayout, QFrame, QCheckBox, QSlider, QRadioButton,
     QSizePolicy)
 from PySide6.QtUiTools import QUiLoader
-from PySide6.QtCore import Qt, QFile, QObject
+from PySide6.QtCore import Qt, QFile, QObject, QTimer, QEvent
 from PySide6.QtGui import QShortcut, QKeySequence, QPixmap
 
 class Interface(QObject):    
@@ -20,6 +20,12 @@ class Interface(QObject):
         self.current_image: Path = None 
         self.query_widgets: dict[str, QWidget] = {}
         self.allow_override = False
+        self.image_loaded = False
+
+    def eventFilter(self, obj: QObject, event: QEvent) -> None:
+        if obj is self.mainwidget and event.type() == QEvent.Type.Resize:
+            if self.image_loaded: QTimer.singleShot(0, self._scale_image)
+        return super().eventFilter(obj, event)
 
     def _get_ui_file(self) -> QFile:
         root = Path(__file__).parent.resolve()
@@ -38,6 +44,7 @@ class Interface(QObject):
         self.mainwidget = loader.load(file)
         file.close()
         self.mainwidget.setWindowTitle('Annotation Creator')
+        self.mainwidget.installEventFilter(self)
 
     def _set_stylesheet(self) -> None:
         path = files('nectargan.toolbox.resources').joinpath('stylesheet.qss')
@@ -61,7 +68,7 @@ class Interface(QObject):
                 self.main_frame.setHidden(False)
                 self.config_frame.setDisabled(True)
                 self.config_frame.setHidden(True)
-
+                
     ### EXTRA CAPTIONS ###
     
     def _remove_extra_caption(self, x: QPushButton) -> None:
@@ -230,6 +237,29 @@ class Interface(QObject):
             file.write(json.dumps(metadata, indent=4))
             
     ### IMAGE METHODS ###
+    
+    def _scale_image(self, label_size: int = 400) -> None:
+        pixmap = QPixmap(self.current_image)
+        image_label = self.find(QLabel, 'image_display')
+        
+        image_label.setMinimumSize(label_size, label_size)
+        image_label.setSizePolicy(
+            QSizePolicy.Policy.Expanding,
+            QSizePolicy.Policy.Expanding)
+                
+        pixmap = pixmap.scaled(
+            image_label.size(),
+            Qt.AspectRatioMode.KeepAspectRatio,
+            Qt.TransformationMode.SmoothTransformation)
+        
+        image_label.setPixmap(pixmap)
+        
+    def _set_image_button_state(self) -> None:
+        prev_btn = self.find(QPushButton, 'previous_image')
+        next_btn = self.find(QPushButton, 'next_image')
+
+        prev_btn.setEnabled(self.current_index != 0)
+        next_btn.setEnabled(self.current_index != len(self.image_files) - 1)
 
     def _load_image(self, previous: bool=False) -> None:
         if not previous:
@@ -238,31 +268,22 @@ class Interface(QObject):
         else: self.current_index = max(0, self.current_index - 1)
         self.current_image = self.image_files[self.current_index]
         
-        pixmap = QPixmap(self.current_image)
-        image_label = self.find(QLabel, 'image_display')
-        image_label.setPixmap(pixmap)
-        image_label.setScaledContents(True)
-
+        self._set_image_button_state()
+        
+        self.find(QCheckBox, 'override_caption').setChecked(False)
+        self._update_caption_override()
+        self._destroy_extra_captions()
+        
         self._build_query_ui()
         self._update_remaining()
-
-    def _previous_image(self) -> None:
-        self.find(QCheckBox, 'override_caption').setChecked(False)
-        self._update_caption_override()
-        self._destroy_extra_captions()
-        self._load_image(previous=True)
-        
-    def _next_image(self) -> None:
-        self.find(QCheckBox, 'override_caption').setChecked(False)
-        self._update_caption_override()
-        self._destroy_extra_captions()
-        self._load_image()
+        self._scale_image()
+        self.image_loaded = True
         
     def _apply_caption(self) -> None:
         self._write_metadata()
         self.image_files.remove(self.current_image)
         self.current_index -= 1
-        self._next_image()
+        self._load_image()
 
     ### CALLBACKS ###
 
@@ -372,14 +393,15 @@ class Interface(QObject):
         success = self._get_config()
         if not success: return
 
-        self._load_image()
         self._set_ui_state(state='active')
-
+        QTimer.singleShot(0, self._load_image)
+        
     def _init_callbacks(self) -> None:
         self.find(QPushButton, 'exit_btn').clicked.connect(self._exit_app)
         self.find(QPushButton, 'load_set').clicked.connect(self._load_set)
-        self.find(QPushButton, 'next_image').clicked.connect(self._next_image)
-        self.find(QPushButton, 'previous_image').clicked.connect(self._previous_image)
+        self.find(QPushButton, 'next_image').clicked.connect(self._load_image)
+        self.find(QPushButton, 'previous_image').clicked.connect(
+            lambda : self._load_image(previous=True))
         self.find(QPushButton, 'apply_caption').clicked.connect(self._apply_caption)
         self.find(QCheckBox, 'override_caption').clicked.connect(self._update_caption_override)
         self.find(QPushButton, 'add_extra_caption').clicked.connect(self._add_extra_caption)
