@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Literal
+from typing import Any, Literal
 
 from PySide6.QtWidgets import (
     QSizePolicy, QWidget, QLabel, QFrame, QHBoxLayout, QVBoxLayout, 
@@ -18,15 +18,14 @@ class ImageLabel(QLabel):
         self.parent_widget = parent
         
         self.mode: Literal['Draw', 'Erase'] = 'Draw'
-        self.current_color = QColor(255, 0, 0)
+        self.current_color = 'red'
+        self.colors = {
+            'red':   QColor(255, 0, 0),
+            'green': QColor(0, 255, 0),
+            'blue':  QColor(0, 0, 255)}
         
-    def _get_color_string(self) -> str:
-        c = self.current_color
-        return f'{c.red()}_{c.green()}_{c.blue()}'
-
-    def _color_from_string(self, string: str) -> QColor:
-        s = string.split('_')
-        return QColor(int(s[0]), int(s[1]), int(s[2]))
+    def _get_color(self) -> QColor:
+        return self.colors[self.current_color]
         
     def mousePressEvent(self, event: QEvent) -> None:
         if event.button() == Qt.MouseButton.LeftButton:
@@ -57,14 +56,12 @@ class ImageLabel(QLabel):
                 x1, y1 = max(0, min(1, x1)), max(0, min(1, y1))
                 x2, y2 = max(0, min(1, x2)), max(0, min(1, y2))
                 
-                box_bound = (x1, y1, x2, y2)
+                bbox = (x1, y1, x2, y2)
                 
                 if self.mode == 'Draw':
-                    try: self.boxes[self._get_color_string()].append(box_bound)
-                    except KeyError: 
-                        self.boxes[self._get_color_string()] = [box_bound]
-                elif self.mode == 'Erase':
-                    self._erase_overlapping_boxes(box_bound)
+                    try: self.boxes[self.current_color].append(bbox)
+                    except KeyError: self.boxes[self.current_color] = [bbox]
+                elif self.mode == 'Erase': self._erase_overlapping_boxes(bbox)
             
             self.update()
             
@@ -111,15 +108,14 @@ class ImageLabel(QLabel):
         super().paintEvent(event)
         
         pixmap = self.pixmap()
-        if not pixmap or pixmap.isNull():
-            return
+        if not pixmap or pixmap.isNull(): return
         
         painter = QPainter(self)
         bounds = self._get_pixmap_rect()
         
         for key, value in self.boxes.items():
             for box in value:
-                color = self._color_from_string(key)
+                color = self.colors[key]
                 pen = QPen(color, 2, Qt.PenStyle.SolidLine)
                 painter.setPen(pen)
         
@@ -135,7 +131,7 @@ class ImageLabel(QLabel):
                 painter.drawRect(box.normalized())
             
         if self.drawing and self.start_pt and self.end_pt:
-            if self.mode == 'Draw': color = self.current_color
+            if self.mode == 'Draw': color = self._get_color()
             else: color = QColor(255, 255, 255)
             pen = QPen(color, 2, Qt.PenStyle.SolidLine)
             painter.setPen(pen)
@@ -174,13 +170,14 @@ class InteractiveImageDisplay(QFrame):
     def __init__(self, minimum_size: int = 400, *args, **kwargs) -> None:
         super(InteractiveImageDisplay, self).__init__(*args, **kwargs)
         self.minimum_size = minimum_size
+        self.landmark_ids = { 'Red': 'red', 'Green': 'green', 'Blue': 'blue' }
         self.build_interface()
         
     def set_landmark_ids(self, red: str, green: str, blue: str) -> None:
         self.red_button.setText(red)
         self.green_button.setText(green)
         self.blue_button.setText(blue)
-        self.landmark_ids = { red: 'Red', green: 'Green', blue: 'Blue' }
+        self.landmark_ids = { red: 'red', green: 'green', blue: 'blue' }
         
     def _set_mode(self) -> None:
         match self.mode_button.text():
@@ -193,11 +190,7 @@ class InteractiveImageDisplay(QFrame):
         for i in range(self.colors_layout.count()): 
             button: QRadioButton = self.colors_layout.itemAt(i).widget()
             if button.isChecked(): color = button.text()
-        id = self.landmark_ids[color]
-        match id:
-            case 'Red': self.image_label.current_color = QColor(255, 0, 0)
-            case 'Green': self.image_label.current_color = QColor(0, 255, 0)
-            case 'Blue': self.image_label.current_color = QColor(0, 0, 255)
+        self.image_label.current_color = self.landmark_ids[color]
         
     def _build_button_frame(self) -> None:
         button_frame = QFrame()
@@ -251,6 +244,14 @@ class InteractiveImageDisplay(QFrame):
     def draw_image(self, image_path: Path) -> None: 
         draw = self.image_label.draw_image
         QTimer.singleShot(0, lambda : draw(image_path, self.minimum_size))
+        
+    def get_landmark_data(self) -> dict[str, Any]:
+        boxes = self.image_label.boxes
+        output = {}
+        for key, value in self.landmark_ids.items():
+            try: output[key] = boxes[value]
+            except KeyError: pass
+        return output
         
     def reset(self) -> None:
         if self.mode_button.text() == 'Erase': self._set_mode()

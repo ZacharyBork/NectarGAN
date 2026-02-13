@@ -204,6 +204,58 @@ class Interface(QObject):
         self._update_example_caption()
 
     ### METADATA ###
+    
+    def _build_metadata_file(self) -> bool:
+        version = self.schema_version
+        match version:
+            case 1:
+                base = {
+                    'info': {
+                        'schema_version': version,
+                        'total_captions': 0,
+                        'total_images': 0
+                    },
+                    'items': {},
+                    'other': { 'landmarks': {}, 'choices': {} }
+                }
+            case _: raise ValueError(f'Schema version not valid: {version}')
+        input_outdir = self.find(QLineEdit, 'output_directory').text()
+        output_directory = Path(input_outdir)
+        if input_outdir.strip() == '' or not output_directory.exists():
+            self._warn(
+                f'Unable to locate output directory at path: '
+                f'{output_directory.as_posix()}')
+            return False
+        
+        self.metadata_file = Path(output_directory, 'metadata.json')
+        if self.metadata_file.exists():
+            message = (
+                f'Found existing metadata file at path: '
+                f'{self.metadata_file.as_posix()}\n\n'
+                f'Press "Ok" to load existing file, or "Discard" to overwrite '
+                f' the existing file.')
+            buttons = QMessageBox.StandardButton
+            choice = QMessageBox.warning(
+                None, 'Existing Metadata File', message, 
+                buttons.Ok | buttons.Discard | buttons.Cancel)
+            if choice == buttons.Discard:
+                message = (
+                    f'This will delete the existing metadata file at path: '
+                    f'{self.metadata_file.as_posix()}\n\n'
+                    f'Are you sure you would like to continue?')
+                confirm = QMessageBox.warning(
+                    None, 'Warning', message,
+                    buttons.Ok | buttons.Cancel)
+                if confirm == buttons.Ok: self.metadata_file.unlink()
+                else: return False
+            else: return choice == buttons.Ok
+        try:
+            with open(self.metadata_file, 'w') as file:
+                file.write(json.dumps(base, indent=4))
+        except Exception as e:
+            self._warn(f'Unable to write metadata file. Reason: {e}')
+            return False
+        return True
 
     def _load_metadata(self) -> dict[str, Any]:
         with open(self.metadata_file, 'r') as file:
@@ -237,6 +289,9 @@ class Interface(QObject):
                             value = query['settings']['choices'][i]
             
             choices[file_tag][query['title']] = value
+            
+        landmark_data = self.image_display.get_landmark_data()
+        metadata['other']['landmarks'][file_tag] = landmark_data
 
         with open(self.metadata_file, 'w') as file:
             file.write(json.dumps(metadata, indent=4))
@@ -321,58 +376,6 @@ class Interface(QObject):
         self.queries = self.config['queries']
         return True
 
-    def _build_metadata_file(self) -> bool:
-        version = self.schema_version
-        match version:
-            case 1:
-                base = {
-                    'info': {
-                        'schema_version': version,
-                        'total_captions': 0,
-                        'total_images': 0
-                    },
-                    'items': {},
-                    'other': { 'choices': {} }
-                }
-            case _: raise ValueError(f'Schema version not valid: {version}')
-        input_outdir = self.find(QLineEdit, 'output_directory').text()
-        output_directory = Path(input_outdir)
-        if input_outdir.strip() == '' or not output_directory.exists():
-            self._warn(
-                f'Unable to locate output directory at path: '
-                f'{output_directory.as_posix()}')
-            return False
-        
-        self.metadata_file = Path(output_directory, 'metadata.json')
-        if self.metadata_file.exists():
-            message = (
-                f'Found existing metadata file at path: '
-                f'{self.metadata_file.as_posix()}\n\n'
-                f'Press "Ok" to load existing file, or "Discard" to overwrite '
-                f' the existing file.')
-            buttons = QMessageBox.StandardButton
-            choice = QMessageBox.warning(
-                None, 'Existing Metadata File', message, 
-                buttons.Ok | buttons.Discard | buttons.Cancel)
-            if choice == buttons.Discard:
-                message = (
-                    f'This will delete the existing metadata file at path: '
-                    f'{self.metadata_file.as_posix()}\n\n'
-                    f'Are you sure you would like to continue?')
-                confirm = QMessageBox.warning(
-                    None, 'Warning', message,
-                    buttons.Ok | buttons.Cancel)
-                if confirm == buttons.Ok: self.metadata_file.unlink()
-                else: return False
-            else: return choice == buttons.Ok
-        try:
-            with open(self.metadata_file, 'w') as file:
-                file.write(json.dumps(base, indent=4))
-        except Exception as e:
-            self._warn(f'Unable to write metadata file. Reason: {e}')
-            return False
-        return True
-    
     def _load_set(self) -> None:
         success = self._build_metadata_file()
         if not success: return
