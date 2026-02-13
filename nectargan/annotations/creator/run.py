@@ -84,6 +84,28 @@ class Interface(QObject):
         
         frame.setLayout(caption_layout)
         layout.addWidget(frame)
+        
+    def _get_extra_captions(self) -> list[str]:
+        captions = []
+        
+        extra_captions_layout = self.find(QVBoxLayout, 'extra_caption_layout')   
+        caption_count = extra_captions_layout.count()    
+        
+        for i in range(caption_count): 
+            layout = extra_captions_layout.itemAt(i).widget().layout()
+            for j in range(layout.count()):
+                widget = layout.itemAt(j).widget()
+                if isinstance(widget, QLineEdit):
+                    current_text = widget.text()
+                    if current_text != '':
+                        captions.append(current_text)
+
+        return captions
+    
+    def _destroy_extra_captions(self) -> None:
+        extra_captions_layout = self.find(QVBoxLayout, 'extra_caption_layout') 
+        for i in range(extra_captions_layout.count()): 
+            extra_captions_layout.itemAt(i).widget().deleteLater()
 
     ### UTILS ###
 
@@ -176,23 +198,6 @@ class Interface(QObject):
             metadata = json.loads(file.read())
         return metadata
 
-    def _get_extra_captions(self) -> list[str]:
-        captions = []
-        
-        extra_captions_layout = self.find(QVBoxLayout, 'extra_caption_layout')   
-        caption_count = extra_captions_layout.count()    
-        
-        for i in range(caption_count): 
-            layout = extra_captions_layout.itemAt(i).widget().layout()
-            for j in range(layout.count()):
-                widget = layout.itemAt(j).widget()
-                if isinstance(widget, QLineEdit):
-                    current_text = widget.text()
-                    if current_text != '':
-                        captions.append(current_text)
-
-        return captions
-
     def _write_metadata(self) -> None:
         metadata = self._load_metadata()
         items = metadata['items']
@@ -239,15 +244,18 @@ class Interface(QObject):
         image_label.setScaledContents(True)
 
         self._build_query_ui()
-
         self._update_remaining()
 
     def _previous_image(self) -> None:
+        self.find(QCheckBox, 'override_caption').setChecked(False)
+        self._update_caption_override()
+        self._destroy_extra_captions()
         self._load_image(previous=True)
-
+        
     def _next_image(self) -> None:
         self.find(QCheckBox, 'override_caption').setChecked(False)
         self._update_caption_override()
+        self._destroy_extra_captions()
         self._load_image()
         
     def _apply_caption(self) -> None:
