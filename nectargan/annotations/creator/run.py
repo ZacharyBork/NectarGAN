@@ -6,7 +6,8 @@ from typing import Any
 
 from PySide6.QtWidgets import (
     QWidget, QPushButton, QApplication, QFileDialog, QLineEdit, QMessageBox, 
-    QLabel, QVBoxLayout, QHBoxLayout, QFrame, QCheckBox, QSlider, QRadioButton)
+    QLabel, QVBoxLayout, QHBoxLayout, QFrame, QCheckBox, QSlider, QRadioButton,
+    QSizePolicy)
 from PySide6.QtUiTools import QUiLoader
 from PySide6.QtCore import Qt, QFile, QObject
 from PySide6.QtGui import QShortcut, QKeySequence, QPixmap
@@ -61,13 +62,35 @@ class Interface(QObject):
                 self.config_frame.setDisabled(True)
                 self.config_frame.setHidden(True)
 
+    ### EXTRA CAPTIONS ###
+    
+    def _remove_extra_caption(self, x: QPushButton) -> None:
+        x.parentWidget().deleteLater()
+    
+    def _add_extra_caption(self) -> None:
+        layout = self.find(QVBoxLayout, 'extra_caption_layout')
+        frame = QFrame()
+        caption_layout = QHBoxLayout()
+        caption_box = QLineEdit()
+        
+        remove_button = QPushButton(text='-')
+        remove_button.setSizePolicy(
+            QSizePolicy.Policy.Maximum, QSizePolicy.Policy.Preferred)
+        remove_button.clicked.connect(
+            lambda : self._remove_extra_caption(x=remove_button))
+        
+        caption_layout.addWidget(caption_box)
+        caption_layout.addWidget(remove_button)
+        
+        frame.setLayout(caption_layout)
+        layout.addWidget(frame)
+
     ### UTILS ###
 
     def _warn(self, message: str) -> None:
         QMessageBox.warning(
             None, 'Warning', message, QMessageBox.StandardButton.Ok)
 
-    
     def _update_remaining(self) -> None:
         remaining = str(len(self.image_files))
         self.find(QLabel, 'images_remaining').setText(remaining)
@@ -153,6 +176,23 @@ class Interface(QObject):
             metadata = json.loads(file.read())
         return metadata
 
+    def _get_extra_captions(self) -> list[str]:
+        captions = []
+        
+        extra_captions_layout = self.find(QVBoxLayout, 'extra_caption_layout')   
+        caption_count = extra_captions_layout.count()    
+        
+        for i in range(caption_count): 
+            layout = extra_captions_layout.itemAt(i).widget().layout()
+            for j in range(layout.count()):
+                widget = layout.itemAt(j).widget()
+                if isinstance(widget, QLineEdit):
+                    current_text = widget.text()
+                    if current_text != '':
+                        captions.append(current_text)
+
+        return captions
+
     def _write_metadata(self) -> None:
         metadata = self._load_metadata()
         items = metadata['items']
@@ -164,6 +204,7 @@ class Interface(QObject):
             'filepath': self.current_image.as_posix(),
             'captions': [caption]
         }
+        items[file_tag]['captions'].extend(self._get_extra_captions())
         
         choices[file_tag] = {}
         for query in self.queries:
@@ -182,7 +223,7 @@ class Interface(QObject):
 
         with open(self.metadata_file, 'w') as file:
             file.write(json.dumps(metadata, indent=4))
-        
+            
     ### IMAGE METHODS ###
 
     def _load_image(self, previous: bool=False) -> None:
@@ -333,6 +374,7 @@ class Interface(QObject):
         self.find(QPushButton, 'previous_image').clicked.connect(self._previous_image)
         self.find(QPushButton, 'apply_caption').clicked.connect(self._apply_caption)
         self.find(QCheckBox, 'override_caption').clicked.connect(self._update_caption_override)
+        self.find(QPushButton, 'add_extra_caption').clicked.connect(self._add_extra_caption)
 
     ### ENTRYPOINT ###
 
