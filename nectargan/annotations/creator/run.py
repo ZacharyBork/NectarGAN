@@ -12,6 +12,8 @@ from PySide6.QtUiTools import QUiLoader
 from PySide6.QtCore import Qt, QFile, QObject, QTimer, QEvent
 from PySide6.QtGui import QShortcut, QKeySequence, QPixmap
 
+from nectargan.annotations.creator.src.widgets import InteractiveImageDisplay
+
 class Interface(QObject):    
     def __init__(self, schema_version: int=1) -> None:
         super().__init__()
@@ -24,7 +26,8 @@ class Interface(QObject):
 
     def eventFilter(self, obj: QObject, event: QEvent) -> None:
         if obj is self.mainwidget and event.type() == QEvent.Type.Resize:
-            if self.image_loaded: QTimer.singleShot(0, self._scale_image)
+            if self.image_loaded: 
+                self.image_display.draw_image(self.current_image)
         return super().eventFilter(obj, event)
 
     def _get_ui_file(self) -> QFile:
@@ -200,6 +203,8 @@ class Interface(QObject):
 
         self._update_example_caption()
 
+    ### METADATA ###
+
     def _load_metadata(self) -> dict[str, Any]:
         with open(self.metadata_file, 'r') as file:
             metadata = json.loads(file.read())
@@ -237,22 +242,6 @@ class Interface(QObject):
             file.write(json.dumps(metadata, indent=4))
             
     ### IMAGE METHODS ###
-    
-    def _scale_image(self, label_size: int = 400) -> None:
-        pixmap = QPixmap(self.current_image)
-        image_label = self.find(QLabel, 'image_display')
-        
-        image_label.setMinimumSize(label_size, label_size)
-        image_label.setSizePolicy(
-            QSizePolicy.Policy.Expanding,
-            QSizePolicy.Policy.Expanding)
-                
-        pixmap = pixmap.scaled(
-            image_label.size(),
-            Qt.AspectRatioMode.KeepAspectRatio,
-            Qt.TransformationMode.SmoothTransformation)
-        
-        image_label.setPixmap(pixmap)
         
     def _set_image_button_state(self) -> None:
         prev_btn = self.find(QPushButton, 'previous_image')
@@ -269,6 +258,7 @@ class Interface(QObject):
         self.current_image = self.image_files[self.current_index]
         
         self._set_image_button_state()
+        self.image_display.reset()
         
         self.find(QCheckBox, 'override_caption').setChecked(False)
         self._update_caption_override()
@@ -276,7 +266,7 @@ class Interface(QObject):
         
         self._build_query_ui()
         self._update_remaining()
-        self._scale_image()
+        self.image_display.draw_image(self.current_image)
         self.image_loaded = True
         
     def _apply_caption(self) -> None:
@@ -394,7 +384,11 @@ class Interface(QObject):
         if not success: return
 
         self._set_ui_state(state='active')
-        QTimer.singleShot(0, self._load_image)
+        self._load_image()
+        self.image_display.set_landmark_ids(
+            red=self.config['landmarks']['red'],
+            green=self.config['landmarks']['green'],
+            blue=self.config['landmarks']['blue'])
         
     def _init_callbacks(self) -> None:
         self.find(QPushButton, 'exit_btn').clicked.connect(self._exit_app)
@@ -417,8 +411,15 @@ class Interface(QObject):
         self.find = self.mainwidget.findChild
         self.main_frame = self.find(QFrame, 'main_frame')
         self.config_frame = self.find(QFrame, 'config_frame')
+        self.image_frame = self.find(QFrame, 'image_frame')
         self.caption_text = self.find(QLineEdit, 'caption_text')
         self.caption_text.setEnabled(False)
+        
+        
+        
+        self.image_display = InteractiveImageDisplay()
+        self.image_frame.layout().addWidget(
+            self.image_display, alignment=Qt.AlignmentFlag.AlignCenter)
         
         self.find(QLineEdit, 'image_directory').setText(
             '/media/zach/UE/ML/test_data/diffusion/temp_celeba_raw/celeba/test')

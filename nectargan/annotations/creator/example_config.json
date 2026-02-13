@@ -27,5 +27,10 @@
                 "caption": "choice {}"
             }
         }
-    ]
+    ],
+    "landmarks": {
+        "red": "Red",
+        "green": "Green",
+        "blue": "Blue"
+    }
 }
