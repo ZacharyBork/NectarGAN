@@ -6,13 +6,14 @@ from typing import Any
 
 from PySide6.QtWidgets import (
     QWidget, QPushButton, QApplication, QFileDialog, QLineEdit, QMessageBox, 
-    QLabel, QVBoxLayout, QHBoxLayout, QFrame, QCheckBox, QSlider, QRadioButton,
-    QSizePolicy)
+    QLabel, QVBoxLayout, QHBoxLayout, QFormLayout, QFrame, QCheckBox, QSlider, 
+    QRadioButton, QSizePolicy)
 from PySide6.QtUiTools import QUiLoader
 from PySide6.QtCore import Qt, QFile, QObject, QTimer, QEvent
 from PySide6.QtGui import QShortcut, QKeySequence, QPixmap
 
 from nectargan.annotations.creator.src.widgets import InteractiveImageDisplay
+
 
 class Interface(QObject):    
     def __init__(self, schema_version: int=1) -> None:
@@ -23,56 +24,28 @@ class Interface(QObject):
         self.query_widgets: dict[str, QWidget] = {}
         self.allow_override = False
         self.image_loaded = False
-
-    def eventFilter(self, obj: QObject, event: QEvent) -> None:
-        if obj is self.mainwidget and event.type() == QEvent.Type.Resize:
-            if self.image_loaded: 
-                self.image_display.draw_image(self.current_image)
-        return super().eventFilter(obj, event)
-
-    def _get_ui_file(self) -> QFile:
-        root = Path(__file__).parent.resolve()
-        file = Path(root, 'ui/annotation_creator.ui')
-        if not file.exists():
-            msg = f'Unable to locate UI file: {file.resolve().as_posix()}'
-            raise FileNotFoundError(msg)
-        return QFile(file.resolve().as_posix())
-
-    def _init_mainwidget(self) -> None:
-        '''Initializes a Qt main widget from the UI file.'''
-        loader = QUiLoader()
-        file = self._get_ui_file()
         
-        file.open(QFile.ReadOnly)
-        self.mainwidget = loader.load(file)
-        file.close()
-        self.mainwidget.setWindowTitle('Annotation Creator')
-        self.mainwidget.installEventFilter(self)
+        self.save_captions = True
+        self.save_landmarks = True
 
-    def _set_stylesheet(self) -> None:
-        path = files('nectargan.toolbox.resources').joinpath('stylesheet.qss')
-        file = Path(path)
-        if not file.exists():
-            msg = f'Unable to locate stylesheet: {file.resolve().as_posix()}'
-            raise FileNotFoundError(msg)
-        with open(file.resolve().as_posix(), 'r') as file:
-            stylesheet = file.read()
-            self.app.setStyleSheet(stylesheet)
-            
-    def _set_ui_state(self, state: str) -> None:
-        match state:
-            case 'config':
-                self.main_frame.setDisabled(True)
-                self.main_frame.setHidden(True)
-                self.config_frame.setDisabled(False)
-                self.config_frame.setHidden(False)
-            case 'active':
-                self.main_frame.setDisabled(False)
-                self.main_frame.setHidden(False)
-                self.config_frame.setDisabled(True)
-                self.config_frame.setHidden(True)
-                
-    ### EXTRA CAPTIONS ###
+    ### UTILS ###
+    
+    def _warn(self, message: str) -> None:
+        QMessageBox.warning(
+            None, 'Warning', message, QMessageBox.StandardButton.Ok)
+
+    def _update_remaining(self) -> None:
+        remaining = str(len(self.image_files))
+        self.find(QLabel, 'images_remaining').setText(remaining)
+        
+    def _update_metadata_output_path(self) -> None:
+        output_dir = Path(self.find(QLineEdit, 'output_directory').text())
+        file_name = self.find(QLineEdit, 'metadata_file_name').text()
+        self.metadata_file = Path(output_dir, f'{file_name}.json')
+        file_path = self.metadata_file.as_posix()
+        self.find(QLabel, 'metadata_file_path').setText(file_path)
+
+    ### CAPTIONS ###
     
     def _remove_extra_caption(self, x: QPushButton) -> None:
         x.parentWidget().deleteLater()
@@ -116,17 +89,7 @@ class Interface(QObject):
         extra_captions_layout = self.find(QVBoxLayout, 'extra_caption_layout') 
         for i in range(extra_captions_layout.count()): 
             extra_captions_layout.itemAt(i).widget().deleteLater()
-
-    ### UTILS ###
-
-    def _warn(self, message: str) -> None:
-        QMessageBox.warning(
-            None, 'Warning', message, QMessageBox.StandardButton.Ok)
-
-    def _update_remaining(self) -> None:
-        remaining = str(len(self.image_files))
-        self.find(QLabel, 'images_remaining').setText(remaining)
-        
+            
     def _update_caption_override(self) -> None:
         enabled = self.find(QCheckBox, 'override_caption').isChecked()
         self.allow_override = enabled
@@ -162,16 +125,16 @@ class Interface(QObject):
             else: caption += ', '
         self.caption_text.setText(caption)
 
+    ### QUERIES ###
+
     def _build_query_ui(self) -> None:
-        queries_layout = self.find(QVBoxLayout, 'queries_layout')
+        queries_layout = self.find(QFormLayout, 'queries_layout')
         for i in reversed(range(queries_layout.count())): 
             queries_layout.itemAt(i).widget().setParent(None)
 
         self.query_widgets.clear()
 
         for query in self.queries:
-            query_layout = QHBoxLayout()
-            query_layout.addWidget(QLabel(text=query['title']))
             match query['type']:
                 case 'checkbox':
                     widget = QCheckBox()
@@ -193,12 +156,7 @@ class Interface(QObject):
                         buttons_layout.addWidget(button)
                     buttons_layout.itemAt(0).widget().setChecked(True)
             
-            query_layout.addWidget(widget)
-                
-            frame = QFrame()
-            frame.setLayout(query_layout)
-            queries_layout.addWidget(frame)
-
+            queries_layout.addRow(QLabel(text=query['title']), widget)
             self.query_widgets[query['title']] = widget
 
         self._update_example_caption()
@@ -227,7 +185,8 @@ class Interface(QObject):
                 f'{output_directory.as_posix()}')
             return False
         
-        self.metadata_file = Path(output_directory, 'metadata.json')
+        file_name = self.find(QLineEdit, 'metadata_file_name').text()
+        self.metadata_file = Path(output_directory, f'{file_name}.json')
         if self.metadata_file.exists():
             message = (
                 f'Found existing metadata file at path: '
@@ -268,30 +227,32 @@ class Interface(QObject):
         choices = metadata['other']['choices']
         file_tag = self.current_image.stem
                 
-        caption = self.caption_text.text()
-        items[file_tag] = {
-            'filepath': self.current_image.as_posix(),
-            'captions': [caption]
-        }
-        items[file_tag]['captions'].extend(self._get_extra_captions())
+        if self.save_captions:
+            caption = self.caption_text.text()
+            items[file_tag] = {
+                'filepath': self.current_image.as_posix(),
+                'captions': [caption]
+            }
+            items[file_tag]['captions'].extend(self._get_extra_captions())
+            
+            choices[file_tag] = {}
+            for query in self.queries:
+                match query['type']:
+                    case 'checkbox':
+                        value = self.query_widgets[query['title']].isChecked()
+                    case 'slider':
+                        value = self.query_widgets[query['title']].value()
+                    case 'radio_buttons':
+                        layout = self.query_widgets[query['title']].layout()
+                        for i in range(layout.count()): 
+                            if layout.itemAt(i).widget().isChecked():
+                                value = query['settings']['choices'][i]
+                
+                choices[file_tag][query['title']] = value
         
-        choices[file_tag] = {}
-        for query in self.queries:
-            match query['type']:
-                case 'checkbox':
-                    value = self.query_widgets[query['title']].isChecked()
-                case 'slider':
-                    value = self.query_widgets[query['title']].value()
-                case 'radio_buttons':
-                    layout = self.query_widgets[query['title']].layout()
-                    for i in range(layout.count()): 
-                        if layout.itemAt(i).widget().isChecked():
-                            value = query['settings']['choices'][i]
-            
-            choices[file_tag][query['title']] = value
-            
-        landmark_data = self.image_display.get_landmark_data()
-        metadata['other']['landmarks'][file_tag] = landmark_data
+        if self.save_landmarks:
+            landmark_data = self.image_display.get_landmark_data()
+            metadata['other']['landmarks'][file_tag] = landmark_data
 
         with open(self.metadata_file, 'w') as file:
             file.write(json.dumps(metadata, indent=4))
@@ -324,7 +285,7 @@ class Interface(QObject):
         self.image_display.draw_image(self.current_image)
         self.image_loaded = True
         
-    def _apply_caption(self) -> None:
+    def _save_metadata(self) -> None:
         self._write_metadata()
         self.image_files.remove(self.current_image)
         self.current_index -= 1
@@ -376,6 +337,15 @@ class Interface(QObject):
         self.queries = self.config['queries']
         return True
 
+    def _toggle_save_captions(self, checked: bool) -> None:
+        if not self.captions_frame is None:
+            self.captions_frame.setVisible(checked)
+           
+    def _toggle_save_landmarks(self, checked: bool) -> None:
+        if not self.image_display is None:
+            self.save_landmarks = checked
+            self.image_display.toggle_landmark_interface(visible=checked)
+
     def _load_set(self) -> None:
         success = self._build_metadata_file()
         if not success: return
@@ -393,16 +363,85 @@ class Interface(QObject):
             green=self.config['landmarks']['green'],
             blue=self.config['landmarks']['blue'])
         
+    ### INIT ###
+    
     def _init_callbacks(self) -> None:
+        self.find(QLineEdit, 'output_directory').textChanged.connect(
+            self._update_metadata_output_path)
+        self.find(QLineEdit, 'metadata_file_name').textChanged.connect(
+            self._update_metadata_output_path)
+        
         self.find(QPushButton, 'exit_btn').clicked.connect(self._exit_app)
         self.find(QPushButton, 'load_set').clicked.connect(self._load_set)
         self.find(QPushButton, 'next_image').clicked.connect(self._load_image)
         self.find(QPushButton, 'previous_image').clicked.connect(
             lambda : self._load_image(previous=True))
-        self.find(QPushButton, 'apply_caption').clicked.connect(self._apply_caption)
+        self.find(QPushButton, 'save_metadata').clicked.connect(self._save_metadata)
         self.find(QCheckBox, 'override_caption').clicked.connect(self._update_caption_override)
         self.find(QPushButton, 'add_extra_caption').clicked.connect(self._add_extra_caption)
+        self.find(QCheckBox, 'save_captions').toggled.connect(self._toggle_save_captions)
+        self.find(QCheckBox, 'save_landmarks').toggled.connect(self._toggle_save_landmarks)
 
+    def eventFilter(self, obj: QObject, event: QEvent) -> None:
+        if obj is self.mainwidget and event.type() == QEvent.Type.Resize:
+            if self.image_loaded: 
+                self.image_display.draw_image(self.current_image)
+        return super().eventFilter(obj, event)
+
+    def _get_ui_file(self) -> QFile:
+        root = Path(__file__).parent.resolve()
+        file = Path(root, 'ui/annotation_creator.ui')
+        if not file.exists():
+            msg = f'Unable to locate UI file: {file.resolve().as_posix()}'
+            raise FileNotFoundError(msg)
+        return QFile(file.resolve().as_posix())
+
+    def _init_mainwidget(self) -> None:
+        '''Initializes a Qt main widget from the UI file.'''
+        loader = QUiLoader()
+        file = self._get_ui_file()
+        
+        file.open(QFile.ReadOnly)
+        self.mainwidget = loader.load(file)
+        file.close()
+        self.mainwidget.setWindowTitle('Annotation Creator')
+        self.mainwidget.installEventFilter(self)
+
+    def _set_stylesheet(self) -> None:
+        path = files('nectargan.toolbox.resources').joinpath('stylesheet.qss')
+        file = Path(path)
+        if not file.exists():
+            msg = f'Unable to locate stylesheet: {file.resolve().as_posix()}'
+            raise FileNotFoundError(msg)
+        with open(file.resolve().as_posix(), 'r') as file:
+            stylesheet = file.read()
+            self.app.setStyleSheet(stylesheet)
+            
+    def _get_frames(self) -> None:
+        self.main_frame = self.find(QFrame, 'main_frame')
+        self.config_frame = self.find(QFrame, 'config_frame')
+        self.image_frame = self.find(QFrame, 'image_frame')
+        self.captions_frame = self.find(QFrame, 'captions_frame')
+        self.controls_frame = self.find(QFrame, 'controls_frame')
+            
+    def _build_image_display(self) -> None:
+        self.image_display = InteractiveImageDisplay()
+        self.image_frame.layout().addWidget(
+            self.image_display, alignment=Qt.AlignmentFlag.AlignCenter)
+            
+    def _set_ui_state(self, state: str) -> None:
+        match state:
+            case 'config':
+                self.main_frame.setDisabled(True)
+                self.main_frame.setHidden(True)
+                self.config_frame.setDisabled(False)
+                self.config_frame.setHidden(False)
+            case 'active':
+                self.main_frame.setDisabled(False)
+                self.main_frame.setHidden(False)
+                self.config_frame.setDisabled(True)
+                self.config_frame.setHidden(True)
+            
     ### ENTRYPOINT ###
 
     def run(self) -> None:
@@ -412,17 +451,9 @@ class Interface(QObject):
 
         self._init_mainwidget()
         self.find = self.mainwidget.findChild
-        self.main_frame = self.find(QFrame, 'main_frame')
-        self.config_frame = self.find(QFrame, 'config_frame')
-        self.image_frame = self.find(QFrame, 'image_frame')
-        self.caption_text = self.find(QLineEdit, 'caption_text')
-        self.caption_text.setEnabled(False)
+        self._get_frames()
+                
         
-        
-        
-        self.image_display = InteractiveImageDisplay()
-        self.image_frame.layout().addWidget(
-            self.image_display, alignment=Qt.AlignmentFlag.AlignCenter)
         
         self.find(QLineEdit, 'image_directory').setText(
             '/media/zach/UE/ML/test_data/diffusion/temp_celeba_raw/celeba/test')
@@ -433,9 +464,13 @@ class Interface(QObject):
         self.find(QLineEdit, 'output_directory').setText(
             '/media/zach/UE/ML/NectarGAN/nectargan/annotations/creator')
 
-
         self._init_callbacks()
+        self._build_image_display()
         self._set_ui_state(state='config')
+        self._update_metadata_output_path()
+        
+        self.caption_text = self.find(QLineEdit, 'caption_text')
+        self.caption_text.setEnabled(False)
 
         self.mainwidget.show()
 

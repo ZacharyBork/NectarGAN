@@ -170,6 +170,7 @@ class InteractiveImageDisplay(QFrame):
     def __init__(self, minimum_size: int = 400, *args, **kwargs) -> None:
         super(InteractiveImageDisplay, self).__init__(*args, **kwargs)
         self.minimum_size = minimum_size
+        self.display_landmark_interface = True
         self.landmark_ids = { 'Red': 'red', 'Green': 'green', 'Blue': 'blue' }
         self.build_interface()
         
@@ -193,10 +194,10 @@ class InteractiveImageDisplay(QFrame):
         self.image_label.current_color = self.landmark_ids[color]
         
     def _build_button_frame(self) -> None:
-        button_frame = QFrame()
+        self.button_frame = QFrame()
         self.button_layout = QVBoxLayout()
         self.button_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
-        button_frame.setLayout(self.button_layout)
+        self.button_frame.setLayout(self.button_layout)
         
         self.mode_button = QPushButton(text='Draw')
         self.mode_button.clicked.connect(self._set_mode)
@@ -224,7 +225,7 @@ class InteractiveImageDisplay(QFrame):
         self.clear_button.clicked.connect(self.image_label.clear_boxes)
         self.button_layout.addWidget(self.clear_button)
         
-        self.base_layout.addWidget(button_frame)
+        self.base_layout.addWidget(self.button_frame)
         
     def build_interface(self) -> None:
         self.setMinimumSize(self.minimum_size, self.minimum_size)
@@ -245,6 +246,11 @@ class InteractiveImageDisplay(QFrame):
         draw = self.image_label.draw_image
         QTimer.singleShot(0, lambda : draw(image_path, self.minimum_size))
         
+    def toggle_landmark_interface(self, visible: bool) -> None:
+        self.display_landmark_interface = visible
+        if not visible: self.button_frame.deleteLater()
+        else: self._build_button_frame()
+        
     def get_landmark_data(self) -> dict[str, Any]:
         boxes = self.image_label.boxes
         output = {}
@@ -254,9 +260,11 @@ class InteractiveImageDisplay(QFrame):
         return output
         
     def reset(self) -> None:
-        if self.mode_button.text() == 'Erase': self._set_mode()
-        self.red_button.setChecked(True)
         self.image_label.clear_boxes()
+        if self.display_landmark_interface:
+            if self.mode_button.text() == 'Erase': self._set_mode()
+            self.red_button.setChecked(True)
+        
 
 
 
