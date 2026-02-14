@@ -7,7 +7,7 @@ from typing import Any
 from PySide6.QtWidgets import (
     QWidget, QPushButton, QApplication, QFileDialog, QLineEdit, QMessageBox, 
     QLabel, QVBoxLayout, QHBoxLayout, QFormLayout, QFrame, QCheckBox, QSlider, 
-    QRadioButton, QSizePolicy)
+    QRadioButton, QSizePolicy, QToolButton)
 from PySide6.QtUiTools import QUiLoader
 from PySide6.QtCore import Qt, QFile, QObject, QTimer, QEvent
 from PySide6.QtGui import QShortcut, QKeySequence, QPixmap
@@ -44,7 +44,32 @@ class Interface(QObject):
         self.metadata_file = Path(output_dir, f'{file_name}.json')
         file_path = self.metadata_file.as_posix()
         self.find(QLabel, 'metadata_file_path').setText(file_path)
-
+        
+    def _browse_for_filepath(
+            self, 
+            line_edit: QLineEdit,
+            directory: bool = False,
+            file_filter: str | None = None
+        ) -> None:
+        dialog = QFileDialog(parent=self.mainwidget)
+        current = line_edit.text()
+        if directory:
+            mode = QFileDialog.FileMode.Directory 
+            dialog.setOption(QFileDialog.Option.ShowDirsOnly)
+        else:
+            mode = QFileDialog.FileMode.ExistingFile
+            if file_filter: dialog.setNameFilter(f'*{file_filter}')
+        if not current == '':
+            open_path = Path(current)
+            if open_path.exists():
+                if not open_path.is_dir(): open_path = open_path.parent
+                dialog.setDirectory(open_path.as_posix())
+        dialog.setFileMode(mode)
+        
+        if dialog.exec():
+            filepath = dialog.selectedFiles()[0]
+            line_edit.setText(filepath)
+        
     ### CAPTIONS ###
     
     def _remove_extra_caption(self, x: QPushButton) -> None:
@@ -371,6 +396,18 @@ class Interface(QObject):
         self.find(QLineEdit, 'metadata_file_name').textChanged.connect(
             self._update_metadata_output_path)
         
+        self.find(QToolButton, 'browse_image_directory').clicked.connect(
+            lambda : self._browse_for_filepath(
+                self.find(QLineEdit, 'image_directory'), directory=True))
+        
+        self.find(QToolButton, 'browse_config_file').clicked.connect(
+            lambda : self._browse_for_filepath(
+                self.find(QLineEdit, 'config_file'), file_filter='.json'))
+        
+        self.find(QToolButton, 'browse_output_directory').clicked.connect(
+            lambda : self._browse_for_filepath(
+                self.find(QLineEdit, 'output_directory'), directory=True))
+        
         self.find(QPushButton, 'exit_btn').clicked.connect(self._exit_app)
         self.find(QPushButton, 'load_set').clicked.connect(self._load_set)
         self.find(QPushButton, 'next_image').clicked.connect(self._load_image)
@@ -378,7 +415,7 @@ class Interface(QObject):
             lambda : self._load_image(previous=True))
         self.find(QPushButton, 'save_metadata').clicked.connect(self._save_metadata)
         self.find(QCheckBox, 'override_caption').clicked.connect(self._update_caption_override)
-        self.find(QPushButton, 'add_extra_caption').clicked.connect(self._add_extra_caption)
+        self.find(QToolButton, 'add_extra_caption').clicked.connect(self._add_extra_caption)
         self.find(QCheckBox, 'save_captions').toggled.connect(self._toggle_save_captions)
         self.find(QCheckBox, 'save_landmarks').toggled.connect(self._toggle_save_landmarks)
 
@@ -408,8 +445,8 @@ class Interface(QObject):
         self.mainwidget.installEventFilter(self)
 
     def _set_stylesheet(self) -> None:
-        path = files('nectargan.toolbox.resources').joinpath('stylesheet.qss')
-        file = Path(path)
+        root = 'nectargan.annotations.creator.ui'
+        file = Path(files(root).joinpath('stylesheet.qss'))
         if not file.exists():
             msg = f'Unable to locate stylesheet: {file.resolve().as_posix()}'
             raise FileNotFoundError(msg)
@@ -447,7 +484,7 @@ class Interface(QObject):
     def run(self) -> None:
         '''Entrypoint function for `Interface` class. Launches the GUI.'''
         self.app = QApplication(sys.argv)
-        # self._set_stylesheet()
+        self._set_stylesheet()
 
         self._init_mainwidget()
         self.find = self.mainwidget.findChild
