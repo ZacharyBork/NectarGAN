@@ -66,12 +66,12 @@ class MultiheadAttention(ScaledDotProductAttention):
         super().__init__(*args, **kwargs)
         self.num_heads = num_heads
         
-    def _get_projections(self, K: torch.Tensor) -> int:
+    def _get_projection_dim(self, K: torch.Tensor) -> int:
         d_K = K.shape[-1]
         assert d_K % self.num_heads == 0
         return int(d_K / self.num_heads)
         
-    def _get_slices(
+    def _get_projections(
         self, 
         start: int,
         end: int,
